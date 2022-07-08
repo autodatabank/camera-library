@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="DesignSurface">
+    <option name="filePathToZoomLevelMap">
+      <map>
+        <entry key="app/src/main/res/drawable/adb_camera_ic_baseline_camera_accent_64.xml" value="0.1435" />
+        <entry key="app/src/main/res/drawable/adb_camera_ic_baseline_camera_disable_64.xml" value="0.1435" />
+        <entry key="app/src/main/res/drawable/adb_camera_ic_baseline_camera_white_64.xml" value="0.1435" />
+        <entry key="app/src/main/res/drawable/adb_camera_ic_baseline_flash_auto_accent_48.xml" value="0.1435" />
+        <entry key="app/src/main/res/drawable/adb_camera_ic_baseline_flash_auto_disable_48.xml" value="0.1435" />
+        <entry key="app/src/main/res/drawable/adb_camera_ic_baseline_flash_auto_white_48.xml" value="0.1435" />
+        <entry key="app/src/main/res/drawable/adb_camera_ic_baseline_flash_off_accent_48.xml" value="0.1435" />
+        <entry key="app/src/main/res/drawable/adb_camera_ic_baseline_flash_off_disable_48.xml" value="0.1435" />
+        <entry key="app/src/main/res/drawable/adb_camera_ic_baseline_flash_off_white_48.xml" value="0.1435" />
+        <entry key="app/src/main/res/drawable/adb_camera_ic_baseline_flash_on_accent_48.xml" value="0.1435" />
+        <entry key="app/src/main/res/drawable/adb_camera_ic_baseline_flash_on_disable_48.xml" value="0.1435" />
+        <entry key="app/src/main/res/drawable/adb_camera_ic_baseline_flash_on_white_48.xml" value="0.1435" />
+        <entry key="app/src/main/res/drawable/adb_camera_selector_ic_baseline_camera_white_64.xml" value="0.1435" />
+        <entry key="app/src/main/res/drawable/adb_camera_selector_vector_ic_camera_24dp.xml" value="0.1435" />
+        <entry key="app/src/main/res/drawable/adb_camera_vector_ic_baseline_flash_on_accent_48.xml" value="0.1435" />
+        <entry key="app/src/main/res/drawable/adb_camera_vector_ic_baseline_flash_on_disable_48.xml" value="0.1435" />
+        <entry key="app/src/main/res/drawable/adb_camera_vector_ic_baseline_flash_on_white_48.xml" value="0.1435" />
+        <entry key="app/src/main/res/drawable/adb_camera_vector_ic_camera_white_24dp.xml" value="0.1435" />
+        <entry key="app/src/main/res/drawable/vector_ic_camera_accent_24dp.xml" value="0.1435" />
+        <entry key="app/src/main/res/layout/activity_shoot.xml" value="0.165" />
+        <entry key="app/src/main/res/layout/fragment_shoot.xml" value="0.25" />
+      </map>
+    </option>
+  </component>
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_11" project-jdk-name="1.8" project-jdk-type="JavaSDK">
+    <output url="file://$PROJECT_DIR$/build/classes" />
+  </component>
+  <component name="ProjectType">
+    <option name="id" value="Android" />
+  </component>
+</project>
