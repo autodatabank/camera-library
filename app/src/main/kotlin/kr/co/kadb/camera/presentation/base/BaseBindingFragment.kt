@@ -31,6 +31,10 @@ internal abstract class BaseBindingFragment<T : ViewDataBinding, VM : ViewModel>
         binding = DataBindingUtil.inflate(inflater, layoutResourceId, container, false)
         binding.lifecycleOwner = this@BaseBindingFragment
         return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
 
         initLayout()
         initObserver()
@@ -38,8 +42,8 @@ internal abstract class BaseBindingFragment<T : ViewDataBinding, VM : ViewModel>
         initCallback()
     }
 
-    abstract fun initLayout()
-    abstract fun initObserver()
-    abstract fun initListener()
-    abstract fun initCallback()
+    protected abstract fun initLayout()
+    protected abstract fun initObserver()
+    protected abstract fun initListener()
+    protected abstract fun initCallback()
 }
