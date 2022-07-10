@@ -1,11 +1,14 @@
 package kr.co.kadb.camera.presentation.base
 
 import android.Manifest
+import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Build
 import android.provider.Settings
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AppCompatActivity
 import com.karumi.dexter.Dexter
@@ -17,6 +20,8 @@ import kr.co.kadb.camera.R
 import kr.co.kadb.camera.presentation.widget.extension.negativeButton
 import kr.co.kadb.camera.presentation.widget.extension.positiveButton
 import kr.co.kadb.camera.presentation.widget.extension.showAlert
+import kr.co.kadb.camera.presentation.widget.extension.toJsonPretty
+import timber.log.Timber
 
 /**
  * Created by oooobang on 2018. 2. 28..
@@ -24,9 +29,22 @@ import kr.co.kadb.camera.presentation.widget.extension.showAlert
  */
 open class BaseController constructor(activityContext: Context) {
     // Activity.
-    open val activity = activityContext as AppCompatActivity
+    internal val activity = activityContext as AppCompatActivity
+
     // FragmentManager.
-    open val fragmentManager = (activityContext as AppCompatActivity).supportFragmentManager
+    internal val fragmentManager = (activityContext as AppCompatActivity).supportFragmentManager
+
+    private var resultDetailsSettings: ActivityResultLauncher<Intent> =
+        activity.registerForActivityResult(
+            ActivityResultContracts.StartActivityForResult()
+        ) { result ->
+            Activity.RESULT_OK
+            // Debug.
+            Timber.i(">>>>> RESULT : %s", result.resultCode)
+            Timber.i(">>>>> RESULT : %s", result.data.toJsonPretty())
+            Timber.i(">>>>> RESULT : %s", result.data?.data)
+            Timber.i(">>>>> RESULT : %s", result.data?.extras?.get("data"))
+        }
 
     // BackStack.
     fun navigateToBackStack() {
@@ -72,7 +90,10 @@ open class BaseController constructor(activityContext: Context) {
 
                     // 영구 거부.
                     if (report?.isAnyPermissionPermanentlyDenied == true) {
-                        showSettingsDialog(R.string.text_adb_camera_this_app_needs_permission, deniedAction)
+                        showSettingsDialog(
+                            R.string.text_adb_camera_this_app_needs_permission,
+                            deniedAction
+                        )
                     }
                 }
 
@@ -126,7 +147,10 @@ open class BaseController constructor(activityContext: Context) {
 
                     // 영구 거부.
                     if (report?.isAnyPermissionPermanentlyDenied == true) {
-                        showSettingsDialog(R.string.text_adb_camera_this_app_needs_permission, deniedAction)
+                        showSettingsDialog(
+                            R.string.text_adb_camera_this_app_needs_permission,
+                            deniedAction
+                        )
                     }
                 }
 
@@ -177,6 +201,7 @@ open class BaseController constructor(activityContext: Context) {
             activity.applicationContext.packageName,
             null
         )
-        activity.startActivity(intent)
+        resultDetailsSettings.launch(intent)
+        //activity.startActivity(intent)
     }
 }
