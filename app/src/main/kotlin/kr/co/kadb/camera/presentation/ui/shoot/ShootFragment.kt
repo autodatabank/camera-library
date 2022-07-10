@@ -1,15 +1,26 @@
 package kr.co.kadb.camera.presentation.ui.shoot
 
+import android.app.Notification
 import android.content.Context
+import android.content.Intent
 import android.content.res.Configuration
 import android.hardware.display.DisplayManager
+import android.media.AudioManager
+import android.media.AudioManager.STREAM_NOTIFICATION
+import android.media.MediaActionSound
+import android.media.MediaScannerConnection
+import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.view.View
 import android.view.WindowManager
+import android.webkit.MimeTypeMap
 import android.widget.Toast
 import androidx.camera.core.*
+import androidx.camera.core.ImageCapture.Metadata
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.core.content.ContextCompat
+import androidx.core.net.toFile
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import com.google.common.util.concurrent.ListenableFuture
@@ -20,6 +31,8 @@ import kr.co.kadb.camera.R
 import kr.co.kadb.camera.data.local.PreferenceManager
 import kr.co.kadb.camera.databinding.FragmentShootBinding
 import kr.co.kadb.camera.presentation.base.BaseBindingFragment
+import kr.co.kadb.camera.presentation.widget.extension.createFile
+import kr.co.kadb.camera.presentation.widget.extension.outputFileOptionsBuilder
 import timber.log.Timber
 import java.io.File
 import java.nio.ByteBuffer
@@ -58,13 +71,13 @@ internal class ShootFragment : BaseBindingFragment<FragmentShootBinding, ShootVi
         private const val PHOTO_EXTENSION = ".jpg"
         private const val RATIO_4_3_VALUE = 4.0 / 3.0
         private const val RATIO_16_9_VALUE = 16.0 / 9.0
-
-        /** Helper function used to create a timestamped file */
-        private fun createFile(baseFolder: File, format: String, extension: String) =
-            File(
-                baseFolder, SimpleDateFormat(format, Locale.US)
-                    .format(System.currentTimeMillis()) + extension
-            )
+//
+//        /** Helper function used to create a timestamped file */
+//        private fun createFile(baseFolder: File, format: String, extension: String) =
+//            File(
+//                baseFolder, SimpleDateFormat(format, Locale.US)
+//                    .format(System.currentTimeMillis()) + extension
+//            )
     }
 
     @Inject
@@ -97,45 +110,37 @@ internal class ShootFragment : BaseBindingFragment<FragmentShootBinding, ShootVi
 //        binding.cameraview.setLifecycleOwner(viewLifecycleOwner)
     }
 
-    private lateinit var cameraProviderFuture: ListenableFuture<ProcessCameraProvider>
+    override fun onStart() {
+        super.onStart()
+
+        viewController.requestCameraPermission {
+            // Granted.
+            Timber.i(">>>>> requestCameraPermission Granted")
+
+            initCamera()
+        }
+    }
+
+    override fun onDestroyView() {
+//        _fragmentCameraBinding = null
+        super.onDestroyView()
+
+        // Shut down our background executor
+        cameraExecutor.shutdown()
+//
+//        // Unregister the broadcast receivers and listeners
+//        broadcastManager.unregisterReceiver(volumeDownReceiver)
+//        displayManager.unregisterDisplayListener(displayListener)
+    }
+
+
+//    private lateinit var cameraProviderFuture: ListenableFuture<ProcessCameraProvider>
 
     // Init Layout.
     override fun initLayout() {
 
-
-        cameraProviderFuture = ProcessCameraProvider.getInstance(requireContext())
-
-        // Initialize our background executor
-        cameraExecutor = Executors.newSingleThreadExecutor()
-//
-//        broadcastManager = LocalBroadcastManager.getInstance(view.context)
-//
-//        // Set up the intent filter that will receive events from our main activity
-//        val filter = IntentFilter().apply { addAction(KEY_EVENT_ACTION) }
-//        broadcastManager.registerReceiver(volumeDownReceiver, filter)
-
-        // Every time the orientation of device changes, update rotation for use cases
-        displayManager.registerDisplayListener(displayListener, null)
-
-        //Initialize WindowManager to retrieve display metrics
-        windowManager = activity?.getSystemService(Context.WINDOW_SERVICE) as WindowManager // WindowManager(view?.context)
-//
-//        // Determine the output directory
-//        outputDirectory = MainActivity.getOutputDirectory(requireContext())
-
-        // Wait for the views to be properly laid out
-        binding.previewView.post {
-
-            // Keep track of the display in which this view is attached
-            displayId = binding.previewView.display.displayId
-
-            // Build UI controls
-            updateCameraUi()
-
-            // Set up the camera and its use cases
-            setUpCamera()
-        }
-
+        // Debug.
+        Timber.i(">>>>> initLayout!!!!!")
 
 //        // 차량등록증 촬영 시 선택 버튼 비활성.
 //        if (extraTo == TO_SHOOTING_REGISTRATION_CARD) {
@@ -188,11 +193,93 @@ internal class ShootFragment : BaseBindingFragment<FragmentShootBinding, ShootVi
 //                }
 //            }
 //        }
+
+        // 촬영.
+        binding.buttonShooting.setOnClickListener {
+            MediaActionSound().apply {
+                (context?.getSystemService(Context.AUDIO_SERVICE) as? AudioManager)?.let {
+                    this.play(MediaActionSound.SHUTTER_CLICK)
+                }
+            }
+
+//            Timber.i(">>>>> FILE PATH : %s", context?.createFile(true))
+//            Timber.i(">>>>> FILE PATH : %s", context?.createFile(false))
+            // Get a stable reference of the modifiable image capture use case
+            imageCapture?.let { imageCapture ->
+
+                // Create output file to hold the image
+
+//                val photoFile = createFile(outputDirectory, FILENAME, PHOTO_EXTENSION)
+//                val photoFile = context?.createFile(true)!!
+
+                // Setup image capture metadata
+                val metadata = Metadata().apply {
+
+                    // Mirror image when using the front camera
+                    isReversedHorizontal = lensFacing == CameraSelector.LENS_FACING_FRONT
+                }
+
+                // Create output options object which contains file + metadata
+                val outputOptions = context?.outputFileOptionsBuilder(true)
+                    ?.setMetadata(metadata)
+                    ?.build()!!
+//                val outputOptions = ImageCapture.OutputFileOptions.Builder(photoFile)
+//                    .setMetadata(metadata)
+//                    .build()
+
+                // Setup image capture listener which is triggered after photo has been taken
+                imageCapture.takePicture(
+                    outputOptions, cameraExecutor, object : ImageCapture.OnImageSavedCallback {
+                        override fun onError(exc: ImageCaptureException) {
+                            Timber.e(">>>>> Photo capture failed: ${exc.message}", exc)
+                        }
+
+                        override fun onImageSaved(output: ImageCapture.OutputFileResults) {
+//                            val savedUri = output.savedUri ?: Uri.fromFile(photoFile)
+                            Timber.i(">>>>> Photo capture succeeded: ${output.savedUri}")
 //
-//        // 촬영.
-//        binding.buttonShooting.setOnClickListener {
-//            binding.cameraview.takePicture()
-//        }
+//                            // We can only change the foreground Drawable using API level 23+ API
+//                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+//                                // Update the gallery thumbnail with latest picture taken
+//                                setGalleryThumbnail(savedUri)
+//                            }
+//
+//                            // Implicit broadcasts will be ignored for devices running API level >= 24
+//                            // so if you only target API level 24+ you can remove this statement
+//                            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
+//                                requireActivity().sendBroadcast(
+//                                    Intent(android.hardware.Camera.ACTION_NEW_PICTURE, output.savedUri)
+//                                )
+//                            }
+//
+//                            // If the folder selected is an external media directory, this is
+//                            // unnecessary but otherwise other apps will not be able to access our
+//                            // images unless we scan them using [MediaScannerConnection]
+//                            val mimeType = MimeTypeMap.getSingleton()
+//                                .getMimeTypeFromExtension(output.savedUri?.toFile()?.extension)
+//                            MediaScannerConnection.scanFile(
+//                                context,
+//                                arrayOf(output.savedUri?.toFile()?.absolutePath),
+//                                arrayOf(mimeType)
+//                            ) { _, uri ->
+//                                Timber.d(">>>>> Image capture scanned into media store: $uri")
+//                            }
+                        }
+                    })
+
+//                // We can only change the foreground Drawable using API level 23+ API
+//                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+//
+//                    // Display flash animation to indicate that photo was captured
+//                    fragmentCameraBinding.root.postDelayed({
+//                        fragmentCameraBinding.root.foreground = ColorDrawable(Color.WHITE)
+//                        fragmentCameraBinding.root.postDelayed(
+//                            { fragmentCameraBinding.root.foreground = null }, ANIMATION_FAST_MILLIS
+//                        )
+//                    }, ANIMATION_SLOW_MILLIS)
+//                }
+            }
+        }
 //
 //        // 선택.
 //        binding.buttonSelect.setOnClickListener {
@@ -220,7 +307,7 @@ internal class ShootFragment : BaseBindingFragment<FragmentShootBinding, ShootVi
 //
 //    private var cameraUiContainerBinding: CameraUiContainerBinding? = null
 
-    private lateinit var outputDirectory: File
+//    private lateinit var outputDirectory: File
 //    private lateinit var broadcastManager: LocalBroadcastManager
 
     private var displayId: Int = -1
@@ -262,34 +349,11 @@ internal class ShootFragment : BaseBindingFragment<FragmentShootBinding, ShootVi
         override fun onDisplayChanged(displayId: Int) = view?.let { view ->
             if (displayId == this@ShootFragment.displayId) {
                 // Debug.
-                Timber.i(">>>>> Rotation changed: ${view.display.rotation}")
+                Timber.d(">>>>> Rotation changed: ${view.display.rotation}")
                 imageCapture?.targetRotation = view.display.rotation
                 imageAnalyzer?.targetRotation = view.display.rotation
             }
         } ?: Unit
-    }
-
-    override fun onResume() {
-        super.onResume()
-//        // Make sure that all permissions are still present, since the
-//        // user could have removed them while the app was in paused state.
-//        if (!PermissionsFragment.hasPermissions(requireContext())) {
-//            Navigation.findNavController(requireActivity(), R.id.fragment_container).navigate(
-//                CameraFragmentDirections.actionCameraToPermissions()
-//            )
-//        }
-    }
-
-    override fun onDestroyView() {
-//        _fragmentCameraBinding = null
-        super.onDestroyView()
-
-        // Shut down our background executor
-        cameraExecutor.shutdown()
-//
-//        // Unregister the broadcast receivers and listeners
-//        broadcastManager.unregisterReceiver(volumeDownReceiver)
-//        displayManager.unregisterDisplayListener(displayListener)
     }
 //
 //    override fun onCreateView(
@@ -353,6 +417,44 @@ internal class ShootFragment : BaseBindingFragment<FragmentShootBinding, ShootVi
 //        }
 //    }
 
+    private fun initCamera() {
+//
+//
+//        cameraProviderFuture = ProcessCameraProvider.getInstance(requireContext())
+
+        // Initialize our background executor
+        cameraExecutor = Executors.newSingleThreadExecutor()
+//
+//        broadcastManager = LocalBroadcastManager.getInstance(view.context)
+//
+//        // Set up the intent filter that will receive events from our main activity
+//        val filter = IntentFilter().apply { addAction(KEY_EVENT_ACTION) }
+//        broadcastManager.registerReceiver(volumeDownReceiver, filter)
+
+        // Every time the orientation of device changes, update rotation for use cases
+        displayManager.registerDisplayListener(displayListener, null)
+
+        //Initialize WindowManager to retrieve display metrics
+        windowManager =
+            activity?.getSystemService(Context.WINDOW_SERVICE) as WindowManager // WindowManager(view?.context)
+//
+//        // Determine the output directory
+//        outputDirectory = MainActivity.getOutputDirectory(requireContext())
+
+        // Wait for the views to be properly laid out
+        binding.previewView.post {
+
+            // Keep track of the display in which this view is attached
+            displayId = binding.previewView.display.displayId
+
+            // Build UI controls
+            updateCameraUi()
+
+            // Set up the camera and its use cases
+            setUpCamera()
+        }
+    }
+
     /**
      * Inflate camera controls and update the UI manually upon config changes to avoid removing
      * and re-adding the view finder from the view hierarchy; this provides a seamless rotation
@@ -400,11 +502,11 @@ internal class ShootFragment : BaseBindingFragment<FragmentShootBinding, ShootVi
         // Get screen metrics used to setup camera for full screen resolution
         val metrics = windowManager.currentWindowMetrics.bounds
         // Debug.
-        Timber.i(">>>>> Screen metrics: ${metrics.width()} x ${metrics.height()}")
+        Timber.d(">>>>> Screen metrics: ${metrics.width()} x ${metrics.height()}")
 
         val screenAspectRatio = aspectRatio(metrics.width(), metrics.height())
         // Debug.
-        Timber.i(">>>>> Preview aspect ratio: $screenAspectRatio")
+        Timber.d(">>>>> Preview aspect ratio: $screenAspectRatio")
 
         val rotation = binding.previewView.display.rotation
 
@@ -449,7 +551,7 @@ internal class ShootFragment : BaseBindingFragment<FragmentShootBinding, ShootVi
                     // We log image analysis results here - you should do something useful
                     // instead!
                     // Debug.
-                    Timber.i(">>>>> Average luminosity: $luma")
+                    //Timber.d(">>>>> Average luminosity: $luma")
                 })
             }
 
@@ -468,7 +570,7 @@ internal class ShootFragment : BaseBindingFragment<FragmentShootBinding, ShootVi
             observeCameraState(camera?.cameraInfo!!)
         } catch (exc: Exception) {
             // Debug.
-            Timber.i(">>>>> Use case binding failed: $exc")
+            Timber.e(">>>>> Use case binding failed: $exc")
         }
     }
 
@@ -841,20 +943,4 @@ internal class ShootFragment : BaseBindingFragment<FragmentShootBinding, ShootVi
             image.close()
         }
     }
-//
-//    companion object {
-//
-//        private const val TAG = "CameraXBasic"
-//        private const val FILENAME = "yyyy-MM-dd-HH-mm-ss-SSS"
-//        private const val PHOTO_EXTENSION = ".jpg"
-//        private const val RATIO_4_3_VALUE = 4.0 / 3.0
-//        private const val RATIO_16_9_VALUE = 16.0 / 9.0
-//
-//        /** Helper function used to create a timestamped file */
-//        private fun createFile(baseFolder: File, format: String, extension: String) =
-//            File(
-//                baseFolder, SimpleDateFormat(format, Locale.US)
-//                    .format(System.currentTimeMillis()) + extension
-//            )
-//    }
 }
