@@ -1,12 +1,11 @@
 package kr.co.kadb.camera.data.local
 
-import android.content.Context
 import android.content.SharedPreferences
+import javax.inject.Inject
 
-class PreferenceManager(context: Context) {
-    private val preferences: SharedPreferences =
-        context.getSharedPreferences(LILY_APP, Context.MODE_PRIVATE)
-
+class PreferenceManager
+@Inject
+constructor(private val sharedPreferences: SharedPreferences) {
 //    var infoSkip: Boolean
 //        get() = preferences.getBoolean(INFO_SKIP_KEY, false)
 //        set(value) {
