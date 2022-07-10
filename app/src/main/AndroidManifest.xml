@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     package="kr.co.kadb.camera"
     >
@@ -34,6 +33,20 @@
         android:theme="@style/Theme.Camera"
         tools:targetApi="31"
         >
+
+        <!-- FileProvider used to share photos with other apps -->
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.provider"
+            android:exported="false"
+            android:grantUriPermissions="true"
+            >
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths"
+                />
+        </provider>
+
         <!-- 촬영. -->
         <activity
             android:name=".presentation.ui.shoot.ShootActivity"
@@ -41,7 +54,7 @@
             android:hardwareAccelerated="true"
             android:launchMode="singleTop"
             android:screenOrientation="fullSensor"
-            android:theme="@android:style/Theme.NoTitleBar"
+            android:theme="@style/Theme.Camera"
             android:windowSoftInputMode="stateHidden"
             >
             <intent-filter>
