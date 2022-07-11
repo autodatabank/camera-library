@@ -19,7 +19,7 @@ import java.io.ByteArrayOutputStream
  * Created by oooobang on 2018. 5. 11..
  * Bitmap Extension.
  */
-fun Bitmap?.save(
+internal fun Bitmap?.save(
         context: Context? = null,
         isPublicDirectory: Boolean = false,
         filename: String = System.currentTimeMillis().toString(),
@@ -133,7 +133,7 @@ fun Bitmap?.save(
 }
 
 // toByteArray.
-fun Bitmap?.toByteArray(format: Bitmap.CompressFormat = Bitmap.CompressFormat.JPEG): ByteArray? {
+internal fun Bitmap?.toByteArray(format: Bitmap.CompressFormat = Bitmap.CompressFormat.JPEG): ByteArray? {
     val stream = ByteArrayOutputStream()
     this?.compress(format, 90, stream)
     return stream.toByteArray()
@@ -142,7 +142,7 @@ fun Bitmap?.toByteArray(format: Bitmap.CompressFormat = Bitmap.CompressFormat.JP
 /**
  * Bitmap 특정 컬러 투명처리.
  */
-fun Bitmap?.toTransparentBitmap(replaceThisColor: Int): Bitmap? {
+internal fun Bitmap?.toTransparentBitmap(replaceThisColor: Int): Bitmap? {
     if (this != null) {
         val picw = this.width
         val pich = this.height

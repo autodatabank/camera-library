@@ -12,25 +12,25 @@ import kr.co.kadb.camera.R
  */
 
 //
-fun AlertDialog.Builder.positiveButton(@StringRes title: Int = R.string.text_adb_camera_confirm, listener: () -> Unit) {
+internal fun AlertDialog.Builder.positiveButton(@StringRes title: Int = R.string.text_adb_camera_confirm, listener: () -> Unit) {
 	this.setPositiveButton(title) { _, _ ->
 		listener.invoke()
 	}
 }
 
-fun AlertDialog.Builder.negativeButton(@StringRes title: Int = R.string.text_adb_camera_cancel, listener: () -> Unit) {
+internal fun AlertDialog.Builder.negativeButton(@StringRes title: Int = R.string.text_adb_camera_cancel, listener: () -> Unit) {
 	this.setNegativeButton(title) { _, _ ->
 		listener.invoke()
 	}
 }
 
-fun AlertDialog.Builder.neutralButton(@StringRes title: Int = R.string.text_adb_camera_cancel, listener: () -> Unit) {
+internal fun AlertDialog.Builder.neutralButton(@StringRes title: Int = R.string.text_adb_camera_cancel, listener: () -> Unit) {
 	this.setNeutralButton(title) { _, _ ->
 		listener.invoke()
 	}
 }
 
-fun AlertDialog.Builder.cancelButton(@StringRes title: Int = R.string.text_adb_camera_cancel, listener: () -> Unit) {
+internal fun AlertDialog.Builder.cancelButton(@StringRes title: Int = R.string.text_adb_camera_cancel, listener: () -> Unit) {
 	this.setNegativeButton(title) { _, _ ->
 		listener.invoke()
 	}

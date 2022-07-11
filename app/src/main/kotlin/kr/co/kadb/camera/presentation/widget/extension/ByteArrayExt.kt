@@ -18,7 +18,7 @@ import java.io.FileOutputStream
  * Created by oooobang on 2018. 5. 11..
  * ByteArray Extension.
  */
-fun ByteArray?.save(
+internal fun ByteArray?.save(
         context: Context? = null,
         isPublicDirectory: Boolean = false,
         filename: String = System.currentTimeMillis().toString(),
@@ -133,7 +133,7 @@ fun ByteArray?.save(
 }
 
 // toByteArray.
-fun ByteArray?.toBitmap(sampleSize: Int? = null): Bitmap? {
+internal fun ByteArray?.toBitmap(sampleSize: Int? = null): Bitmap? {
     // 샘플링.
     val options = BitmapFactory.Options()
     sampleSize?.let {

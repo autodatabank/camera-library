@@ -10,7 +10,7 @@ import kotlinx.coroutines.flow.update
 import kr.co.kadb.camera.presentation.model.UiState
 import timber.log.Timber
 
-abstract class BaseAndroidViewModel<T>(
+internal abstract class BaseAndroidViewModel<T>(
     application: Application,
     initialState: UiState<T>
 ) : AndroidViewModel(application) {

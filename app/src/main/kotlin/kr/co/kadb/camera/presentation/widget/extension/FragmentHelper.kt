@@ -20,13 +20,13 @@ import java.util.*
  * Fragment Extension.
  */
 // 키보드 내리기.
-fun Fragment.hideSoftInput() {
+internal fun Fragment.hideSoftInput() {
     val imm = context?.getSystemService(Context.INPUT_METHOD_SERVICE) as? InputMethodManager
     imm?.hideSoftInputFromWindow(view?.applicationWindowToken, 0)
 }
 
 // Show DatePicker.
-inline fun Fragment.showDatePicker(
+internal inline fun Fragment.showDatePicker(
     stringDate: String? = null,
     @StyleRes themeResId: Int = android.R.style.Widget_Material_Light_DatePicker,
     crossinline action: (Calendar) -> Unit
@@ -52,7 +52,7 @@ inline fun Fragment.showDatePicker(
 }
 
 // Show DatePicker.
-inline fun Fragment.showTimePicker(
+internal inline fun Fragment.showTimePicker(
     stringDate: String? = null,
     @StyleRes themeResId: Int = android.R.style.Widget_Material_Light_DatePicker,
     crossinline action: (Calendar) -> Unit
@@ -75,7 +75,7 @@ inline fun Fragment.showTimePicker(
 }
 
 // 전화걸기.
-fun Fragment.dial(number: String?) {
+internal fun Fragment.dial(number: String?) {
     when {
         number == null || number.isBlank() -> {
             showAlert(getString(R.string.text_adb_camera_call_error_string, getString(R.string.text_adb_camera_nothing)), R.string.text_adb_camera_notify)
@@ -92,55 +92,55 @@ fun Fragment.dial(number: String?) {
 }
 
 // Toast.
-fun Fragment.showToast(message: CharSequence) {
+internal fun Fragment.showToast(message: CharSequence) {
     activity?.showToast(message)
 }
 
 // Toast.
-fun Fragment.showToast(@StringRes messageId: Int) {
+internal fun Fragment.showToast(@StringRes messageId: Int) {
     activity?.showToast(messageId)
 }
 
 // 알림 Toast.
-fun Fragment.showNotificationToast(message: CharSequence) {
+internal fun Fragment.showNotificationToast(message: CharSequence) {
     activity?.showNotificationToast(message)
 }
 
 // 알림 Toast.
-fun Fragment.showNotificationToast(@StringRes messageId: Int) {
+internal fun Fragment.showNotificationToast(@StringRes messageId: Int) {
     activity?.showNotificationToast(messageId)
 }
 
 // 성공 Toast.
-fun Fragment.showSuccessToast(@StringRes messageId: Int) {
+internal fun Fragment.showSuccessToast(@StringRes messageId: Int) {
     activity?.showSuccessToast(messageId)
 }
 
 // 성공 Toast.
-fun Fragment.showSuccessToast(message: String) {
+internal fun Fragment.showSuccessToast(message: String) {
     activity?.showSuccessToast(message)
 }
 
 // 오류 Toast.
-fun Fragment.showErrorToast(@StringRes messageId: Int) {
+internal fun Fragment.showErrorToast(@StringRes messageId: Int) {
     activity?.showErrorToast(messageId)
 }
 
 // 오류 Toast.
-fun Fragment.showErrorToast(message: String) {
+internal fun Fragment.showErrorToast(message: String) {
     activity?.showErrorToast(message)
 }
 
 //
-fun Fragment.showAlert(message: CharSequence?, @StringRes titleId: Int = R.string.text_adb_camera_notify) {
+internal fun Fragment.showAlert(message: CharSequence?, @StringRes titleId: Int = R.string.text_adb_camera_notify) {
     activity?.showAlert(message, titleId)
 }
 
-fun Fragment.showAlert(@StringRes messageId: Int, @StringRes titleId: Int = R.string.text_adb_camera_notify) {
+internal fun Fragment.showAlert(@StringRes messageId: Int, @StringRes titleId: Int = R.string.text_adb_camera_notify) {
     activity?.showAlert(messageId, titleId)
 }
 
-inline fun Fragment.showAlert(
+internal inline fun Fragment.showAlert(
     message: CharSequence?,
     @StringRes titleId: Int = R.string.text_adb_camera_notify,
     showAlertDialog: AlertDialog.Builder.() -> Unit
@@ -148,7 +148,7 @@ inline fun Fragment.showAlert(
     activity?.showAlert(message, titleId, showAlertDialog)
 }
 
-inline fun Fragment.showAlert(
+internal inline fun Fragment.showAlert(
     @StringRes messageId: Int,
     @StringRes titleId: Int = R.string.text_adb_camera_notify,
     showAlertDialog: AlertDialog.Builder.() -> Unit
@@ -156,6 +156,6 @@ inline fun Fragment.showAlert(
     activity?.showAlert(messageId, titleId, showAlertDialog)
 }
 
-inline fun Fragment.showAlert(showAlertDialog: AlertDialog.Builder.() -> Unit) {
+internal inline fun Fragment.showAlert(showAlertDialog: AlertDialog.Builder.() -> Unit) {
     activity?.showAlert(showAlertDialog)
 }

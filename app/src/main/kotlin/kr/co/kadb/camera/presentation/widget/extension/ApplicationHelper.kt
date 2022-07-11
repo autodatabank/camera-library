@@ -9,4 +9,4 @@ import androidx.annotation.ArrayRes
  * Created by oooobang on 2018. 7. 30..
  * Application Extension.
  */
-fun Application.getStringArray(@ArrayRes id: Int): Array<out String> = resources.getStringArray(id)
+internal fun Application.getStringArray(@ArrayRes id: Int): Array<out String> = resources.getStringArray(id)

@@ -3,7 +3,7 @@ package kr.co.kadb.camera.presentation.widget.event
 /**
  * Created by oooobang on 2018. 4. 18..
  */
-enum class BroadcastEvent {
+internal enum class BroadcastEvent {
 	ACTION,
 	MODIFY,
 	INSERT,

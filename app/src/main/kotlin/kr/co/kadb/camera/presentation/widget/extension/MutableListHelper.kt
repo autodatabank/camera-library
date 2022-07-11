@@ -5,13 +5,13 @@ package kr.co.kadb.camera.presentation.widget.extension
 /**
  * Created by oooobang on 2018. 2. 22..
  */
-fun <E> MutableList<E>.swap(index1: Int, index2: Int) {
+internal fun <E> MutableList<E>.swap(index1: Int, index2: Int) {
     val tmp = this[index1] // 'this' corresponds to the list
     this[index1] = this[index2]
     this[index2] = tmp
 }
 
-fun <E> MutableList<E>?.moveUp(items: List<E>?): MutableList<E>? {
+internal fun <E> MutableList<E>?.moveUp(items: List<E>?): MutableList<E>? {
     items?.forEach { target ->
         this?.forEachIndexed { index, item ->
             if (target == item) {
@@ -25,7 +25,7 @@ fun <E> MutableList<E>?.moveUp(items: List<E>?): MutableList<E>? {
     return this
 }
 
-fun <E> MutableList<E>?.moveDown(items: List<E>?): MutableList<E>? {
+internal fun <E> MutableList<E>?.moveDown(items: List<E>?): MutableList<E>? {
     val size = (this?.size ?: 0) - 1
     items?.reversed()?.forEach { target ->
         this?.reversed()?.forEachIndexed { index, item ->
@@ -40,7 +40,7 @@ fun <E> MutableList<E>?.moveDown(items: List<E>?): MutableList<E>? {
     return this
 }
 
-fun <E> MutableList<E>?.moveUp(
+internal fun <E> MutableList<E>?.moveUp(
         items: List<E>?,
         swapAction: (index: Int, target: E, source: E) -> Unit): MutableList<E>? {
     run loop@{
@@ -61,7 +61,7 @@ fun <E> MutableList<E>?.moveUp(
     return this
 }
 
-fun <E> MutableList<E>?.moveDown(
+internal fun <E> MutableList<E>?.moveDown(
         items: List<E>?,
         swapAction: (index: Int, target: E, source: E) -> Unit): MutableList<E>? {
     val size = this?.size ?: 0//(this?.size ?: 0) - 1

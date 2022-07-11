@@ -8,7 +8,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kr.co.kadb.camera.presentation.model.UiState
 
-abstract class BaseViewModel<T>(
+internal abstract class BaseViewModel<T>(
     initialState: UiState<T>
 ) : ViewModel() {
     private val disposable = CompositeDisposable()

@@ -2,7 +2,7 @@ package kr.co.kadb.camera.presentation.widget.util
 
 import kr.co.kadb.camera.BuildConfig
 
-object IntentKey {
+internal object IntentKey {
 	// 종료.
 	const val BROADCAST_FINISH = BuildConfig.APPLICATION_ID + ".finish"
 

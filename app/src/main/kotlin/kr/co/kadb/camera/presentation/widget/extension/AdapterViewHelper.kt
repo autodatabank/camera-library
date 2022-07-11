@@ -8,7 +8,7 @@ import android.widget.AdapterView
 /**
  * Created by oooobang on 2018. 4. 4..
  */
-fun AdapterView<*>.setOnItemSelectedListener(
+internal fun AdapterView<*>.setOnItemSelectedListener(
 		nothingSelected: ((AdapterView<*>?) -> Unit)? = null,
 		itemSelected: ((AdapterView<*>?, View?, Int, Long) -> Unit)? = null) {
 	onItemSelectedListener = object : AdapterView.OnItemSelectedListener {

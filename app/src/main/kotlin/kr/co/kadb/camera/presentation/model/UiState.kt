@@ -1,6 +1,6 @@
 package kr.co.kadb.camera.presentation.model
 
-data class UiState<T>(
+internal data class UiState<T>(
     val isLoading: Boolean = false,
     val cause: Throwable? = null,
     val value: T? = null

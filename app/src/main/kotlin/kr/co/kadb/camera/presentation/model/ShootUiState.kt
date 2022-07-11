@@ -4,7 +4,7 @@ package kr.co.kadb.camera.presentation.model
  * Created by oooobang on 2022. 5. 26..
  * UI State.
  */
-data class ShootUiState(
+internal data class ShootUiState(
     val companyCode: String,
     val companyName: String,
     val vehicleNumber: String,

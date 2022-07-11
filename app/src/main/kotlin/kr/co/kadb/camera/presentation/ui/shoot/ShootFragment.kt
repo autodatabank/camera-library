@@ -1,29 +1,22 @@
 package kr.co.kadb.camera.presentation.ui.shoot
 
-import android.app.Notification
 import android.content.Context
 import android.content.Intent
 import android.content.res.Configuration
 import android.hardware.display.DisplayManager
 import android.media.AudioManager
-import android.media.AudioManager.STREAM_NOTIFICATION
 import android.media.MediaActionSound
-import android.media.MediaScannerConnection
-import android.net.Uri
-import android.os.Build
 import android.os.Bundle
+import android.provider.MediaStore
 import android.view.View
 import android.view.WindowManager
-import android.webkit.MimeTypeMap
 import android.widget.Toast
 import androidx.camera.core.*
 import androidx.camera.core.ImageCapture.Metadata
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.core.content.ContextCompat
-import androidx.core.net.toFile
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
-import com.google.common.util.concurrent.ListenableFuture
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -31,14 +24,13 @@ import kr.co.kadb.camera.R
 import kr.co.kadb.camera.data.local.PreferenceManager
 import kr.co.kadb.camera.databinding.FragmentShootBinding
 import kr.co.kadb.camera.presentation.base.BaseBindingFragment
-import kr.co.kadb.camera.presentation.widget.extension.createFile
 import kr.co.kadb.camera.presentation.widget.extension.outputFileOptionsBuilder
+import kr.co.kadb.camera.presentation.widget.util.IntentKey
+import kr.co.kadb.camera.presentation.widget.util.MediaActionSound2
+import kr.co.kadb.cameralibrary.presentation.widget.event.IntentAction
 import timber.log.Timber
-import java.io.File
 import java.nio.ByteBuffer
-import java.text.SimpleDateFormat
 import java.util.*
-import java.util.ArrayDeque
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import javax.inject.Inject
@@ -52,9 +44,9 @@ import kotlin.math.min
  */
 
 /** Helper type alias used for analysis use case callbacks */
-typealias LumaListener = (luma: Double) -> Unit
+internal typealias LumaListener = (luma: Double) -> Unit
 
-@AndroidEntryPoint
+//@AndroidEntryPoint
 internal class ShootFragment : BaseBindingFragment<FragmentShootBinding, ShootViewModel>() {
     companion object {
         fun create(extraTo: String?): ShootFragment {
@@ -97,6 +89,17 @@ internal class ShootFragment : BaseBindingFragment<FragmentShootBinding, ShootVi
     // Fragment Layout.
     override val layoutResourceId: Int = R.layout.fragment_shoot
 
+
+    private lateinit var mediaActionSound: MediaActionSound2 /*by lazy {
+        MediaActionSound().apply {
+            load(MediaActionSound.SHUTTER_CLICK)
+        }
+    }*/
+
+    val audioManager by lazy {
+        context?.getSystemService(Context.AUDIO_SERVICE) as? AudioManager
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 //
@@ -117,13 +120,16 @@ internal class ShootFragment : BaseBindingFragment<FragmentShootBinding, ShootVi
             // Granted.
             Timber.i(">>>>> requestCameraPermission Granted")
 
-            initCamera()
+            //initCamera()
         }
     }
 
     override fun onDestroyView() {
 //        _fragmentCameraBinding = null
         super.onDestroyView()
+
+        //
+        mediaActionSound.release()
 
         // Shut down our background executor
         cameraExecutor.shutdown()
@@ -135,6 +141,12 @@ internal class ShootFragment : BaseBindingFragment<FragmentShootBinding, ShootVi
 
 
 //    private lateinit var cameraProviderFuture: ListenableFuture<ProcessCameraProvider>
+
+    override fun initVariable() {
+        mediaActionSound = MediaActionSound2().apply {
+            load(MediaActionSound.SHUTTER_CLICK)
+        }
+    }
 
     // Init Layout.
     override fun initLayout() {
@@ -196,11 +208,17 @@ internal class ShootFragment : BaseBindingFragment<FragmentShootBinding, ShootVi
 
         // 촬영.
         binding.buttonShooting.setOnClickListener {
-            MediaActionSound().apply {
-                (context?.getSystemService(Context.AUDIO_SERVICE) as? AudioManager)?.let {
-                    this.play(MediaActionSound.SHUTTER_CLICK)
-                }
-            }
+            mediaActionSound.playWithStreamVolume(
+                MediaActionSound.SHUTTER_CLICK,
+                audioManager
+
+            )
+            //mediaActionSound.play(MediaActionSound.SHUTTER_CLICK)
+//            MediaActionSound().apply {
+//                (context?.getSystemService(Context.AUDIO_SERVICE) as? AudioManager)?.let {
+//                    this.play(MediaActionSound.SHUTTER_CLICK)
+//                }
+//            }
 
 //            Timber.i(">>>>> FILE PATH : %s", context?.createFile(true))
 //            Timber.i(">>>>> FILE PATH : %s", context?.createFile(false))
@@ -280,6 +298,13 @@ internal class ShootFragment : BaseBindingFragment<FragmentShootBinding, ShootVi
 //                }
             }
         }
+
+        binding.buttonFlash.setOnClickListener {
+            Intent(IntentAction.ACTION_ADB_CAMERA).also { imageCaptureIntent ->
+                activity?.startActivity(imageCaptureIntent)
+
+            }
+        }
 //
 //        // 선택.
 //        binding.buttonSelect.setOnClickListener {
@@ -355,67 +380,6 @@ internal class ShootFragment : BaseBindingFragment<FragmentShootBinding, ShootVi
             }
         } ?: Unit
     }
-//
-//    override fun onCreateView(
-//        inflater: LayoutInflater,
-//        container: ViewGroup?,
-//        savedInstanceState: Bundle?
-//    ): View {
-//        _fragmentCameraBinding = FragmentCameraBinding.inflate(inflater, container, false)
-//        return fragmentCameraBinding.root
-//    }
-//
-//    private fun setGalleryThumbnail(uri: Uri) {
-//        // Run the operations in the view's thread
-//        cameraUiContainerBinding?.photoViewButton?.let { photoViewButton ->
-//            photoViewButton.post {
-//                // Remove thumbnail padding
-//                photoViewButton.setPadding(resources.getDimension(R.dimen.stroke_small).toInt())
-//
-//                // Load thumbnail into circular button using Glide
-//                Glide.with(photoViewButton)
-//                    .load(uri)
-//                    .apply(RequestOptions.circleCropTransform())
-//                    .into(photoViewButton)
-//            }
-//        }
-//    }
-//
-//    @SuppressLint("MissingPermission")
-//    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-//        super.onViewCreated(view, savedInstanceState)
-//
-//        // Initialize our background executor
-//        cameraExecutor = Executors.newSingleThreadExecutor()
-//
-//        broadcastManager = LocalBroadcastManager.getInstance(view.context)
-//
-//        // Set up the intent filter that will receive events from our main activity
-//        val filter = IntentFilter().apply { addAction(KEY_EVENT_ACTION) }
-//        broadcastManager.registerReceiver(volumeDownReceiver, filter)
-//
-//        // Every time the orientation of device changes, update rotation for use cases
-//        displayManager.registerDisplayListener(displayListener, null)
-//
-//        //Initialize WindowManager to retrieve display metrics
-//        windowManager = WindowManager(view.context)
-//
-//        // Determine the output directory
-//        outputDirectory = MainActivity.getOutputDirectory(requireContext())
-//
-//        // Wait for the views to be properly laid out
-//        fragmentCameraBinding.viewFinder.post {
-//
-//            // Keep track of the display in which this view is attached
-//            displayId = fragmentCameraBinding.viewFinder.display.displayId
-//
-//            // Build UI controls
-//            updateCameraUi()
-//
-//            // Set up the camera and its use cases
-//            setUpCamera()
-//        }
-//    }
 
     private fun initCamera() {
 //

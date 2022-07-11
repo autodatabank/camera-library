@@ -1,4 +1,4 @@
-//package kr.co.kadb.camera.presentation.ui.shoot.one
+package kr.co.kadb.camera.presentation.ui.shoot.one
 //
 //import android.app.Application
 //import androidx.lifecycle.MutableLiveData

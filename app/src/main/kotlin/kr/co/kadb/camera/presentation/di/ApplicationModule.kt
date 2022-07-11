@@ -13,7 +13,7 @@ import javax.inject.Singleton
  */
 @Module
 @InstallIn(SingletonComponent::class)
-class ApplicationModule {
+internal class ApplicationModule {
 	@Provides
 	@Singleton
 	fun provideContext(application: Application): Context {

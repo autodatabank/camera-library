@@ -35,13 +35,14 @@ internal abstract class BaseBindingFragment<T : ViewDataBinding, VM : ViewModel>
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
+        initVariable()
         initLayout()
         initObserver()
         initListener()
         initCallback()
     }
 
+    protected abstract fun initVariable()
     protected abstract fun initLayout()
     protected abstract fun initObserver()
     protected abstract fun initListener()

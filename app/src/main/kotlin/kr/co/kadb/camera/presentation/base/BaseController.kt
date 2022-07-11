@@ -27,7 +27,7 @@ import timber.log.Timber
  * Created by oooobang on 2018. 2. 28..
  * Base Controller.
  */
-open class BaseController constructor(activityContext: Context) {
+internal open class BaseController constructor(activityContext: Context) {
     // Activity.
     internal val activity = activityContext as AppCompatActivity
 

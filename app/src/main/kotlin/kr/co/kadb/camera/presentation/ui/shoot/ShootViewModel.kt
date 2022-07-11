@@ -23,9 +23,9 @@ import javax.inject.Inject
  * Created by oooobang on 2020. 2. 3..
  * ViewModel.
  */
-@HiltViewModel
+//@HiltViewModel
 internal class ShootViewModel
-@Inject
+//@Inject
 constructor(
     application: Application,
     @Suppress("UNUSED_PARAMETER") preferences: PreferenceManager

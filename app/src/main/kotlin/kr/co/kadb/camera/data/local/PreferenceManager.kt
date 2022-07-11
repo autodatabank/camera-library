@@ -3,7 +3,7 @@ package kr.co.kadb.camera.data.local
 import android.content.SharedPreferences
 import javax.inject.Inject
 
-class PreferenceManager
+internal class PreferenceManager
 @Inject
 constructor(private val sharedPreferences: SharedPreferences) {
 //    var infoSkip: Boolean

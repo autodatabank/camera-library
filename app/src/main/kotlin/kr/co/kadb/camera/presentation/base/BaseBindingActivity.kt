@@ -25,15 +25,16 @@ internal abstract class BaseBindingActivity<T : ViewDataBinding, VM : ViewModel>
         super.onCreate(savedInstanceState)
         binding = DataBindingUtil.setContentView(this, layoutResourceId)
         binding.lifecycleOwner = this
-
+        initVariable()
         initLayout()
         initObserver()
         initListener()
         initCallback()
     }
 
-    abstract fun initLayout()
-    abstract fun initObserver()
-    abstract fun initListener()
-    abstract fun initCallback()
+    protected abstract fun initVariable()
+    protected abstract fun initLayout()
+    protected abstract fun initObserver()
+    protected abstract fun initListener()
+    protected abstract fun initCallback()
 }
