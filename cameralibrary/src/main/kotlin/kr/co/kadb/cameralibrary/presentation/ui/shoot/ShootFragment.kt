@@ -14,8 +14,8 @@ import androidx.camera.core.ImageCapture.Metadata
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
-import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kr.co.kadb.cameralibrary.R
@@ -29,7 +29,6 @@ import java.nio.ByteBuffer
 import java.util.*
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
-import javax.inject.Inject
 import kotlin.math.abs
 import kotlin.math.max
 import kotlin.math.min
@@ -42,7 +41,6 @@ import kotlin.math.min
 /** Helper type alias used for analysis use case callbacks */
 internal typealias LumaListener = (luma: Double) -> Unit
 
-@AndroidEntryPoint
 internal class ShootFragment : BaseBindingFragment<AdbCameralibraryFragmentShootBinding, ShootViewModel>() {
     companion object {
         fun create(extraTo: String?): ShootFragment {
@@ -68,14 +66,17 @@ internal class ShootFragment : BaseBindingFragment<AdbCameralibraryFragmentShoot
 //            )
     }
 
-    @Inject
     lateinit var preferences: PreferenceManager
 
-    @Inject
-    lateinit var viewController: ShootController
+    //lateinit var viewController: ShootController
+    private val viewController: ShootController by lazy {
+        ShootController(requireActivity())
+    }
 
     // ViewModel.
-    override val viewModel: ShootViewModel by viewModels()
+    override val viewModel: ShootViewModel by viewModels {
+        ShootViewModelFactory(requireContext())
+    }
 
     private lateinit var windowManager: WindowManager
 

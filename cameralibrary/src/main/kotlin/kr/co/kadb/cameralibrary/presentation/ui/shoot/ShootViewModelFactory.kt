@@ -1,24 +1,29 @@
 package kr.co.kadb.cameralibrary.presentation.ui.shoot
 
 import android.app.Application
+import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import kr.co.kadb.cameralibrary.data.local.PreferenceManager
 
-class ShootViewModelFactory(private val application: Application, preferences: PreferenceManager) : ViewModelProvider.Factory {
-    override fun <T : ViewModel?> create(modelClass: Class<T>): T {
+internal class ShootViewModelFactory(private val context: Context) : ViewModelProvider.Factory {
+    override fun <T : ViewModel> create(modelClass: Class<T>): T {
         return if (modelClass.isAssignableFrom(ShootViewModel::class.java)) {
-            ShootViewModel(param) as T
+            @Suppress("UNCHECKED_CAST")
+            ShootViewModel(
+                context.applicationContext as Application,
+                PreferenceManager.getInstance(context)
+            ) as T
         } else {
             throw IllegalArgumentException()
         }
     }
 }
-
-class ShootViewModelFactory : ViewModelProvider.Factory {
-
-    @Suppress("UNCHECKED_CAST")
-    override fun <T : ViewModel> create(modelClass: Class<T>): T = ShootViewModel(
-
-    ) as T
-}
+//
+//class ShootViewModelFactory : ViewModelProvider.Factory {
+//
+//    @Suppress("UNCHECKED_CAST")
+//    override fun <T : ViewModel> create(modelClass: Class<T>): T = ShootViewModel(
+//
+//    ) as T
+//}

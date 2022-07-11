@@ -11,7 +11,7 @@ import javax.inject.Inject
  * Created by oooobang on 2020. 1. 3..
  * 촬영.
  */
-//@AndroidEntryPoint
+@AndroidEntryPoint
 internal class ShootActivity : BaseActivity() {
 
 	@Inject

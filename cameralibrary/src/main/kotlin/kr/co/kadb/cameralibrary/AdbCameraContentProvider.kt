@@ -5,12 +5,16 @@ import android.content.ContentValues
 import android.database.Cursor
 import android.net.Uri
 import androidx.appcompat.app.AppCompatDelegate
+import kr.co.kadb.cameralibrary.data.local.PreferenceManager
 import timber.log.Timber
 
 class AdbCameraContentProvider: ContentProvider() {
     override fun onCreate(): Boolean {
+        // Init Preference.
+        //PreferenceManager.init(requireContext())
         // Vector Resource.
         AppCompatDelegate.setCompatVectorFromResourcesEnabled(true)
+
         // Timber.
         if (BuildConfig.DEBUG) {
             Timber.plant(Timber.DebugTree())

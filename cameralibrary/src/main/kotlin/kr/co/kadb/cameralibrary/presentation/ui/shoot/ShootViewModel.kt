@@ -4,7 +4,6 @@ import android.app.Application
 import android.graphics.Bitmap
 import android.os.Environment
 import androidx.lifecycle.viewModelScope
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -17,15 +16,12 @@ import kr.co.kadb.cameralibrary.presentation.widget.extension.save
 import timber.log.Timber
 import java.io.File
 import java.io.FileOutputStream
-import javax.inject.Inject
 
 /**
- * Created by oooobang on 2020. 2. 3..
+ * Created by oooobang on 2022. 7. 11..
  * ViewModel.
  */
-@HiltViewModel
 internal class ShootViewModel
-@Inject
 constructor(
     application: Application,
     @Suppress("UNUSED_PARAMETER") preferences: PreferenceManager

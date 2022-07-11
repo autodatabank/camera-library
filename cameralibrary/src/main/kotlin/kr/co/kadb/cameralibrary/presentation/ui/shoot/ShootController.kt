@@ -1,18 +1,15 @@
 package kr.co.kadb.cameralibrary.presentation.ui.shoot
 
 import android.content.Context
-import dagger.hilt.android.qualifiers.ActivityContext
 import kr.co.kadb.cameralibrary.R
 import kr.co.kadb.cameralibrary.presentation.base.BaseController
-import javax.inject.Inject
 
 /**
  * Created by oooobang on 2020. 2. 3..
  * Controller.
  */
 internal class ShootController
-@Inject
-constructor(@ActivityContext activityContext: Context) : BaseController(activityContext) {
+constructor(activityContext: Context) : BaseController(activityContext) {
 	// ContainerId.
 	private val containerId: Int = R.id.layout_container
 

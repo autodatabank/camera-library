@@ -46,7 +46,7 @@ import kotlin.math.min
 /** Helper type alias used for analysis use case callbacks */
 internal typealias LumaListener = (luma: Double) -> Unit
 
-//@AndroidEntryPoint
+@AndroidEntryPoint
 internal class ShootFragment : BaseBindingFragment<FragmentShootBinding, ShootViewModel>() {
     companion object {
         fun create(extraTo: String?): ShootFragment {
@@ -302,7 +302,6 @@ internal class ShootFragment : BaseBindingFragment<FragmentShootBinding, ShootVi
         binding.buttonFlash.setOnClickListener {
             Intent(IntentAction.ACTION_ADB_CAMERA).also { imageCaptureIntent ->
                 activity?.startActivity(imageCaptureIntent)
-
             }
         }
 //

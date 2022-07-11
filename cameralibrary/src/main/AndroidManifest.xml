@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     package="kr.co.kadb.cameralibrary"
     >
@@ -50,15 +49,15 @@
             >
 
 
-            <!--            <intent-filterl>-->
-            <!--                <action android:name="kr.co.kadb.cameralibrary.ACTION_ADB_CAMERA" />-->
+            <intent-filter>
+                <action android:name="kr.co.kadb.cameralibrary.ACTION_ADB_CAMERA" />
 
-            <!--                &lt;!&ndash;                <category android:name="android.intent.category.DEFAULT" />&ndash;&gt;-->
-            <!--                &lt;!&ndash;                <action android:name="android.intent.action.VIEW" />&ndash;&gt;-->
-            <!--                <action android:name="android.intent.action.MAIN" />-->
+                <category android:name="android.intent.category.DEFAULT" />
+                <!--                &lt;!&ndash;                <action android:name="android.intent.action.VIEW" />&ndash;&gt;-->
+                <!--                <action android:name="android.intent.action.MAIN" />-->
 
-            <!--                <category android:name="android.intent.category.LAUNCHER" />-->
-            <!--            </intent-filterl>-->
+                <!--                <category android:name="android.intent.category.LAUNCHER" />-->
+            </intent-filter>
         </activity>
     </application>
 </manifest>
