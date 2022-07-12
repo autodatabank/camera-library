@@ -2,9 +2,8 @@ plugins {
     id 'com.android.library'
     id 'org.jetbrains.kotlin.android'
     id 'kotlin-kapt'
-    //id 'dagger.hilt.android.plugin'
     id 'maven-publish'
-    id 'signing'
+    //id 'signing'
 }
 
 android {
@@ -44,6 +43,8 @@ android {
     }
 
     resourcePrefix 'adb_cameralibrary_'
+
+    namespace = 'kr.co.kadb.cameralibrary'
 }
 
 dependencies {
@@ -90,13 +91,14 @@ dependencies {
 
 publishing {
     publications {
-//        release(MavenPublication) {
-        maven(MavenPublication) {
+        release(MavenPublication) {
+//        maven(MavenPublication) {
             groupId 'kr.co.kadb.cameralibrary'
             //You can either define these here or get them from project conf elsewhere
-            artifactId 'cameralibrary'
+            artifactId 'cameralibrary-simple'
             version '1.0.0'
-            artifact "$buildDir/outputs/bundle/app-release.aab"
+            //artifact "$buildDir/outputs/aar/cameralibrary-release.aar"
+            artifact "$libsDirName/cameralibrary-release.aar"
 
             //aar artifact you want to publish
 
@@ -113,19 +115,13 @@ publishing {
                 }
             }
         }
-//
-//        repositories {
-//            maven {
-//                name = 'cameralibrary'
-//                url = "${project.buildDir}/repo"
-//            }
-//        }
     }
 //
 //    //publish to filesystem repo
 //    repositories {
 //        maven {
-//            url "$buildDir/repo"
+//            //url "$buildDir/repo"
+//            url "/Users/oooobang/asp/adb_camera/cameralibrary/build/outputs/aar"
 //        }
 //    }
 }

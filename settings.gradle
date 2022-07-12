@@ -13,13 +13,11 @@ dependencyResolutionManagement {
         maven {
             url "https://jitpack.io"
         }
-//        maven {
-//            ${project.buildDir}/repo
-//            url "/Users/oooobang/asp/camera/app/build/outputs/bundle/release/"
-//            //url "/Users/oooobang/asp/camera/app/build/outputs/bundle/release/"
-//        }
+        maven {
+            url "/Users/oooobang/asp/adb_camera/cameralibrary/build/outputs/aar"
+        }
     }
 }
-rootProject.name = "camera"
+//rootProject.name = "camera"
 include ':app'
 include ':cameralibrary'

@@ -47,7 +47,7 @@ android {
 
 dependencies {
 //    implementation project(':cameralibrary')
-    //implementation 'kr.co.kadb.cameralibrary:cameralibrary:1.0.0'
+    implementation 'kr.co.kadb.cameralibrary:cameralibrary-simple:1.0.0'
 
     implementation 'androidx.core:core-ktx:1.8.0'
     implementation 'androidx.appcompat:appcompat:1.4.2'
