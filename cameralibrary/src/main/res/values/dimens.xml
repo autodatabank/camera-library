@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 	<!-- FontSize. -->
-	<dimen name="adb_cameralibrary_defaultFontSize">@dimen/sp16</dimen>
+	<dimen name="adb_cameralibrary_defaultFontSize">@dimen/adb_cameralibrary_sp16</dimen>
 
 	<!-- px. -->
 	<dimen name="adb_cameralibrary_px0">0px</dimen>

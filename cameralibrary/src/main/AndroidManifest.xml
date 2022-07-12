@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+<manifest
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     package="kr.co.kadb.cameralibrary"
     >
@@ -16,47 +17,25 @@
     <!-- 카메라. -->
     <uses-permission android:name="android.permission.CAMERA" />
 
-    <application android:label="@string/app_name">
+    <application>
         <provider
             android:name="kr.co.kadb.cameralibrary.AdbCameraContentProvider"
             android:authorities="kr.co.kadb.cameralibrary.provider"
             android:exported="false"
             />
-
-
-        <!--        &lt;!&ndash; FileProvider used to share photos with other apps &ndash;&gt;-->
-        <!--        <provider-->
-        <!--            android:name="androidx.core.content.FileProvider"-->
-        <!--            android:authorities="${applicationId}.provider"-->
-        <!--            android:exported="false"-->
-        <!--            android:grantUriPermissions="true"-->
-        <!--            >-->
-        <!--            <meta-data-->
-        <!--                android:name="android.support.FILE_PROVIDER_PATHS"-->
-        <!--                android:resource="@xml/adb_cameralibrary_file_paths"-->
-        <!--                />-->
-        <!--        </provider>-->
-
         <!-- 촬영. -->
         <activity
             android:name=".presentation.ui.shoot.ShootActivity"
-            android:exported="true"
+            android:exported="false"
             android:hardwareAccelerated="true"
             android:launchMode="singleTop"
             android:screenOrientation="fullSensor"
             android:theme="@style/adb_cameralibrary_Theme.Camera"
             android:windowSoftInputMode="stateHidden"
             >
-
-
             <intent-filter>
                 <action android:name="kr.co.kadb.cameralibrary.ACTION_ADB_CAMERA" />
-
                 <category android:name="android.intent.category.DEFAULT" />
-                <!--                &lt;!&ndash;                <action android:name="android.intent.action.VIEW" />&ndash;&gt;-->
-                <!--                <action android:name="android.intent.action.MAIN" />-->
-
-                <!--                <category android:name="android.intent.category.LAUNCHER" />-->
             </intent-filter>
         </activity>
     </application>

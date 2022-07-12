@@ -19,11 +19,3 @@ internal class ShootViewModelFactory(private val context: Context) : ViewModelPr
         }
     }
 }
-//
-//class ShootViewModelFactory : ViewModelProvider.Factory {
-//
-//    @Suppress("UNCHECKED_CAST")
-//    override fun <T : ViewModel> create(modelClass: Class<T>): T = ShootViewModel(
-//
-//    ) as T
-//}

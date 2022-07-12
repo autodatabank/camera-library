@@ -1,13 +1,11 @@
 package kr.co.kadb.camera.presentation.ui.shoot
 
 import android.content.Context
-import android.content.Intent
 import android.content.res.Configuration
 import android.hardware.display.DisplayManager
 import android.media.AudioManager
 import android.media.MediaActionSound
 import android.os.Bundle
-import android.provider.MediaStore
 import android.view.View
 import android.view.WindowManager
 import android.widget.Toast
@@ -25,9 +23,7 @@ import kr.co.kadb.camera.data.local.PreferenceManager
 import kr.co.kadb.camera.databinding.FragmentShootBinding
 import kr.co.kadb.camera.presentation.base.BaseBindingFragment
 import kr.co.kadb.camera.presentation.widget.extension.outputFileOptionsBuilder
-import kr.co.kadb.camera.presentation.widget.util.IntentKey
 import kr.co.kadb.camera.presentation.widget.util.MediaActionSound2
-import kr.co.kadb.cameralibrary.presentation.widget.event.IntentAction
 import timber.log.Timber
 import java.nio.ByteBuffer
 import java.util.*
@@ -300,9 +296,9 @@ internal class ShootFragment : BaseBindingFragment<FragmentShootBinding, ShootVi
         }
 
         binding.buttonFlash.setOnClickListener {
-            Intent(IntentAction.ACTION_ADB_CAMERA).also { imageCaptureIntent ->
-                activity?.startActivity(imageCaptureIntent)
-            }
+//            Intent(IntentAction.ACTION_ADB_CAMERA).also { imageCaptureIntent ->
+//                activity?.startActivity(imageCaptureIntent)
+//            }
         }
 //
 //        // 선택.

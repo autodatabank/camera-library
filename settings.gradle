@@ -10,7 +10,14 @@ dependencyResolutionManagement {
     repositories {
         google()
         mavenCentral()
-        maven { url "https://jitpack.io" }
+        maven {
+            url "https://jitpack.io"
+        }
+//        maven {
+//            ${project.buildDir}/repo
+//            url "/Users/oooobang/asp/camera/app/build/outputs/bundle/release/"
+//            //url "/Users/oooobang/asp/camera/app/build/outputs/bundle/release/"
+//        }
     }
 }
 rootProject.name = "camera"
