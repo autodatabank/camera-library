@@ -9,29 +9,8 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:background="@color/black"
         >
-        <androidx.camera.view.PreviewView
-            android:id="@+id/preview_view"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            />
-        <!--        <com.otaliastudios.cameraview.CameraView-->
-        <!--            android:id="@+id/cameraview"-->
-        <!--            android:layout_width="0dp"-->
-        <!--            android:layout_height="0dp"-->
-        <!--            android:keepScreenOn="true"-->
-        <!--            app:cameraAudio="off"-->
-        <!--            app:cameraGestureTap="autoFocus"-->
-        <!--            app:cameraGrid="draw3x3"-->
-        <!--            app:layout_constraintBottom_toBottomOf="parent"-->
-        <!--            app:layout_constraintEnd_toEndOf="parent"-->
-        <!--            app:layout_constraintStart_toStartOf="parent"-->
-        <!--            app:layout_constraintTop_toTopOf="parent"-->
-        <!--            />-->
         <!-- 플래쉬. -->
         <androidx.appcompat.widget.AppCompatImageButton
             android:id="@+id/button_flash"
@@ -39,7 +18,6 @@
             android:layout_height="@dimen/dp48"
             android:layout_marginTop="@dimen/dp26"
             android:layout_marginEnd="@dimen/dp16"
-            android:layout_marginRight="@dimen/dp16"
             android:background="@null"
             android:padding="@dimen/dp8"
             android:scaleType="fitCenter"

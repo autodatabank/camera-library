@@ -1,5 +1,6 @@
 pluginManagement {
     repositories {
+        mavenLocal()
         gradlePluginPortal()
         google()
         mavenCentral()
@@ -8,16 +9,17 @@ pluginManagement {
 dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
     repositories {
+        mavenLocal()
         google()
         mavenCentral()
         maven {
-            url "https://jitpack.io"
+            url "$rootDir/cameralibrary/build/outputs/aar"
         }
         maven {
-            url "/Users/oooobang/asp/adb_camera/cameralibrary/build/outputs/aar"
+            url "https://jitpack.io"
         }
     }
 }
-//rootProject.name = "camera"
+
 include ':app'
 include ':cameralibrary'

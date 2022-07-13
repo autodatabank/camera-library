@@ -20,8 +20,7 @@ import android.content.Context.AUDIO_SERVICE
 import android.media.AudioAttributes
 import android.media.AudioManager
 import android.media.SoundPool
-import android.util.Log
-import java.lang.RuntimeException
+import timber.log.Timber
 
 /**
  * Modified by Miloš Černilovský on March 16 2021: converted original class to Kotlin,
@@ -62,7 +61,7 @@ internal class MediaActionSound2 {
                 if (status != 0) {
                     sound.state = STATE_NOT_LOADED
                     sound.id = 0
-                    Log.e(
+                    Timber.e(
                         TAG, "OnLoadCompleteListener() error: " + status +
                                 " loading sound: " + sound.name
                     )
@@ -74,7 +73,7 @@ internal class MediaActionSound2 {
                         playSoundId = sound.id
                         sound.state = STATE_LOADED
                     }
-                    else -> Log.e(
+                    else -> Timber.e(
                         TAG, "OnLoadCompleteListener() called in wrong state: "
                                 + sound.state + " for sound: " + sound.name
                     )
@@ -152,14 +151,14 @@ internal class MediaActionSound2 {
             when (sound.state) {
                 STATE_NOT_LOADED -> {
                     if (loadSound(sound) <= 0) {
-                        Log.e(TAG, "load() error loading sound: $soundName")
+                        Timber.e(TAG, "load() error loading sound: $soundName")
                         false
                     } else {
                         true
                     }
                 }
                 else -> {
-                    Log.e(TAG, "load() called in wrong state: $sound for sound: $soundName")
+                    Timber.e(TAG, "load() called in wrong state: $sound for sound: $soundName")
                     false
                 }
             }
@@ -228,14 +227,14 @@ internal class MediaActionSound2 {
             when (sound.state) {
                 STATE_NOT_LOADED -> {
                     if (loadSound(sound) <= 0) {
-                        Log.e(TAG, "play() error loading sound: $soundName")
+                        Timber.e(TAG, "play() error loading sound: $soundName")
                     } else {
                         setRequestPlayStatus(sound, leftVolume, rightVolume)
                     }
                 }
                 STATE_LOADING -> setRequestPlayStatus(sound, leftVolume, rightVolume)
                 STATE_LOADED -> mSoundPool!!.play(sound.id, leftVolume, rightVolume, 0, 0, 1.0f)
-                else -> Log.e(TAG, "play() called in wrong state: " + sound.state + " for sound: " + soundName)
+                else -> Timber.e(TAG, "play() called in wrong state: " + sound.state + " for sound: " + soundName)
             }
         }
     }

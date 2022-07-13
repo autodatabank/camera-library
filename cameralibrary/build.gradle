@@ -12,6 +12,8 @@ android {
     defaultConfig {
         minSdk 21
         targetSdk 31
+        versionCode 22071301
+        versionName "1.0.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles "consumer-rules.pro"
@@ -64,6 +66,9 @@ dependencies {
     implementation 'androidx.activity:activity-ktx:1.5.0'
     implementation 'androidx.fragment:fragment-ktx:1.5.0'
 
+    //WindowManager
+    implementation 'androidx.window:window:1.1.0-alpha02'
+
     // CameraX core library
     def camerax_version = '1.1.0'
     implementation "androidx.camera:camera-core:$camerax_version"
@@ -88,40 +93,74 @@ dependencies {
     // Timber.
     implementation 'com.jakewharton.timber:timber:5.0.1'
 }
+//
+//task sourceJar(type: Jar) {
+//    from android.sourceSets.main.java.srcDirs
+//    classifier "sources"
+//}
 
-publishing {
-    publications {
-        release(MavenPublication) {
-//        maven(MavenPublication) {
-            groupId 'kr.co.kadb.cameralibrary'
-            //You can either define these here or get them from project conf elsewhere
-            artifactId 'cameralibrary-simple'
-            version '1.0.0'
-            //artifact "$buildDir/outputs/aar/cameralibrary-release.aar"
-            artifact "$libsDirName/cameralibrary-release.aar"
+afterEvaluate {
+    publishToMavenLocal {
+        def artifactId = 'cameralibrary-simple'
+        def artifactPath = "$buildDir/outputs/aar/cameralibrary-debug.aar"
+        publishing {
+//            repositories {
+//                maven {
+//                    name = artifactId
+//                    //url = "file://${buildDir}/repo"
+//                }
+//            }
+//            repositories {
+//                maven {
+//                    name = artifactId
+//                    url = "file://${buildDir}/repo"
+//                }
+//            }
+////
+////            repositories {
+////                maven {
+////                    url "$buildDir/repo"
+////                }
+////            }
+            publications {
+                maven(MavenPublication) {
+                    setGroupId android.namespace
+                    setArtifactId artifactId
+                    version android.defaultConfig.versionName
 
-            //aar artifact you want to publish
+                    artifact(artifactPath)
+//                    artifact(sourceJar)
 
-            //generate pom nodes for dependencies
-            pom.withXml {
-                def dependenciesNode = asNode().appendNode('dependencies')
-                configurations.implementation.allDependencies.each { dependency ->
-                    if (dependency.name != 'unspecified') {
-                        def dependencyNode = dependenciesNode.appendNode('dependency')
-                        dependencyNode.appendNode('groupId', dependency.group)
-                        dependencyNode.appendNode('artifactId', dependency.name)
-                        dependencyNode.appendNode('version', dependency.version)
+                    //aar artifact you want to publish
+
+                    //generate pom nodes for dependencies
+                    pom.withXml {
+                        def dependenciesNode = asNode().appendNode('dependencies')
+                        configurations.implementation.allDependencies.each { dependency ->
+                            if (dependency.name != 'unspecified') {
+                                def dependencyNode = dependenciesNode.appendNode('dependency')
+                                dependencyNode.appendNode('groupId', dependency.group)
+                                dependencyNode.appendNode('artifactId', dependency.name)
+                                dependencyNode.appendNode('version', dependency.version)
+                            }
+                        }
                     }
                 }
             }
         }
+
+        doLast {
+            def prettyPrint = {
+                1.upto(100, { print "=" })
+                println()
+            }
+            println()
+            prettyPrint()
+            println "PUBLICATION FINISHED"
+            println "Artifact : $artifactPath"
+            println "Artifact RELEASE: " + android.namespace + ":" + artifactId +  ":" + android.defaultConfig.versionName
+            println "Artifact DEBUG: " + android.namespace + ":" + artifactId +  ":" + android.defaultConfig.versionName
+            prettyPrint()
+        }
     }
-//
-//    //publish to filesystem repo
-//    repositories {
-//        maven {
-//            //url "$buildDir/repo"
-//            url "/Users/oooobang/asp/adb_camera/cameralibrary/build/outputs/aar"
-//        }
-//    }
 }

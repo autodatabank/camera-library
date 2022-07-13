@@ -39,7 +39,6 @@
             android:layout_height="@dimen/adb_cameralibrary_dp48"
             android:layout_marginTop="@dimen/adb_cameralibrary_dp26"
             android:layout_marginEnd="@dimen/adb_cameralibrary_dp16"
-            android:layout_marginRight="@dimen/adb_cameralibrary_dp16"
             android:background="@null"
             android:padding="@dimen/adb_cameralibrary_dp8"
             android:scaleType="fitCenter"

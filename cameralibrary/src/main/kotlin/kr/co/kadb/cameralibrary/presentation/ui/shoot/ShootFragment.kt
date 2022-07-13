@@ -5,17 +5,18 @@ import android.content.res.Configuration
 import android.hardware.display.DisplayManager
 import android.media.AudioManager
 import android.media.MediaActionSound
+import android.os.Build
 import android.os.Bundle
 import android.view.View
-import android.view.WindowManager
 import android.widget.Toast
 import androidx.camera.core.*
 import androidx.camera.core.ImageCapture.Metadata
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import androidx.window.layout.WindowInfoTracker
+import androidx.window.layout.WindowMetricsCalculator
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kr.co.kadb.cameralibrary.R
@@ -41,7 +42,8 @@ import kotlin.math.min
 /** Helper type alias used for analysis use case callbacks */
 internal typealias LumaListener = (luma: Double) -> Unit
 
-internal class ShootFragment : BaseBindingFragment<AdbCameralibraryFragmentShootBinding, ShootViewModel>() {
+internal class ShootFragment :
+    BaseBindingFragment<AdbCameralibraryFragmentShootBinding, ShootViewModel>() {
     companion object {
         fun create(extraTo: String?): ShootFragment {
             val fragment = ShootFragment()
@@ -78,7 +80,7 @@ internal class ShootFragment : BaseBindingFragment<AdbCameralibraryFragmentShoot
         ShootViewModelFactory(requireContext())
     }
 
-    private lateinit var windowManager: WindowManager
+    private lateinit var windowManager: WindowInfoTracker
 
     //
     private var extraTo: String? = null
@@ -146,10 +148,15 @@ internal class ShootFragment : BaseBindingFragment<AdbCameralibraryFragmentShoot
     }
 
     // Init Layout.
-    override fun initLayout() {
+    override fun initLayout(view: View) {
 
         // Debug.
         Timber.i(">>>>> initLayout!!!!!")
+
+
+        //Initialize WindowManager to retrieve display metrics
+        windowManager = WindowInfoTracker.getOrCreate(view.context)
+        //windowManager = activity?.getSystemService(Context.WINDOW_SERVICE) as WindowManager
 
 //        // 차량등록증 촬영 시 선택 버튼 비활성.
 //        if (extraTo == TO_SHOOTING_REGISTRATION_CARD) {
@@ -387,10 +394,6 @@ internal class ShootFragment : BaseBindingFragment<AdbCameralibraryFragmentShoot
 
         // Every time the orientation of device changes, update rotation for use cases
         displayManager.registerDisplayListener(displayListener, null)
-
-        //Initialize WindowManager to retrieve display metrics
-        windowManager =
-            activity?.getSystemService(Context.WINDOW_SERVICE) as WindowManager // WindowManager(view?.context)
 //
 //        // Determine the output directory
 //        outputDirectory = MainActivity.getOutputDirectory(requireContext())
@@ -454,7 +457,13 @@ internal class ShootFragment : BaseBindingFragment<AdbCameralibraryFragmentShoot
     private fun bindCameraUseCases() {
 
         // Get screen metrics used to setup camera for full screen resolution
-        val metrics = windowManager.currentWindowMetrics.bounds
+//        val metrics = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+//            windowManager.currentWindowMetrics.bounds
+//        } else {
+//
+//        }
+        val metrics = WindowMetricsCalculator.getOrCreate().computeCurrentWindowMetrics(requireActivity()).bounds
+
         // Debug.
         Timber.d(">>>>> Screen metrics: ${metrics.width()} x ${metrics.height()}")
 
@@ -710,12 +719,12 @@ internal class ShootFragment : BaseBindingFragment<AdbCameralibraryFragmentShoot
 //                imageCapture.takePicture(
 //                    outputOptions, cameraExecutor, object : ImageCapture.OnImageSavedCallback {
 //                        override fun onError(exc: ImageCaptureException) {
-//                            Log.e(TAG, "Photo capture failed: ${exc.message}", exc)
+//                            Timber.e(TAG, "Photo capture failed: ${exc.message}", exc)
 //                        }
 //
 //                        override fun onImageSaved(output: ImageCapture.OutputFileResults) {
 //                            val savedUri = output.savedUri ?: Uri.fromFile(photoFile)
-//                            Log.d(TAG, "Photo capture succeeded: $savedUri")
+//                            Timber.d(TAG, "Photo capture succeeded: $savedUri")
 //
 //                            // We can only change the foreground Drawable using API level 23+ API
 //                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -741,7 +750,7 @@ internal class ShootFragment : BaseBindingFragment<AdbCameralibraryFragmentShoot
 //                                arrayOf(savedUri.toFile().absolutePath),
 //                                arrayOf(mimeType)
 //                            ) { _, uri ->
-//                                Log.d(TAG, "Image capture scanned into media store: $uri")
+//                                Timber.d(TAG, "Image capture scanned into media store: $uri")
 //                            }
 //                        }
 //                    })

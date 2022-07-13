@@ -47,7 +47,7 @@ android {
 
 dependencies {
 //    implementation project(':cameralibrary')
-    implementation 'kr.co.kadb.cameralibrary:cameralibrary-simple:1.0.0'
+    implementation 'kr.co.kadb.cameralibrary:cameralibrary-simple:1.0.0@aar'
 
     implementation 'androidx.core:core-ktx:1.8.0'
     implementation 'androidx.appcompat:appcompat:1.4.2'
@@ -67,16 +67,6 @@ dependencies {
     // Android Support Library.
     implementation 'androidx.activity:activity-ktx:1.5.0'
     implementation 'androidx.fragment:fragment-ktx:1.5.0'
-
-    // CameraX core library
-    def camerax_version = '1.1.0'
-    implementation "androidx.camera:camera-core:$camerax_version"
-    // CameraX Camera2 extensions
-    implementation "androidx.camera:camera-camera2:$camerax_version"
-    // CameraX Lifecycle library
-    implementation "androidx.camera:camera-lifecycle:$camerax_version"
-    // CameraX View class
-    implementation "androidx.camera:camera-view:$camerax_version"
 
     // ACC.
     implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.5.0'
