@@ -12,9 +12,9 @@ dependencyResolutionManagement {
         mavenLocal()
         google()
         mavenCentral()
-//        maven {
-//            url "$rootDir/cameralibrary/build/outputs/aar"
-//        }
+        maven {
+            url "$rootDir/cameralibrary/build/outputs/aar"
+        }
         maven {
             url "https://jitpack.io"
         }

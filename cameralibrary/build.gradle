@@ -93,98 +93,85 @@ dependencies {
     implementation 'com.jakewharton.timber:timber:5.0.1'
 }
 
-afterEvaluate {
-    publishing {
-        publications {
-            release(MavenPublication) {
-                from components.release
-
-                groupId = 'com.github.autodatabank'
-                artifactId = 'camera-library'
-                version = '0.0.1'
-
-                pom.withXml {
-                    final dependenciesNode = asNode().appendNode('dependencies')
-
-                    ext.addDependency = { Dependency dep, String scope ->
-                        final dependencyNode = dependenciesNode.appendNode('dependency')
-                        dependencyNode.appendNode('groupId', dep.group)
-                        dependencyNode.appendNode('artifactId', dep.group == groupId ? dep.name.substring(9) : dep.name)
-                        dependencyNode.appendNode('version', dep.version)
-                        dependencyNode.appendNode('scope', scope)
-
-                        if (!dep.transitive) {
-                            final exclusionNode = dependencyNode.appendNode('exclusions').appendNode('exclusion')
-                            exclusionNode.appendNode('groupId', '*')
-                            exclusionNode.appendNode('artifactId', '*')
-                        } else if (!dep.properties.excludeRules.empty) {
-                            // Otherwise add specified exclude rules
-                            final exclusionsNode = dependencyNode.appendNode('exclusions')
-                            dep.properties.excludeRules.each { ExcludeRule rule ->
-                                def exclusion = exclusionsNode.appendNode('exclusion')
-                                exclusion.appendNode('groupId', rule.group ?: '*')
-                                exclusion.appendNode('artifactId', rule.module ?: '*')
-                            }
-                        }
-                    }
-
-                    configurations.api.getAllDependencies().each { dep -> addDependency(dep, "compile") }
-                    configurations.implementation.getAllDependencies().each { dep -> addDependency(dep, "runtime") }
-                }
-            }
-            debug(MavenPublication) {
-                from components.debug
-
-                groupId = 'com.github.autodatabank'
-                artifactId = 'camera-library'
-                version = '0.0.1'
-
-                pom.withXml {
-                    final dependenciesNode = asNode().appendNode('dependencies')
-
-                    ext.addDependency = { Dependency dep, String scope ->
-                        final dependencyNode = dependenciesNode.appendNode('dependency')
-                        dependencyNode.appendNode('groupId', dep.group)
-                        dependencyNode.appendNode('artifactId', dep.group == groupId ? dep.name.substring(9) : dep.name)
-                        dependencyNode.appendNode('version', dep.version)
-                        dependencyNode.appendNode('scope', scope)
-
-                        if (!dep.transitive) {
-                            final exclusionNode = dependencyNode.appendNode('exclusions').appendNode('exclusion')
-                            exclusionNode.appendNode('groupId', '*')
-                            exclusionNode.appendNode('artifactId', '*')
-                        } else if (!dep.properties.excludeRules.empty) {
-                            // Otherwise add specified exclude rules
-                            final exclusionsNode = dependencyNode.appendNode('exclusions')
-                            dep.properties.excludeRules.each { ExcludeRule rule ->
-                                def exclusion = exclusionsNode.appendNode('exclusion')
-                                exclusion.appendNode('groupId', rule.group ?: '*')
-                                exclusion.appendNode('artifactId', rule.module ?: '*')
-                            }
-                        }
-                    }
-
-                    configurations.api.getAllDependencies().each { dep -> addDependency(dep, "compile") }
-                    configurations.implementation.getAllDependencies().each { dep -> addDependency(dep, "runtime") }
-                }
-            }
+//afterEvaluate {
+//    publishing {
+//        publications {
+//            release(MavenPublication) {
+//                from components.release
 //
-//            pom.withXml {
-//                def dependenciesNode = asNode().appendNode('dependencies')
-//                configurations.implementation.allDependencies.each { dependency ->
-//                    if (dependency.name != 'unspecified') {
-//                        def dependencyNode = dependenciesNode.appendNode('dependency')
-//                        dependencyNode.appendNode('groupId', dependency.group)
-//                        dependencyNode.appendNode('artifactId', dependency.name)
-//                        dependencyNode.appendNode('version', dependency.version)
+//                groupId = 'com.github.autodatabank'
+//                artifactId = 'camera-library'
+//                version = '0.0.1'
 //
-//                        println "Artifact : " + dependency.group + ":" + dependency.name +  ":" + dependency.version
+//                pom.withXml {
+//                    final dependenciesNode = asNode().appendNode('dependencies')
+//
+//                    ext.addDependency = { Dependency dep, String scope ->
+//                        final dependencyNode = dependenciesNode.appendNode('dependency')
+//                        dependencyNode.appendNode('groupId', dep.group)
+//                        dependencyNode.appendNode('artifactId', dep.group == groupId ? dep.name.substring(9) : dep.name)
+//                        dependencyNode.appendNode('version', dep.version)
+//                        dependencyNode.appendNode('scope', scope)
+//
+//                        if (!dep.transitive) {
+//                            final exclusionNode = dependencyNode.appendNode('exclusions').appendNode('exclusion')
+//                            exclusionNode.appendNode('groupId', '*')
+//                            exclusionNode.appendNode('artifactId', '*')
+//                        } else if (!dep.properties.excludeRules.empty) {
+//                            // Otherwise add specified exclude rules
+//                            final exclusionsNode = dependencyNode.appendNode('exclusions')
+//                            dep.properties.excludeRules.each { ExcludeRule rule ->
+//                                def exclusion = exclusionsNode.appendNode('exclusion')
+//                                exclusion.appendNode('groupId', rule.group ?: '*')
+//                                exclusion.appendNode('artifactId', rule.module ?: '*')
+//                            }
+//                        }
 //                    }
+//
+//                    configurations.api.getAllDependencies().each { dep -> addDependency(dep, "compile") }
+//                    configurations.implementation.getAllDependencies().each { dep -> addDependency(dep, "runtime") }
 //                }
 //            }
-        }
-    }
-}
+//            debug(MavenPublication) {
+//                from components.debug
+//
+//                groupId = 'com.github.autodatabank'
+//                artifactId = 'camera-library'
+//                version = '0.0.1'
+//
+//                pom.withXml {
+//                    final dependenciesNode = asNode().appendNode('dependencies')
+//
+//                    ext.addDependency = { Dependency dep, String scope ->
+//                        final dependencyNode = dependenciesNode.appendNode('dependency')
+//                        dependencyNode.appendNode('groupId', dep.group)
+//                        dependencyNode.appendNode('artifactId', dep.group == groupId ? dep.name.substring(9) : dep.name)
+//                        dependencyNode.appendNode('version', dep.version)
+//                        dependencyNode.appendNode('scope', scope)
+//
+//                        if (!dep.transitive) {
+//                            final exclusionNode = dependencyNode.appendNode('exclusions').appendNode('exclusion')
+//                            exclusionNode.appendNode('groupId', '*')
+//                            exclusionNode.appendNode('artifactId', '*')
+//                        } else if (!dep.properties.excludeRules.empty) {
+//                            // Otherwise add specified exclude rules
+//                            final exclusionsNode = dependencyNode.appendNode('exclusions')
+//                            dep.properties.excludeRules.each { ExcludeRule rule ->
+//                                def exclusion = exclusionsNode.appendNode('exclusion')
+//                                exclusion.appendNode('groupId', rule.group ?: '*')
+//                                exclusion.appendNode('artifactId', rule.module ?: '*')
+//                            }
+//                        }
+//                    }
+//
+//                    configurations.api.getAllDependencies().each { dep -> addDependency(dep, "compile") }
+//                    configurations.implementation.getAllDependencies().each { dep -> addDependency(dep, "runtime") }
+//                }
+//            }
+//        }
+//    }
+//}
+
 //afterEvaluate {
 //    def artifactId = 'camera-library'
 //    def artifactPath = "$buildDir/outputs/aar/cameralibrary-debug.aar"
@@ -224,56 +211,57 @@ afterEvaluate {
 //    classifier "sources"
 //}
 
-//afterEvaluate {
-//    publishToMavenLocal {
-//        def artifactId = 'camera-library'
-//        def artifactPath = "$buildDir/outputs/aar/cameralibrary-debug.aar"
-//        publishing {
-////            repositories {
-////                maven {
-////                    name = artifactId
-////                    //url = "file://${buildDir}/repo"
-////                }
-////            }
-//            publications {
-//                maven(MavenPublication) {
-//                    setGroupId android.namespace
-//                    setArtifactId artifactId
-//                    version android.defaultConfig.versionName
-//
-//                    artifact(artifactPath)
-////                    artifact(sourceJar)
-//
-//                    //aar artifact you want to publish
-//
-//                    //generate pom nodes for dependencies
-//                    pom.withXml {
-//                        def dependenciesNode = asNode().appendNode('dependencies')
-//                        configurations.implementation.allDependencies.each { dependency ->
-//                            if (dependency.name != 'unspecified') {
-//                                def dependencyNode = dependenciesNode.appendNode('dependency')
-//                                dependencyNode.appendNode('groupId', dependency.group)
-//                                dependencyNode.appendNode('artifactId', dependency.name)
-//                                dependencyNode.appendNode('version', dependency.version)
-//                            }
-//                        }
-//                    }
+afterEvaluate {
+    publishToMavenLocal {
+        def groupId = 'com.github.autodatabank'
+        def artifactId = 'camera-library'
+        def artifactPath = "$buildDir/outputs/aar/cameralibrary-debug.aar"
+        publishing {
+//            repositories {
+//                maven {
+//                    name = artifactId
+//                    //url = "file://${buildDir}/repo"
 //                }
 //            }
-//        }
-//
-//        doLast {
-//            def prettyPrint = {
-//                1.upto(100, { print "=" })
-//                println()
-//            }
-//            println()
-//            prettyPrint()
-//            println "PUBLICATION FINISHED"
-//            println "Artifact : $artifactPath"
-//            println "Artifact RELEASE: " + android.namespace + ":" + artifactId +  ":" + android.defaultConfig.versionName
-//            println "Artifact DEBUG: " + android.namespace + ":" + artifactId +  ":" + android.defaultConfig.versionName
-//            prettyPrint()
-//        }
-//    }
-//}
+            publications {
+                maven(MavenPublication) {
+                    setGroupId groupId//android.namespace
+                    setArtifactId artifactId
+                    version android.defaultConfig.versionName
+
+                    artifact(artifactPath)
+//                    artifact(sourceJar)
+
+                    //aar artifact you want to publish
+
+                    //generate pom nodes for dependencies
+                    pom.withXml {
+                        def dependenciesNode = asNode().appendNode('dependencies')
+                        configurations.implementation.allDependencies.each { dependency ->
+                            if (dependency.name != 'unspecified') {
+                                def dependencyNode = dependenciesNode.appendNode('dependency')
+                                dependencyNode.appendNode('groupId', dependency.group)
+                                dependencyNode.appendNode('artifactId', dependency.name)
+                                dependencyNode.appendNode('version', dependency.version)
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        doLast {
+            def prettyPrint = {
+                1.upto(100, { print "=" })
+                println()
+            }
+            println()
+            prettyPrint()
+            println "PUBLICATION FINISHED"
+            println "Artifact : $artifactPath"
+            println "Artifact RELEASE: " + groupId + ":" + artifactId +  ":" + android.defaultConfig.versionName
+            println "Artifact DEBUG: " + groupId + ":" + artifactId +  ":" + android.defaultConfig.versionName
+            prettyPrint()
+        }
+    }
+}

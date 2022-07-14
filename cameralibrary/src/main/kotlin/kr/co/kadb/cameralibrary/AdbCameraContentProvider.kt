@@ -5,7 +5,6 @@ import android.content.ContentValues
 import android.database.Cursor
 import android.net.Uri
 import androidx.appcompat.app.AppCompatDelegate
-import kr.co.kadb.cameralibrary.data.local.PreferenceManager
 import timber.log.Timber
 
 class AdbCameraContentProvider: ContentProvider() {
