@@ -229,7 +229,7 @@ afterEvaluate {
                     setArtifactId artifactId
                     version android.defaultConfig.versionName
 
-                    artifact(artifactPath)
+//                    artifact(artifactPath)
 //                    artifact(sourceJar)
 
                     //aar artifact you want to publish
