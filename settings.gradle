@@ -3,7 +3,7 @@ pluginManagement {
         gradlePluginPortal()
         google()
         mavenCentral()
-        mavenLocal()
+//        mavenLocal()
     }
 }
 dependencyResolutionManagement {
@@ -11,10 +11,10 @@ dependencyResolutionManagement {
     repositories {
         google()
         mavenCentral()
-        mavenLocal()
-        maven {
-            url "$rootDir/cameralibrary/build/outputs/aar"
-        }
+//        mavenLocal()
+//        maven {
+//            url "$rootDir/cameralibrary/build/outputs/aar"
+//        }
         maven {
             url "https://jitpack.io"
         }
