@@ -13,7 +13,7 @@ android {
         minSdk 21
         targetSdk 31
         versionCode 22070601
-        versionName "1.0.0"
+        versionName "0.0.1"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -46,8 +46,8 @@ android {
 }
 
 dependencies {
-//    implementation project(':cameralibrary')
-    implementation 'com.github.autodatabank:camera-library:1.0.0'
+    implementation project(':cameralibrary')
+    //implementation 'com.github.autodatabank:camera-library:0.0.1'
     //implementation 'kr.co.kadb.cameralibrary:cameralibrary-simple:1.0.0@aar'
 
     implementation 'androidx.core:core-ktx:1.8.0'
