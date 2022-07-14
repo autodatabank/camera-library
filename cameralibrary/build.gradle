@@ -125,6 +125,7 @@ afterEvaluate {
                 from components.debug
 
                 groupId = 'kr.co.kadb.cameralibrary'
+                groupId = 'kr.co.kadb.cameralibrary'
                 artifactId = 'camera-library'
                 version = '0.0.1'
 
