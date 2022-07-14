@@ -3,7 +3,6 @@ plugins {
     id 'org.jetbrains.kotlin.android'
     id 'kotlin-kapt'
     id 'maven-publish'
-    //id 'signing'
 }
 
 android {
@@ -98,15 +97,12 @@ afterEvaluate {
     publishing {
         publications {
             release(MavenPublication) {
-                // The following applies a component to this publication
-                // which results in publishing an app bundle.
                 from components.release
 
-                groupId = 'kr.co.kadb.cameralibrary'
+                groupId = 'com.github.autodatabank'
                 artifactId = 'camera-library'
                 version = '0.0.1'
 
-                //generate pom nodes for dependencies
                 pom.withXml {
                     def dependenciesNode = asNode().appendNode('dependencies')
                     configurations.implementation.allDependencies.each { dependency ->
@@ -120,15 +116,12 @@ afterEvaluate {
                 }
             }
             debug(MavenPublication) {
-                // The following applies a component to this publication
-                // which results in publishing APKs in a ZIP file.
                 from components.debug
 
-                groupId = 'kr.co.kadb.cameralibrary'
+                groupId = 'com.github.autodatabank'
                 artifactId = 'camera-library'
                 version = '0.0.1'
 
-                //generate pom nodes for dependencies
                 pom.withXml {
                     def dependenciesNode = asNode().appendNode('dependencies')
                     configurations.implementation.allDependencies.each { dependency ->
