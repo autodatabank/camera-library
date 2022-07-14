@@ -104,15 +104,32 @@ afterEvaluate {
                 version = '0.0.1'
 
                 pom.withXml {
-                    def dependenciesNode = asNode().appendNode('dependencies')
-                    configurations.implementation.allDependencies.each { dependency ->
-                        if (dependency.name != 'unspecified') {
-                            def dependencyNode = dependenciesNode.appendNode('dependency')
-                            dependencyNode.appendNode('groupId', dependency.group)
-                            dependencyNode.appendNode('artifactId', dependency.name)
-                            dependencyNode.appendNode('version', dependency.version)
+                    final dependenciesNode = asNode().appendNode('dependencies')
+
+                    ext.addDependency = { Dependency dep, String scope ->
+                        final dependencyNode = dependenciesNode.appendNode('dependency')
+                        dependencyNode.appendNode('groupId', dep.group)
+                        dependencyNode.appendNode('artifactId', dep.group == groupId ? dep.name.substring(9) : dep.name)
+                        dependencyNode.appendNode('version', dep.version)
+                        dependencyNode.appendNode('scope', scope)
+
+                        if (!dep.transitive) {
+                            final exclusionNode = dependencyNode.appendNode('exclusions').appendNode('exclusion')
+                            exclusionNode.appendNode('groupId', '*')
+                            exclusionNode.appendNode('artifactId', '*')
+                        } else if (!dep.properties.excludeRules.empty) {
+                            // Otherwise add specified exclude rules
+                            final exclusionsNode = dependencyNode.appendNode('exclusions')
+                            dep.properties.excludeRules.each { ExcludeRule rule ->
+                                def exclusion = exclusionsNode.appendNode('exclusion')
+                                exclusion.appendNode('groupId', rule.group ?: '*')
+                                exclusion.appendNode('artifactId', rule.module ?: '*')
+                            }
                         }
                     }
+
+                    configurations.api.getAllDependencies().each { dep -> addDependency(dep, "compile") }
+                    configurations.implementation.getAllDependencies().each { dep -> addDependency(dep, "runtime") }
                 }
             }
             debug(MavenPublication) {
@@ -123,17 +140,48 @@ afterEvaluate {
                 version = '0.0.1'
 
                 pom.withXml {
-                    def dependenciesNode = asNode().appendNode('dependencies')
-                    configurations.implementation.allDependencies.each { dependency ->
-                        if (dependency.name != 'unspecified') {
-                            def dependencyNode = dependenciesNode.appendNode('dependency')
-                            dependencyNode.appendNode('groupId', dependency.group)
-                            dependencyNode.appendNode('artifactId', dependency.name)
-                            dependencyNode.appendNode('version', dependency.version)
+                    final dependenciesNode = asNode().appendNode('dependencies')
+
+                    ext.addDependency = { Dependency dep, String scope ->
+                        final dependencyNode = dependenciesNode.appendNode('dependency')
+                        dependencyNode.appendNode('groupId', dep.group)
+                        dependencyNode.appendNode('artifactId', dep.group == groupId ? dep.name.substring(9) : dep.name)
+                        dependencyNode.appendNode('version', dep.version)
+                        dependencyNode.appendNode('scope', scope)
+
+                        if (!dep.transitive) {
+                            final exclusionNode = dependencyNode.appendNode('exclusions').appendNode('exclusion')
+                            exclusionNode.appendNode('groupId', '*')
+                            exclusionNode.appendNode('artifactId', '*')
+                        } else if (!dep.properties.excludeRules.empty) {
+                            // Otherwise add specified exclude rules
+                            final exclusionsNode = dependencyNode.appendNode('exclusions')
+                            dep.properties.excludeRules.each { ExcludeRule rule ->
+                                def exclusion = exclusionsNode.appendNode('exclusion')
+                                exclusion.appendNode('groupId', rule.group ?: '*')
+                                exclusion.appendNode('artifactId', rule.module ?: '*')
+                            }
                         }
                     }
+
+                    configurations.api.getAllDependencies().each { dep -> addDependency(dep, "compile") }
+                    configurations.implementation.getAllDependencies().each { dep -> addDependency(dep, "runtime") }
                 }
             }
+//
+//            pom.withXml {
+//                def dependenciesNode = asNode().appendNode('dependencies')
+//                configurations.implementation.allDependencies.each { dependency ->
+//                    if (dependency.name != 'unspecified') {
+//                        def dependencyNode = dependenciesNode.appendNode('dependency')
+//                        dependencyNode.appendNode('groupId', dependency.group)
+//                        dependencyNode.appendNode('artifactId', dependency.name)
+//                        dependencyNode.appendNode('version', dependency.version)
+//
+//                        println "Artifact : " + dependency.group + ":" + dependency.name +  ":" + dependency.version
+//                    }
+//                }
+//            }
         }
     }
 }
