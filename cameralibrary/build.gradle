@@ -211,30 +211,72 @@ dependencies {
 //    classifier "sources"
 //}
 
-afterEvaluate {
-    publishToMavenLocal {
-        def groupId = 'com.github.autodatabank'
-        def artifactId = 'camera-library'
-        def artifactPath = "$buildDir/outputs/aar/cameralibrary-debug.aar"
-        publishing {
-//            repositories {
-//                maven {
-//                    name = artifactId
-//                    //url = "file://${buildDir}/repo"
+//afterEvaluate {
+//    publishToMavenLocal {
+//        def groupId = 'com.github.autodatabank'
+//        def artifactId = 'camera-library'
+//        def artifactPath = "$buildDir/outputs/aar/cameralibrary-debug.aar"
+//        publishing {
+////            repositories {
+////                maven {
+////                    name = artifactId
+////                    //url = "file://${buildDir}/repo"
+////                }
+////            }
+//            publications {
+//                maven(MavenPublication) {
+//                    setGroupId groupId//android.namespace
+//                    setArtifactId artifactId
+//                    version android.defaultConfig.versionName
+//
+////                    artifact(artifactPath)
+////                    artifact(sourceJar)
+//
+//                    //aar artifact you want to publish
+//
+//                    //generate pom nodes for dependencies
+//                    pom.withXml {
+//                        def dependenciesNode = asNode().appendNode('dependencies')
+//                        configurations.implementation.allDependencies.each { dependency ->
+//                            if (dependency.name != 'unspecified') {
+//                                def dependencyNode = dependenciesNode.appendNode('dependency')
+//                                dependencyNode.appendNode('groupId', dependency.group)
+//                                dependencyNode.appendNode('artifactId', dependency.name)
+//                                dependencyNode.appendNode('version', dependency.version)
+//                            }
+//                        }
+//                    }
 //                }
 //            }
+//        }
+//
+//        doLast {
+//            def prettyPrint = {
+//                1.upto(100, { print "=" })
+//                println()
+//            }
+//            println()
+//            prettyPrint()
+//            println "PUBLICATION FINISHED"
+//            println "Artifact : $artifactPath"
+//            println "Artifact RELEASE: " + groupId + ":" + artifactId +  ":" + android.defaultConfig.versionName
+//            println "Artifact DEBUG: " + groupId + ":" + artifactId +  ":" + android.defaultConfig.versionName
+//            prettyPrint()
+//        }
+//    }
+//}
+
+afterEvaluate {
+//    publishToMavenLocal {
+//        def groupId = 'com.github.autodatabank'
+//        def artifactId = 'camera-library'
+        publishing {
             publications {
                 maven(MavenPublication) {
-                    setGroupId groupId//android.namespace
-                    setArtifactId artifactId
+                    setGroupId 'com.github.autodatabank'//groupId//android.namespace
+                    setArtifactId 'camera-library'//artifactId
                     version android.defaultConfig.versionName
 
-//                    artifact(artifactPath)
-//                    artifact(sourceJar)
-
-                    //aar artifact you want to publish
-
-                    //generate pom nodes for dependencies
                     pom.withXml {
                         def dependenciesNode = asNode().appendNode('dependencies')
                         configurations.implementation.allDependencies.each { dependency ->
@@ -249,19 +291,5 @@ afterEvaluate {
                 }
             }
         }
-
-        doLast {
-            def prettyPrint = {
-                1.upto(100, { print "=" })
-                println()
-            }
-            println()
-            prettyPrint()
-            println "PUBLICATION FINISHED"
-            println "Artifact : $artifactPath"
-            println "Artifact RELEASE: " + groupId + ":" + artifactId +  ":" + android.defaultConfig.versionName
-            println "Artifact DEBUG: " + groupId + ":" + artifactId +  ":" + android.defaultConfig.versionName
-            prettyPrint()
-        }
-    }
+//    }
 }
