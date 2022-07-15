@@ -267,29 +267,42 @@ dependencies {
 //}
 
 afterEvaluate {
-//    publishToMavenLocal {
-//        def groupId = 'com.github.autodatabank'
-//        def artifactId = 'camera-library'
-        publishing {
-            publications {
-                maven(MavenPublication) {
-                    setGroupId 'com.github.autodatabank'//groupId//android.namespace
-                    setArtifactId 'camera-library'//artifactId
-                    version android.defaultConfig.versionName
+    publishing {
+        publications {
+            release(MavenPublication) {
+                setGroupId 'com.github.autodatabank'//groupId//android.namespace
+                setArtifactId 'camera-library'//artifactId
+                version android.defaultConfig.versionName
 
-                    pom.withXml {
-                        def dependenciesNode = asNode().appendNode('dependencies')
-                        configurations.implementation.allDependencies.each { dependency ->
-                            if (dependency.name != 'unspecified') {
-                                def dependencyNode = dependenciesNode.appendNode('dependency')
-                                dependencyNode.appendNode('groupId', dependency.group)
-                                dependencyNode.appendNode('artifactId', dependency.name)
-                                dependencyNode.appendNode('version', dependency.version)
-                            }
+                pom.withXml {
+                    def dependenciesNode = asNode().appendNode('dependencies')
+                    configurations.implementation.allDependencies.each { dependency ->
+                        if (dependency.name != 'unspecified') {
+                            def dependencyNode = dependenciesNode.appendNode('dependency')
+                            dependencyNode.appendNode('groupId', dependency.group)
+                            dependencyNode.appendNode('artifactId', dependency.name)
+                            dependencyNode.appendNode('version', dependency.version)
+                        }
+                    }
+                }
+            }
+            debug(MavenPublication) {
+                setGroupId 'com.github.autodatabank'//groupId//android.namespace
+                setArtifactId 'camera-library'//artifactId
+                version android.defaultConfig.versionName
+
+                pom.withXml {
+                    def dependenciesNode = asNode().appendNode('dependencies')
+                    configurations.implementation.allDependencies.each { dependency ->
+                        if (dependency.name != 'unspecified') {
+                            def dependencyNode = dependenciesNode.appendNode('dependency')
+                            dependencyNode.appendNode('groupId', dependency.group)
+                            dependencyNode.appendNode('artifactId', dependency.name)
+                            dependencyNode.appendNode('version', dependency.version)
                         }
                     }
                 }
             }
         }
-//    }
+    }
 }
