@@ -1,0 +1,85 @@
+<resources>
+    <string name="app_name">camera</string>
+
+
+    <!-- 권한. -->
+    <string name="text_adb_camera_permission_title">권한 필요</string>
+    <string name="text_adb_camera_goto_settings">설정으로 바로가기</string>
+    <string name="text_adb_camera_this_app_needs_permission">이 앱을 사용하시려면 권한이 필요합니다.\n해당 권한은 앱 설정에서 [권한] 항목을 통하여 부여 할 수 있습니다.</string>
+    <string name="text_adb_camera_error_permission">권한 설정에 오류가 발생하였습니다. 문의 요청시 아래 코드를 담당자에게 전달하시면 빠른 응대가 가능합니다.\n[코드 : 912]</string>
+
+
+    <!-- 공통. -->
+    <string name="text_adb_camera_dummy">image</string>
+    <string name="text_adb_camera_vertical_bar">|</string>
+    <string name="text_adb_camera_positive">예</string>
+    <string name="text_adb_camera_negative">아니오</string>
+    <string name="text_adb_camera_complete">완료</string>
+    <string name="text_adb_camera_confirm">확인</string>
+    <string name="text_adb_camera_cancel">취소</string>
+    <string name="text_adb_camera_selection_cancel">선택취소</string>
+    <string name="text_adb_camera_close">닫기</string>
+    <string name="text_adb_camera_back">이전</string>
+    <string name="text_adb_camera_next">다음</string>
+    <string name="text_adb_camera_preview">미리보기</string>
+    <string name="text_adb_camera_finish">종료</string>
+    <string name="text_adb_camera_stop_looking">그만보기</string>
+    <string name="text_adb_camera_retry">재시도</string>
+    <string name="text_adb_camera_search">검색</string>
+    <string name="text_adb_camera_initial">초기화</string>
+    <string name="text_adb_camera_edit">편집</string>
+    <string name="text_adb_camera_modify">수정</string>
+    <string name="text_adb_camera_save">저장</string>
+    <string name="text_adb_camera_new">신규</string>
+    <string name="text_adb_camera_insert">추가</string>
+    <string name="text_adb_camera_delete">삭제</string>
+    <string name="text_adb_camera_use">사용</string>
+    <string name="text_adb_camera_selection">선택</string>
+    <string name="text_adb_camera_update">업데이트</string>
+    <string name="text_adb_camera_inquiry">조회</string>
+    <string name="text_adb_camera_list">목록</string>
+    <string name="text_adb_camera_view_list">목록보기</string>
+    <string name="text_adb_camera_view_all">전체보기</string>
+    <string name="text_adb_camera_detail">자세히</string>
+    <string name="text_adb_camera_phone">전화</string>
+    <string name="text_adb_camera_call">전화걸기</string>
+    <string name="text_adb_camera_send">전송</string>
+    <string name="text_adb_camera_dispatch">발송</string>
+    <string name="text_adb_camera_division">구분</string>
+    <string name="text_adb_camera_item">항목</string>
+    <string name="text_adb_camera_notify">알림</string>
+    <string name="text_adb_camera_info">정보</string>
+    <string name="text_adb_camera_transfer">전송</string>
+    <string name="text_adb_camera_connection">연결</string>
+    <string name="text_adb_camera_registration">등록</string>
+    <string name="text_adb_camera_more">더보기</string>
+    <string name="text_adb_camera_listening">청취 중..</string>
+    <string name="text_adb_camera_auto_login_setting">자동 로그아웃 설정</string>
+    <string name="text_adb_camera_default_quantity">1</string>
+    <string name="text_adb_camera_default_price">0</string>
+    <string name="text_adb_camera_spinner_default_selection">선택</string>
+    <string name="text_adb_camera_change">변경</string>
+    <string name="text_adb_camera_required">필수</string>
+    <string name="text_adb_camera_error">오류</string>
+    <string name="text_adb_camera_nothing">없음</string>
+    <string name="text_adb_camera_unknown">알수없음</string>
+    <string name="text_adb_camera_none_select">선택없음</string>
+    <string name="text_adb_camera_no_input">입력없음</string>
+    <string name="text_adb_camera_permission_approval">권한승인</string>
+    <string name="text_adb_camera_no_data">데이터가 없습니다.</string>
+    <string name="text_adb_camera_syncing_data">동기화 중..</string>
+    <string name="text_adb_camera_fetched_data_empty">0 건의 데이터를 가져왔습니다.</string>
+    <string name="text_adb_camera_search_fetched_data_empty">\"%1$s\" 검색 결과\n0 건의 데이터를 가져왔습니다.</string>
+    <string name="text_adb_camera_please_select_one_item">1개 항목만 선택하여 주십시오.</string>
+    <string name="text_adb_camera_please_select_an_item">항목을 선택하여 주십시오.</string>
+    <string name="text_adb_camera_one_item_selected">1개 항목을 선택하여 주십시오.</string>
+    <string name="text_adb_camera_enough_information">항목의 정보가 부족합니다.</string>
+    <string name="text_adb_camera_missing_required_items">필수 항목이 누락 되었습니다.</string>
+    <string name="text_adb_camera_delete_item">삭제하시겠습니까?</string>
+    <string name="text_adb_camera_deletion_is_complete">삭제가 완료 되었습니다.</string>
+    <string name="text_adb_camera_please_install_kakaotalk">카카오톡을 설치하여 주십시오.</string>
+    <string name="text_adb_camera_application_finish">어플리케이션을 종료하시겠습니까?</string>
+    <string name="text_adb_camera_application_close">종료 하려면 이전 버튼을 한 번 더 누르세요.</string>
+    <string name="text_adb_camera_call_error_string">전화번호(%s)가 올바르지 않습니다.</string>
+    <string name="text_adb_camera_unknown_error">Unknown Error</string>
+</resources>
