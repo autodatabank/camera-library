@@ -3,8 +3,10 @@ plugins {
     id 'org.jetbrains.kotlin.android'
     id 'kotlin-kapt'
     id 'maven-publish'
-    //id 'com.github.dcendents.android-maven'
+//    id 'com.github.dcendents.android-maven'
 }
+
+group = 'com.github.autodatabank'
 
 //apply plugin: 'com.github.dcendents.android-maven'
 
@@ -96,7 +98,35 @@ dependencies {
     implementation 'com.jakewharton.timber:timber:5.0.1'
 }
 
-group='com.github.autodatabank'
+// Because the components are created only during the afterEvaluate phase, you must
+// configure your publications using the afterEvaluate() lifecycle method.
+afterEvaluate {
+    publishing {
+        publications {
+            // Creates a Maven publication called "release".
+            release(MavenPublication) {
+                // Applies the component for the release build variant.
+                from components.release
+
+                // You can then customize attributes of the publication as shown below.
+                groupId = 'com.github.autodatabank'
+                artifactId = 'camera-library'
+                version = '0.0.1'
+            }
+            // Creates a Maven publication called “debug”.
+            debug(MavenPublication) {
+                // Applies the component for the debug build variant.
+                from components.debug
+
+                groupId = 'com.github.autodatabank'
+                artifactId = 'camera-library'
+                version = '0.0.1'
+            }
+        }
+    }
+}
+
+
 
 //afterEvaluate {
 //    publishing {
