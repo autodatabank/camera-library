@@ -5,7 +5,6 @@ import android.content.res.Configuration
 import android.hardware.display.DisplayManager
 import android.media.AudioManager
 import android.media.MediaActionSound
-import android.os.Build
 import android.os.Bundle
 import android.view.View
 import android.widget.Toast

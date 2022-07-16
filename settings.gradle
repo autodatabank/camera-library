@@ -16,7 +16,5 @@ dependencyResolutionManagement {
     }
 }
 
-//rootProject.name("autodatabank")
-
-//include ':app'
+include ':app'
 include ':cameralibrary'
