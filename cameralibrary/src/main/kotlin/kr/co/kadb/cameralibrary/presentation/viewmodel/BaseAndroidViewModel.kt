@@ -22,18 +22,20 @@ internal abstract class BaseAndroidViewModel<T>(
     val state = _state.asStateFlow()
 
     protected fun updateState(transform: (T?) -> T?) {
-        //val state = state.value
+        val state = state.value
         // Debug.
         Timber.i(">>>>> BaseAndroidViewModel[1] : %s", state.value)
         Timber.i(">>>>> BaseAndroidViewModel[2] : %s", _state.value)
-        //val value = state.value ?: return
+        val value = state.value ?: return
         _state.update {
             Timber.i(">>>>> BaseAndroidViewModel[3] : %s", it)
             Timber.i(">>>>> BaseAndroidViewModel[4] : %s", state.value)
             Timber.i(">>>>> BaseAndroidViewModel[5] : %s", _state.value)
-            Timber.i(">>>>> BaseAndroidViewModel[6] : %s", transform(state.value.value))
-            //Timber.i(">>>>> BaseAndroidViewModel[7] : %s", UiState.success(transform(state.value.value)))
-            UiState.success(transform(state.value.value))
+            Timber.i(">>>>> BaseAndroidViewModel[7] : %s", transform(value))
+            Timber.i(">>>>> BaseAndroidViewModel[8] : %s", transform(state.value))
+            Timber.i(">>>>> BaseAndroidViewModel[9] : %s", UiState.success(transform(value)))
+            Timber.i(">>>>> BaseAndroidViewModel[10] : %s", UiState.success(transform(state.value)))
+            UiState.success(transform(value))
         }
     }
 
@@ -42,14 +44,11 @@ internal abstract class BaseAndroidViewModel<T>(
         cause: Throwable? = state.value.cause,
         value: T? = state.value.value
     ) {
-        Timber.i(">>>>> BaseAndroidViewModel updateState[1] : %s", value)
         _state.value = UiState(isLoading = isLoading, cause = cause, value = value)
-        Timber.i(">>>>> BaseAndroidViewModel updateState[2] : %s", _state.value)
     }
 
-    protected fun savedInstanceState(savedInstanceState: Bundle?) {
-
-    }
+//    protected fun bundle(bundle: Bundle?) {
+//    }
 //
 //    protected fun addDisposable(disposable: Disposable) {
 //        this.disposable.add(disposable)

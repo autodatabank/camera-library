@@ -3,6 +3,7 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="../../../../layout/custom_preview.xml" value="0.14732593340060546" />
         <entry key="app/src/main/res/drawable/adb_camera_ic_baseline_camera_accent_64.xml" value="0.1435" />
         <entry key="app/src/main/res/drawable/adb_camera_ic_baseline_camera_disable_64.xml" value="0.1435" />
         <entry key="app/src/main/res/drawable/adb_camera_ic_baseline_camera_white_64.xml" value="0.1435" />
@@ -27,7 +28,7 @@
         <entry key="cameralibrary/src/main/res/drawable-v24/ic_launcher_foreground.xml" value="0.1435" />
         <entry key="cameralibrary/src/main/res/drawable/ic_launcher_background.xml" value="0.1435" />
         <entry key="cameralibrary/src/main/res/layout/activity_shoot.xml" value="0.3591485507246377" />
-        <entry key="cameralibrary/src/main/res/layout/adb_cameralibrary_fragment_shoot.xml" value="0.1" />
+        <entry key="cameralibrary/src/main/res/layout/adb_cameralibrary_fragment_shoot.xml" value="0.165" />
         <entry key="cameralibrary/src/main/res/mipmap-anydpi-v26/adb_cameralibrary_ic_launcher_round.xml" value="0.1435" />
         <entry key="cameralibrary/src/main/res/mipmap-anydpi-v26/ic_launcher.xml" value="0.1435" />
       </map>

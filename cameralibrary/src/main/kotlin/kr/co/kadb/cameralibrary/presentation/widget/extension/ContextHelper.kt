@@ -225,64 +225,64 @@ internal fun Context?.createFile(
 }
 
 // OutputFileOptions.Builder 생성.
-internal fun Context?.outputFileOptionsBuilder(
+internal fun Context.outputFileOptionsBuilder(
     isPublicDirectory: Boolean = false,
     filename: String = System.currentTimeMillis().toString(),
     format: Bitmap.CompressFormat = Bitmap.CompressFormat.JPEG
-): ImageCapture.OutputFileOptions.Builder? {
+): ImageCapture.OutputFileOptions.Builder {
     val extension = when (format) {
         Bitmap.CompressFormat.PNG -> "png"
         Bitmap.CompressFormat.JPEG -> "jpg"
         else -> "webp"
     }
 
-    var builder: ImageCapture.OutputFileOptions.Builder? = null
+    // OutputFileOptions Builder.
+    //val builder: ImageCapture.OutputFileOptions.Builder
 
-    if (isPublicDirectory) {
+    return if (isPublicDirectory) {
+        val childDirectory = this.packageName.split('.').last()
         // 공유 저장소 사용 시 Android Q 대응.
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             val contentValues = ContentValues().apply {
-                //put(MediaStore.Images.Media.IS_PENDING, 1)
                 put(MediaStore.Images.Media.MIME_TYPE, "image/$extension")
                 put(MediaStore.Images.Media.DISPLAY_NAME, "$filename.$extension")
                 put(
                     MediaStore.MediaColumns.RELATIVE_PATH,
-                    "${Environment.DIRECTORY_PICTURES}/adbcamerax"
+                    "${Environment.DIRECTORY_PICTURES}/$childDirectory"
                 )
             }
 
-            this?.contentResolver?.let { contentResolver ->
-                builder = ImageCapture.OutputFileOptions.Builder(
-                    contentResolver,
-                    MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-                    contentValues
-                )
-            }
+            // Builder.
+            ImageCapture.OutputFileOptions.Builder(
+                this.contentResolver,
+                MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+                contentValues
+            )
         } else {
             @Suppress("DEPRECATION")
             val directory = File(
                 Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES),
-                "adbcamerax"
+                childDirectory
             )
             if (!directory.mkdirs()) {
                 Timber.i(">>>>> Directory not created : %s", directory)
             }
 
-            builder = ImageCapture.OutputFileOptions.Builder(
+            // Builder.
+            ImageCapture.OutputFileOptions.Builder(
                 File("${directory.absolutePath}/$filename.$extension")
             )
         }
     } else {
         // 내부 저장소 사용.
-        val directory = this?.getExternalFilesDir(Environment.DIRECTORY_PICTURES)
+        val directory = this.getExternalFilesDir(Environment.DIRECTORY_PICTURES)
         if (directory?.mkdirs() != true) {
             Timber.i(">>>>> Directory not created : %s", directory)
         }
 
-        builder = ImageCapture.OutputFileOptions.Builder(
+        // Builder.
+        ImageCapture.OutputFileOptions.Builder(
             File("${directory?.absolutePath}/$filename.$extension")
         )
     }
-
-    return builder
 }

@@ -7,5 +7,5 @@ object IntentAction {
 	// 촬영.
 	const val ACTION_TAKE_PICTURE = "kr.co.kadb.cameralibrary.ACTION_TAKE_PICTURE"
 
-	const val ACTION_TAKE_PICTURE_MULTIPLE = "kr.co.kadb.cameralibrary.ACTION_TAKE_PICTURE_MULTIPLE"
+	const val ACTION_TAKE_MULTIPLE_PICTURE = "kr.co.kadb.cameralibrary.ACTION_TAKE_MULTIPLE_PICTURE"
 }

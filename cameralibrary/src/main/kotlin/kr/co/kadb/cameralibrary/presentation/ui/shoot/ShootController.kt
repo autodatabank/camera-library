@@ -14,8 +14,8 @@ constructor(activityContext: Context) : BaseController(activityContext) {
 	private val containerId: Int = R.id.layout_container
 
 	// 촬영.
-	fun navigateToShooting(extraTo: String?) {
-		val fragment = ShootFragment.create(extraTo)
+	fun navigateToShooting() {
+		val fragment = ShootFragment.create()
 		fragmentManager.beginTransaction()
 				.replace(containerId, fragment)
 				.commitAllowingStateLoss()

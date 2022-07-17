@@ -1,11 +1,28 @@
+/*
+ * Copyright 2020 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package kr.co.kadb.cameralibrary.presentation.ui.shoot
 
+import android.app.Activity
 import android.content.Context
+import android.content.Intent
 import android.content.res.Configuration
 import android.hardware.display.DisplayManager
 import android.media.AudioManager
 import android.media.MediaActionSound
-import android.os.Bundle
+import android.provider.MediaStore
 import android.view.View
 import android.widget.Toast
 import androidx.camera.core.*
@@ -13,11 +30,7 @@ import androidx.camera.core.ImageCapture.Metadata
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.lifecycleScope
-import androidx.window.layout.WindowInfoTracker
 import androidx.window.layout.WindowMetricsCalculator
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import kr.co.kadb.cameralibrary.R
 import kr.co.kadb.cameralibrary.data.local.PreferenceManager
 import kr.co.kadb.cameralibrary.databinding.AdbCameralibraryFragmentShootBinding
@@ -33,27 +46,22 @@ import kotlin.math.abs
 import kotlin.math.max
 import kotlin.math.min
 
-/**
- * Created by oooobang on 2022. 7. 16..
- * 촬영.
- */
-
 /** Helper type alias used for analysis use case callbacks */
 internal typealias LumaListener = (luma: Double) -> Unit
 
+/**
+ * Modified by oooobang on 2022. 7. 16..
+ * Fragment for this app. Implements all camera operations including:
+ * - Viewfinder
+ * - Photo taking
+ * - Image analysis
+ */
 internal class ShootFragment :
     BaseBindingFragment<AdbCameralibraryFragmentShootBinding, ShootSharedViewModel>() {
     companion object {
-        private const val ACTION = "action"
-        private const val RATIO_4_3_VALUE = 4.0 / 3.0
+       private const val RATIO_4_3_VALUE = 4.0 / 3.0
         private const val RATIO_16_9_VALUE = 16.0 / 9.0
-        fun create(action: String?): ShootFragment {
-            val fragment = ShootFragment()
-            val bundle = Bundle()
-            bundle.putString(ACTION, action)
-            fragment.arguments = bundle
-            return fragment
-        }
+        fun create() = ShootFragment()
     }
 
     // SharedPreferences.
@@ -69,32 +77,49 @@ internal class ShootFragment :
         ShootSharedViewModelFactory(requireContext())
     }
 
-    // Window Info.
-    private lateinit var windowInfoTracker: WindowInfoTracker
-
     // Fragment Layout.
     override val layoutResourceId: Int = R.layout.adb_cameralibrary_fragment_shoot
 
     // MediaActionSound2.
     private lateinit var mediaActionSound: MediaActionSound2
 
+    private val displayManager by lazy {
+        requireContext().getSystemService(Context.DISPLAY_SERVICE) as DisplayManager
+    }
     private val audioManager by lazy {
         context?.getSystemService(Context.AUDIO_SERVICE) as? AudioManager
     }
 
-    override fun onStart() {
-        super.onStart()
+    private var displayId: Int = -1
+    private var lensFacing: Int = CameraSelector.LENS_FACING_BACK
+    private var preview: Preview? = null
+    private var imageCapture: ImageCapture? = null
+    private var imageAnalyzer: ImageAnalysis? = null
+    private var camera: Camera? = null
+    private var cameraProvider: ProcessCameraProvider? = null
 
-        viewController.requestCameraPermission {
-            // Granted.
-            Timber.i(">>>>> requestCameraPermission Granted")
+    /** Blocking camera operations are performed using this executor */
+    private lateinit var cameraExecutor: ExecutorService
 
-            initCamera()
-        }
+    /**
+     * We need a display listener for orientation changes that do not trigger a configuration
+     * change, for example if we choose to override config change in manifest or for 180-degree
+     * orientation changes.
+     */
+    private val displayListener = object : DisplayManager.DisplayListener {
+        override fun onDisplayAdded(displayId: Int) = Unit
+        override fun onDisplayRemoved(displayId: Int) = Unit
+        override fun onDisplayChanged(displayId: Int) = view?.let { view ->
+            if (displayId == this@ShootFragment.displayId) {
+                // Debug.
+                Timber.d(">>>>> Rotation changed: ${view.display.rotation}")
+                imageCapture?.targetRotation = view.display.rotation
+                imageAnalyzer?.targetRotation = view.display.rotation
+            }
+        } ?: Unit
     }
 
     override fun onDestroyView() {
-//        _fragmentCameraBinding = null
         super.onDestroyView()
 
         //
@@ -125,10 +150,11 @@ internal class ShootFragment :
         updateCameraSwitchButton()
     }
 
-
-//    private lateinit var cameraProviderFuture: ListenableFuture<ProcessCameraProvider>
-
     override fun initVariable() {
+        // Initialize our background executor
+        cameraExecutor = Executors.newSingleThreadExecutor()
+
+        // Initialize MediaActionSound
         mediaActionSound = MediaActionSound2().apply {
             load(MediaActionSound.SHUTTER_CLICK)
         }
@@ -136,38 +162,13 @@ internal class ShootFragment :
 
     // Init Layout.
     override fun initLayout(view: View) {
+        // 카메라 권한 요청.
+        viewController.requestCameraPermission {
+            // Granted.
+            Timber.i(">>>>> requestCameraPermission Granted")
 
-        // Debug.
-        Timber.i(">>>>> initLayout!!!!!")
-
-
-        //Initialize WindowManager to retrieve display metrics
-        windowInfoTracker = WindowInfoTracker.getOrCreate(view.context)
-        //windowManager = activity?.getSystemService(Context.WINDOW_SERVICE) as WindowManager
-
-//        // 차량등록증 촬영 시 선택 버튼 비활성.
-//        if (extraTo == TO_SHOOTING_REGISTRATION_CARD) {
-//            binding.buttonSelect.isVisible = false
-//        }
-//
-//        // 카메라 로깅.
-//        CameraLogger.setLogLevel(CameraLogger.LEVEL_VERBOSE)
-//
-//        // 플래쉬.
-//        when (preferences.cameraFlash) {
-//            Flash.ON.ordinal -> {
-//                binding.cameraview.flash = Flash.ON
-//                binding.buttonFlash.setImageResource(R.drawable.baseline_flash_on_white_48)
-//            }
-//            Flash.AUTO.ordinal -> {
-//                binding.cameraview.flash = Flash.AUTO
-//                binding.buttonFlash.setImageResource(R.drawable.baseline_flash_auto_white_48)
-//            }
-//            else -> {
-//                binding.cameraview.flash = Flash.OFF
-//                binding.buttonFlash.setImageResource(R.drawable.baseline_flash_off_white_48)
-//            }
-//        }
+            initCamera()
+        }
     }
 
     // Init Observer.
@@ -176,65 +177,25 @@ internal class ShootFragment :
 
     // Init Listener.
     override fun initListener() {
-//        // 플래쉬.
-//        binding.buttonFlash.setOnClickListener {
-//            when (preferences.cameraFlash) {
-//                Flash.ON.ordinal -> {
-//                    preferences.cameraFlash = Flash.AUTO.ordinal
-//                    binding.cameraview.flash = Flash.AUTO
-//                    binding.buttonFlash.setImageResource(R.drawable.baseline_flash_auto_white_48)
-//                }
-//                Flash.AUTO.ordinal -> {
-//                    preferences.cameraFlash = Flash.OFF.ordinal
-//                    binding.cameraview.flash = Flash.OFF
-//                    binding.buttonFlash.setImageResource(R.drawable.baseline_flash_off_white_48)
-//                }
-//                else -> {
-//                    preferences.cameraFlash = Flash.ON.ordinal
-//                    binding.cameraview.flash = Flash.ON
-//                    binding.buttonFlash.setImageResource(R.drawable.baseline_flash_on_white_48)
-//                }
-//            }
-//        }
-
         // 촬영.
         binding.buttonShooting.setOnClickListener {
             mediaActionSound.playWithStreamVolume(
                 MediaActionSound.SHUTTER_CLICK,
                 audioManager
-
             )
-            //mediaActionSound.play(MediaActionSound.SHUTTER_CLICK)
-//            MediaActionSound().apply {
-//                (context?.getSystemService(Context.AUDIO_SERVICE) as? AudioManager)?.let {
-//                    this.play(MediaActionSound.SHUTTER_CLICK)
-//                }
-//            }
 
-//            Timber.i(">>>>> FILE PATH : %s", context?.createFile(true))
-//            Timber.i(">>>>> FILE PATH : %s", context?.createFile(false))
             // Get a stable reference of the modifiable image capture use case
             imageCapture?.let { imageCapture ->
-
-                // Create output file to hold the image
-
-//                val photoFile = createFile(outputDirectory, FILENAME, PHOTO_EXTENSION)
-//                val photoFile = context?.createFile(true)!!
-
                 // Setup image capture metadata
                 val metadata = Metadata().apply {
-
                     // Mirror image when using the front camera
                     isReversedHorizontal = lensFacing == CameraSelector.LENS_FACING_FRONT
                 }
 
                 // Create output options object which contains file + metadata
-                val outputOptions = context?.outputFileOptionsBuilder(true)
-                    ?.setMetadata(metadata)
-                    ?.build()!!
-//                val outputOptions = ImageCapture.OutputFileOptions.Builder(photoFile)
-//                    .setMetadata(metadata)
-//                    .build()
+                val outputOptions = requireContext().outputFileOptionsBuilder(true)
+                    .setMetadata(metadata)
+                    .build()
 
                 // Setup image capture listener which is triggered after photo has been taken
                 imageCapture.takePicture(
@@ -246,152 +207,40 @@ internal class ShootFragment :
                         override fun onImageSaved(output: ImageCapture.OutputFileResults) {
 //                            val savedUri = output.savedUri ?: Uri.fromFile(photoFile)
                             Timber.i(">>>>> Photo capture succeeded: ${output.savedUri}")
-//
-//                            // We can only change the foreground Drawable using API level 23+ API
-//                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-//                                // Update the gallery thumbnail with latest picture taken
-//                                setGalleryThumbnail(savedUri)
-//                            }
-//
-//                            // Implicit broadcasts will be ignored for devices running API level >= 24
-//                            // so if you only target API level 24+ you can remove this statement
-//                            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
-//                                requireActivity().sendBroadcast(
-//                                    Intent(android.hardware.Camera.ACTION_NEW_PICTURE, output.savedUri)
-//                                )
-//                            }
-//
-//                            // If the folder selected is an external media directory, this is
-//                            // unnecessary but otherwise other apps will not be able to access our
-//                            // images unless we scan them using [MediaScannerConnection]
-//                            val mimeType = MimeTypeMap.getSingleton()
-//                                .getMimeTypeFromExtension(output.savedUri?.toFile()?.extension)
-//                            MediaScannerConnection.scanFile(
-//                                context,
-//                                arrayOf(output.savedUri?.toFile()?.absolutePath),
-//                                arrayOf(mimeType)
-//                            ) { _, uri ->
-//                                Timber.d(">>>>> Image capture scanned into media store: $uri")
-//                            }
+
+                            // Debug.
+                            Timber.i(">>>>> ShootFragment takePicture isMultiplePicture : %s", viewModel.item.value.isMultiplePicture)
+                            if (viewModel.item.value.isMultiplePicture) {
+                                Intent().also { intent ->
+                                    intent.putExtra(MediaStore.EXTRA_OUTPUT, output.savedUri)
+                                    requireActivity().setResult(Activity.RESULT_OK, intent)
+                                }
+                                activity?.finish()
+                            } else {
+                                Intent().also { intent ->
+                                    intent.putExtra(MediaStore.EXTRA_OUTPUT, output.savedUri)
+                                    requireActivity().setResult(Activity.RESULT_OK, intent)
+                                }
+                                activity?.finish()
+                            }
                         }
                     })
-
-//                // We can only change the foreground Drawable using API level 23+ API
-//                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-//
-//                    // Display flash animation to indicate that photo was captured
-//                    fragmentCameraBinding.root.postDelayed({
-//                        fragmentCameraBinding.root.foreground = ColorDrawable(Color.WHITE)
-//                        fragmentCameraBinding.root.postDelayed(
-//                            { fragmentCameraBinding.root.foreground = null }, ANIMATION_FAST_MILLIS
-//                        )
-//                    }, ANIMATION_SLOW_MILLIS)
-//                }
             }
         }
-//
-//        // 선택.
-//        binding.buttonSelect.setOnClickListener {
-//            viewController.navigateToShootingMany(viewModel.paths)
-//        }
     }
 
     // Init Callback.
     override fun initCallback() {
-//        // 촬영 후 결과.
-//        binding.cameraview.onPictureTaken { result ->
-//            viewModel.saveWithByte(result.data) {
-//                // 차량등록증 촬영 시 사진 결과 화면으로...
-//                if (extraTo == TO_SHOOTING_REGISTRATION_CARD) {
-//                    viewController.navigateToShootingOne(viewModel.paths)
-//                }
-//            }
-//        }
-    }
-
-
-//    private var _fragmentCameraBinding: FragmentCameraBinding? = null
-//
-//    private val fragmentCameraBinding get() = _fragmentCameraBinding!!
-//
-//    private var cameraUiContainerBinding: CameraUiContainerBinding? = null
-
-//    private lateinit var outputDirectory: File
-//    private lateinit var broadcastManager: LocalBroadcastManager
-
-    private var displayId: Int = -1
-    private var lensFacing: Int = CameraSelector.LENS_FACING_BACK
-    private var preview: Preview? = null
-    private var imageCapture: ImageCapture? = null
-    private var imageAnalyzer: ImageAnalysis? = null
-    private var camera: Camera? = null
-    private var cameraProvider: ProcessCameraProvider? = null
-//    private lateinit var windowManager: WindowManager
-
-    private val displayManager by lazy {
-        requireContext().getSystemService(Context.DISPLAY_SERVICE) as DisplayManager
-    }
-
-    /** Blocking camera operations are performed using this executor */
-    private lateinit var cameraExecutor: ExecutorService
-//
-//    /** Volume down button receiver used to trigger shutter */
-//    private val volumeDownReceiver = object : BroadcastReceiver() {
-//        override fun onReceive(context: Context, intent: Intent) {
-//            when (intent.getIntExtra(KEY_EVENT_EXTRA, KeyEvent.KEYCODE_UNKNOWN)) {
-//                // When the volume down button is pressed, simulate a shutter button click
-//                KeyEvent.KEYCODE_VOLUME_DOWN -> {
-//                    cameraUiContainerBinding?.cameraCaptureButton?.simulateClick()
-//                }
-//            }
-//        }
-//    }
-
-    /**
-     * We need a display listener for orientation changes that do not trigger a configuration
-     * change, for example if we choose to override config change in manifest or for 180-degree
-     * orientation changes.
-     */
-    private val displayListener = object : DisplayManager.DisplayListener {
-        override fun onDisplayAdded(displayId: Int) = Unit
-        override fun onDisplayRemoved(displayId: Int) = Unit
-        override fun onDisplayChanged(displayId: Int) = view?.let { view ->
-            if (displayId == this@ShootFragment.displayId) {
-                // Debug.
-                Timber.d(">>>>> Rotation changed: ${view.display.rotation}")
-                imageCapture?.targetRotation = view.display.rotation
-                imageAnalyzer?.targetRotation = view.display.rotation
-            }
-        } ?: Unit
     }
 
     private fun initCamera() {
-//
-//
-//        cameraProviderFuture = ProcessCameraProvider.getInstance(requireContext())
-
-        // Initialize our background executor
-        cameraExecutor = Executors.newSingleThreadExecutor()
-//
-//        broadcastManager = LocalBroadcastManager.getInstance(view.context)
-//
-//        // Set up the intent filter that will receive events from our main activity
-//        val filter = IntentFilter().apply { addAction(KEY_EVENT_ACTION) }
-//        broadcastManager.registerReceiver(volumeDownReceiver, filter)
-
         // Every time the orientation of device changes, update rotation for use cases
         displayManager.registerDisplayListener(displayListener, null)
-//
-//        // Determine the output directory
-//        outputDirectory = MainActivity.getOutputDirectory(requireContext())
 
         // Wait for the views to be properly laid out
         binding.previewView.post {
             // Keep track of the display in which this view is attached
             displayId = binding.previewView.display.displayId
-
-            // Build UI controls
-            updateCameraUi()
 
             // Set up the camera and its use cases
             setUpCamera()
@@ -402,7 +251,6 @@ internal class ShootFragment :
     private fun setUpCamera() {
         val cameraProviderFuture = ProcessCameraProvider.getInstance(requireContext())
         cameraProviderFuture.addListener({
-
             // CameraProvider
             cameraProvider = cameraProviderFuture.get()
 
@@ -423,7 +271,6 @@ internal class ShootFragment :
 
     /** Declare and bind preview, capture and analysis use cases */
     private fun bindCameraUseCases() {
-
         // Get screen metrics used to setup camera for full screen resolution
         val metrics = WindowMetricsCalculator.getOrCreate()
             .computeCurrentWindowMetrics(requireActivity()).bounds
@@ -478,7 +325,7 @@ internal class ShootFragment :
                     // We log image analysis results here - you should do something useful
                     // instead!
                     // Debug.
-                    //Timber.d(">>>>> Average luminosity: $luma")
+                    Timber.v(">>>>> Average luminosity: $luma")
                 })
             }
 
@@ -494,7 +341,7 @@ internal class ShootFragment :
 
             // Attach the viewfinder's surface provider to preview use case
             preview?.setSurfaceProvider(binding.previewView.surfaceProvider)
-            observeCameraState(camera?.cameraInfo!!)
+            //observeCameraState(camera?.cameraInfo!!)
         } catch (exc: Exception) {
             // Debug.
             Timber.e(">>>>> Use case binding failed: $exc")
@@ -633,136 +480,6 @@ internal class ShootFragment :
             return AspectRatio.RATIO_4_3
         }
         return AspectRatio.RATIO_16_9
-    }
-
-    /** Method used to re-draw the camera UI controls, called every time configuration changes. */
-    private fun updateCameraUi() {
-//
-//        // Remove previous UI if any
-//        cameraUiContainerBinding?.root?.let {
-//            fragmentCameraBinding.root.removeView(it)
-//        }
-//
-//        cameraUiContainerBinding = CameraUiContainerBinding.inflate(
-//            LayoutInflater.from(requireContext()),
-//            fragmentCameraBinding.root,
-//            true
-//        )
-
-        // In the background, load latest photo taken (if any) for gallery thumbnail
-        lifecycleScope.launch(Dispatchers.IO) {
-//            outputDirectory.listFiles { file ->
-//                EXTENSION_WHITELIST.contains(file.extension.toUpperCase(Locale.ROOT))
-//            }?.maxOrNull()?.let {
-//                setGalleryThumbnail(Uri.fromFile(it))
-//            }
-        }
-//
-//        // Listener for button used to capture photo
-//        cameraUiContainerBinding?.cameraCaptureButton?.setOnClickListener {
-//
-//            // Get a stable reference of the modifiable image capture use case
-//            imageCapture?.let { imageCapture ->
-//
-//                // Create output file to hold the image
-//                val photoFile = createFile(outputDirectory, FILENAME, PHOTO_EXTENSION)
-//
-//                // Setup image capture metadata
-//                val metadata = Metadata().apply {
-//
-//                    // Mirror image when using the front camera
-//                    isReversedHorizontal = lensFacing == CameraSelector.LENS_FACING_FRONT
-//                }
-//
-//                // Create output options object which contains file + metadata
-//                val outputOptions = ImageCapture.OutputFileOptions.Builder(photoFile)
-//                    .setMetadata(metadata)
-//                    .build()
-//
-//                // Setup image capture listener which is triggered after photo has been taken
-//                imageCapture.takePicture(
-//                    outputOptions, cameraExecutor, object : ImageCapture.OnImageSavedCallback {
-//                        override fun onError(exc: ImageCaptureException) {
-//                            Timber.e(TAG, "Photo capture failed: ${exc.message}", exc)
-//                        }
-//
-//                        override fun onImageSaved(output: ImageCapture.OutputFileResults) {
-//                            val savedUri = output.savedUri ?: Uri.fromFile(photoFile)
-//                            Timber.d(TAG, "Photo capture succeeded: $savedUri")
-//
-//                            // We can only change the foreground Drawable using API level 23+ API
-//                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-//                                // Update the gallery thumbnail with latest picture taken
-//                                setGalleryThumbnail(savedUri)
-//                            }
-//
-//                            // Implicit broadcasts will be ignored for devices running API level >= 24
-//                            // so if you only target API level 24+ you can remove this statement
-//                            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
-//                                requireActivity().sendBroadcast(
-//                                    Intent(android.hardware.Camera.ACTION_NEW_PICTURE, savedUri)
-//                                )
-//                            }
-//
-//                            // If the folder selected is an external media directory, this is
-//                            // unnecessary but otherwise other apps will not be able to access our
-//                            // images unless we scan them using [MediaScannerConnection]
-//                            val mimeType = MimeTypeMap.getSingleton()
-//                                .getMimeTypeFromExtension(savedUri.toFile().extension)
-//                            MediaScannerConnection.scanFile(
-//                                context,
-//                                arrayOf(savedUri.toFile().absolutePath),
-//                                arrayOf(mimeType)
-//                            ) { _, uri ->
-//                                Timber.d(TAG, "Image capture scanned into media store: $uri")
-//                            }
-//                        }
-//                    })
-//
-//                // We can only change the foreground Drawable using API level 23+ API
-//                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-//
-//                    // Display flash animation to indicate that photo was captured
-//                    fragmentCameraBinding.root.postDelayed({
-//                        fragmentCameraBinding.root.foreground = ColorDrawable(Color.WHITE)
-//                        fragmentCameraBinding.root.postDelayed(
-//                            { fragmentCameraBinding.root.foreground = null }, ANIMATION_FAST_MILLIS
-//                        )
-//                    }, ANIMATION_SLOW_MILLIS)
-//                }
-//            }
-//        }
-//
-//        // Setup for button used to switch cameras
-//        cameraUiContainerBinding?.cameraSwitchButton?.let {
-//
-//            // Disable the button until the camera is set up
-//            it.isEnabled = false
-//
-//            // Listener for button used to switch cameras. Only called if the button is enabled
-//            it.setOnClickListener {
-//                lensFacing = if (CameraSelector.LENS_FACING_FRONT == lensFacing) {
-//                    CameraSelector.LENS_FACING_BACK
-//                } else {
-//                    CameraSelector.LENS_FACING_FRONT
-//                }
-//                // Re-bind use cases to update selected camera
-//                bindCameraUseCases()
-//            }
-//        }
-//
-//        // Listener for button used to view the most recent photo
-//        cameraUiContainerBinding?.photoViewButton?.setOnClickListener {
-//            // Only navigate when the gallery has photos
-//            if (true == outputDirectory.listFiles()?.isNotEmpty()) {
-//                Navigation.findNavController(
-//                    requireActivity(), R.id.fragment_container
-//                ).navigate(
-//                    CameraFragmentDirections
-//                        .actionCameraToGallery(outputDirectory.absolutePath)
-//                )
-//            }
-//        }
     }
 
     /** Enabled or disabled a button to switch cameras depending on the available cameras */

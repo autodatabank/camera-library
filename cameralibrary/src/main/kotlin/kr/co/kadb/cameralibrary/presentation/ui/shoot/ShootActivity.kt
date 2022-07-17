@@ -24,9 +24,10 @@ internal class ShootActivity : BaseActivity() {
 		super.onCreate(savedInstanceState)
 		setContentView(R.layout.adb_cameralibrary_activity_shoot)
 
-		viewModel.extras = intent.extras
+//		viewModel.extras = intent.action
+		viewModel.intentAction(intent.action)
 		if (savedInstanceState == null) {
-			viewController.navigateToShooting(intent.action)
+			viewController.navigateToShooting()
 		}
 	}
 }

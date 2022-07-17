@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     >
     <!-- 외장 메모리(읽기). -->
@@ -25,16 +24,20 @@
         <!-- 촬영. -->
         <activity
             android:name=".presentation.ui.shoot.ShootActivity"
+            android:clearTaskOnLaunch="true"
+            android:configChanges="orientation|screenLayout|screenSize|smallestScreenSize"
             android:exported="false"
-            android:hardwareAccelerated="true"
             android:launchMode="singleTop"
-            android:screenOrientation="fullSensor"
+            android:resizeableActivity="true"
+            android:rotationAnimation="seamless"
+            android:screenOrientation="fullUser"
             android:theme="@style/adb_cameralibrary_Theme.Camera"
-            android:windowSoftInputMode="stateHidden"
+            tools:targetApi="O"
             >
             <intent-filter>
                 <action android:name="kr.co.kadb.cameralibrary.ACTION_TAKE_PICTURE" />
-                <action android:name="kr.co.kadb.cameralibrary.ACTION_TAKE_PICTURE_MULTIPLE" />
+                <action android:name="kr.co.kadb.cameralibrary.ACTION_TAKE_MULTIPLE_PICTURE" />
+
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>

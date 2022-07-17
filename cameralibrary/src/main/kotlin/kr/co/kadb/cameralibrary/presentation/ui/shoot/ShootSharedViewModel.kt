@@ -3,16 +3,20 @@ package kr.co.kadb.cameralibrary.presentation.ui.shoot
 import android.app.Application
 import android.graphics.Bitmap
 import android.os.Environment
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kr.co.kadb.cameralibrary.data.local.PreferenceManager
 import kr.co.kadb.cameralibrary.presentation.model.ShootUiState
 import kr.co.kadb.cameralibrary.presentation.model.UiState
 import kr.co.kadb.cameralibrary.presentation.viewmodel.BaseAndroidViewModel
+import kr.co.kadb.cameralibrary.presentation.widget.event.IntentAction
 import kr.co.kadb.cameralibrary.presentation.widget.extension.mediaScanning
 import kr.co.kadb.cameralibrary.presentation.widget.extension.save
+import kr.co.kadb.cameralibrary.presentation.widget.extension.toJsonPretty
 import timber.log.Timber
 import java.io.File
 import java.io.FileOutputStream
@@ -26,6 +30,56 @@ constructor(
     application: Application,
     @Suppress("UNUSED_PARAMETER") preferences: PreferenceManager
 ) : BaseAndroidViewModel<ShootUiState>(application, UiState.loading()) {
+    // Event.
+    sealed class Event {
+    }
+
+    // Event.
+    private val _eventFlow = MutableSharedFlow<Event>()
+    val eventFlow = _eventFlow.asSharedFlow()
+
+    // Item.
+    val item: StateFlow<ShootUiState> = state
+        .map {
+            it.getOrDefault(ShootUiState.Uninitialized)
+        }
+        .stateIn(viewModelScope, SharingStarted.Eagerly, ShootUiState.Uninitialized)
+//
+//    val isEmpty: StateFlow<Boolean> = state.filter { !it.isLoading }
+//        .map {
+//            it.value?.isMultiplePicture?.isNullOrEmpty()
+//        }
+//        .stateIn(viewModelScope, SharingStarted.Eagerly, false)
+
+    init {
+
+        // UIState.
+        viewModelScope.launch {
+            item.collect { item ->
+                // Debug.
+                Timber.i(">>>>> ShootSharedViewModel item : %s", item)
+            }
+        }
+    }
+
+    fun intentAction(action: String?) {
+        // Debug.
+        Timber.i(">>>>> ACTION : %s", action)
+        action?.let {
+            // Debug.
+            Timber.i(">>>>> ShootSharedViewModel updateState[1] : %s", state.value.value.toJsonPretty())
+            val shootUiState = if (state.value.value == null) {
+                ShootUiState(isMultiplePicture = it == IntentAction.ACTION_TAKE_MULTIPLE_PICTURE)
+            } else {
+                state.value.value?.copy(isMultiplePicture = it == IntentAction.ACTION_TAKE_MULTIPLE_PICTURE)
+            }
+            // Debug.
+            Timber.i(">>>>> ShootSharedViewModel updateState[2] : %s", state.value.value.toJsonPretty())
+            updateState(value = shootUiState)
+            // Debug.
+            Timber.i(">>>>> ShootSharedViewModel updateState[3] : %s", state.value.value.toJsonPretty())
+        }
+    }
 
     var count = 0
 
@@ -36,7 +90,6 @@ constructor(
     fun genCount() {
         Timber.i(">>>>> ShootSharedViewModel count : %s", count++)
     }
-
 
 
     val paths = mutableListOf<String>()
@@ -83,7 +136,10 @@ constructor(
             var filepath = ""
             var fileOutputStream: FileOutputStream? = null
             try {
-                val directory = File(getApplication<Application>().getExternalFilesDir(Environment.DIRECTORY_PICTURES), "")
+                val directory = File(
+                    getApplication<Application>().getExternalFilesDir(Environment.DIRECTORY_PICTURES),
+                    ""
+                )
                 if (!directory.mkdirs()) {
                     Timber.e(">>>>> Directory not created : %s", directory)
                 }
