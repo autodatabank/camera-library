@@ -12,7 +12,7 @@ import androidx.camera.core.*
 import androidx.camera.core.ImageCapture.Metadata
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.core.content.ContextCompat
-import androidx.fragment.app.viewModels
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.window.layout.WindowInfoTracker
 import androidx.window.layout.WindowMetricsCalculator
@@ -34,7 +34,7 @@ import kotlin.math.max
 import kotlin.math.min
 
 /**
- * Created by oooobang on 2020. 2. 3..
+ * Created by oooobang on 2022. 7. 16..
  * 촬영.
  */
 
@@ -42,73 +42,44 @@ import kotlin.math.min
 internal typealias LumaListener = (luma: Double) -> Unit
 
 internal class ShootFragment :
-    BaseBindingFragment<AdbCameralibraryFragmentShootBinding, ShootViewModel>() {
+    BaseBindingFragment<AdbCameralibraryFragmentShootBinding, ShootSharedViewModel>() {
     companion object {
-        fun create(extraTo: String?): ShootFragment {
+        private const val ACTION = "action"
+        private const val RATIO_4_3_VALUE = 4.0 / 3.0
+        private const val RATIO_16_9_VALUE = 16.0 / 9.0
+        fun create(action: String?): ShootFragment {
             val fragment = ShootFragment()
             val bundle = Bundle()
-            //bundle.putString(EXTRA_TO, extraTo)
+            bundle.putString(ACTION, action)
             fragment.arguments = bundle
             return fragment
         }
-
-
-        private const val TAG = "CameraXBasic"
-        private const val FILENAME = "yyyy-MM-dd-HH-mm-ss-SSS"
-        private const val PHOTO_EXTENSION = ".jpg"
-        private const val RATIO_4_3_VALUE = 4.0 / 3.0
-        private const val RATIO_16_9_VALUE = 16.0 / 9.0
-//
-//        /** Helper function used to create a timestamped file */
-//        private fun createFile(baseFolder: File, format: String, extension: String) =
-//            File(
-//                baseFolder, SimpleDateFormat(format, Locale.US)
-//                    .format(System.currentTimeMillis()) + extension
-//            )
     }
 
+    // SharedPreferences.
     lateinit var preferences: PreferenceManager
 
-    //lateinit var viewController: ShootController
+    // ViewController.
     private val viewController: ShootController by lazy {
         ShootController(requireActivity())
     }
 
     // ViewModel.
-    override val viewModel: ShootViewModel by viewModels {
-        ShootViewModelFactory(requireContext())
+    override val viewModel: ShootSharedViewModel by activityViewModels {
+        ShootSharedViewModelFactory(requireContext())
     }
 
-    private lateinit var windowManager: WindowInfoTracker
-
-    //
-    private var extraTo: String? = null
+    // Window Info.
+    private lateinit var windowInfoTracker: WindowInfoTracker
 
     // Fragment Layout.
     override val layoutResourceId: Int = R.layout.adb_cameralibrary_fragment_shoot
 
+    // MediaActionSound2.
+    private lateinit var mediaActionSound: MediaActionSound2
 
-    private lateinit var mediaActionSound: MediaActionSound2 /*by lazy {
-        MediaActionSound().apply {
-            load(MediaActionSound.SHUTTER_CLICK)
-        }
-    }*/
-
-    val audioManager by lazy {
+    private val audioManager by lazy {
         context?.getSystemService(Context.AUDIO_SERVICE) as? AudioManager
-    }
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-//
-//        // Binding.
-//        binding.viewModel = viewModel
-//
-//        // 이미지 패스.
-//        extraTo = arguments?.getString(EXTRA_TO)
-//
-//        // CameraView Lifecycle Owner.
-//        binding.cameraview.setLifecycleOwner(viewLifecycleOwner)
     }
 
     override fun onStart() {
@@ -131,10 +102,27 @@ internal class ShootFragment :
 
         // Shut down our background executor
         cameraExecutor.shutdown()
-//
-//        // Unregister the broadcast receivers and listeners
-//        broadcastManager.unregisterReceiver(volumeDownReceiver)
-//        displayManager.unregisterDisplayListener(displayListener)
+
+        // Unregister the listeners
+        displayManager.unregisterDisplayListener(displayListener)
+    }
+
+    /**
+     * Inflate camera controls and update the UI manually upon config changes to avoid removing
+     * and re-adding the view finder from the view hierarchy; this provides a seamless rotation
+     * transition on devices that support it.
+     *
+     * NOTE: The flag is supported starting in Android 8 but there still is a small flash on the
+     * screen for devices that run Android 9 or below.
+     */
+    override fun onConfigurationChanged(newConfig: Configuration) {
+        super.onConfigurationChanged(newConfig)
+
+        // Rebind the camera with the updated display metrics
+        bindCameraUseCases()
+
+        // Enable or disable switching between cameras
+        updateCameraSwitchButton()
     }
 
 
@@ -154,7 +142,7 @@ internal class ShootFragment :
 
 
         //Initialize WindowManager to retrieve display metrics
-        windowManager = WindowInfoTracker.getOrCreate(view.context)
+        windowInfoTracker = WindowInfoTracker.getOrCreate(view.context)
         //windowManager = activity?.getSystemService(Context.WINDOW_SERVICE) as WindowManager
 
 //        // 차량등록증 촬영 시 선택 버튼 비활성.
@@ -399,7 +387,6 @@ internal class ShootFragment :
 
         // Wait for the views to be properly laid out
         binding.previewView.post {
-
             // Keep track of the display in which this view is attached
             displayId = binding.previewView.display.displayId
 
@@ -409,24 +396,6 @@ internal class ShootFragment :
             // Set up the camera and its use cases
             setUpCamera()
         }
-    }
-
-    /**
-     * Inflate camera controls and update the UI manually upon config changes to avoid removing
-     * and re-adding the view finder from the view hierarchy; this provides a seamless rotation
-     * transition on devices that support it.
-     *
-     * NOTE: The flag is supported starting in Android 8 but there still is a small flash on the
-     * screen for devices that run Android 9 or below.
-     */
-    override fun onConfigurationChanged(newConfig: Configuration) {
-        super.onConfigurationChanged(newConfig)
-
-        // Rebind the camera with the updated display metrics
-        bindCameraUseCases()
-
-        // Enable or disable switching between cameras
-        updateCameraSwitchButton()
     }
 
     /** Initialize CameraX, and prepare to bind the camera use cases  */
@@ -456,12 +425,8 @@ internal class ShootFragment :
     private fun bindCameraUseCases() {
 
         // Get screen metrics used to setup camera for full screen resolution
-//        val metrics = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-//            windowManager.currentWindowMetrics.bounds
-//        } else {
-//
-//        }
-        val metrics = WindowMetricsCalculator.getOrCreate().computeCurrentWindowMetrics(requireActivity()).bounds
+        val metrics = WindowMetricsCalculator.getOrCreate()
+            .computeCurrentWindowMetrics(requireActivity()).bounds
 
         // Debug.
         Timber.d(">>>>> Screen metrics: ${metrics.width()} x ${metrics.height()}")

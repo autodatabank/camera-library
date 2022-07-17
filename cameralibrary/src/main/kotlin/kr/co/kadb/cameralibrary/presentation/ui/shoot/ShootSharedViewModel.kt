@@ -21,11 +21,24 @@ import java.io.FileOutputStream
  * Created by oooobang on 2022. 7. 11..
  * ViewModel.
  */
-internal class ShootViewModel
+internal class ShootSharedViewModel
 constructor(
     application: Application,
     @Suppress("UNUSED_PARAMETER") preferences: PreferenceManager
 ) : BaseAndroidViewModel<ShootUiState>(application, UiState.loading()) {
+
+    var count = 0
+
+    init {
+        Timber.i(">>>>> ShootSharedViewModel init")
+    }
+
+    fun genCount() {
+        Timber.i(">>>>> ShootSharedViewModel count : %s", count++)
+    }
+
+
+
     val paths = mutableListOf<String>()
 
     // jpeg ByteArray를 파일로 저장.

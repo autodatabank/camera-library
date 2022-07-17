@@ -6,11 +6,11 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import kr.co.kadb.cameralibrary.data.local.PreferenceManager
 
-internal class ShootViewModelFactory(private val context: Context) : ViewModelProvider.Factory {
+internal class ShootSharedViewModelFactory(private val context: Context) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        return if (modelClass.isAssignableFrom(ShootViewModel::class.java)) {
+        return if (modelClass.isAssignableFrom(ShootSharedViewModel::class.java)) {
             @Suppress("UNCHECKED_CAST")
-            ShootViewModel(
+            ShootSharedViewModel(
                 context.applicationContext as Application,
                 PreferenceManager.getInstance(context)
             ) as T

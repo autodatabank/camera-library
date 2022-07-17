@@ -1,6 +1,7 @@
 package kr.co.kadb.cameralibrary.presentation.viewmodel
 
 import android.app.Application
+import android.os.Bundle
 import androidx.lifecycle.AndroidViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -12,6 +13,9 @@ internal abstract class BaseAndroidViewModel<T>(
     application: Application,
     initialState: UiState<T>
 ) : AndroidViewModel(application) {
+    // Bundle.
+    var extras: Bundle? = null
+
     //private val disposable = CompositeDisposable()
 
     private val _state = MutableStateFlow(initialState)
@@ -41,6 +45,10 @@ internal abstract class BaseAndroidViewModel<T>(
         Timber.i(">>>>> BaseAndroidViewModel updateState[1] : %s", value)
         _state.value = UiState(isLoading = isLoading, cause = cause, value = value)
         Timber.i(">>>>> BaseAndroidViewModel updateState[2] : %s", _state.value)
+    }
+
+    protected fun savedInstanceState(savedInstanceState: Bundle?) {
+
     }
 //
 //    protected fun addDisposable(disposable: Disposable) {

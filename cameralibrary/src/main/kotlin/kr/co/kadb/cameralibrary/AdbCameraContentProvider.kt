@@ -14,10 +14,10 @@ class AdbCameraContentProvider: ContentProvider() {
         // Vector Resource.
         AppCompatDelegate.setCompatVectorFromResourcesEnabled(true)
 
-        // Timber.
-        if (BuildConfig.DEBUG) {
-            Timber.plant(Timber.DebugTree())
-        }
+//        // Timber.
+//        if (BuildConfig.DEBUG) {
+//            Timber.plant(Timber.DebugTree())
+//        }
         return false
     }
 

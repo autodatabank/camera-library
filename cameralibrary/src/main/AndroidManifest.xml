@@ -33,7 +33,8 @@
             android:windowSoftInputMode="stateHidden"
             >
             <intent-filter>
-                <action android:name="kr.co.kadb.cameralibrary.ACTION_ADB_CAMERA" />
+                <action android:name="kr.co.kadb.cameralibrary.ACTION_TAKE_PICTURE" />
+                <action android:name="kr.co.kadb.cameralibrary.ACTION_TAKE_PICTURE_MULTIPLE" />
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
