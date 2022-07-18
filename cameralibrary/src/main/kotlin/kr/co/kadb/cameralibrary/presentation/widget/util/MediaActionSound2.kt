@@ -184,6 +184,11 @@ internal class MediaActionSound2 {
         play(soundName, volume ?: defaultLeftVolume, volume ?: defaultRightVolume)
     }
 
+    fun playWithMinimumVolume(soundName: Int) {
+        val volume = 0.125f
+        play(soundName, volume, volume)
+    }
+
     /**
      * Play one of the predefined platform sounds for media actions.
      *

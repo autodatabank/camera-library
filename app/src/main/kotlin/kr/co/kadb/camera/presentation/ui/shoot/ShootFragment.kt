@@ -2,6 +2,7 @@ package kr.co.kadb.camera.presentation.ui.shoot
 
 import android.app.Activity
 import android.content.Intent
+import android.graphics.Bitmap
 import android.provider.MediaStore
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
@@ -42,11 +43,13 @@ internal class ShootFragment : BaseBindingFragment<FragmentShootBinding, ShootVi
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             if (result.resultCode == Activity.RESULT_OK) {
                 // Debug.
-                Timber.i(">>>>> RESULT : %s", result.data.toJsonPretty())
-                Timber.i(">>>>> RESULT : %s", result.data?.data)
-                Timber.i(">>>>> RESULT : %s", result.data?.extras?.toJsonPretty())
-                Timber.i(">>>>> RESULT : %s", result.data?.extras?.get("data"))
-                Timber.i(">>>>> RESULT : %s", result.data?.extras?.get(MediaStore.EXTRA_OUTPUT))
+                Timber.i(">>>>> RESULT[1] : %s", result.data.toJsonPretty())
+                Timber.i(">>>>> RESULT[2] : %s", result.data?.data)
+                Timber.i(">>>>> RESULT[3] : %s", result.data?.extras?.toJsonPretty())
+                Timber.i(">>>>> RESULT[4] : %s", result.data?.extras?.get("data"))
+                Timber.i(">>>>> RESULT[5] : %s", result.data?.extras?.get(MediaStore.EXTRA_OUTPUT))
+
+                binding.imageview.setImageBitmap(result.data?.extras?.get("data") as? Bitmap)
             }
         }
 

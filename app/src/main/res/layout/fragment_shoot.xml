@@ -11,6 +11,16 @@
         android:layout_height="match_parent"
         android:background="@color/black"
         >
+        <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/imageview"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scaleType="fitCenter"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            />
         <!-- 플래쉬. -->
         <androidx.appcompat.widget.AppCompatImageButton
             android:id="@+id/button_flash"
@@ -38,18 +48,18 @@
             app:layout_constraintStart_toStartOf="parent"
             app:srcCompat="@drawable/adb_camera_selector_ic_baseline_camera_white_64"
             />
-<!--        &lt;!&ndash; 선택. &ndash;&gt;-->
-<!--        <androidx.appcompat.widget.AppCompatButton-->
-<!--            android:id="@+id/button_select"-->
-<!--            android:layout_width="@dimen/dp80"-->
-<!--            android:layout_height="0dp"-->
-<!--            android:gravity="center"-->
-<!--            android:text="@string/text_shoot_list"-->
-<!--            android:textSize="@dimen/sp18"-->
-<!--            android:theme="@style/ThemeButtonAccentDark"-->
-<!--            app:layout_constraintBottom_toBottomOf="@+id/button_shooting"-->
-<!--            app:layout_constraintEnd_toEndOf="parent"-->
-<!--            app:layout_constraintTop_toTopOf="@+id/button_shooting"-->
-<!--            />-->
+        <!--        &lt;!&ndash; 선택. &ndash;&gt;-->
+        <!--        <androidx.appcompat.widget.AppCompatButton-->
+        <!--            android:id="@+id/button_select"-->
+        <!--            android:layout_width="@dimen/dp80"-->
+        <!--            android:layout_height="0dp"-->
+        <!--            android:gravity="center"-->
+        <!--            android:text="@string/text_shoot_list"-->
+        <!--            android:textSize="@dimen/sp18"-->
+        <!--            android:theme="@style/ThemeButtonAccentDark"-->
+        <!--            app:layout_constraintBottom_toBottomOf="@+id/button_shooting"-->
+        <!--            app:layout_constraintEnd_toEndOf="parent"-->
+        <!--            app:layout_constraintTop_toTopOf="@+id/button_shooting"-->
+        <!--            />-->
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

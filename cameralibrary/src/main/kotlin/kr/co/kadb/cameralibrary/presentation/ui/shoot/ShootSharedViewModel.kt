@@ -34,6 +34,9 @@ constructor(
     sealed class Event {
     }
 
+    var isOneShoot: Boolean = true
+        private set
+
     // Event.
     private val _eventFlow = MutableSharedFlow<Event>()
     val eventFlow = _eventFlow.asSharedFlow()
@@ -63,21 +66,16 @@ constructor(
     }
 
     fun intentAction(action: String?) {
+        isOneShoot = false
         // Debug.
         Timber.i(">>>>> ACTION : %s", action)
         action?.let {
-            // Debug.
-            Timber.i(">>>>> ShootSharedViewModel updateState[1] : %s", state.value.value.toJsonPretty())
             val shootUiState = if (state.value.value == null) {
                 ShootUiState(isMultiplePicture = it == IntentAction.ACTION_TAKE_MULTIPLE_PICTURE)
             } else {
                 state.value.value?.copy(isMultiplePicture = it == IntentAction.ACTION_TAKE_MULTIPLE_PICTURE)
             }
-            // Debug.
-            Timber.i(">>>>> ShootSharedViewModel updateState[2] : %s", state.value.value.toJsonPretty())
             updateState(value = shootUiState)
-            // Debug.
-            Timber.i(">>>>> ShootSharedViewModel updateState[3] : %s", state.value.value.toJsonPretty())
         }
     }
 

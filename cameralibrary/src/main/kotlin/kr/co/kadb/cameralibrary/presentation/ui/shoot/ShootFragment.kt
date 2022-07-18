@@ -19,16 +19,23 @@ import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.content.res.Configuration
+import android.graphics.Bitmap
 import android.hardware.display.DisplayManager
 import android.media.AudioManager
 import android.media.MediaActionSound
+import android.media.ThumbnailUtils
+import android.net.Uri
+import android.os.Build
+import android.os.CancellationSignal
 import android.provider.MediaStore
+import android.util.Size
 import android.view.View
 import android.widget.Toast
 import androidx.camera.core.*
 import androidx.camera.core.ImageCapture.Metadata
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.core.content.ContextCompat
+import androidx.core.net.toFile
 import androidx.fragment.app.activityViewModels
 import androidx.window.layout.WindowMetricsCalculator
 import kr.co.kadb.cameralibrary.R
@@ -59,7 +66,7 @@ internal typealias LumaListener = (luma: Double) -> Unit
 internal class ShootFragment :
     BaseBindingFragment<AdbCameralibraryFragmentShootBinding, ShootSharedViewModel>() {
     companion object {
-       private const val RATIO_4_3_VALUE = 4.0 / 3.0
+        private const val RATIO_4_3_VALUE = 4.0 / 3.0
         private const val RATIO_16_9_VALUE = 16.0 / 9.0
         fun create() = ShootFragment()
     }
@@ -179,9 +186,16 @@ internal class ShootFragment :
     override fun initListener() {
         // 촬영.
         binding.buttonShooting.setOnClickListener {
-            mediaActionSound.playWithStreamVolume(
-                MediaActionSound.SHUTTER_CLICK,
-                audioManager
+//            // 미디어 볼륨으로 셔터효과음 재생.
+//            mediaActionSound.playWithStreamVolume(
+//                MediaActionSound.SHUTTER_CLICK,
+//                audioManager
+//            )
+
+            // 최소 볼륨으로 셔터효과음 재생.
+            mediaActionSound.playWithMinimumVolume(
+                MediaActionSound.SHUTTER_CLICK/*,
+                audioManager*/
             )
 
             // Get a stable reference of the modifiable image capture use case
@@ -205,19 +219,40 @@ internal class ShootFragment :
                         }
 
                         override fun onImageSaved(output: ImageCapture.OutputFileResults) {
-//                            val savedUri = output.savedUri ?: Uri.fromFile(photoFile)
+                            // Debug.
                             Timber.i(">>>>> Photo capture succeeded: ${output.savedUri}")
+
+                            // Thumbnail Image.
+                            val thumbnail: Bitmap? = if ((Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q)) {
+                                output.savedUri?.let {
+                                    requireContext().contentResolver.loadThumbnail(
+                                        it,
+                                        Size(100, 100),
+                                        null
+                                    )
+                                }
+                            } else {
+                                @Suppress("DEPRECATION")
+                                MediaStore.Images.Thumbnails.getThumbnail(
+                                    requireContext().contentResolver,
+                                    output.savedUri?.lastPathSegment?.toLong() ?: 0,
+                                    MediaStore.Images.Thumbnails.MINI_KIND,
+                                    null
+                                )
+                            }
 
                             // Debug.
                             Timber.i(">>>>> ShootFragment takePicture isMultiplePicture : %s", viewModel.item.value.isMultiplePicture)
                             if (viewModel.item.value.isMultiplePicture) {
                                 Intent().also { intent ->
+                                    intent.putExtra("data", thumbnail)
                                     intent.putExtra(MediaStore.EXTRA_OUTPUT, output.savedUri)
                                     requireActivity().setResult(Activity.RESULT_OK, intent)
                                 }
                                 activity?.finish()
                             } else {
                                 Intent().also { intent ->
+                                    intent.putExtra("data", thumbnail)
                                     intent.putExtra(MediaStore.EXTRA_OUTPUT, output.savedUri)
                                     requireActivity().setResult(Activity.RESULT_OK, intent)
                                 }
