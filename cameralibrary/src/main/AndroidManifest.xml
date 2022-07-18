@@ -26,12 +26,12 @@
             android:name=".presentation.ui.shoot.ShootActivity"
             android:clearTaskOnLaunch="true"
             android:configChanges="orientation|screenLayout|screenSize|smallestScreenSize"
-            android:exported="false"
+            android:exported="true"
             android:launchMode="singleTop"
             android:resizeableActivity="true"
             android:rotationAnimation="seamless"
             android:screenOrientation="fullUser"
-            android:theme="@style/adb_cameralibrary_Theme.Camera"
+            android:theme="@style/adb_cameralibrary_AppTheme"
             tools:targetApi="O"
             >
             <intent-filter>

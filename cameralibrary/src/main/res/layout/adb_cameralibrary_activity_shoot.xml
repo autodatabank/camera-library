@@ -4,8 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/adb_cameralibrary_bg_primary"
-    android:fitsSystemWindows="true"
+    android:background="@color/adb_cameralibrary_black"
+    android:keepScreenOn="true"
     tools:context=".presentation.ui.shoot.ShootActivity"
     >
     <!-- Fragment Container. -->
@@ -13,6 +13,5 @@
         android:id="@+id/layout_container"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/adb_cameralibrary_bg_primary"
         />
 </FrameLayout>

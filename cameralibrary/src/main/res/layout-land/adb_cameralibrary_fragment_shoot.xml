@@ -15,10 +15,11 @@
             android:layout_width="0dp"
             android:layout_height="0dp"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintDimensionRatio="h, 3:4"
+            app:layout_constraintDimensionRatio="w, 4:3"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_weight="1"
             />
         <!-- 플래쉬. -->
         <androidx.appcompat.widget.AppCompatImageButton
