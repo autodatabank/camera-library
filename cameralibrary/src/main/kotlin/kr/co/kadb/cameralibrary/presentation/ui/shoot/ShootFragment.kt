@@ -18,40 +18,28 @@ package kr.co.kadb.cameralibrary.presentation.ui.shoot
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
-import android.content.res.Configuration
-import android.graphics.Bitmap
-import android.hardware.display.DisplayManager
 import android.media.AudioManager
 import android.media.MediaActionSound
-import android.media.ThumbnailUtils
-import android.net.Uri
-import android.os.Build
-import android.os.CancellationSignal
 import android.provider.MediaStore
-import android.util.Size
+import android.view.OrientationEventListener
+import android.view.Surface
 import android.view.View
-import android.widget.Toast
 import androidx.camera.core.*
-import androidx.camera.core.ImageCapture.Metadata
+import androidx.camera.core.CameraState.Type
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.core.content.ContextCompat
-import androidx.core.net.toFile
 import androidx.fragment.app.activityViewModels
-import androidx.window.layout.WindowMetricsCalculator
 import kr.co.kadb.cameralibrary.R
 import kr.co.kadb.cameralibrary.data.local.PreferenceManager
 import kr.co.kadb.cameralibrary.databinding.AdbCameralibraryFragmentShootBinding
 import kr.co.kadb.cameralibrary.presentation.base.BaseBindingFragment
-import kr.co.kadb.cameralibrary.presentation.widget.extension.outputFileOptionsBuilder
+import kr.co.kadb.cameralibrary.presentation.widget.util.IntentKey
 import kr.co.kadb.cameralibrary.presentation.widget.util.MediaActionSound2
 import timber.log.Timber
 import java.nio.ByteBuffer
 import java.util.*
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
-import kotlin.math.abs
-import kotlin.math.max
-import kotlin.math.min
 
 /** Helper type alias used for analysis use case callbacks */
 internal typealias LumaListener = (luma: Double) -> Unit
@@ -66,8 +54,8 @@ internal typealias LumaListener = (luma: Double) -> Unit
 internal class ShootFragment :
     BaseBindingFragment<AdbCameralibraryFragmentShootBinding, ShootSharedViewModel>() {
     companion object {
-        private const val RATIO_4_3_VALUE = 4.0 / 3.0
-        private const val RATIO_16_9_VALUE = 16.0 / 9.0
+        //        private const val RATIO_4_3_VALUE = 4.0 / 3.0
+//        private const val RATIO_16_9_VALUE = 16.0 / 9.0
         fun create() = ShootFragment()
     }
 
@@ -90,14 +78,12 @@ internal class ShootFragment :
     // MediaActionSound2.
     private lateinit var mediaActionSound: MediaActionSound2
 
-    private val displayManager by lazy {
-        requireContext().getSystemService(Context.DISPLAY_SERVICE) as DisplayManager
-    }
+    // AudioManager.
     private val audioManager by lazy {
         context?.getSystemService(Context.AUDIO_SERVICE) as? AudioManager
     }
 
-    private var displayId: Int = -1
+    //    private var displayId: Int = -1
     private var lensFacing: Int = CameraSelector.LENS_FACING_BACK
     private var preview: Preview? = null
     private var imageCapture: ImageCapture? = null
@@ -108,22 +94,36 @@ internal class ShootFragment :
     /** Blocking camera operations are performed using this executor */
     private lateinit var cameraExecutor: ExecutorService
 
-    /**
-     * We need a display listener for orientation changes that do not trigger a configuration
-     * change, for example if we choose to override config change in manifest or for 180-degree
-     * orientation changes.
-     */
-    private val displayListener = object : DisplayManager.DisplayListener {
-        override fun onDisplayAdded(displayId: Int) = Unit
-        override fun onDisplayRemoved(displayId: Int) = Unit
-        override fun onDisplayChanged(displayId: Int) = view?.let { view ->
-            if (displayId == this@ShootFragment.displayId) {
-                // Debug.
-                Timber.d(">>>>> Rotation changed: ${view.display.rotation}")
-                imageCapture?.targetRotation = view.display.rotation
-                imageAnalyzer?.targetRotation = view.display.rotation
+    // OrientationEventListener
+    private val orientationEventListener by lazy {
+        object : OrientationEventListener(requireContext()) {
+            override fun onOrientationChanged(orientation: Int) {
+                if (orientation == ORIENTATION_UNKNOWN) {
+                    return
+                }
+
+                val rotation = when (orientation) {
+                    in 45 until 135 -> Surface.ROTATION_270
+                    in 135 until 225 -> Surface.ROTATION_180
+                    in 225 until 315 -> Surface.ROTATION_90
+                    else -> Surface.ROTATION_0
+                }
+
+                preview?.targetRotation = rotation
+                imageCapture?.targetRotation = rotation
+                imageAnalyzer?.targetRotation = rotation
             }
-        } ?: Unit
+        }
+    }
+
+    override fun onStart() {
+        super.onStart()
+        orientationEventListener.enable()
+    }
+
+    override fun onStop() {
+        super.onStop()
+        orientationEventListener.disable()
     }
 
     override fun onDestroyView() {
@@ -134,29 +134,12 @@ internal class ShootFragment :
 
         // Shut down our background executor
         cameraExecutor.shutdown()
-
-        // Unregister the listeners
-        displayManager.unregisterDisplayListener(displayListener)
+//
+//        // Unregister the listeners
+//        displayManager.unregisterDisplayListener(displayListener)
     }
 
-    /**
-     * Inflate camera controls and update the UI manually upon config changes to avoid removing
-     * and re-adding the view finder from the view hierarchy; this provides a seamless rotation
-     * transition on devices that support it.
-     *
-     * NOTE: The flag is supported starting in Android 8 but there still is a small flash on the
-     * screen for devices that run Android 9 or below.
-     */
-    override fun onConfigurationChanged(newConfig: Configuration) {
-        super.onConfigurationChanged(newConfig)
-
-        // Rebind the camera with the updated display metrics
-        bindCameraUseCases()
-
-        // Enable or disable switching between cameras
-        updateCameraSwitchButton()
-    }
-
+    // Init Variable.
     override fun initVariable() {
         // Initialize our background executor
         cameraExecutor = Executors.newSingleThreadExecutor()
@@ -200,16 +183,8 @@ internal class ShootFragment :
 
             // Get a stable reference of the modifiable image capture use case
             imageCapture?.let { imageCapture ->
-                // Setup image capture metadata
-                val metadata = Metadata().apply {
-                    // Mirror image when using the front camera
-                    isReversedHorizontal = lensFacing == CameraSelector.LENS_FACING_FRONT
-                }
-
-                // Create output options object which contains file + metadata
-                val outputOptions = requireContext().outputFileOptionsBuilder(true)
-                    .setMetadata(metadata)
-                    .build()
+                //
+                val outputOptions = viewModel.outputFileOptions(lensFacing)
 
                 // Setup image capture listener which is triggered after photo has been taken
                 imageCapture.takePicture(
@@ -222,40 +197,25 @@ internal class ShootFragment :
                             // Debug.
                             Timber.i(">>>>> Photo capture succeeded: ${output.savedUri}")
 
-                            // Thumbnail Image.
-                            val thumbnail: Bitmap? = if ((Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q)) {
-                                output.savedUri?.let {
-                                    requireContext().contentResolver.loadThumbnail(
-                                        it,
-                                        Size(100, 100),
-                                        null
-                                    )
-                                }
-                            } else {
-                                @Suppress("DEPRECATION")
-                                MediaStore.Images.Thumbnails.getThumbnail(
-                                    requireContext().contentResolver,
-                                    output.savedUri?.lastPathSegment?.toLong() ?: 0,
-                                    MediaStore.Images.Thumbnails.MINI_KIND,
-                                    null
-                                )
-                            }
+                            // Exif Logging.
+                            val exif = viewModel.exif(output.savedUri)
+
+                            // Thumbnail Bitmap.
+                            val thumbnail = viewModel.thumbnailBitmap(output.savedUri, exif)
 
                             // Debug.
                             Timber.i(">>>>> ShootFragment takePicture isMultiplePicture : %s", viewModel.item.value.isMultiplePicture)
                             if (viewModel.item.value.isMultiplePicture) {
-                                Intent().also { intent ->
-                                    intent.putExtra("data", thumbnail)
-                                    intent.putExtra(MediaStore.EXTRA_OUTPUT, output.savedUri)
-                                    requireActivity().setResult(Activity.RESULT_OK, intent)
-                                }
-                                activity?.finish()
+                                // TODO:
                             } else {
-                                Intent().also { intent ->
-                                    intent.putExtra("data", thumbnail)
-                                    intent.putExtra(MediaStore.EXTRA_OUTPUT, output.savedUri)
-                                    requireActivity().setResult(Activity.RESULT_OK, intent)
-                                }
+                                val intent = Intent()
+                                intent.data = output.savedUri
+                                intent.type = "image/jpeg"
+                                intent.putExtra("data", thumbnail)
+                                intent.putExtra(MediaStore.EXTRA_OUTPUT, output.savedUri)
+                                intent.putExtra(IntentKey.EXTRA_WIDTH, exif?.width)
+                                intent.putExtra(IntentKey.EXTRA_WIDTH, exif?.height)
+                                requireActivity().setResult(Activity.RESULT_OK, intent)
                                 activity?.finish()
                             }
                         }
@@ -269,14 +229,8 @@ internal class ShootFragment :
     }
 
     private fun initCamera() {
-        // Every time the orientation of device changes, update rotation for use cases
-        displayManager.registerDisplayListener(displayListener, null)
-
         // Wait for the views to be properly laid out
         binding.previewView.post {
-            // Keep track of the display in which this view is attached
-            displayId = binding.previewView.display.displayId
-
             // Set up the camera and its use cases
             setUpCamera()
         }
@@ -296,9 +250,6 @@ internal class ShootFragment :
                 else -> throw IllegalStateException("Back and front camera are unavailable")
             }
 
-            // Enable or disable switching between cameras
-            updateCameraSwitchButton()
-
             // Build and bind the camera use cases
             bindCameraUseCases()
         }, ContextCompat.getMainExecutor(requireContext()))
@@ -306,17 +257,7 @@ internal class ShootFragment :
 
     /** Declare and bind preview, capture and analysis use cases */
     private fun bindCameraUseCases() {
-        // Get screen metrics used to setup camera for full screen resolution
-        val metrics = WindowMetricsCalculator.getOrCreate()
-            .computeCurrentWindowMetrics(requireActivity()).bounds
-
-        // Debug.
-        Timber.d(">>>>> Screen metrics: ${metrics.width()} x ${metrics.height()}")
-
-        val screenAspectRatio = aspectRatio(metrics.width(), metrics.height())
-        // Debug.
-        Timber.d(">>>>> Preview aspect ratio: $screenAspectRatio")
-
+        // rotation
         val rotation = binding.previewView.display.rotation
 
         // CameraProvider
@@ -329,26 +270,30 @@ internal class ShootFragment :
         // Preview
         preview = Preview.Builder()
             // We request aspect ratio but no resolution
-            .setTargetAspectRatio(screenAspectRatio)
+            //.setTargetAspectRatio(screenAspectRatio)
+            .setTargetAspectRatio(AspectRatio.RATIO_4_3)
             // Set initial target rotation
             .setTargetRotation(rotation)
             .build()
+
 
         // ImageCapture
         imageCapture = ImageCapture.Builder()
             .setCaptureMode(ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY)
             // We request aspect ratio but no resolution to match preview config, but letting
             // CameraX optimize for whatever specific resolution best fits our use cases
-            .setTargetAspectRatio(screenAspectRatio)
+            //.setTargetAspectRatio(screenAspectRatio)
+            .setTargetAspectRatio(AspectRatio.RATIO_4_3)
             // Set initial target rotation, we will have to call this again if rotation changes
             // during the lifecycle of this use case
             .setTargetRotation(rotation)
             .build()
-
+        AspectRatio.RATIO_4_3
         // ImageAnalysis
         imageAnalyzer = ImageAnalysis.Builder()
             // We request aspect ratio but no resolution
-            .setTargetAspectRatio(screenAspectRatio)
+            //.setTargetAspectRatio(screenAspectRatio)
+            .setTargetAspectRatio(AspectRatio.RATIO_4_3)
             // Set initial target rotation, we will have to call this again if rotation changes
             // during the lifecycle of this use case
             .setTargetRotation(rotation)
@@ -360,7 +305,7 @@ internal class ShootFragment :
                     // We log image analysis results here - you should do something useful
                     // instead!
                     // Debug.
-                    Timber.v(">>>>> Average luminosity: $luma")
+                    //Timber.v(">>>>> Average luminosity: $luma")
                 })
             }
 
@@ -373,157 +318,50 @@ internal class ShootFragment :
             camera = cameraProvider.bindToLifecycle(
                 this, cameraSelector, preview, imageCapture, imageAnalyzer
             )
-
             // Attach the viewfinder's surface provider to preview use case
             preview?.setSurfaceProvider(binding.previewView.surfaceProvider)
-            //observeCameraState(camera?.cameraInfo!!)
+            //
+            observeCameraState(camera?.cameraInfo!!)
         } catch (exc: Exception) {
             // Debug.
             Timber.e(">>>>> Use case binding failed: $exc")
         }
     }
 
+
     private fun observeCameraState(cameraInfo: CameraInfo) {
         cameraInfo.cameraState.observe(viewLifecycleOwner) { cameraState ->
-            run {
-                when (cameraState.type) {
-                    CameraState.Type.PENDING_OPEN -> {
-                        // Ask the user to close other camera apps
-                        Toast.makeText(
-                            context,
-                            "CameraState: Pending Open",
-                            Toast.LENGTH_SHORT
-                        ).show()
-                    }
-                    CameraState.Type.OPENING -> {
-                        // Show the Camera UI
-                        Toast.makeText(
-                            context,
-                            "CameraState: Opening",
-                            Toast.LENGTH_SHORT
-                        ).show()
-                    }
-                    CameraState.Type.OPEN -> {
-                        // Setup Camera resources and begin processing
-                        Toast.makeText(
-                            context,
-                            "CameraState: Open",
-                            Toast.LENGTH_SHORT
-                        ).show()
-                    }
-                    CameraState.Type.CLOSING -> {
-                        // Close camera UI
-                        Toast.makeText(
-                            context,
-                            "CameraState: Closing",
-                            Toast.LENGTH_SHORT
-                        ).show()
-                    }
-                    CameraState.Type.CLOSED -> {
-                        // Free camera resources
-                        Toast.makeText(
-                            context,
-                            "CameraState: Closed",
-                            Toast.LENGTH_SHORT
-                        ).show()
-                    }
-                }
+            when (cameraState.type) {
+                Type.PENDING_OPEN -> Timber.v(">>>>> CameraState : PENDING_OPEN")
+                Type.OPENING -> Timber.v(">>>>> CameraState : OPENING")
+                Type.OPEN -> Timber.v(">>>>> CameraState : OPEN")
+                Type.CLOSING -> Timber.v(">>>>> CameraState : CLOSING")
+                Type.CLOSED -> Timber.v(">>>>> CameraState : CLOSED")
             }
-
-            cameraState.error?.let { error ->
-                when (error.code) {
-                    // Open errors
-                    CameraState.ERROR_STREAM_CONFIG -> {
-                        // Make sure to setup the use cases properly
-                        Toast.makeText(
-                            context,
-                            "Stream config error",
-                            Toast.LENGTH_SHORT
-                        ).show()
-                    }
-                    // Opening errors
-                    CameraState.ERROR_CAMERA_IN_USE -> {
-                        // Close the camera or ask user to close another camera app that's using the
-                        // camera
-                        Toast.makeText(
-                            context,
-                            "Camera in use",
-                            Toast.LENGTH_SHORT
-                        ).show()
-                    }
-                    CameraState.ERROR_MAX_CAMERAS_IN_USE -> {
-                        // Close another open camera in the app, or ask the user to close another
-                        // camera app that's using the camera
-                        Toast.makeText(
-                            context,
-                            "Max cameras in use",
-                            Toast.LENGTH_SHORT
-                        ).show()
-                    }
-                    CameraState.ERROR_OTHER_RECOVERABLE_ERROR -> {
-                        Toast.makeText(
-                            context,
-                            "Other recoverable error",
-                            Toast.LENGTH_SHORT
-                        ).show()
-                    }
-                    // Closing errors
-                    CameraState.ERROR_CAMERA_DISABLED -> {
-                        // Ask the user to enable the device's cameras
-                        Toast.makeText(
-                            context,
-                            "Camera disabled",
-                            Toast.LENGTH_SHORT
-                        ).show()
-                    }
-                    CameraState.ERROR_CAMERA_FATAL_ERROR -> {
-                        // Ask the user to reboot the device to restore camera function
-                        Toast.makeText(
-                            context,
-                            "Fatal error",
-                            Toast.LENGTH_SHORT
-                        ).show()
-                    }
-                    // Closed errors
-                    CameraState.ERROR_DO_NOT_DISTURB_MODE_ENABLED -> {
-                        // Ask the user to disable the "Do Not Disturb" mode, then reopen the camera
-                        Toast.makeText(
-                            context,
-                            "Do not disturb mode enabled",
-                            Toast.LENGTH_SHORT
-                        ).show()
-                    }
+            when (cameraState.error ?: -1) {
+                CameraState.ERROR_STREAM_CONFIG -> {
+                    Timber.e(">>>>> CameraState : ERROR_STREAM_CONFIG")
+                }
+                CameraState.ERROR_CAMERA_IN_USE -> {
+                    Timber.e(">>>>> CameraState : ERROR_CAMERA_IN_USE")
+                }
+                CameraState.ERROR_MAX_CAMERAS_IN_USE -> {
+                    Timber.e(">>>>> CameraState : ERROR_MAX_CAMERAS_IN_USE")
+                }
+                CameraState.ERROR_OTHER_RECOVERABLE_ERROR -> {
+                    Timber.e(">>>>> CameraState : ERROR_OTHER_RECOVERABLE_ERROR")
+                }
+                CameraState.ERROR_CAMERA_DISABLED -> {
+                    Timber.e(">>>>> CameraState : ERROR_CAMERA_DISABLED")
+                }
+                CameraState.ERROR_CAMERA_FATAL_ERROR -> {
+                    Timber.e(">>>>> CameraState : ERROR_CAMERA_FATAL_ERROR")
+                }
+                CameraState.ERROR_DO_NOT_DISTURB_MODE_ENABLED -> {
+                    Timber.e(">>>>> CameraState : ERROR_DO_NOT_DISTURB_MODE_ENABLED")
                 }
             }
         }
-    }
-
-    /**
-     *  [androidx.camera.core.ImageAnalysis.Builder] requires enum value of
-     *  [androidx.camera.core.AspectRatio]. Currently it has values of 4:3 & 16:9.
-     *
-     *  Detecting the most suitable ratio for dimensions provided in @params by counting absolute
-     *  of preview ratio to one of the provided values.
-     *
-     *  @param width - preview width
-     *  @param height - preview height
-     *  @return suitable aspect ratio
-     */
-    private fun aspectRatio(width: Int, height: Int): Int {
-        val previewRatio = max(width, height).toDouble() / min(width, height)
-        if (abs(previewRatio - RATIO_4_3_VALUE) <= abs(previewRatio - RATIO_16_9_VALUE)) {
-            return AspectRatio.RATIO_4_3
-        }
-        return AspectRatio.RATIO_16_9
-    }
-
-    /** Enabled or disabled a button to switch cameras depending on the available cameras */
-    private fun updateCameraSwitchButton() {
-//        try {
-//            cameraUiContainerBinding?.cameraSwitchButton?.isEnabled = hasBackCamera() && hasFrontCamera()
-//        } catch (exception: CameraInfoUnavailableException) {
-//            cameraUiContainerBinding?.cameraSwitchButton?.isEnabled = false
-//        }
     }
 
     /** Returns true if the device has an available back camera. False otherwise */

@@ -44,8 +44,6 @@ internal class ShootFragment : BaseBindingFragment<FragmentShootBinding, ShootVi
             if (result.resultCode == Activity.RESULT_OK) {
                 // Debug.
                 Timber.i(">>>>> RESULT[1] : %s", result.data.toJsonPretty())
-                Timber.i(">>>>> RESULT[2] : %s", result.data?.data)
-                Timber.i(">>>>> RESULT[3] : %s", result.data?.extras?.toJsonPretty())
                 Timber.i(">>>>> RESULT[4] : %s", result.data?.extras?.get("data"))
                 Timber.i(">>>>> RESULT[5] : %s", result.data?.extras?.get(MediaStore.EXTRA_OUTPUT))
 
