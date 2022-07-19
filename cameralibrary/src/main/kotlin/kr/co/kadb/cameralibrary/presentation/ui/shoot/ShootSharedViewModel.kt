@@ -214,7 +214,7 @@ constructor(
             //3번
             resizeBitmap = bitmap
         } catch (ex: FileNotFoundException) {
-            ex.printStackTrace();
+            ex.printStackTrace()
         }
         return resizeBitmap
 

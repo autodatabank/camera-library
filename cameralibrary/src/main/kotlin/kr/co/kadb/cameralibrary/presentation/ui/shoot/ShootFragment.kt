@@ -128,20 +128,13 @@ internal class ShootFragment :
 
     override fun onDestroyView() {
         super.onDestroyView()
-
-        //
-        mediaActionSound.release()
-
-        // Shut down our background executor
         cameraExecutor.shutdown()
-//
-//        // Unregister the listeners
-//        displayManager.unregisterDisplayListener(displayListener)
+        mediaActionSound.release()
     }
 
     // Init Variable.
     override fun initVariable() {
-        // Initialize our background executor
+        // Initialize Background Executor
         cameraExecutor = Executors.newSingleThreadExecutor()
 
         // Initialize MediaActionSound
@@ -300,7 +293,7 @@ internal class ShootFragment :
             .build()
             // The analyzer can then be assigned to the instance
             .also {
-                it.setAnalyzer(cameraExecutor, LuminosityAnalyzer { luma ->
+                it.setAnalyzer(cameraExecutor, LuminosityAnalyzer {
                     // Values returned from our analyzer are passed to the attached listener
                     // We log image analysis results here - you should do something useful
                     // instead!
