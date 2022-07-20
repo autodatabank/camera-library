@@ -3,7 +3,6 @@ package kr.co.kadb.camera.presentation.ui.shoot
 import android.app.Activity
 import android.content.Intent
 import android.graphics.Bitmap
-import android.provider.MediaStore
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.viewModels
@@ -12,7 +11,6 @@ import kr.co.kadb.camera.R
 import kr.co.kadb.camera.data.local.PreferenceManager
 import kr.co.kadb.camera.databinding.FragmentShootBinding
 import kr.co.kadb.camera.presentation.base.BaseBindingFragment
-import kr.co.kadb.camera.presentation.widget.extension.toJsonPretty
 import kr.co.kadb.cameralibrary.presentation.widget.event.IntentAction
 import timber.log.Timber
 import javax.inject.Inject
@@ -43,11 +41,11 @@ internal class ShootFragment : BaseBindingFragment<FragmentShootBinding, ShootVi
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             if (result.resultCode == Activity.RESULT_OK) {
                 // Debug.
-                Timber.i(">>>>> RESULT[1] : %s", result.data.toJsonPretty())
-                Timber.i(">>>>> RESULT[4] : %s", result.data?.extras?.get("data"))
-                Timber.i(">>>>> RESULT[5] : %s", result.data?.extras?.get(MediaStore.EXTRA_OUTPUT))
-
+                Timber.i(">>>>> RESULT[1] : %s", result.data?.data)
+                Timber.i(">>>>> RESULT[2] : %s", result.data?.type)
+                Timber.i(">>>>> RESULT[3] : %s", result.data?.extras?.get("data"))
                 binding.imageview.setImageBitmap(result.data?.extras?.get("data") as? Bitmap)
+//                binding.imageview.setImageURI(result.data?.data)
             }
         }
 
@@ -66,53 +64,56 @@ internal class ShootFragment : BaseBindingFragment<FragmentShootBinding, ShootVi
     override fun initListener() {
         // 촬영.
         binding.buttonShooting.setOnClickListener {
+            Intent(IntentAction.ACTION_TAKE_PICTURE).also { takePictureIntent ->
+                resultLauncher.launch(takePictureIntent)
+            }
         }
 
-        binding.buttonFlash.setOnClickListener {
+//        binding.buttonFlash.setOnClickListener {
+////            Intent(IntentAction.ACTION_TAKE_PICTURE).also { takePictureIntent ->
+////                activity?.startActivity(takePictureIntent)
+////            }
+//
 //            Intent(IntentAction.ACTION_TAKE_PICTURE).also { takePictureIntent ->
-//                activity?.startActivity(takePictureIntent)
-//            }
-
-            Intent(IntentAction.ACTION_TAKE_PICTURE).also { takePictureIntent ->
-//                takePictureIntent.putextra
-                //takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, contentUri)
-                resultLauncher.launch(takePictureIntent)
-//                // TODO: dependencies
-//                // implementation 'androidx.activity:activity-ktx:version'
-//                // implementation 'androidx.fragment:fragment-ktx:version'
-////                requireActivity().activityResultRegistry
-//
-//
-////                registerForActivityResult(ActivityResultContracts.TakePicturePreview()) { result ->
-////                        // Debug.
-////                        Timber.i(">>>>> RESULT : %s", result)
-//////                    if (result.resultCode == Activity.RESULT_OK) {
+////                takePictureIntent.putextra
+//                //takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, contentUri)
+//                resultLauncher.launch(takePictureIntent)
+////                // TODO: dependencies
+////                // implementation 'androidx.activity:activity-ktx:version'
+////                // implementation 'androidx.fragment:fragment-ktx:version'
+//////                requireActivity().activityResultRegistry
+////
+////
+//////                registerForActivityResult(ActivityResultContracts.TakePicturePreview()) { result ->
 //////                        // Debug.
-//////                        Timber.i(">>>>> RESULT : %s", result.data.toJsonPretty())
-//////                        Timber.i(">>>>> RESULT : %s", result.data?.data)
-//////                        Timber.i(">>>>> RESULT : %s", result.data?.extras?.get("data"))
-//////                    }
-////                }.launch(takePictureIntent)
-//
-//
-//                registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-//                    if (result.resultCode == Activity.RESULT_OK) {
-//                        // Debug.
-//                        Timber.i(">>>>> RESULT : %s", result.data.toJsonPretty())
-//                        Timber.i(">>>>> RESULT : %s", result.data?.data)
-//                        Timber.i(">>>>> RESULT : %s", result.data?.extras?.get("data"))
-//                    }
-//                }.launch(takePictureIntent)
-////                registerForActivityResult(ActivityResultContracts.StartActivityForResult(), ActivityResultCallback { result ->
+//////                        Timber.i(">>>>> RESULT : %s", result)
+////////                    if (result.resultCode == Activity.RESULT_OK) {
+////////                        // Debug.
+////////                        Timber.i(">>>>> RESULT : %s", result.data.toJsonPretty())
+////////                        Timber.i(">>>>> RESULT : %s", result.data?.data)
+////////                        Timber.i(">>>>> RESULT : %s", result.data?.extras?.get("data"))
+////////                    }
+//////                }.launch(takePictureIntent)
+////
+////
+////                registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
 ////                    if (result.resultCode == Activity.RESULT_OK) {
 ////                        // Debug.
 ////                        Timber.i(">>>>> RESULT : %s", result.data.toJsonPretty())
 ////                        Timber.i(">>>>> RESULT : %s", result.data?.data)
 ////                        Timber.i(">>>>> RESULT : %s", result.data?.extras?.get("data"))
 ////                    }
-////                }).launch(takePictureIntent)
-            }
-        }
+////                }.launch(takePictureIntent)
+//////                registerForActivityResult(ActivityResultContracts.StartActivityForResult(), ActivityResultCallback { result ->
+//////                    if (result.resultCode == Activity.RESULT_OK) {
+//////                        // Debug.
+//////                        Timber.i(">>>>> RESULT : %s", result.data.toJsonPretty())
+//////                        Timber.i(">>>>> RESULT : %s", result.data?.data)
+//////                        Timber.i(">>>>> RESULT : %s", result.data?.extras?.get("data"))
+//////                    }
+//////                }).launch(takePictureIntent)
+//            }
+//        }
     }
 
     // Init Callback.

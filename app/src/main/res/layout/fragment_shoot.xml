@@ -21,20 +21,6 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             />
-        <!-- 플래쉬. -->
-        <androidx.appcompat.widget.AppCompatImageButton
-            android:id="@+id/button_flash"
-            android:layout_width="@dimen/dp48"
-            android:layout_height="@dimen/dp48"
-            android:layout_marginTop="@dimen/dp26"
-            android:layout_marginEnd="@dimen/dp16"
-            android:background="@null"
-            android:padding="@dimen/dp8"
-            android:scaleType="fitCenter"
-            android:src="@drawable/adb_camera_ic_baseline_flash_off_white_48"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            />
         <!-- 촬영. -->
         <androidx.appcompat.widget.AppCompatImageButton
             android:id="@+id/button_shooting"
@@ -48,18 +34,5 @@
             app:layout_constraintStart_toStartOf="parent"
             app:srcCompat="@drawable/adb_camera_selector_ic_baseline_camera_white_64"
             />
-        <!--        &lt;!&ndash; 선택. &ndash;&gt;-->
-        <!--        <androidx.appcompat.widget.AppCompatButton-->
-        <!--            android:id="@+id/button_select"-->
-        <!--            android:layout_width="@dimen/dp80"-->
-        <!--            android:layout_height="0dp"-->
-        <!--            android:gravity="center"-->
-        <!--            android:text="@string/text_shoot_list"-->
-        <!--            android:textSize="@dimen/sp18"-->
-        <!--            android:theme="@style/ThemeButtonAccentDark"-->
-        <!--            app:layout_constraintBottom_toBottomOf="@+id/button_shooting"-->
-        <!--            app:layout_constraintEnd_toEndOf="parent"-->
-        <!--            app:layout_constraintTop_toTopOf="@+id/button_shooting"-->
-        <!--            />-->
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

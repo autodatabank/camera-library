@@ -38,9 +38,6 @@ constructor(
     sealed class Event {
     }
 
-    var isOneShoot: Boolean = true
-        private set
-
     // Event.
     private val _eventFlow = MutableSharedFlow<Event>()
     val eventFlow = _eventFlow.asSharedFlow()
@@ -51,15 +48,14 @@ constructor(
             it.getOrDefault(ShootUiState.Uninitialized)
         }
         .stateIn(viewModelScope, SharingStarted.Eagerly, ShootUiState.Uninitialized)
-//
-//    val isEmpty: StateFlow<Boolean> = state.filter { !it.isLoading }
-//        .map {
-//            it.value?.isMultiplePicture?.isNullOrEmpty()
-//        }
-//        .stateIn(viewModelScope, SharingStarted.Eagerly, false)
+
+    val isEmpty: StateFlow<Boolean> = state.filter { !it.isLoading }
+        .map {
+            it.value?.action.isNullOrEmpty()
+        }
+        .stateIn(viewModelScope, SharingStarted.Eagerly, false)
 
     init {
-
         // UIState.
         viewModelScope.launch {
             item.collect { item ->
@@ -69,13 +65,20 @@ constructor(
         }
     }
 
+    init {
+        Timber.i(">>>>> ShootSharedViewModel init")
+    }
+
     fun intentAction(action: String?) {
-        isOneShoot = false
         // Debug.
         Timber.i(">>>>> ACTION : %s", action)
         action?.let {
             val shootUiState = if (state.value.value == null) {
-                ShootUiState(isMultiplePicture = it == IntentAction.ACTION_TAKE_MULTIPLE_PICTURE)
+                ShootUiState(
+                    action = action,
+                    isShooted = false,
+                    isMultiplePicture = it == IntentAction.ACTION_TAKE_MULTIPLE_PICTURE
+                )
             } else {
                 state.value.value?.copy(isMultiplePicture = it == IntentAction.ACTION_TAKE_MULTIPLE_PICTURE)
             }
@@ -83,11 +86,11 @@ constructor(
         }
     }
 
-    init {
-        Timber.i(">>>>> ShootSharedViewModel init")
-    }
+    fun pressedShutter() {
+        updateState {
 
-    val paths = mutableListOf<String>()
+        }
+    }
 
     // OutputFileOptions.Builder.
     fun outputFileOptions(lensFacing: Int, isPublicDirectory: Boolean = true): ImageCapture.OutputFileOptions {
@@ -101,92 +104,6 @@ constructor(
         return context.outputFileOptionsBuilder(isPublicDirectory).apply {
             setMetadata(metadata)
         }.build()
-    }
-
-    // Exif Log.
-    fun exif(imageUri: Uri?): Exif? {
-        var exif: Exif? = null
-        imageUri?.let { uri ->
-            var inputStream: InputStream? = null
-            try {
-                val context = getApplication<Application>().applicationContext
-                exif = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                    context.contentResolver.openInputStream(uri)?.let { stream ->
-                        inputStream = stream
-                        Exif.createFromInputStream(stream)
-                    }
-                } else {
-                    Exif.createFromFile(uri.toFile())
-                }
-                Timber.i(">>>>> Exif : $exif")
-            } catch (ex: Exception) {
-                // Debug.
-                Timber.e(">>>>> Exif : $ex")
-            } finally {
-                inputStream?.close()
-            }
-        }
-        return exif
-    }
-
-    // ExifInterface Log.
-    fun exifInterface(imageUri: Uri?): ExifInterface? {
-        var exifInterface: ExifInterface? = null
-        imageUri?.let { uri ->
-            var inputStream: InputStream? = null
-            try {
-                val context = getApplication<Application>().applicationContext
-                exifInterface = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                    context.contentResolver.openInputStream(uri)?.let { stream ->
-                        inputStream = stream
-                        ExifInterface(stream)
-                    }
-                } else {
-                    ExifInterface(uri.toFile())
-                }
-
-                // Debug.
-                ExifInterface::class.java.fields.forEach {
-                    if (it.name.startsWith("TAG_")) {
-                        val value = it.get(it.name) as String
-                        Timber.i(
-                            ">>>>> ExifInterface ${it.name} : " +
-                                    "${exifInterface?.getAttribute(value)}"
-                        )
-                    }
-                }
-            } catch (ex: Exception) {
-                // Debug.
-                Timber.e(">>>>> ExifInterface : $ex")
-            } finally {
-                inputStream?.close()
-            }
-        }
-        return exifInterface
-    }
-
-    // Thumbnail.
-    fun thumbnailBitmap(imageUri: Uri?, exif: Exif?): Bitmap? {
-        // Context.
-        val context = getApplication<Application>().applicationContext
-        // Thumbnail Image.
-        return if ((Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q)) {
-            imageUri?.let {
-                context.contentResolver.loadThumbnail(
-                    it,
-                    Size(100, 100),
-                    null
-                )
-            }
-        } else {
-            @Suppress("DEPRECATION")
-            MediaStore.Images.Thumbnails.getThumbnail(
-                context.contentResolver,
-                imageUri?.lastPathSegment?.toLong() ?: 0,
-                MediaStore.Images.Thumbnails.MINI_KIND,
-                null
-            )
-        }
     }
 
     fun resize(uri: Uri, resize: Int): Bitmap? {
@@ -214,7 +131,7 @@ constructor(
             //3번
             resizeBitmap = bitmap
         } catch (ex: FileNotFoundException) {
-            ex.printStackTrace();
+            ex.printStackTrace()
         }
         return resizeBitmap
 
