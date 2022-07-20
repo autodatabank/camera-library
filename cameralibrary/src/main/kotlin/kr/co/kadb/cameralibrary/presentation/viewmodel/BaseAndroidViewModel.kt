@@ -13,9 +13,7 @@ internal abstract class BaseAndroidViewModel<T>(
     application: Application,
     initialState: UiState<T>
 ) : AndroidViewModel(application) {
-    // Bundle.
-    var extras: Bundle? = null
-
+    //
     //private val disposable = CompositeDisposable()
 
     private val _state = MutableStateFlow(initialState)
@@ -23,18 +21,8 @@ internal abstract class BaseAndroidViewModel<T>(
 
     protected fun updateState(transform: (T?) -> T?) {
         val state = state.value
-        // Debug.
-        Timber.i(">>>>> BaseAndroidViewModel[1] : %s", state.value)
-        Timber.i(">>>>> BaseAndroidViewModel[2] : %s", _state.value)
         val value = state.value ?: return
         _state.update {
-            Timber.i(">>>>> BaseAndroidViewModel[3] : %s", it)
-            Timber.i(">>>>> BaseAndroidViewModel[4] : %s", state.value)
-            Timber.i(">>>>> BaseAndroidViewModel[5] : %s", _state.value)
-            Timber.i(">>>>> BaseAndroidViewModel[7] : %s", transform(value))
-            Timber.i(">>>>> BaseAndroidViewModel[8] : %s", transform(state.value))
-            Timber.i(">>>>> BaseAndroidViewModel[9] : %s", UiState.success(transform(value)))
-            Timber.i(">>>>> BaseAndroidViewModel[10] : %s", UiState.success(transform(state.value)))
             UiState.success(transform(value))
         }
     }
@@ -47,9 +35,6 @@ internal abstract class BaseAndroidViewModel<T>(
         _state.value = UiState(isLoading = isLoading, cause = cause, value = value)
     }
 
-//    protected fun bundle(bundle: Bundle?) {
-//    }
-//
 //    protected fun addDisposable(disposable: Disposable) {
 //        this.disposable.add(disposable)
 //    }

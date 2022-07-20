@@ -4,6 +4,7 @@ package kr.co.kadb.cameralibrary.presentation.widget.extension
 
 import android.content.Context
 import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Build
 import android.provider.MediaStore
@@ -12,6 +13,7 @@ import androidx.camera.core.impl.utils.Exif
 import androidx.core.net.toFile
 import androidx.exifinterface.media.ExifInterface
 import timber.log.Timber
+import java.io.FileNotFoundException
 import java.io.InputStream
 import kotlin.math.min
 
@@ -113,4 +115,31 @@ internal fun Uri.thumbnail(
             null
         )
     }
+}
+
+internal fun Uri.resize(context: Context, resize: Int): Bitmap? {
+    try {
+        val options: BitmapFactory.Options = BitmapFactory.Options()
+        BitmapFactory.decodeStream(context.contentResolver.openInputStream(this), null, options)
+        var width = options.outWidth
+        var height = options.outHeight
+        var sampleSize = 1
+        while (true) {
+            if (width / 2 < resize || height / 2 < resize) {
+                break
+            }
+            width /= 2
+            height /= 2
+            sampleSize *= 2
+        }
+        options.inSampleSize = sampleSize
+        return BitmapFactory.decodeStream(
+            context.contentResolver.openInputStream(this),
+            null,
+            options
+        )
+    } catch (ex: FileNotFoundException) {
+        ex.printStackTrace()
+    }
+    return null
 }

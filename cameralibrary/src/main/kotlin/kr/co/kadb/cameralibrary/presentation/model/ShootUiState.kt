@@ -6,8 +6,8 @@ package kr.co.kadb.cameralibrary.presentation.model
  */
 internal data class ShootUiState(
     val action: String? = null,
-    val isShooted: Boolean,
-    val isMultiplePicture: Boolean
+    val isShooted: Boolean = false,
+    val isMultiplePicture: Boolean = false
 ) {
     /*class DiffCallback : DiffUtil.ItemCallback<NewsItemUiState>() {
         override fun areItemsTheSame(

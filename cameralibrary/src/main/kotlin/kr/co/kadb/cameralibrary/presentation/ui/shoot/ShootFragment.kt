@@ -168,7 +168,7 @@ internal class ShootFragment :
                 if (it.isShooted && !it.isMultiplePicture) {
                     return@setOnClickListener
                 } else {
-                    viewModel.
+                    viewModel.pressedShutter()
                 }
             }
 
