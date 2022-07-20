@@ -8,11 +8,11 @@ plugins {
 group = 'com.github.autodatabank'
 
 android {
-    compileSdk 31
+    compileSdk 32
 
     defaultConfig {
         minSdk 21
-        targetSdk 31
+        targetSdk 32
         versionCode 22071301
         versionName "0.0.1"
 
@@ -61,7 +61,7 @@ dependencies {
     // Kotlin.
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.6.21"
     //implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.6.1'
-    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.3'
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.4'
     implementation "org.jetbrains.kotlin:kotlin-reflect:1.6.21"
 
     // Android Support Library.

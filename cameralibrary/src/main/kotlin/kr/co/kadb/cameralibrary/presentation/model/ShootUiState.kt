@@ -5,6 +5,8 @@ package kr.co.kadb.cameralibrary.presentation.model
  * UI State.
  */
 internal data class ShootUiState(
+    val action: String? = null,
+    val isShooted: Boolean,
     val isMultiplePicture: Boolean
 ) {
     /*class DiffCallback : DiffUtil.ItemCallback<NewsItemUiState>() {
@@ -20,6 +22,8 @@ internal data class ShootUiState(
     }*/
     companion object {
         val Uninitialized = ShootUiState(
+            action = null,
+            isShooted = false,
             isMultiplePicture = false
         )
     }

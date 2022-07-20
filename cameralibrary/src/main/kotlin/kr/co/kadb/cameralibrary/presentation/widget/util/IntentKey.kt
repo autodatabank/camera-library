@@ -23,7 +23,7 @@ object IntentKey {
 	internal const val EXTRA_TO = "EXTRA_TO"
 
 	// data.
-	internal const val EXTRA_DATA = "EXTRA_DATA"
+	internal const val EXTRA_DATA = "data"
 
 	// data.
 	internal const val EXTRA_WIDTH = "EXTRA_WIDTH"

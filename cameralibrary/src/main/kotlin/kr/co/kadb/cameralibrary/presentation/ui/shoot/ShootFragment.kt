@@ -20,7 +20,6 @@ import android.content.Context
 import android.content.Intent
 import android.media.AudioManager
 import android.media.MediaActionSound
-import android.provider.MediaStore
 import android.view.OrientationEventListener
 import android.view.Surface
 import android.view.View
@@ -33,6 +32,8 @@ import kr.co.kadb.cameralibrary.R
 import kr.co.kadb.cameralibrary.data.local.PreferenceManager
 import kr.co.kadb.cameralibrary.databinding.AdbCameralibraryFragmentShootBinding
 import kr.co.kadb.cameralibrary.presentation.base.BaseBindingFragment
+import kr.co.kadb.cameralibrary.presentation.widget.extension.exif
+import kr.co.kadb.cameralibrary.presentation.widget.extension.thumbnail
 import kr.co.kadb.cameralibrary.presentation.widget.util.IntentKey
 import kr.co.kadb.cameralibrary.presentation.widget.util.MediaActionSound2
 import timber.log.Timber
@@ -162,6 +163,15 @@ internal class ShootFragment :
     override fun initListener() {
         // 촬영.
         binding.buttonShooting.setOnClickListener {
+            //
+            viewModel.item.value.also {
+                if (it.isShooted && !it.isMultiplePicture) {
+                    return@setOnClickListener
+                } else {
+                    viewModel.
+                }
+            }
+
 //            // 미디어 볼륨으로 셔터효과음 재생.
 //            mediaActionSound.playWithStreamVolume(
 //                MediaActionSound.SHUTTER_CLICK,
@@ -191,25 +201,27 @@ internal class ShootFragment :
                             Timber.i(">>>>> Photo capture succeeded: ${output.savedUri}")
 
                             // Exif Logging.
-                            val exif = viewModel.exif(output.savedUri)
+                            val exif = output.savedUri?.exif(requireContext())
 
                             // Thumbnail Bitmap.
-                            val thumbnail = viewModel.thumbnailBitmap(output.savedUri, exif)
+                            val thumbnail = output.savedUri?.thumbnail(requireContext(), exif)
 
-                            // Debug.
-                            Timber.i(">>>>> ShootFragment takePicture isMultiplePicture : %s", viewModel.item.value.isMultiplePicture)
+                            // Result.
                             if (viewModel.item.value.isMultiplePicture) {
                                 // TODO:
                             } else {
-                                val intent = Intent()
-                                intent.data = output.savedUri
-                                intent.type = "image/jpeg"
-                                intent.putExtra("data", thumbnail)
-                                intent.putExtra(MediaStore.EXTRA_OUTPUT, output.savedUri)
-                                intent.putExtra(IntentKey.EXTRA_WIDTH, exif?.width)
-                                intent.putExtra(IntentKey.EXTRA_WIDTH, exif?.height)
-                                requireActivity().setResult(Activity.RESULT_OK, intent)
-                                activity?.finish()
+                                Intent().apply {
+                                    action = viewModel.item.value.action
+                                    putExtra(IntentKey.EXTRA_DATA, thumbnail)
+                                    putExtra(IntentKey.EXTRA_WIDTH, exif?.width)
+                                    putExtra(IntentKey.EXTRA_WIDTH, exif?.height)
+                                    setDataAndType(output.savedUri, "image/jpeg")
+                                }.also {
+                                    requireActivity().setResult(Activity.RESULT_OK, it)
+                                }.run {
+                                    activity?.finish()
+                                    thumbnail?.recycle()
+                                }
                             }
                         }
                     })
