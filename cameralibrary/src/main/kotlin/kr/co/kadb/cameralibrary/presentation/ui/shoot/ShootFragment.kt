@@ -18,29 +18,43 @@ package kr.co.kadb.cameralibrary.presentation.ui.shoot
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
+import android.databinding.tool.util.FileUtil
+import android.graphics.Bitmap
+import android.graphics.Color
 import android.media.AudioManager
 import android.media.MediaActionSound
-import android.view.OrientationEventListener
-import android.view.Surface
-import android.view.View
+import android.os.Bundle
+import android.view.*
 import androidx.camera.core.*
 import androidx.camera.core.CameraState.Type
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.core.content.ContextCompat
+import androidx.databinding.tool.util.FileUtil
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.MediatorLiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.Transformations
+import com.google.firebase.FirebaseApp
+import com.google.firebase.ml.modeldownloader.CustomModel
+import com.google.firebase.ml.modeldownloader.CustomModelDownloadConditions
+import com.google.firebase.ml.modeldownloader.DownloadType
+import com.google.firebase.ml.modeldownloader.FirebaseModelDownloader
+import com.google.mlkit.codelab.translate.util.SmoothedMutableLiveData
 import kr.co.kadb.cameralibrary.R
 import kr.co.kadb.cameralibrary.data.local.PreferenceManager
 import kr.co.kadb.cameralibrary.databinding.AdbCameralibraryFragmentShootBinding
 import kr.co.kadb.cameralibrary.presentation.base.BaseBindingFragment
 import kr.co.kadb.cameralibrary.presentation.widget.extension.exif
 import kr.co.kadb.cameralibrary.presentation.widget.extension.thumbnail
-import kr.co.kadb.cameralibrary.presentation.widget.util.IntentKey
-import kr.co.kadb.cameralibrary.presentation.widget.util.MediaActionSound2
+import kr.co.kadb.cameralibrary.presentation.widget.util.*
+import org.tensorflow.lite.Interpreter
 import timber.log.Timber
 import java.nio.ByteBuffer
+import java.nio.ByteOrder
 import java.util.*
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
+
 
 /** Helper type alias used for analysis use case callbacks */
 internal typealias LumaListener = (luma: Double) -> Unit
@@ -58,6 +72,19 @@ internal class ShootFragment :
         //        private const val RATIO_4_3_VALUE = 4.0 / 3.0
 //        private const val RATIO_16_9_VALUE = 16.0 / 9.0
         fun create() = ShootFragment()
+
+        // We only need to analyze the part of the image that has text, so we set crop percentages
+        // to avoid analyze the entire image from the live camera feed.
+        const val DESIRED_WIDTH_CROP_PERCENT = 8
+        const val DESIRED_HEIGHT_CROP_PERCENT = 74
+
+        // Amount of time (in milliseconds) to wait for detected text to settle
+        private const val SMOOTHING_DURATION = 50L
+        private const val NUM_TRANSLATORS = 1
+
+        private const val ACCURACY_THRESHOLD = 0.5f
+        private const val MODEL_PATH = "assets/lite-model_rosetta_dr_1.tflite"
+        private const val LABELS_PATH = "coco_ssd_mobilenet_v1_1.0_labels.txt"
     }
 
     // SharedPreferences.
@@ -133,8 +160,88 @@ internal class ShootFragment :
         mediaActionSound.release()
     }
 
+    private val tflite by lazy {
+        Interpreter(
+            FileUtil.loadMappedFile(this, MODEL_PATH),
+            Interpreter.Options().addDelegate(nnApiDelegate))
+    }
+
+    var interpreter: Interpreter? = null
+
+    fun executeInterpreter(inputBitmap: Bitmap) {
+        val bitmap = Bitmap.createScaledBitmap(inputBitmap, 224, 224, true)
+        val input = ByteBuffer.allocateDirect(224 * 224 * 3 * 4).order(ByteOrder.nativeOrder())
+        for (y in 0 until 224) {
+            for (x in 0 until 224) {
+                val px = bitmap.getPixel(x, y)
+
+                // Get channel values from the pixel value.
+                val r = Color.red(px)
+                val g = Color.green(px)
+                val b = Color.blue(px)
+
+                // Normalize channel values to [-1.0, 1.0]. This requirement depends on the model.
+                // For example, some models might require values to be normalized to the range
+                // [0.0, 1.0] instead.
+                val rf = (r - 127) / 255f
+                val gf = (g - 127) / 255f
+                val bf = (b - 127) / 255f
+
+                input.putFloat(rf)
+                input.putFloat(gf)
+                input.putFloat(bf)
+            }
+        }
+
+        //
+        val bufferSize = 1000 * java.lang.Float.SIZE / java.lang.Byte.SIZE
+        val modelOutput = ByteBuffer.allocateDirect(bufferSize).order(ByteOrder.nativeOrder())
+        interpreter?.run(input, modelOutput)
+
+        //
+        modelOutput.rewind()
+//        val probabilities = modelOutput.asFloatBuffer()
+//        try {
+//            val reader = BufferedReader(
+//                InputStreamReader(assets.open("custom_labels.txt"))
+//            )
+//            for (i in probabilities.capacity()) {
+//                val label: String = reader.readLine()
+//                val probability = probabilities.get(i)
+//                println("$label: $probability")
+//            }
+//        } catch (e: IOException) {
+//            // File not found?
+//        }
+
+        //
+        val modelOutputString = String(modelOutput.array())
+        // Debug.
+        Timber.i(">>>>> EXECUTE INTERPRETER MODEL OUTPUT : %s", modelOutputString)
+    }
+
     // Init Variable.
     override fun initVariable() {
+        val conditions = CustomModelDownloadConditions.Builder()
+            .requireWifi()  // Also possible: .requireCharging() and .requireDeviceIdle()
+            .build()
+        FirebaseModelDownloader.getInstance()
+            .getModel(
+                "/assets/lite-model_rosetta_dr_1.tflite", DownloadType.LOCAL_MODEL_UPDATE_IN_BACKGROUND,
+                conditions
+            )
+            .addOnSuccessListener { model: CustomModel? ->
+                // Download complete. Depending on your app, you could enable the ML
+                // feature, or switch from the local model to the remote model, etc.
+
+                // The CustomModel object contains the local path of the model file,
+                // which you can use to instantiate a TensorFlow Lite interpreter.
+                val modelFile = model?.file
+                if (modelFile != null) {
+                    interpreter = Interpreter(modelFile)
+                }
+            }
+
         // Initialize Background Executor
         cameraExecutor = Executors.newSingleThreadExecutor()
 
@@ -155,8 +262,48 @@ internal class ShootFragment :
         }
     }
 
+    // TODO Instantiate LanguageIdentification
+    val targetLang = MutableLiveData<Language>()
+    val sourceText = SmoothedMutableLiveData<String>(SMOOTHING_DURATION)
+
+    // We set desired crop percentages to avoid having to analyze the whole image from the live
+    // camera feed. However, we are not guaranteed what aspect ratio we will get from the camera, so
+    // we use the first frame we get back from the camera to update these crop percentages based on
+    // the actual aspect ratio of images.
+    val imageCropPercentages = MutableLiveData<Pair<Int, Int>>()
+        .apply { value = Pair(DESIRED_HEIGHT_CROP_PERCENT, DESIRED_WIDTH_CROP_PERCENT) }
+    val translatedText = MediatorLiveData<ResultOrError>()
+    val translating = MutableLiveData<Boolean>()
+    val modelDownloading = SmoothedMutableLiveData<Boolean>(SMOOTHING_DURATION)
+    val sourceLang = Transformations.switchMap(sourceText) { text ->
+        val result = MutableLiveData<Language>()
+        // TODO  Call the language identification method and assigns the result if it is not
+        //  undefined (“und”)
+        result
+    }
+
+
     // Init Observer.
     override fun initObserver() {
+
+        sourceLang.observe(viewLifecycleOwner) {
+            Timber.i(">>>>> SOURCE LANG : %s", it)
+        }
+
+        translatedText.observe(viewLifecycleOwner) { resultOrError ->
+            Timber.i(">>>>> TRANSLATED TEXT : %s", resultOrError)
+//            resultOrError?.let {
+//                if (it.error != null) {
+//                    translatedText.error = resultOrError.error?.localizedMessage
+//                } else {
+//                    translatedText.text = resultOrError.result
+//                }
+//            }
+        }
+
+        imageCropPercentages.observe(viewLifecycleOwner) {
+            Timber.i(">>>>> imageCropPercentages : %s", it)
+        }
     }
 
     // Init Listener.
@@ -304,14 +451,29 @@ internal class ShootFragment :
             .setTargetRotation(rotation)
             .build()
             // The analyzer can then be assigned to the instance
-            .also {
-                it.setAnalyzer(cameraExecutor, LuminosityAnalyzer {
-                    // Values returned from our analyzer are passed to the attached listener
-                    // We log image analysis results here - you should do something useful
-                    // instead!
-                    // Debug.
-                    //Timber.v(">>>>> Average luminosity: $luma")
-                })
+            .also { imageAnalysis ->
+//                imageAnalysis.setAnalyzer(cameraExecutor, LuminosityAnalyzer {
+//                    // Values returned from our analyzer are passed to the attached listener
+//                    // We log image analysis results here - you should do something useful
+//                    // instead!
+//                    // Debug.
+//                    //Timber.v(">>>>> Average luminosity: $luma")
+//                })
+//                imageAnalysis.setAnalyzer(cameraExecutor, LuminosityAnalyzer {
+//                })
+
+                imageAnalysis.setAnalyzer(
+                    cameraExecutor, TextAnalyzer(
+                        requireContext(),
+                        lifecycle,
+                        sourceText,
+                        imageCropPercentages
+                    ) {
+                        // Debug.
+                        Timber.i(">>>>> TextAnalyzer")
+                        executeInterpreter(it)
+                    }
+                )
             }
 
         // Must unbind the use-cases before rebinding them
@@ -332,7 +494,6 @@ internal class ShootFragment :
             Timber.e(">>>>> Use case binding failed: $exc")
         }
     }
-
 
     private fun observeCameraState(cameraInfo: CameraInfo) {
         cameraInfo.cameraState.observe(viewLifecycleOwner) { cameraState ->

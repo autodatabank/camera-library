@@ -21,7 +21,7 @@ import kotlin.math.min
  * Created by oooobang on 2022. 7. 20..
  * Uri Extension.
  */
-// Exif Log.
+// 이미지 Exif.
 internal fun Uri.exif(context: Context): Exif? {
     var exif: Exif? = null
     var inputStream: InputStream? = null
@@ -44,7 +44,7 @@ internal fun Uri.exif(context: Context): Exif? {
     return exif
 }
 
-// ExifInterface
+// 이미지 ExifInterface.
 internal fun Uri.exifInterface(context: Context): ExifInterface? {
     var exifInterface: ExifInterface? = null
     var inputStream: InputStream? = null
@@ -77,7 +77,7 @@ internal fun Uri.exifInterface(context: Context): ExifInterface? {
     return exifInterface
 }
 
-// Thumbnail.
+// 이미지 Thumbnail 반환.
 internal fun Uri.thumbnail(
     context: Context,
     exif: Exif? = null,
