@@ -15,30 +15,66 @@
  */
 package kr.co.kadb.cameralibrary.presentation.ui.shoot
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
+import android.graphics.Bitmap
+import android.graphics.Matrix
 import android.media.AudioManager
 import android.media.MediaActionSound
-import android.view.*
+import android.view.OrientationEventListener
+import android.view.Surface
+import android.view.View
+import android.widget.Toast
 import androidx.camera.core.*
 import androidx.camera.core.CameraState.Type
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.activityViewModels
+import jdk.nashorn.internal.objects.ArrayBufferView.buffer
 import kr.co.kadb.cameralibrary.R
 import kr.co.kadb.cameralibrary.data.local.PreferenceManager
 import kr.co.kadb.cameralibrary.databinding.AdbCameralibraryFragmentShootBinding
+import kr.co.kadb.cameralibrary.ml.LiteModelRosettaDr1
 import kr.co.kadb.cameralibrary.presentation.base.BaseBindingFragment
 import kr.co.kadb.cameralibrary.presentation.widget.extension.exif
 import kr.co.kadb.cameralibrary.presentation.widget.extension.thumbnail
-import kr.co.kadb.cameralibrary.presentation.widget.util.*
+import kr.co.kadb.cameralibrary.presentation.widget.util.IntentKey
+import kr.co.kadb.cameralibrary.presentation.widget.util.MediaActionSound2
+import kr.co.kadb.cameralibrary.presentation.widget.util.YuvToRgbConverter
+import org.tensorflow.lite.DataType
+import org.tensorflow.lite.Interpreter
+import org.tensorflow.lite.gpu.CompatibilityList
+import org.tensorflow.lite.support.common.FileUtil
+import org.tensorflow.lite.support.image.TensorImage
+import org.tensorflow.lite.support.model.Model
+import org.tensorflow.lite.support.tensorbuffer.TensorBuffer
 import timber.log.Timber
+import java.io.IOException
 import java.nio.ByteBuffer
 import java.util.*
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 
+
+/**
+ * Simple Data object with two fields for the label and probability
+ */
+data class Recognition(val label: String, val confidence: Float) {
+
+    // For easy logging
+    override fun toString(): String {
+        return "$label / $probabilityString"
+    }
+
+    // Output probability as a string to enable easy data binding
+    val probabilityString = String.format("%.1f%%", confidence * 100.0f)
+
+}
+
+// Listener for the result of the ImageAnalyzer
+typealias RecognitionListener = (recognition: List<Recognition>) -> Unit
 
 /** Helper type alias used for analysis use case callbacks */
 internal typealias LumaListener = (luma: Double) -> Unit
@@ -302,28 +338,15 @@ internal class ShootFragment :
             .build()
             // The analyzer can then be assigned to the instance
             .also { imageAnalysis ->
-                imageAnalysis.setAnalyzer(cameraExecutor, LuminosityAnalyzer {
-                    // Values returned from our analyzer are passed to the attached listener
-                    // We log image analysis results here - you should do something useful
-                    // instead!
-                    // Debug.
-                    //Timber.v(">>>>> Average luminosity: $luma")
-                })
 //                imageAnalysis.setAnalyzer(cameraExecutor, LuminosityAnalyzer {
+//                    // Values returned from our analyzer are passed to the attached listener
+//                    // We log image analysis results here - you should do something useful
+//                    // instead!
+//                    // Debug.
+//                    //Timber.v(">>>>> Average luminosity: $luma")
 //                })
-
-//                imageAnalysis.setAnalyzer(
-//                    cameraExecutor, TextAnalyzer(
-//                        requireContext(),
-//                        lifecycle,
-//                        sourceText,
-//                        imageCropPercentages
-//                    ) {
-//                        // Debug.
-//                        Timber.i(">>>>> TextAnalyzer")
-//                        executeInterpreter(it)
-//                    }
-//                )
+                imageAnalysis.setAnalyzer(cameraExecutor, ImageAnalyzer(requireContext()) {
+                })
             }
 
         // Must unbind the use-cases before rebinding them
@@ -388,6 +411,165 @@ internal class ShootFragment :
     /** Returns true if the device has an available front camera. False otherwise */
     private fun hasFrontCamera(): Boolean {
         return cameraProvider?.hasCamera(CameraSelector.DEFAULT_FRONT_CAMERA) ?: false
+    }
+
+    private class ImageAnalyzer(context: Context, private val listener: RecognitionListener) : ImageAnalysis.Analyzer {
+
+        // TODO 1: Add class variable TensorFlow Lite Model
+        // Initializing the flowerModel by lazy so that it runs in the same thread when the process
+        // method is called.
+
+        private val tflite: Interpreter? by lazy {
+            // Initialise the model
+            try {
+                val tfliteModel = FileUtil.loadMappedFile(context, "lite-model_rosetta_dr_1.tflite")
+                Interpreter(tfliteModel)
+            } catch (ex: IOException) {
+                // Debug.
+                Timber.e(">>>>> TfLite Support : Error reading model : $ex")
+            }
+            null
+        }
+
+        private val model: LiteModelRosettaDr1 by lazy {
+
+            // TODO 6. Optional GPU acceleration
+            val compatList = CompatibilityList()
+
+            val options = if (compatList.isDelegateSupportedOnThisDevice) {
+                // Debug.
+                Timber.d(">>>>> ImageAnalyzer : This device is GPU Compatible")
+                Model.Options.Builder().setDevice(Model.Device.GPU).build()
+            } else {
+                // Debug.
+                Timber.d(">>>>> ImageAnalyzer : This device is GPU Incompatible")
+                Model.Options.Builder().setNumThreads(4).build()
+            }
+
+            // Initialize the Flower Model
+            LiteModelRosettaDr1.newInstance(context, options)
+        }
+
+        override fun analyze(imageProxy: ImageProxy) {
+            val items = mutableListOf<Recognition>()
+
+//            // Initialization code
+//            // Create an ImageProcessor with all ops required. For more ops, please
+//            // refer to the ImageProcessor Architecture section in this README.
+//            val imageProcessor = ImageProcessor.Builder()
+//                .add(ResizeOp(224, 224, ResizeOp.ResizeMethod.BILINEAR))
+//                .build()
+//
+//            // Create a TensorImage object. This creates the tensor of the corresponding
+//            // tensor type (uint8 in this case) that the TensorFlow Lite interpreter needs.
+//            var tImage = TensorImage(DataType.FLOAT32)
+//
+//            // Analysis code for every frame
+//            // Preprocess the image
+//            tImage.load(toBitmap(imageProxy))
+//            tImage = imageProcessor.process(tImage)
+//
+//
+//            // Create a container for the result and specify that this is a quantized model.
+//            // Hence, the 'DataType' is defined as UINT8 (8-bit unsigned integer)
+//            val probabilityBuffer = TensorBuffer.createFixedSize(intArrayOf(1, 1, 32, 100), DataType.FLOAT32)
+//
+//
+//
+//
+//            // Running inference
+//            if (tflite != null) {
+//                tflite?.run(tImage.buffer, probabilityBuffer.buffer)
+//            }
+            //
+            //
+            //
+            //
+            //
+
+
+
+
+
+            // TODO 2: Convert Image to Bitmap then to TensorImage
+            val tfImage = TensorImage.fromBitmap(toBitmap(imageProxy))
+
+            // Creates inputs for reference.
+            val inputFeature0 = TensorBuffer.createFixedSize(intArrayOf(1, 1, 32, 100), DataType.FLOAT32)
+            inputFeature0.loadBuffer(tfImage.buffer)
+
+            // TODO 3: Process the image using the trained model, sort and pick out the top results
+            // Runs model inference and gets result.
+            val outputs = model.process(inputFeature0)
+            val outputFeature0 = outputs.outputFeature0AsTensorBuffer
+
+            val outputFeature0 = outputs.outputFeature0AsTensorBuffer
+            val converted = String(buffer.array(), "UTF-8")
+            Toast.makeText(this, "output: $outputFeature0", Toast.LENGTH_SHORT).show()
+            //Releases model resources if no longer used.
+
+
+//            val outputs = model.process(tfImage)
+//                .probabilityAsCategoryList.apply {
+//                    sortByDescending { it.score } // Sort with highest confidence first
+//                }.take(MAX_RESULT_DISPLAY) // take the top results
+
+            // TODO 4: Converting the top probability items into a list of recognitions
+//            for (output in outputs) {
+//                items.add(Recognition(output.label, output.score))
+//            }
+
+//            // START - Placeholder code at the start of the codelab. Comment this block of code out.
+//            for (i in 0 until MAX_RESULT_DISPLAY){
+//                items.add(Recognition("Fake label $i", Random.nextFloat()))
+//            }
+//            // END - Placeholder code at the start of the codelab. Comment this block of code out.
+
+            // Return the result
+            listener(items.toList())
+
+            // Close the image,this tells CameraX to feed the next image to the analyzer
+            imageProxy.close()
+        }
+
+        /**
+         * Convert Image Proxy to Bitmap
+         */
+        private val yuvToRgbConverter = YuvToRgbConverter(context)
+        private lateinit var bitmapBuffer: Bitmap
+        private lateinit var rotationMatrix: Matrix
+
+        @SuppressLint("UnsafeExperimentalUsageError")
+        private fun toBitmap(imageProxy: ImageProxy): Bitmap? {
+
+            val image = imageProxy.image ?: return null
+
+            // Initialise Buffer
+            if (!::bitmapBuffer.isInitialized) {
+                // The image rotation and RGB image buffer are initialized only once
+                Timber.d(">>>>> ImageAnalyzer : Initalise toBitmap()")
+                rotationMatrix = Matrix()
+                rotationMatrix.postRotate(imageProxy.imageInfo.rotationDegrees.toFloat())
+                bitmapBuffer = Bitmap.createBitmap(
+                    imageProxy.width, imageProxy.height, Bitmap.Config.ARGB_8888
+                )
+            }
+
+            // Pass image to an image analyser
+            yuvToRgbConverter.yuvToRgb(image, bitmapBuffer)
+
+            // Create the Bitmap in the correct orientation
+            return Bitmap.createBitmap(
+                bitmapBuffer,
+                0,
+                0,
+                bitmapBuffer.width,
+                bitmapBuffer.height,
+                rotationMatrix,
+                false
+            )
+        }
+
     }
 
     /**

@@ -76,7 +76,7 @@ dependencies {
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
 
     // 종속성 충돌에 의한 Guava 필수.
-    implementation("com.google.guava:guava:28.0-jre")
+    implementation 'com.google.guava:guava:30.1.1-android'
 
     // Kotlin.
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.6.21"
@@ -112,7 +112,7 @@ dependencies {
     implementation 'org.tensorflow:tensorflow-lite-metadata:0.1.0'
     implementation 'org.tensorflow:tensorflow-lite-support:0.1.0'
     // Optional GPU Delegates
-    //implementation 'org.tensorflow:tensorflow-lite-gpu:2.3.0'
+    implementation 'org.tensorflow:tensorflow-lite-gpu:2.8.0'
 
     // Gson.
     implementation 'com.google.code.gson:gson:2.9.0'
