@@ -21,18 +21,18 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.Matrix
+import android.graphics.Rect
 import android.media.AudioManager
 import android.media.MediaActionSound
 import android.view.OrientationEventListener
 import android.view.Surface
 import android.view.View
-import android.widget.Toast
 import androidx.camera.core.*
 import androidx.camera.core.CameraState.Type
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.activityViewModels
-import jdk.nashorn.internal.objects.ArrayBufferView.buffer
+import androidx.lifecycle.MutableLiveData
 import kr.co.kadb.cameralibrary.R
 import kr.co.kadb.cameralibrary.data.local.PreferenceManager
 import kr.co.kadb.cameralibrary.databinding.AdbCameralibraryFragmentShootBinding
@@ -40,18 +40,17 @@ import kr.co.kadb.cameralibrary.ml.LiteModelRosettaDr1
 import kr.co.kadb.cameralibrary.presentation.base.BaseBindingFragment
 import kr.co.kadb.cameralibrary.presentation.widget.extension.exif
 import kr.co.kadb.cameralibrary.presentation.widget.extension.thumbnail
+import kr.co.kadb.cameralibrary.presentation.widget.util.ImageUtils
 import kr.co.kadb.cameralibrary.presentation.widget.util.IntentKey
 import kr.co.kadb.cameralibrary.presentation.widget.util.MediaActionSound2
 import kr.co.kadb.cameralibrary.presentation.widget.util.YuvToRgbConverter
 import org.tensorflow.lite.DataType
 import org.tensorflow.lite.Interpreter
 import org.tensorflow.lite.gpu.CompatibilityList
-import org.tensorflow.lite.support.common.FileUtil
 import org.tensorflow.lite.support.image.TensorImage
 import org.tensorflow.lite.support.model.Model
 import org.tensorflow.lite.support.tensorbuffer.TensorBuffer
 import timber.log.Timber
-import java.io.IOException
 import java.nio.ByteBuffer
 import java.util.*
 import java.util.concurrent.ExecutorService
@@ -190,6 +189,11 @@ internal class ShootFragment :
 
     // Init Observer.
     override fun initObserver() {
+        viewModel.imageCropPercentages.observe(viewLifecycleOwner) {
+            // Debug.
+            Timber.i(">>>>> ShootFragment imageCropPercentages : $it")
+            //drawOverlay(overlay.holder, it.first, it.second)
+        }
     }
 
     // Init Listener.
@@ -345,7 +349,10 @@ internal class ShootFragment :
 //                    // Debug.
 //                    //Timber.v(">>>>> Average luminosity: $luma")
 //                })
-                imageAnalysis.setAnalyzer(cameraExecutor, ImageAnalyzer(requireContext()) {
+                imageAnalysis.setAnalyzer(cameraExecutor, ImageAnalyzer(
+                    requireContext(),
+                    viewModel.imageCropPercentages
+                ) {
                 })
             }
 
@@ -413,24 +420,16 @@ internal class ShootFragment :
         return cameraProvider?.hasCamera(CameraSelector.DEFAULT_FRONT_CAMERA) ?: false
     }
 
-    private class ImageAnalyzer(context: Context, private val listener: RecognitionListener) : ImageAnalysis.Analyzer {
+    private class ImageAnalyzer(
+        context: Context,
+        private val imageCropPercentages: MutableLiveData<Pair<Int, Int>>,
+        private val listener: RecognitionListener
+    ) :
+        ImageAnalysis.Analyzer {
 
         // TODO 1: Add class variable TensorFlow Lite Model
         // Initializing the flowerModel by lazy so that it runs in the same thread when the process
         // method is called.
-
-        private val tflite: Interpreter? by lazy {
-            // Initialise the model
-            try {
-                val tfliteModel = FileUtil.loadMappedFile(context, "lite-model_rosetta_dr_1.tflite")
-                Interpreter(tfliteModel)
-            } catch (ex: IOException) {
-                // Debug.
-                Timber.e(">>>>> TfLite Support : Error reading model : $ex")
-            }
-            null
-        }
-
         private val model: LiteModelRosettaDr1 by lazy {
 
             // TODO 6. Optional GPU acceleration
@@ -451,61 +450,103 @@ internal class ShootFragment :
         }
 
         override fun analyze(imageProxy: ImageProxy) {
+            val image = imageProxy.image ?: return
+            val rotationDegrees = imageProxy.imageInfo.rotationDegrees
+            val imageWidth = image.width
+            val imageHeight = image.height
+            val actualAspectRatio = imageWidth / imageHeight
+
             val items = mutableListOf<Recognition>()
-
-//            // Initialization code
-//            // Create an ImageProcessor with all ops required. For more ops, please
-//            // refer to the ImageProcessor Architecture section in this README.
-//            val imageProcessor = ImageProcessor.Builder()
-//                .add(ResizeOp(224, 224, ResizeOp.ResizeMethod.BILINEAR))
-//                .build()
 //
-//            // Create a TensorImage object. This creates the tensor of the corresponding
-//            // tensor type (uint8 in this case) that the TensorFlow Lite interpreter needs.
-//            var tImage = TensorImage(DataType.FLOAT32)
-//
-//            // Analysis code for every frame
-//            // Preprocess the image
-//            tImage.load(toBitmap(imageProxy))
-//            tImage = imageProcessor.process(tImage)
-//
-//
-//            // Create a container for the result and specify that this is a quantized model.
-//            // Hence, the 'DataType' is defined as UINT8 (8-bit unsigned integer)
-//            val probabilityBuffer = TensorBuffer.createFixedSize(intArrayOf(1, 1, 32, 100), DataType.FLOAT32)
-//
-//
-//
-//
-//            // Running inference
-//            if (tflite != null) {
-//                tflite?.run(tImage.buffer, probabilityBuffer.buffer)
-//            }
-            //
-            //
-            //
-            //
-            //
-
-
-
-
+//            //Debug.
+//            Timber.i(">>>>> ImageAnalyzer rotationDegrees : ${rotationDegrees}")
+//            Timber.i(">>>>> ImageAnalyzer imageWidth : ${imageWidth}")
+//            Timber.i(">>>>> ImageAnalyzer imageHeight : ${imageHeight}")
+//            Timber.i(">>>>> ImageAnalyzer actualAspectRatio : ${actualAspectRatio}")
+//            Timber.i(">>>>> ImageAnalyzer imageCropPercentages : ${imageCropPercentages.value}")
 
             // TODO 2: Convert Image to Bitmap then to TensorImage
-            val tfImage = TensorImage.fromBitmap(toBitmap(imageProxy))
+            val convertImageToBitmap = ImageUtils.convertYuv420888ImageToBitmap(image)
+            val cropRect = Rect(0, 0, imageWidth, imageHeight)
+
+            // If the image has a way wider aspect ratio than expected, crop less of the height so we
+            // don't end up cropping too much of the image. If the image has a way taller aspect ratio
+            // than expected, we don't have to make any changes to our cropping so we don't handle it
+            // here.
+            val currentCropPercentages = imageCropPercentages.value ?: return
+            if (actualAspectRatio > 3) {
+                val originalWidthCropPercentage = currentCropPercentages.first
+                val originalHeightCropPercentage = currentCropPercentages.second
+                imageCropPercentages.value =
+                    Pair(originalHeightCropPercentage / 2, originalWidthCropPercentage)
+            }
+//
+//            // Debug.
+//            Timber.i(">>>>> ImageAnalyzer imageCropPercentages : ${imageCropPercentages.value}")
+
+            // If the image is rotated by 90 (or 270) degrees, swap height and width when calculating
+            // the crop.
+            val cropPercentages = imageCropPercentages.value ?: return
+            val widthCropPercent = cropPercentages.first
+            val heightCropPercent = cropPercentages.second
+            val (widthCrop, heightCrop) = when (rotationDegrees) {
+                90, 270 -> Pair(heightCropPercent / 100f, widthCropPercent / 100f)
+                else -> Pair(widthCropPercent / 100f, heightCropPercent / 100f)
+            }
+//
+//            //Debug.
+//            Timber.i(">>>>> ImageAnalyzer cropPercentages : ${cropPercentages}")
+//            Timber.i(">>>>> ImageAnalyzer widthCropPercent : ${widthCropPercent}")
+//            Timber.i(">>>>> ImageAnalyzer heightCropPercent : ${heightCropPercent}")
+//            Timber.i(">>>>> ImageAnalyzer widthCrop : ${widthCrop}")
+//            Timber.i(">>>>> ImageAnalyzer heightCrop : ${heightCrop}")
+
+            cropRect.inset(
+                (imageWidth * widthCrop / 2).toInt(),
+                (imageHeight * heightCrop / 2).toInt()
+            )
+            val croppedBitmap =
+                ImageUtils.rotateAndCrop(convertImageToBitmap, rotationDegrees, cropRect)
+//
+//            // Debug.
+//            Timber.i(">>>>> ImageAnalyzer cropRect : ${cropRect}")
+
+            val tfImage = TensorImage.fromBitmap(croppedBitmap)
 
             // Creates inputs for reference.
-            val inputFeature0 = TensorBuffer.createFixedSize(intArrayOf(1, 1, 32, 100), DataType.FLOAT32)
+            val inputFeature0 =
+                TensorBuffer.createFixedSize(intArrayOf(1, 1, 32, 100), DataType.FLOAT32)
+
+            // Debug.
+            Timber.i(">>>>> ImageAnalyzer tfImage.buffer : %s", tfImage.buffer.toString())
+            Timber.i(">>>>> ImageAnalyzer tfImage.tensorBuffer.shape : ${tfImage?.tensorBuffer?.buffer.toString()}")
+            Timber.i(">>>>> ImageAnalyzer inputFeature0.buffer : %s", inputFeature0.buffer.toString())
+
+
             inputFeature0.loadBuffer(tfImage.buffer)
 
             // TODO 3: Process the image using the trained model, sort and pick out the top results
+//            val resized = Bitmap.createScaledBitmap(croppedBitmap, 30, 30, true)
+//            //val model = MyModel.newInstance(this)
+//            val tImage = TensorImage(DataType.FLOAT32)
+//            tImage.load(resized)
+////            var tensorImage = tImage.load(resized)
+//            val byteBuffer = tImage.tensorBuffer
+
             // Runs model inference and gets result.
+//            val outputs = model.process(byteBuffer)
             val outputs = model.process(inputFeature0)
             val outputFeature0 = outputs.outputFeature0AsTensorBuffer
 
-            val outputFeature0 = outputs.outputFeature0AsTensorBuffer
-            val converted = String(buffer.array(), "UTF-8")
-            Toast.makeText(this, "output: $outputFeature0", Toast.LENGTH_SHORT).show()
+            val data1 = outputFeature0.floatArray
+            Timber.i(">>>>> ImageAnalyzer[1] : $data1")
+            Timber.i(">>>>> ImageAnalyzer[2] : ${outputFeature0.dataType}")
+            Timber.i(">>>>> ImageAnalyzer[3] : ${data1[0]}")
+
+//
+//            val outputFeature0 = outputs.outputFeature0AsTensorBuffer
+//            val converted = String(buffer.array(), "UTF-8")
+//            Toast.makeText(this, "output: $outputFeature0", Toast.LENGTH_SHORT).show()
             //Releases model resources if no longer used.
 
 

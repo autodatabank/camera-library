@@ -3,6 +3,7 @@ package kr.co.kadb.cameralibrary.presentation.ui.shoot
 import android.app.Application
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageCapture
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -23,6 +24,12 @@ constructor(
     application: Application,
     @Suppress("UNUSED_PARAMETER") preferences: PreferenceManager
 ) : BaseAndroidViewModel<ShootUiState>(application, UiState.loading()) {
+
+    companion object {
+        const val DESIRED_WIDTH_CROP_PERCENT = 10
+        const val DESIRED_HEIGHT_CROP_PERCENT = 10
+    }
+
     // Event.
     sealed class Event {
     }
@@ -43,6 +50,10 @@ constructor(
             it.value?.action.isNullOrEmpty()
         }
         .stateIn(viewModelScope, SharingStarted.Eagerly, false)
+
+    val imageCropPercentages = MutableLiveData<Pair<Int, Int>>().apply {
+        value = Pair(DESIRED_WIDTH_CROP_PERCENT, DESIRED_HEIGHT_CROP_PERCENT)
+    }
 
     init {
         // UIState.
