@@ -1,13 +1,18 @@
 package kr.co.kadb.cameralibrary.presentation.model
 
+import android.util.Size
+
 /**
  * Created by oooobang on 2022. 7. 17..
  * UI State.
  */
 internal data class ShootUiState(
-    val action: String? = null,
-    val isShooted: Boolean = false,
-    val isMultiplePicture: Boolean = false
+    val action: String?,
+    val isShooted: Boolean,
+    val isMultiplePicture: Boolean,
+    val hasMute: Boolean,
+    val uris: ArrayList<String>,
+    val sizes: ArrayList<Size>
 ) {
     /*class DiffCallback : DiffUtil.ItemCallback<NewsItemUiState>() {
         override fun areItemsTheSame(
@@ -24,7 +29,10 @@ internal data class ShootUiState(
         val Uninitialized = ShootUiState(
             action = null,
             isShooted = false,
-            isMultiplePicture = false
+            isMultiplePicture = false,
+            hasMute = false,
+            uris = arrayListOf(),
+            sizes = arrayListOf()
         )
     }
 }

@@ -169,6 +169,8 @@ internal fun Context?.createFile(
     }
 
     if (isPublicDirectory) {
+        // 하위 디렉토리명.
+        val childDirectory = this?.packageName?.split('.')?.last() ?: "adbcamerax"
         // 공유 저장소 사용 시 Android Q 대응.
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             val contentValues = ContentValues().apply {
@@ -177,7 +179,7 @@ internal fun Context?.createFile(
                 put(MediaStore.Images.Media.DISPLAY_NAME, "$filename.$extension")
                 put(
                     MediaStore.MediaColumns.RELATIVE_PATH,
-                    "${Environment.DIRECTORY_PICTURES}/adbcamerax"
+                    "${Environment.DIRECTORY_PICTURES}/$childDirectory"
                 )
             }
 
@@ -196,7 +198,7 @@ internal fun Context?.createFile(
             @Suppress("DEPRECATION")
             val directory = File(
                 Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES),
-                "signing"
+                childDirectory
             )
             if (!directory.mkdirs()) {
                 Timber.i(">>>>> Directory not created : %s", directory)
@@ -240,7 +242,8 @@ internal fun Context.outputFileOptionsBuilder(
     //val builder: ImageCapture.OutputFileOptions.Builder
 
     return if (isPublicDirectory) {
-        val childDirectory = this.packageName.split('.').last()
+        // 하위 디렉토리명.
+        val childDirectory = this.packageName?.split('.')?.last() ?: "adbcamerax"
         // 공유 저장소 사용 시 Android Q 대응.
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             val contentValues = ContentValues().apply {

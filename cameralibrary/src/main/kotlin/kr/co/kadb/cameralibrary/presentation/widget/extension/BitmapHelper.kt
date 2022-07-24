@@ -20,10 +20,10 @@ import java.io.ByteArrayOutputStream
  * Bitmap Extension.
  */
 internal fun Bitmap?.save(
-        context: Context? = null,
-        isPublicDirectory: Boolean = false,
-        filename: String = System.currentTimeMillis().toString(),
-        format: Bitmap.CompressFormat = Bitmap.CompressFormat.JPEG
+    context: Context? = null,
+    isPublicDirectory: Boolean = false,
+    filename: String = System.currentTimeMillis().toString(),
+    format: Bitmap.CompressFormat = Bitmap.CompressFormat.JPEG
 ): String? {
     // Debug.
     Timber.i(">>>>> Save ByteArray")
@@ -36,13 +36,18 @@ internal fun Bitmap?.save(
     }
 
     if (isPublicDirectory) {
+        // 하위 디렉토리명.
+        val childDirectory = context?.packageName?.split('.')?.last() ?: "adbcamerax"
         // 공유 저장소 사용 시 Android Q 대응.
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             val contentValues = ContentValues().apply {
                 put(MediaStore.Images.Media.IS_PENDING, 1)
                 put(MediaStore.Images.Media.MIME_TYPE, "image/*")
                 put(MediaStore.Images.Media.DISPLAY_NAME, "$filename.$extension")
-                put(MediaStore.MediaColumns.RELATIVE_PATH, "${Environment.DIRECTORY_PICTURES}/signing")
+                put(
+                    MediaStore.MediaColumns.RELATIVE_PATH,
+                    "${Environment.DIRECTORY_PICTURES}/$childDirectory"
+                )
             }
 
             context?.contentResolver?.let { contentResolver ->
@@ -61,9 +66,10 @@ internal fun Bitmap?.save(
                     try {
                         // Uri(item)의 위치에 파일을 생성해준다.
                         parcelFileDescriptor = contentResolver.openFileDescriptor(
-                                uri,
-                                "w",
-                                null)
+                            uri,
+                            "w",
+                            null
+                        )
                         parcelFileDescriptor?.let {
                             fileOutputStream = FileOutputStream(parcelFileDescriptor.fileDescriptor)
                             this?.compress(format, 90, fileOutputStream)
@@ -87,7 +93,10 @@ internal fun Bitmap?.save(
             var fileOutputStream: FileOutputStream? = null
             try {
                 @Suppress("DEPRECATION")
-                val directory = File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES), "signing")
+                val directory = File(
+                    Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES),
+                    childDirectory
+                )
                 if (!directory.mkdirs()) {
                     Timber.i(">>>>> Directory not created : %s", directory)
                 }

@@ -5,6 +5,8 @@ package kr.co.kadb.cameralibrary.presentation.widget.extension
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.graphics.Matrix
+import android.graphics.Rect
 import android.net.Uri
 import android.os.Build
 import android.provider.MediaStore
@@ -78,7 +80,7 @@ internal fun Uri.exifInterface(context: Context): ExifInterface? {
 }
 
 // 이미지 Thumbnail 반환.
-internal fun Uri.thumbnail(
+internal fun Uri.toThumbnail(
     context: Context,
     exif: Exif? = null,
     size: Int = 96
@@ -115,6 +117,59 @@ internal fun Uri.thumbnail(
             null
         )
     }
+}
+
+// Bitmap 반환.
+fun Uri.toBitmap(context: Context): Bitmap? {
+    try {
+        val options: BitmapFactory.Options = BitmapFactory.Options()
+        options.inSampleSize = 1
+        return BitmapFactory.decodeStream(
+            context.contentResolver.openInputStream(this),
+            null,
+            options
+        )
+    } catch (ex: FileNotFoundException) {
+        ex.printStackTrace()
+    }
+    return null
+}
+
+fun Uri.rotateAndCrop(
+    bitmap: Bitmap,
+    rotationDegrees: Int,
+    cropRect: Rect
+): Bitmap {
+    val matrix = Matrix()
+    matrix.preRotate(rotationDegrees.toFloat())
+    return Bitmap.createBitmap(
+        bitmap,
+        cropRect.left,
+        cropRect.top,
+        cropRect.width(),
+        cropRect.height(),
+        matrix,
+        true
+    )
+}
+
+fun Uri.rotateAndCrop(
+    context: Context,
+    cropRect: Rect
+): Bitmap? {
+    val rotation = exif(context)?.rotation?.toFloat() ?: return null
+    val bitmap = toBitmap(context) ?: return null
+    val matrix = Matrix()
+    matrix.preRotate(rotation)
+    return Bitmap.createBitmap(
+        bitmap,
+        cropRect.left,
+        cropRect.top,
+        cropRect.width(),
+        cropRect.height(),
+        matrix,
+        true
+    )
 }
 
 internal fun Uri.resize(context: Context, resize: Int): Bitmap? {

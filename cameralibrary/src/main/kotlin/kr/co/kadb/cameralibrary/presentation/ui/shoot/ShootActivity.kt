@@ -8,6 +8,7 @@ import android.view.WindowInsetsController
 import androidx.activity.viewModels
 import kr.co.kadb.cameralibrary.R
 import kr.co.kadb.cameralibrary.presentation.base.BaseActivity
+import kr.co.kadb.cameralibrary.presentation.widget.util.IntentKey
 
 /**
  * Created by oooobang on 2022. 7. 16..
@@ -28,7 +29,9 @@ internal class ShootActivity : BaseActivity() {
 		super.onCreate(savedInstanceState)
 		setContentView(R.layout.adb_cameralibrary_activity_shoot)
 
-		viewModel.intentAction(intent.action)
+		val action = intent.action
+		val hasMute = intent.getBooleanExtra(IntentKey.EXTRA_HAS_MUTE, false)
+		viewModel.initUiState(action, hasMute)
 		if (savedInstanceState == null) {
 			viewController.navigateToShooting()
 		}

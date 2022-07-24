@@ -109,8 +109,8 @@ dependencies {
     implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.5.0'
 
     // Tensorflow lite dependencies
-    implementation 'org.tensorflow:tensorflow-lite-metadata:0.1.0'
-    implementation 'org.tensorflow:tensorflow-lite-support:0.1.0'
+    implementation 'org.tensorflow:tensorflow-lite-metadata:0.4.1'
+    implementation 'org.tensorflow:tensorflow-lite-support:0.4.1'
     // Optional GPU Delegates
     implementation 'org.tensorflow:tensorflow-lite-gpu:2.8.0'
 

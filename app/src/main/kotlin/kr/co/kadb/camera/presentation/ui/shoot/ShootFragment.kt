@@ -3,6 +3,7 @@ package kr.co.kadb.camera.presentation.ui.shoot
 import android.app.Activity
 import android.content.Intent
 import android.graphics.Bitmap
+import android.graphics.Rect
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.viewModels
@@ -11,7 +12,10 @@ import kr.co.kadb.camera.R
 import kr.co.kadb.camera.data.local.PreferenceManager
 import kr.co.kadb.camera.databinding.FragmentShootBinding
 import kr.co.kadb.camera.presentation.base.BaseBindingFragment
-import kr.co.kadb.cameralibrary.presentation.widget.event.IntentAction
+import kr.co.kadb.camera.presentation.widget.extension.save
+import kr.co.kadb.cameralibrary.presentation.widget.extension.rotateAndCrop
+import kr.co.kadb.cameralibrary.presentation.widget.extension.toBitmap
+import kr.co.kadb.cameralibrary.presentation.widget.util.IntentKey
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -39,13 +43,47 @@ internal class ShootFragment : BaseBindingFragment<FragmentShootBinding, ShootVi
 
     private var resultLauncher: ActivityResultLauncher<Intent> =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            val intent = result.data
             if (result.resultCode == Activity.RESULT_OK) {
-                // Debug.
-                Timber.i(">>>>> RESULT[1] : %s", result.data?.data)
-                Timber.i(">>>>> RESULT[2] : %s", result.data?.type)
-                Timber.i(">>>>> RESULT[3] : %s", result.data?.extras?.get("data"))
-                binding.imageview.setImageBitmap(result.data?.extras?.get("data") as? Bitmap)
-//                binding.imageview.setImageURI(result.data?.data)
+                // 한 장, 여러 장.
+                if (intent?.action == IntentKey.ACTION_TAKE_PICTURE) {
+                    // 한장.
+                    // 이미지 URI.
+                    val imageUri = intent.data
+                    // 이미지 가로.
+                    val imageWidth = intent.getIntExtra(IntentKey.EXTRA_WIDTH, 0)
+                    // 이미지 세로.
+                    val imageHeight = intent.getIntExtra(IntentKey.EXTRA_HEIGHT, 0)
+                    // 썸네임 이미지.
+                    val thumbnailBitmap = intent.extras?.get("data") as? Bitmap
+
+                    // Debug.
+                    binding.imageview.setImageURI(imageUri)
+                    binding.imageviewThumbnail.setImageBitmap(thumbnailBitmap)
+
+                    imageUri?.toBitmap(requireContext())?.save(requireContext(), true)
+
+                    val bitmap = imageUri?.rotateAndCrop(
+                        requireContext(),
+                        Rect(100, 100, 1200, 1200)
+                    )
+                    binding.imageviewThumbnail.setImageBitmap(bitmap)
+
+                    // Debug.
+                    Timber.i(">>>>> TAKE_PICTURE imageUri : $imageUri")
+                    Timber.i(">>>>> TAKE_PICTURE imageWidth : $imageWidth")
+                    Timber.i(">>>>> TAKE_PICTURE imageHeight : $imageHeight")
+                } else if (intent?.action == IntentKey.ACTION_TAKE_MULTIPLE_PICTURE) {
+                    // 여러장.
+                    // 이미지 URI.
+                    val imageUris = intent.getStringArrayListExtra(IntentKey.EXTRA_URIS)
+                    // 이미지 사이즈.
+                    val imageSizes = intent.getSerializableExtra(IntentKey.EXTRA_SIZES)
+
+                    // Debug.
+                    Timber.i(">>>>> TAKE_MULTIPLE_PICTURE imageUris : $imageUris")
+                    Timber.i(">>>>> TAKE_MULTIPLE_PICTURE imageSizes : $imageSizes")
+                }
             }
         }
 
@@ -64,56 +102,12 @@ internal class ShootFragment : BaseBindingFragment<FragmentShootBinding, ShootVi
     override fun initListener() {
         // 촬영.
         binding.buttonShooting.setOnClickListener {
-            Intent(IntentAction.ACTION_TAKE_PICTURE).also { takePictureIntent ->
+//            Intent(IntentKey.ACTION_TAKE_MULTIPLE_PICTURE).also { takePictureIntent ->
+            Intent(IntentKey.ACTION_TAKE_PICTURE).also { takePictureIntent ->
+                takePictureIntent.putExtra(IntentKey.EXTRA_HAS_MUTE, false)
                 resultLauncher.launch(takePictureIntent)
             }
         }
-
-//        binding.buttonFlash.setOnClickListener {
-////            Intent(IntentAction.ACTION_TAKE_PICTURE).also { takePictureIntent ->
-////                activity?.startActivity(takePictureIntent)
-////            }
-//
-//            Intent(IntentAction.ACTION_TAKE_PICTURE).also { takePictureIntent ->
-////                takePictureIntent.putextra
-//                //takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, contentUri)
-//                resultLauncher.launch(takePictureIntent)
-////                // TODO: dependencies
-////                // implementation 'androidx.activity:activity-ktx:version'
-////                // implementation 'androidx.fragment:fragment-ktx:version'
-//////                requireActivity().activityResultRegistry
-////
-////
-//////                registerForActivityResult(ActivityResultContracts.TakePicturePreview()) { result ->
-//////                        // Debug.
-//////                        Timber.i(">>>>> RESULT : %s", result)
-////////                    if (result.resultCode == Activity.RESULT_OK) {
-////////                        // Debug.
-////////                        Timber.i(">>>>> RESULT : %s", result.data.toJsonPretty())
-////////                        Timber.i(">>>>> RESULT : %s", result.data?.data)
-////////                        Timber.i(">>>>> RESULT : %s", result.data?.extras?.get("data"))
-////////                    }
-//////                }.launch(takePictureIntent)
-////
-////
-////                registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-////                    if (result.resultCode == Activity.RESULT_OK) {
-////                        // Debug.
-////                        Timber.i(">>>>> RESULT : %s", result.data.toJsonPretty())
-////                        Timber.i(">>>>> RESULT : %s", result.data?.data)
-////                        Timber.i(">>>>> RESULT : %s", result.data?.extras?.get("data"))
-////                    }
-////                }.launch(takePictureIntent)
-//////                registerForActivityResult(ActivityResultContracts.StartActivityForResult(), ActivityResultCallback { result ->
-//////                    if (result.resultCode == Activity.RESULT_OK) {
-//////                        // Debug.
-//////                        Timber.i(">>>>> RESULT : %s", result.data.toJsonPretty())
-//////                        Timber.i(">>>>> RESULT : %s", result.data?.data)
-//////                        Timber.i(">>>>> RESULT : %s", result.data?.extras?.get("data"))
-//////                    }
-//////                }).launch(takePictureIntent)
-//            }
-//        }
     }
 
     // Init Callback.

@@ -15,13 +15,9 @@
  */
 package kr.co.kadb.cameralibrary.presentation.ui.shoot
 
-import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
-import android.graphics.Bitmap
-import android.graphics.Matrix
-import android.graphics.Rect
 import android.media.AudioManager
 import android.media.MediaActionSound
 import android.view.OrientationEventListener
@@ -32,51 +28,17 @@ import androidx.camera.core.CameraState.Type
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.MutableLiveData
 import kr.co.kadb.cameralibrary.R
 import kr.co.kadb.cameralibrary.data.local.PreferenceManager
 import kr.co.kadb.cameralibrary.databinding.AdbCameralibraryFragmentShootBinding
-import kr.co.kadb.cameralibrary.ml.LiteModelRosettaDr1
 import kr.co.kadb.cameralibrary.presentation.base.BaseBindingFragment
 import kr.co.kadb.cameralibrary.presentation.widget.extension.exif
-import kr.co.kadb.cameralibrary.presentation.widget.extension.thumbnail
-import kr.co.kadb.cameralibrary.presentation.widget.util.ImageUtils
+import kr.co.kadb.cameralibrary.presentation.widget.extension.toThumbnail
 import kr.co.kadb.cameralibrary.presentation.widget.util.IntentKey
 import kr.co.kadb.cameralibrary.presentation.widget.util.MediaActionSound2
-import kr.co.kadb.cameralibrary.presentation.widget.util.YuvToRgbConverter
-import org.tensorflow.lite.DataType
-import org.tensorflow.lite.Interpreter
-import org.tensorflow.lite.gpu.CompatibilityList
-import org.tensorflow.lite.support.image.TensorImage
-import org.tensorflow.lite.support.model.Model
-import org.tensorflow.lite.support.tensorbuffer.TensorBuffer
 import timber.log.Timber
-import java.nio.ByteBuffer
-import java.util.*
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
-
-
-/**
- * Simple Data object with two fields for the label and probability
- */
-data class Recognition(val label: String, val confidence: Float) {
-
-    // For easy logging
-    override fun toString(): String {
-        return "$label / $probabilityString"
-    }
-
-    // Output probability as a string to enable easy data binding
-    val probabilityString = String.format("%.1f%%", confidence * 100.0f)
-
-}
-
-// Listener for the result of the ImageAnalyzer
-typealias RecognitionListener = (recognition: List<Recognition>) -> Unit
-
-/** Helper type alias used for analysis use case callbacks */
-internal typealias LumaListener = (luma: Double) -> Unit
 
 /**
  * Modified by oooobang on 2022. 7. 16..
@@ -165,6 +127,17 @@ internal class ShootFragment :
         mediaActionSound.release()
     }
 
+    override fun onBackPressed(): Boolean {
+        Intent().apply {
+            action = viewModel.item.value.action
+            putExtra(IntentKey.EXTRA_URIS, viewModel.item.value.uris)
+            putExtra(IntentKey.EXTRA_SIZES, viewModel.item.value.sizes)
+        }.also {
+            requireActivity().setResult(Activity.RESULT_OK, it)
+        }
+        return super.onBackPressed()
+    }
+
     // Init Variable.
     override fun initVariable() {
         // Initialize Background Executor
@@ -204,22 +177,20 @@ internal class ShootFragment :
             viewModel.item.value.also {
                 if (it.isShooted && !it.isMultiplePicture) {
                     return@setOnClickListener
+                }
+                if (it.hasMute) {
+                    // 미디어 볼륨으로 셔터효과음 재생.
+                    mediaActionSound.playWithStreamVolume(
+                        MediaActionSound.SHUTTER_CLICK,
+                        audioManager
+                    )
                 } else {
-                    viewModel.pressedShutter()
+                    // 최소 볼륨으로 셔터효과음 재생.
+                    mediaActionSound.playWithMinimumVolume(
+                        MediaActionSound.SHUTTER_CLICK
+                    )
                 }
             }
-
-//            // 미디어 볼륨으로 셔터효과음 재생.
-//            mediaActionSound.playWithStreamVolume(
-//                MediaActionSound.SHUTTER_CLICK,
-//                audioManager
-//            )
-
-            // 최소 볼륨으로 셔터효과음 재생.
-            mediaActionSound.playWithMinimumVolume(
-                MediaActionSound.SHUTTER_CLICK/*,
-                audioManager*/
-            )
 
             // Get a stable reference of the modifiable image capture use case
             imageCapture?.let { imageCapture ->
@@ -240,18 +211,19 @@ internal class ShootFragment :
                             // Exif Logging.
                             val exif = output.savedUri?.exif(requireContext())
 
-                            // Thumbnail Bitmap.
-                            val thumbnail = output.savedUri?.thumbnail(requireContext(), exif)
-
                             // Result.
                             if (viewModel.item.value.isMultiplePicture) {
-                                // TODO:
+                                viewModel.pressedShutter(output.savedUri, exif?.width, exif?.height)
                             } else {
+                                // Thumbnail Bitmap.
+                                val thumbnail = output.savedUri?.toThumbnail(requireContext(), exif)
+                                // 결과 전달.
                                 Intent().apply {
                                     action = viewModel.item.value.action
-                                    putExtra(IntentKey.EXTRA_DATA, thumbnail)
+                                    putExtra("data", thumbnail)
                                     putExtra(IntentKey.EXTRA_WIDTH, exif?.width)
-                                    putExtra(IntentKey.EXTRA_WIDTH, exif?.height)
+                                    putExtra(IntentKey.EXTRA_HEIGHT, exif?.height)
+                                    putExtra(IntentKey.EXTRA_ROTATION, exif?.rotation)
                                     setDataAndType(output.savedUri, "image/jpeg")
                                 }.also {
                                     requireActivity().setResult(Activity.RESULT_OK, it)
@@ -264,37 +236,45 @@ internal class ShootFragment :
                     })
             }
         }
+
+        binding.buttonFlash.setOnClickListener {
+            Intent().apply {
+                action = viewModel.item.value.action
+                putExtra(IntentKey.EXTRA_URIS, viewModel.item.value.uris)
+                putExtra(IntentKey.EXTRA_SIZES, viewModel.item.value.sizes)
+            }.also {
+                requireActivity().setResult(Activity.RESULT_OK, it)
+            }.run {
+                activity?.finish()
+            }
+        }
     }
 
     // Init Callback.
     override fun initCallback() {
     }
 
+    /** Initialize CameraX, and prepare to bind the camera use cases  */
     private fun initCamera() {
         // Wait for the views to be properly laid out
         binding.previewView.post {
             // Set up the camera and its use cases
-            setUpCamera()
+            val cameraProviderFuture = ProcessCameraProvider.getInstance(requireContext())
+            cameraProviderFuture.addListener({
+                // CameraProvider
+                cameraProvider = cameraProviderFuture.get()
+
+                // Select lensFacing depending on the available cameras
+                lensFacing = when {
+                    hasBackCamera() -> CameraSelector.LENS_FACING_BACK
+                    hasFrontCamera() -> CameraSelector.LENS_FACING_FRONT
+                    else -> throw IllegalStateException("Back and front camera are unavailable")
+                }
+
+                // Build and bind the camera use cases
+                bindCameraUseCases()
+            }, ContextCompat.getMainExecutor(requireContext()))
         }
-    }
-
-    /** Initialize CameraX, and prepare to bind the camera use cases  */
-    private fun setUpCamera() {
-        val cameraProviderFuture = ProcessCameraProvider.getInstance(requireContext())
-        cameraProviderFuture.addListener({
-            // CameraProvider
-            cameraProvider = cameraProviderFuture.get()
-
-            // Select lensFacing depending on the available cameras
-            lensFacing = when {
-                hasBackCamera() -> CameraSelector.LENS_FACING_BACK
-                hasFrontCamera() -> CameraSelector.LENS_FACING_FRONT
-                else -> throw IllegalStateException("Back and front camera are unavailable")
-            }
-
-            // Build and bind the camera use cases
-            bindCameraUseCases()
-        }, ContextCompat.getMainExecutor(requireContext()))
     }
 
     /** Declare and bind preview, capture and analysis use cases */
@@ -311,50 +291,34 @@ internal class ShootFragment :
 
         // Preview
         preview = Preview.Builder()
-            // We request aspect ratio but no resolution
-            //.setTargetAspectRatio(screenAspectRatio)
             .setTargetAspectRatio(AspectRatio.RATIO_4_3)
-            // Set initial target rotation
             .setTargetRotation(rotation)
             .build()
-
 
         // ImageCapture
         imageCapture = ImageCapture.Builder()
             .setCaptureMode(ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY)
-            // We request aspect ratio but no resolution to match preview config, but letting
-            // CameraX optimize for whatever specific resolution best fits our use cases
-            //.setTargetAspectRatio(screenAspectRatio)
             .setTargetAspectRatio(AspectRatio.RATIO_4_3)
-            // Set initial target rotation, we will have to call this again if rotation changes
-            // during the lifecycle of this use case
             .setTargetRotation(rotation)
             .build()
-        AspectRatio.RATIO_4_3
+
         // ImageAnalysis
         imageAnalyzer = ImageAnalysis.Builder()
-            // We request aspect ratio but no resolution
-            //.setTargetAspectRatio(screenAspectRatio)
             .setTargetAspectRatio(AspectRatio.RATIO_4_3)
-            // Set initial target rotation, we will have to call this again if rotation changes
-            // during the lifecycle of this use case
             .setTargetRotation(rotation)
+            //.setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
+            //.setOutputImageFormat(ImageAnalysis.OUTPUT_IMAGE_FORMAT_RGBA_8888)
+            //.setOutputImageFormat(ImageAnalysis.OUTPUT_IMAGE_FORMAT_YUV_420_888)
             .build()
-            // The analyzer can then be assigned to the instance
-            .also { imageAnalysis ->
-//                imageAnalysis.setAnalyzer(cameraExecutor, LuminosityAnalyzer {
-//                    // Values returned from our analyzer are passed to the attached listener
-//                    // We log image analysis results here - you should do something useful
-//                    // instead!
-//                    // Debug.
-//                    //Timber.v(">>>>> Average luminosity: $luma")
-//                })
-                imageAnalysis.setAnalyzer(cameraExecutor, ImageAnalyzer(
-                    requireContext(),
-                    viewModel.imageCropPercentages
-                ) {
-                })
-            }
+        // The analyzer can then be assigned to the instance
+//            .also { imageAnalysis ->
+//                imageAnalysis.setAnalyzer(
+//                    cameraExecutor, ImageAnalyzer(
+//                        requireContext(),
+//                        viewModel.imageCropPercentages
+//                    )
+//                )
+//            }
 
         // Must unbind the use-cases before rebinding them
         cameraProvider.unbindAll()
@@ -418,285 +382,5 @@ internal class ShootFragment :
     /** Returns true if the device has an available front camera. False otherwise */
     private fun hasFrontCamera(): Boolean {
         return cameraProvider?.hasCamera(CameraSelector.DEFAULT_FRONT_CAMERA) ?: false
-    }
-
-    private class ImageAnalyzer(
-        context: Context,
-        private val imageCropPercentages: MutableLiveData<Pair<Int, Int>>,
-        private val listener: RecognitionListener
-    ) :
-        ImageAnalysis.Analyzer {
-
-        // TODO 1: Add class variable TensorFlow Lite Model
-        // Initializing the flowerModel by lazy so that it runs in the same thread when the process
-        // method is called.
-        private val model: LiteModelRosettaDr1 by lazy {
-
-            // TODO 6. Optional GPU acceleration
-            val compatList = CompatibilityList()
-
-            val options = if (compatList.isDelegateSupportedOnThisDevice) {
-                // Debug.
-                Timber.d(">>>>> ImageAnalyzer : This device is GPU Compatible")
-                Model.Options.Builder().setDevice(Model.Device.GPU).build()
-            } else {
-                // Debug.
-                Timber.d(">>>>> ImageAnalyzer : This device is GPU Incompatible")
-                Model.Options.Builder().setNumThreads(4).build()
-            }
-
-            // Initialize the Flower Model
-            LiteModelRosettaDr1.newInstance(context, options)
-        }
-
-        override fun analyze(imageProxy: ImageProxy) {
-            val image = imageProxy.image ?: return
-            val rotationDegrees = imageProxy.imageInfo.rotationDegrees
-            val imageWidth = image.width
-            val imageHeight = image.height
-            val actualAspectRatio = imageWidth / imageHeight
-
-            val items = mutableListOf<Recognition>()
-//
-//            //Debug.
-//            Timber.i(">>>>> ImageAnalyzer rotationDegrees : ${rotationDegrees}")
-//            Timber.i(">>>>> ImageAnalyzer imageWidth : ${imageWidth}")
-//            Timber.i(">>>>> ImageAnalyzer imageHeight : ${imageHeight}")
-//            Timber.i(">>>>> ImageAnalyzer actualAspectRatio : ${actualAspectRatio}")
-//            Timber.i(">>>>> ImageAnalyzer imageCropPercentages : ${imageCropPercentages.value}")
-
-            // TODO 2: Convert Image to Bitmap then to TensorImage
-            val convertImageToBitmap = ImageUtils.convertYuv420888ImageToBitmap(image)
-            val cropRect = Rect(0, 0, imageWidth, imageHeight)
-
-            // If the image has a way wider aspect ratio than expected, crop less of the height so we
-            // don't end up cropping too much of the image. If the image has a way taller aspect ratio
-            // than expected, we don't have to make any changes to our cropping so we don't handle it
-            // here.
-            val currentCropPercentages = imageCropPercentages.value ?: return
-            if (actualAspectRatio > 3) {
-                val originalWidthCropPercentage = currentCropPercentages.first
-                val originalHeightCropPercentage = currentCropPercentages.second
-                imageCropPercentages.value =
-                    Pair(originalHeightCropPercentage / 2, originalWidthCropPercentage)
-            }
-//
-//            // Debug.
-//            Timber.i(">>>>> ImageAnalyzer imageCropPercentages : ${imageCropPercentages.value}")
-
-            // If the image is rotated by 90 (or 270) degrees, swap height and width when calculating
-            // the crop.
-            val cropPercentages = imageCropPercentages.value ?: return
-            val widthCropPercent = cropPercentages.first
-            val heightCropPercent = cropPercentages.second
-            val (widthCrop, heightCrop) = when (rotationDegrees) {
-                90, 270 -> Pair(heightCropPercent / 100f, widthCropPercent / 100f)
-                else -> Pair(widthCropPercent / 100f, heightCropPercent / 100f)
-            }
-//
-//            //Debug.
-//            Timber.i(">>>>> ImageAnalyzer cropPercentages : ${cropPercentages}")
-//            Timber.i(">>>>> ImageAnalyzer widthCropPercent : ${widthCropPercent}")
-//            Timber.i(">>>>> ImageAnalyzer heightCropPercent : ${heightCropPercent}")
-//            Timber.i(">>>>> ImageAnalyzer widthCrop : ${widthCrop}")
-//            Timber.i(">>>>> ImageAnalyzer heightCrop : ${heightCrop}")
-
-            cropRect.inset(
-                (imageWidth * widthCrop / 2).toInt(),
-                (imageHeight * heightCrop / 2).toInt()
-            )
-            val croppedBitmap =
-                ImageUtils.rotateAndCrop(convertImageToBitmap, rotationDegrees, cropRect)
-//
-//            // Debug.
-//            Timber.i(">>>>> ImageAnalyzer cropRect : ${cropRect}")
-
-            val tfImage = TensorImage.fromBitmap(croppedBitmap)
-
-            // Creates inputs for reference.
-            val inputFeature0 =
-                TensorBuffer.createFixedSize(intArrayOf(1, 1, 32, 100), DataType.FLOAT32)
-
-            // Debug.
-            Timber.i(">>>>> ImageAnalyzer tfImage.buffer : %s", tfImage.buffer.toString())
-            Timber.i(">>>>> ImageAnalyzer tfImage.tensorBuffer.shape : ${tfImage?.tensorBuffer?.buffer.toString()}")
-            Timber.i(">>>>> ImageAnalyzer inputFeature0.buffer : %s", inputFeature0.buffer.toString())
-
-
-            inputFeature0.loadBuffer(tfImage.buffer)
-
-            // TODO 3: Process the image using the trained model, sort and pick out the top results
-//            val resized = Bitmap.createScaledBitmap(croppedBitmap, 30, 30, true)
-//            //val model = MyModel.newInstance(this)
-//            val tImage = TensorImage(DataType.FLOAT32)
-//            tImage.load(resized)
-////            var tensorImage = tImage.load(resized)
-//            val byteBuffer = tImage.tensorBuffer
-
-            // Runs model inference and gets result.
-//            val outputs = model.process(byteBuffer)
-            val outputs = model.process(inputFeature0)
-            val outputFeature0 = outputs.outputFeature0AsTensorBuffer
-
-            val data1 = outputFeature0.floatArray
-            Timber.i(">>>>> ImageAnalyzer[1] : $data1")
-            Timber.i(">>>>> ImageAnalyzer[2] : ${outputFeature0.dataType}")
-            Timber.i(">>>>> ImageAnalyzer[3] : ${data1[0]}")
-
-//
-//            val outputFeature0 = outputs.outputFeature0AsTensorBuffer
-//            val converted = String(buffer.array(), "UTF-8")
-//            Toast.makeText(this, "output: $outputFeature0", Toast.LENGTH_SHORT).show()
-            //Releases model resources if no longer used.
-
-
-//            val outputs = model.process(tfImage)
-//                .probabilityAsCategoryList.apply {
-//                    sortByDescending { it.score } // Sort with highest confidence first
-//                }.take(MAX_RESULT_DISPLAY) // take the top results
-
-            // TODO 4: Converting the top probability items into a list of recognitions
-//            for (output in outputs) {
-//                items.add(Recognition(output.label, output.score))
-//            }
-
-//            // START - Placeholder code at the start of the codelab. Comment this block of code out.
-//            for (i in 0 until MAX_RESULT_DISPLAY){
-//                items.add(Recognition("Fake label $i", Random.nextFloat()))
-//            }
-//            // END - Placeholder code at the start of the codelab. Comment this block of code out.
-
-            // Return the result
-            listener(items.toList())
-
-            // Close the image,this tells CameraX to feed the next image to the analyzer
-            imageProxy.close()
-        }
-
-        /**
-         * Convert Image Proxy to Bitmap
-         */
-        private val yuvToRgbConverter = YuvToRgbConverter(context)
-        private lateinit var bitmapBuffer: Bitmap
-        private lateinit var rotationMatrix: Matrix
-
-        @SuppressLint("UnsafeExperimentalUsageError")
-        private fun toBitmap(imageProxy: ImageProxy): Bitmap? {
-
-            val image = imageProxy.image ?: return null
-
-            // Initialise Buffer
-            if (!::bitmapBuffer.isInitialized) {
-                // The image rotation and RGB image buffer are initialized only once
-                Timber.d(">>>>> ImageAnalyzer : Initalise toBitmap()")
-                rotationMatrix = Matrix()
-                rotationMatrix.postRotate(imageProxy.imageInfo.rotationDegrees.toFloat())
-                bitmapBuffer = Bitmap.createBitmap(
-                    imageProxy.width, imageProxy.height, Bitmap.Config.ARGB_8888
-                )
-            }
-
-            // Pass image to an image analyser
-            yuvToRgbConverter.yuvToRgb(image, bitmapBuffer)
-
-            // Create the Bitmap in the correct orientation
-            return Bitmap.createBitmap(
-                bitmapBuffer,
-                0,
-                0,
-                bitmapBuffer.width,
-                bitmapBuffer.height,
-                rotationMatrix,
-                false
-            )
-        }
-
-    }
-
-    /**
-     * Our custom image analysis class.
-     *
-     * <p>All we need to do is override the function `analyze` with our desired operations. Here,
-     * we compute the average luminosity of the image by looking at the Y plane of the YUV frame.
-     */
-    private class LuminosityAnalyzer(listener: LumaListener? = null) : ImageAnalysis.Analyzer {
-        private val frameRateWindow = 8
-        private val frameTimestamps = ArrayDeque<Long>(5)
-        private val listeners = ArrayList<LumaListener>().apply { listener?.let { add(it) } }
-        private var lastAnalyzedTimestamp = 0L
-        var framesPerSecond: Double = -1.0
-            private set
-
-        /**
-         * Used to add listeners that will be called with each luma computed
-         */
-        fun onFrameAnalyzed(listener: LumaListener) = listeners.add(listener)
-
-        /**
-         * Helper extension function used to extract a byte array from an image plane buffer
-         */
-        private fun ByteBuffer.toByteArray(): ByteArray {
-            rewind()    // Rewind the buffer to zero
-            val data = ByteArray(remaining())
-            get(data)   // Copy the buffer into a byte array
-            return data // Return the byte array
-        }
-
-        /**
-         * Analyzes an image to produce a result.
-         *
-         * <p>The caller is responsible for ensuring this analysis method can be executed quickly
-         * enough to prevent stalls in the image acquisition pipeline. Otherwise, newly available
-         * images will not be acquired and analyzed.
-         *
-         * <p>The image passed to this method becomes invalid after this method returns. The caller
-         * should not store external references to this image, as these references will become
-         * invalid.
-         *
-         * @param image image being analyzed VERY IMPORTANT: Analyzer method implementation must
-         * call image.close() on received images when finished using them. Otherwise, new images
-         * may not be received or the camera may stall, depending on back pressure setting.
-         *
-         */
-        override fun analyze(image: ImageProxy) {
-            // If there are no listeners attached, we don't need to perform analysis
-            if (listeners.isEmpty()) {
-                image.close()
-                return
-            }
-
-            // Keep track of frames analyzed
-            val currentTime = System.currentTimeMillis()
-            frameTimestamps.push(currentTime)
-
-            // Compute the FPS using a moving average
-            while (frameTimestamps.size >= frameRateWindow) frameTimestamps.removeLast()
-            val timestampFirst = frameTimestamps.peekFirst() ?: currentTime
-            val timestampLast = frameTimestamps.peekLast() ?: currentTime
-            framesPerSecond = 1.0 / ((timestampFirst - timestampLast) /
-                    frameTimestamps.size.coerceAtLeast(1).toDouble()) * 1000.0
-
-            // Analysis could take an arbitrarily long amount of time
-            // Since we are running in a different thread, it won't stall other use cases
-
-            lastAnalyzedTimestamp = frameTimestamps.first
-
-            // Since format in ImageAnalysis is YUV, image.planes[0] contains the luminance plane
-            val buffer = image.planes[0].buffer
-
-            // Extract image data from callback object
-            val data = buffer.toByteArray()
-
-            // Convert the data into an array of pixel values ranging 0-255
-            val pixels = data.map { it.toInt() and 0xFF }
-
-            // Compute average luminance for the image
-            val luma = pixels.average()
-
-            // Call all listeners with new value
-            listeners.forEach { it(luma) }
-
-            image.close()
-        }
     }
 }

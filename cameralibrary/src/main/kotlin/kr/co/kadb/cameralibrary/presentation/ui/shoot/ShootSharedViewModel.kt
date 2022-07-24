@@ -1,6 +1,8 @@
 package kr.co.kadb.cameralibrary.presentation.ui.shoot
 
 import android.app.Application
+import android.net.Uri
+import android.util.Size
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageCapture
 import androidx.lifecycle.MutableLiveData
@@ -11,8 +13,8 @@ import kr.co.kadb.cameralibrary.data.local.PreferenceManager
 import kr.co.kadb.cameralibrary.presentation.model.ShootUiState
 import kr.co.kadb.cameralibrary.presentation.model.UiState
 import kr.co.kadb.cameralibrary.presentation.viewmodel.BaseAndroidViewModel
-import kr.co.kadb.cameralibrary.presentation.widget.event.IntentAction.ACTION_TAKE_MULTIPLE_PICTURE
 import kr.co.kadb.cameralibrary.presentation.widget.extension.outputFileOptionsBuilder
+import kr.co.kadb.cameralibrary.presentation.widget.util.IntentKey.ACTION_TAKE_MULTIPLE_PICTURE
 import timber.log.Timber
 
 /**
@@ -65,7 +67,8 @@ constructor(
         }
     }
 
-    fun intentAction(action: String?) {
+    // Intent Action 설정.
+    fun initUiState(action: String?, hasMute: Boolean = false) {
         // Debug.
         Timber.i(">>>>> ACTION : %s", action)
 
@@ -73,35 +76,50 @@ constructor(
         state.value.value?.let {
             state.value.value?.copy(
                 action = action,
-                isMultiplePicture = action == ACTION_TAKE_MULTIPLE_PICTURE
+                isShooted = false,
+                isMultiplePicture = action == ACTION_TAKE_MULTIPLE_PICTURE,
+                hasMute = hasMute
             )
         } ?: ShootUiState(
             action = action,
             isShooted = false,
-            isMultiplePicture = action == ACTION_TAKE_MULTIPLE_PICTURE
+            isMultiplePicture = action == ACTION_TAKE_MULTIPLE_PICTURE,
+            hasMute = hasMute,
+            uris = arrayListOf(),
+            sizes = arrayListOf()
         ).run {
             updateState(value = this)
         }
     }
 
-    fun pressedShutter() {
-        updateState {
-            state.value.value?.copy(isShooted = true)
+    // 촬영 버튼 누름.
+    fun pressedShutter(uri: Uri?, width: Int?, height: Int?) {
+        updateState { uiState ->
+            val sizes = uiState?.sizes?.apply {
+                this.add(Size(width ?: 0, height ?: 0))
+            } ?: arrayListOf()
+            val uris = uiState?.uris?.apply {
+                this.add(uri?.toString() ?: "")
+            } ?: arrayListOf()
+            state.value.value?.copy(
+                isShooted = true,
+                uris = uris,
+                sizes = sizes
+            )
         }
     }
 
-    // OutputFileOptions.
+    // 메타를 포함한 출력 옵션 반환.
     fun outputFileOptions(
         lensFacing: Int,
         isPublicDirectory: Boolean = true
     ): ImageCapture.OutputFileOptions {
         val context = getApplication<Application>().applicationContext
-        // Setup image capture metadata
         val metadata = ImageCapture.Metadata().apply {
-            // Mirror image when using the front camera
+            // 전면 카메라에 대한 반전 설정.
             isReversedHorizontal = lensFacing == CameraSelector.LENS_FACING_FRONT
         }
-        // Create output options object which contains file + metadata
+        // 메타를 포함한 출력 옵션 반환.
         return context.outputFileOptionsBuilder(isPublicDirectory).apply {
             setMetadata(metadata)
         }.build()

@@ -133,32 +133,4 @@ internal abstract class BaseFragment : OBFragment(), BackPressedListener {
 	protected open fun eventBroadcastReceiverForActivated(intent: Intent?) {
 		Timber.i("EVENT_BROADCAST_RECEIVER_FOR_ACTIVATED")
 	}
-
-	// Cover OnClick Callback.
-	/*inline fun coverOnClickCallback(crossinline callback: () -> Unit) = object : CoverOnClickCallback {
-		override fun callback() {
-			Timber.i("COVER")
-		}
-	}
-
-	// Positive Callback.
-	inline fun positiveCallback(crossinline callback: () -> Unit) = object : PositiveCallback {
-		override fun callback() {
-			Timber.i("POSITIVE")
-		}
-	}
-
-	// Negative Callback.
-	inline fun negativeCallback(crossinline callback: () -> Unit) = object : NegativeCallback {
-		override fun callback() {
-			Timber.i("NEGATIVE")
-		}
-	}
-
-	// Retry Callback.
-	inline fun <T> retryCallback(crossinline callback: (resource: Resource<T>) -> Unit) = object : RetryCallback {
-		override fun <T> retry(resource: Resource<T>) {
-			Timber.i("RETRY")
-		}
-	}*/
 }

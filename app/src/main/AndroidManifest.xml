@@ -59,7 +59,7 @@
             android:resizeableActivity="true"
             android:rotationAnimation="seamless"
             android:screenOrientation="fullUser"
-            android:theme="@style/Theme.Camera"
+            android:theme="@style/AppTheme"
             tools:targetApi="O"
             >
             <intent-filter>

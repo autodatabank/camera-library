@@ -1,8 +1,11 @@
 package kr.co.kadb.cameralibrary.presentation.widget.util
 
 object IntentKey {
-	// 종료.
-	const val ACTION_ADB_CAMERA = "kr.co.kadb.cameralibrary.ACTION_ADB_CAMERA"
+	// 한장 촬영.
+	const val ACTION_TAKE_PICTURE = "kr.co.kadb.cameralibrary.ACTION_TAKE_PICTURE"
+
+	// 여러장 촬영.
+	const val ACTION_TAKE_MULTIPLE_PICTURE = "kr.co.kadb.cameralibrary.ACTION_TAKE_MULTIPLE_PICTURE"
 
 	// 종료.
 	internal const val BROADCAST_FINISH = "kr.co.kadb.cameralibrary.finish"
@@ -25,9 +28,21 @@ object IntentKey {
 	// data.
 	internal const val EXTRA_DATA = "data"
 
-	// data.
-	internal const val EXTRA_WIDTH = "EXTRA_WIDTH"
+	// hsa mute.
+	const val EXTRA_HAS_MUTE = "EXTRA_HAS_MUTE"
 
-	// data.
-	internal const val EXTRA_HEIGHT = "EXTRA_HEIGHT"
+	// rotation.
+	const val EXTRA_ROTATION = "EXTRA_ROTATION"
+
+	// uris.
+	const val EXTRA_URIS = "EXTRA_URIS"
+
+	// width.
+	const val EXTRA_WIDTH = "EXTRA_WIDTH"
+
+	// height.
+	const val EXTRA_HEIGHT = "EXTRA_HEIGHT"
+
+	// sizes.
+	const val EXTRA_SIZES = "EXTRA_SIZES"
 }
