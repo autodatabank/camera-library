@@ -113,7 +113,7 @@ internal class ShootFragment : BaseBindingFragment<FragmentShootBinding, ShootVi
 //            Intent(IntentKey.ACTION_TAKE_MULTIPLE_PICTURE).also { takePictureIntent ->
             Intent(IntentKey.ACTION_TAKE_PICTURE).also { takePictureIntent ->
                 takePictureIntent.putExtra(IntentKey.EXTRA_HAS_MUTE, false)
-                takePictureIntent.putExtra(IntentKey.EXTRA_CROP_PERCENT, arrayOf(0.3f, 0.4f))
+                takePictureIntent.putExtra(IntentKey.EXTRA_CROP_PERCENT, arrayOf(0.5f, 0.5f))
                 resultLauncher.launch(takePictureIntent)
             }
         }

@@ -20,7 +20,6 @@ import android.content.Context
 import android.content.Intent
 import android.media.AudioManager
 import android.media.MediaActionSound
-import android.view.LayoutInflater
 import android.view.OrientationEventListener
 import android.view.Surface
 import android.view.View
@@ -28,6 +27,7 @@ import androidx.camera.core.*
 import androidx.camera.core.CameraState.Type
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.activityViewModels
 import kr.co.kadb.cameralibrary.R
@@ -35,7 +35,6 @@ import kr.co.kadb.cameralibrary.data.local.PreferenceManager
 import kr.co.kadb.cameralibrary.databinding.AdbCameralibraryFragmentShootBinding
 import kr.co.kadb.cameralibrary.presentation.base.BaseBindingFragment
 import kr.co.kadb.cameralibrary.presentation.widget.extension.exif
-import kr.co.kadb.cameralibrary.presentation.widget.extension.pxToDp
 import kr.co.kadb.cameralibrary.presentation.widget.extension.toThumbnail
 import kr.co.kadb.cameralibrary.presentation.widget.util.IntentKey
 import kr.co.kadb.cameralibrary.presentation.widget.util.MediaActionSound2
@@ -156,141 +155,13 @@ internal class ShootFragment :
     override fun initLayout(view: View) {
         // 카메라 권한 요청.
         viewController.requestCameraPermission {
-            // Granted.
-            Timber.i(">>>>> requestCameraPermission Granted")
-
             initCamera()
-
-            //
-            binding.adbCameralibraryViewUnusedArea.post {
-                // Debug.
-                val width = binding.adbCameralibraryViewUnusedArea.width
-                val height = binding.adbCameralibraryViewUnusedArea.height
-                val widthDp = requireContext().pxToDp(width)
-                val heightDp = requireContext().pxToDp(height)
-
-                val density = requireContext().resources.displayMetrics.density
-
-
-//                val cropPercent = viewModel.item.value.cropPercent
-//                val (unusedAreaWidth, unusedAreaHeight) = if (cropPercent.size == 2) {
-//                    Pair(width * cropPercent[0], height * cropPercent[1])
-//                } else {
-//                    Pair(0.0f, 0.0f)
-//                }
-//                val (unusedAreaWidthDp, unusedAreaHeightDp) = if (unusedAreaWidth > 0.0f && unusedAreaHeight > 0.0f) {
-//                    Pair(
-//                        requireContext().pxToDp(unusedAreaWidth.toInt()).toInt(),
-//                        requireContext().pxToDp(unusedAreaHeight.toInt()).toInt()
-//                    )
-//                } else {
-//                    Pair(0, 0)
-//                }
-                val (unusedAreaWidthDp, unusedAreaHeightDp) = viewModel.unusedAreaSize(
-                    width,
-                    height
-                )
-
-                if (unusedAreaWidthDp > 0 && unusedAreaHeightDp > 0) {
-                    val layoutInflater =
-                        requireContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
-//                    val unusedAreaTopView = layoutInflater.inflate(
-//                        R.layout.adb_cameralibrary_view_unused_area_top,
-//                        binding.adbCameralibraryViewUnusedArea,
-//                        false
-//                    )
-//                    unusedAreaTopView.layoutParams = ConstraintLayout.LayoutParams(
-//                        0,
-//                        unusedAreaHeightDp
-//                    )
-//                    val unusedAreaBottomView = layoutInflater.inflate(
-//                        R.layout.adb_cameralibrary_view_unused_area_bottom,
-//                        binding.adbCameralibraryViewUnusedArea,
-//                        false
-//                    )
-//                    unusedAreaBottomView.layoutParams = ConstraintLayout.LayoutParams(
-//                        0,
-//                        unusedAreaHeightDp
-//                    )
-//                    val unusedAreaStartView = layoutInflater.inflate(
-//                        R.layout.adb_cameralibrary_view_unused_area_start,
-//                        binding.adbCameralibraryViewUnusedArea,
-//                        false
-//                    )
-//                    unusedAreaStartView.layoutParams = ConstraintLayout.LayoutParams(
-//                        unusedAreaWidthDp,
-//                        0
-//                    )
-//                    val unusedAreaEndView = layoutInflater.inflate(
-//                        R.layout.adb_cameralibrary_view_unused_area_end,
-//                        binding.adbCameralibraryViewUnusedArea,
-//                        false
-//                    )
-//                    unusedAreaEndView.layoutParams = ConstraintLayout.LayoutParams(
-//                        unusedAreaWidthDp,
-//                        0
-//                    )
-//                    binding.adbCameralibraryViewUnusedArea.addView(unusedAreaTopView)
-//                    binding.adbCameralibraryViewUnusedArea.addView(unusedAreaBottomView)
-//                    binding.adbCameralibraryViewUnusedArea.addView(unusedAreaStartView)
-//                    binding.adbCameralibraryViewUnusedArea.addView(unusedAreaEndView)
-
-                    val unusedAreaView = layoutInflater.inflate(
-                        R.layout.adb_cameralibrary_view_unused_area,
-                        binding.adbCameralibraryViewUnusedArea,
-                        false
-                    )
-                    unusedAreaView.findViewById<View>(R.id.adb_cameralibrary_view_unused_area_top)
-                        .apply {
-                            layoutParams = ConstraintLayout.LayoutParams(
-                                0,
-                                (unusedAreaHeightDp * density).toInt()
-                            )
-                        }
-                    unusedAreaView.findViewById<View>(R.id.adb_cameralibrary_view_unused_area_bottom)
-                        .apply {
-                            layoutParams = ConstraintLayout.LayoutParams(
-                                0,
-                                (unusedAreaHeightDp * density).toInt()
-                            )
-                        }
-                    unusedAreaView.findViewById<View>(R.id.adb_cameralibrary_view_unused_area_start)
-                        .apply {
-                            layoutParams = ConstraintLayout.LayoutParams(
-                                (unusedAreaWidthDp * density).toInt(),
-                                0
-                            )
-                        }
-                    unusedAreaView.findViewById<View>(R.id.adb_cameralibrary_view_unused_area_end)
-                        .apply {
-                            layoutParams = ConstraintLayout.LayoutParams(
-                                (unusedAreaWidthDp * density).toInt(),
-                                0
-                            )
-                        }
-                    binding.adbCameralibraryViewUnusedArea.addView(unusedAreaView)
-                }
-
-                // Debug.
-                Timber.i(">>>>> initLayout previewView width : $width")
-                Timber.i(">>>>> initLayout previewView height : $height")
-                Timber.i(">>>>> initLayout previewView widthDp : $widthDp")
-                Timber.i(">>>>> initLayout previewView heightDp : $heightDp")
-                //Timber.i(">>>>> initLayout unusedArea width : $unusedAreaWidth")
-                //Timber.i(">>>>> initLayout unusedArea height : $unusedAreaHeight")
-                Timber.i(">>>>> initLayout unusedArea widthDp : $unusedAreaWidthDp")
-                Timber.i(">>>>> initLayout unusedArea heightDp : $unusedAreaHeightDp")
-            }
+            initUnusedAreaLayout()
         }
     }
 
     // Init Observer.
     override fun initObserver() {
-        viewModel.imageCropPercentages.observe(viewLifecycleOwner) {
-            // Debug.
-            Timber.i(">>>>> ShootFragment imageCropPercentages : $it")
-            //drawOverlay(overlay.holder, it.first, it.second)
-        }
     }
 
     // Init Listener.
@@ -375,6 +246,62 @@ internal class ShootFragment :
 
     // Init Callback.
     override fun initCallback() {
+    }
+
+    // Init Unused area layout.
+    private fun initUnusedAreaLayout() {
+        binding.adbCameralibraryViewUnusedArea.post {
+            val parent = binding.adbCameralibraryViewUnusedArea
+            val parentId = binding.adbCameralibraryViewUnusedArea.id
+            val topId = binding.adbCameralibraryViewUnusedAreaTop.id
+            val bottomId = binding.adbCameralibraryViewUnusedAreaBottom.id
+            val parentWidth = binding.adbCameralibraryViewUnusedArea.width
+            val parentHeight = binding.adbCameralibraryViewUnusedArea.height
+            val (unusedAreaWidth, unusedAreaHeight) = viewModel.unusedAreaSize(
+                parentWidth,
+                parentHeight
+            )
+            if (unusedAreaWidth > 0 && unusedAreaHeight > 0) {
+                binding.adbCameralibraryViewUnusedAreaTop.apply {
+                    layoutParams = ConstraintLayout.LayoutParams(0, unusedAreaHeight)
+                    val constraintSet = ConstraintSet()
+                    constraintSet.clone(parent)
+                    constraintSet.connect(id, ConstraintSet.TOP, parentId, ConstraintSet.TOP)
+                    constraintSet.applyTo(parent)
+                }
+                binding.adbCameralibraryViewUnusedAreaBottom.apply {
+                    layoutParams = ConstraintLayout.LayoutParams(0, unusedAreaHeight)
+                    val constraintSet = ConstraintSet()
+                    constraintSet.clone(parent)
+                    constraintSet.connect(id, ConstraintSet.BOTTOM, parentId, ConstraintSet.BOTTOM)
+                    constraintSet.applyTo(parent)
+                }
+                binding.adbCameralibraryViewUnusedAreaStart.apply {
+                    layoutParams = ConstraintLayout.LayoutParams(unusedAreaWidth, 0)
+                    val constraintSet = ConstraintSet()
+                    constraintSet.clone(parent)
+                    constraintSet.connect(id, ConstraintSet.START, parentId, ConstraintSet.START)
+                    constraintSet.connect(id, ConstraintSet.TOP, topId, ConstraintSet.BOTTOM)
+                    constraintSet.connect(id, ConstraintSet.BOTTOM, bottomId, ConstraintSet.TOP)
+                    constraintSet.applyTo(parent)
+                }
+                binding.adbCameralibraryViewUnusedAreaEnd.apply {
+                    layoutParams = ConstraintLayout.LayoutParams(unusedAreaWidth, 0)
+                    val constraintSet = ConstraintSet()
+                    constraintSet.clone(parent)
+                    constraintSet.connect(id, ConstraintSet.END, parentId, ConstraintSet.END)
+                    constraintSet.connect(id, ConstraintSet.TOP, topId, ConstraintSet.BOTTOM)
+                    constraintSet.connect(id, ConstraintSet.BOTTOM, bottomId, ConstraintSet.TOP)
+                    constraintSet.applyTo(parent)
+                }
+            }
+
+            // Debug.
+            Timber.i(">>>>> initLayout previewView width : $parentWidth")
+            Timber.i(">>>>> initLayout previewView height : $parentHeight")
+            Timber.i(">>>>> initLayout unusedArea width : $unusedAreaWidth")
+            Timber.i(">>>>> initLayout unusedArea height : $unusedAreaHeight")
+        }
     }
 
     /** Initialize CameraX, and prepare to bind the camera use cases  */
