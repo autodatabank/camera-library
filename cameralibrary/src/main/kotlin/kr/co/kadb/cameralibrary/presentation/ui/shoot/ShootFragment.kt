@@ -251,54 +251,104 @@ internal class ShootFragment :
     // Init Unused area layout.
     private fun initUnusedAreaLayout() {
         binding.adbCameralibraryViewUnusedArea.post {
-            val parent = binding.adbCameralibraryViewUnusedArea
-            val parentId = binding.adbCameralibraryViewUnusedArea.id
-            val topId = binding.adbCameralibraryViewUnusedAreaTop.id
-            val bottomId = binding.adbCameralibraryViewUnusedAreaBottom.id
-            val parentWidth = binding.adbCameralibraryViewUnusedArea.width
-            val parentHeight = binding.adbCameralibraryViewUnusedArea.height
             val (unusedAreaWidth, unusedAreaHeight) = viewModel.unusedAreaSize(
-                parentWidth,
-                parentHeight
+                binding.adbCameralibraryViewUnusedArea.width,
+                binding.adbCameralibraryViewUnusedArea.height
             )
             if (unusedAreaWidth > 0 && unusedAreaHeight > 0) {
                 binding.adbCameralibraryViewUnusedAreaTop.apply {
-                    layoutParams = ConstraintLayout.LayoutParams(0, unusedAreaHeight)
-                    val constraintSet = ConstraintSet()
-                    constraintSet.clone(parent)
-                    constraintSet.connect(id, ConstraintSet.TOP, parentId, ConstraintSet.TOP)
-                    constraintSet.applyTo(parent)
+                    layoutParams = ConstraintLayout.LayoutParams(
+                        0,
+                        unusedAreaHeight
+                    )
+                    ConstraintSet().let {
+                        it.clone(binding.adbCameralibraryViewUnusedArea)
+                        it.connect(
+                            id,
+                            ConstraintSet.TOP,
+                            binding.adbCameralibraryViewUnusedArea.id,
+                            ConstraintSet.TOP
+                        )
+                        it.applyTo(binding.adbCameralibraryViewUnusedArea)
+                    }
                 }
                 binding.adbCameralibraryViewUnusedAreaBottom.apply {
-                    layoutParams = ConstraintLayout.LayoutParams(0, unusedAreaHeight)
-                    val constraintSet = ConstraintSet()
-                    constraintSet.clone(parent)
-                    constraintSet.connect(id, ConstraintSet.BOTTOM, parentId, ConstraintSet.BOTTOM)
-                    constraintSet.applyTo(parent)
+                    layoutParams = ConstraintLayout.LayoutParams(
+                        0,
+                        unusedAreaHeight
+                    )
+                    ConstraintSet().let {
+                        it.clone(binding.adbCameralibraryViewUnusedArea)
+                        it.connect(
+                            id,
+                            ConstraintSet.BOTTOM,
+                            binding.adbCameralibraryViewUnusedArea.id,
+                            ConstraintSet.BOTTOM
+                        )
+                        it.applyTo(binding.adbCameralibraryViewUnusedArea)
+                    }
                 }
                 binding.adbCameralibraryViewUnusedAreaStart.apply {
-                    layoutParams = ConstraintLayout.LayoutParams(unusedAreaWidth, 0)
-                    val constraintSet = ConstraintSet()
-                    constraintSet.clone(parent)
-                    constraintSet.connect(id, ConstraintSet.START, parentId, ConstraintSet.START)
-                    constraintSet.connect(id, ConstraintSet.TOP, topId, ConstraintSet.BOTTOM)
-                    constraintSet.connect(id, ConstraintSet.BOTTOM, bottomId, ConstraintSet.TOP)
-                    constraintSet.applyTo(parent)
+                    layoutParams = ConstraintLayout.LayoutParams(
+                        unusedAreaWidth,
+                        0
+                    )
+                    ConstraintSet().let {
+                        it.clone(binding.adbCameralibraryViewUnusedArea)
+                        it.connect(
+                            id,
+                            ConstraintSet.START,
+                            binding.adbCameralibraryViewUnusedArea.id,
+                            ConstraintSet.START
+                        )
+                        it.connect(
+                            id,
+                            ConstraintSet.TOP,
+                            binding.adbCameralibraryViewUnusedAreaTop.id,
+                            ConstraintSet.BOTTOM
+                        )
+                        it.connect(
+                            id,
+                            ConstraintSet.BOTTOM,
+                            binding.adbCameralibraryViewUnusedAreaBottom.id,
+                            ConstraintSet.TOP
+                        )
+                        it.applyTo(binding.adbCameralibraryViewUnusedArea)
+                    }
                 }
                 binding.adbCameralibraryViewUnusedAreaEnd.apply {
-                    layoutParams = ConstraintLayout.LayoutParams(unusedAreaWidth, 0)
-                    val constraintSet = ConstraintSet()
-                    constraintSet.clone(parent)
-                    constraintSet.connect(id, ConstraintSet.END, parentId, ConstraintSet.END)
-                    constraintSet.connect(id, ConstraintSet.TOP, topId, ConstraintSet.BOTTOM)
-                    constraintSet.connect(id, ConstraintSet.BOTTOM, bottomId, ConstraintSet.TOP)
-                    constraintSet.applyTo(parent)
+                    layoutParams = ConstraintLayout.LayoutParams(
+                        unusedAreaWidth,
+                        0
+                    )
+                    ConstraintSet().let {
+                        it.clone(binding.adbCameralibraryViewUnusedArea)
+                        it.connect(
+                            id,
+                            ConstraintSet.END,
+                            binding.adbCameralibraryViewUnusedArea.id,
+                            ConstraintSet.END
+                        )
+                        it.connect(
+                            id,
+                            ConstraintSet.TOP,
+                            binding.adbCameralibraryViewUnusedAreaTop.id,
+                            ConstraintSet.BOTTOM
+                        )
+                        it.connect(
+                            id,
+                            ConstraintSet.BOTTOM,
+                            binding.adbCameralibraryViewUnusedAreaBottom.id,
+                            ConstraintSet.TOP
+                        )
+                        it.applyTo(binding.adbCameralibraryViewUnusedArea)
+                    }
                 }
             }
 
             // Debug.
-            Timber.i(">>>>> initLayout previewView width : $parentWidth")
-            Timber.i(">>>>> initLayout previewView height : $parentHeight")
+            Timber.i(">>>>> initLayout previewView width : ${binding.adbCameralibraryViewUnusedArea.width}")
+            Timber.i(">>>>> initLayout previewView height : ${binding.adbCameralibraryViewUnusedArea.height}")
             Timber.i(">>>>> initLayout unusedArea width : $unusedAreaWidth")
             Timber.i(">>>>> initLayout unusedArea height : $unusedAreaHeight")
         }
