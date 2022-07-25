@@ -26,6 +26,7 @@
             android:layout_width="@dimen/dp160"
             android:layout_height="wrap_content"
             android:adjustViewBounds="true"
+            android:background="@color/disable"
             android:scaleType="fitCenter"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"

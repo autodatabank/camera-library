@@ -20,12 +20,15 @@ import android.content.Context
 import android.content.Intent
 import android.media.AudioManager
 import android.media.MediaActionSound
+import android.view.LayoutInflater
 import android.view.OrientationEventListener
 import android.view.Surface
 import android.view.View
 import androidx.camera.core.*
 import androidx.camera.core.CameraState.Type
 import androidx.camera.lifecycle.ProcessCameraProvider
+import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.activityViewModels
 import kr.co.kadb.cameralibrary.R
@@ -33,6 +36,7 @@ import kr.co.kadb.cameralibrary.data.local.PreferenceManager
 import kr.co.kadb.cameralibrary.databinding.AdbCameralibraryFragmentShootBinding
 import kr.co.kadb.cameralibrary.presentation.base.BaseBindingFragment
 import kr.co.kadb.cameralibrary.presentation.widget.extension.exif
+import kr.co.kadb.cameralibrary.presentation.widget.extension.pxToDp
 import kr.co.kadb.cameralibrary.presentation.widget.extension.toThumbnail
 import kr.co.kadb.cameralibrary.presentation.widget.util.IntentKey
 import kr.co.kadb.cameralibrary.presentation.widget.util.MediaActionSound2
@@ -157,6 +161,54 @@ internal class ShootFragment :
             Timber.i(">>>>> requestCameraPermission Granted")
 
             initCamera()
+
+            //
+            binding.adbCameralibraryPreviewView.post {
+                // Debug.
+                val width = binding.adbCameralibraryPreviewView.width
+                val height = binding.adbCameralibraryPreviewView.height
+                val widthDp = requireContext().pxToDp(width)
+                val heightDp = requireContext().pxToDp(height)
+
+
+                val cropPercent = viewModel.item.value.cropPercent
+                val (unusedAreaWidth, unusedAreaHeight) = if (cropPercent.size == 2) {
+                    Pair(width * cropPercent[0], height * cropPercent[1])
+                } else {
+                    Pair(0.0f, 0.0f)
+                }
+                val (unusedAreaWidthDp, unusedAreaHeightDp) = if (unusedAreaWidth > 0.0f && unusedAreaHeight > 0.0f) {
+                    Pair(
+                        requireContext().pxToDp(unusedAreaWidth.toInt()).toInt(),
+                        requireContext().pxToDp(unusedAreaHeight.toInt()).toInt()
+                    )
+                } else {
+                    Pair(0, 0)
+                }
+                if (unusedAreaWidthDp > 0 && unusedAreaHeightDp > 0) {
+                    val layoutInflater = requireContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE) as? LayoutInflater
+                    val unusedAreaTopView = layoutInflater?.inflate(
+                        R.layout.adb_cameralibrary_view_unused_area,
+                        binding.adbCameralibraryUnusedAreaView,
+                        true
+                    )
+                    unusedAreaTopView?.layoutParams = ConstraintLayout.LayoutParams(
+                        unusedAreaWidthDp,
+                        unusedAreaHeightDp
+                    )
+                    val constraintSet = ConstraintSet()
+
+                    binding.adbCameralibraryUnusedAreaView.addView(unusedAreaTopView)
+                }
+
+                // Debug.
+                Timber.i(">>>>> initLayout previewView width : $width")
+                Timber.i(">>>>> initLayout previewView height : $height")
+                Timber.i(">>>>> initLayout unusedArea width : $unusedAreaWidth")
+                Timber.i(">>>>> initLayout unusedArea height : $unusedAreaHeight")
+                Timber.i(">>>>> initLayout unusedArea widthDp : $unusedAreaWidthDp")
+                Timber.i(">>>>> initLayout unusedArea heightDp : $unusedAreaHeightDp")
+            }
         }
     }
 
@@ -172,7 +224,7 @@ internal class ShootFragment :
     // Init Listener.
     override fun initListener() {
         // 촬영.
-        binding.buttonShooting.setOnClickListener {
+        binding.adbCameralibraryButtonShooting.setOnClickListener {
             //
             viewModel.item.value.also {
                 if (it.isShooted && !it.isMultiplePicture) {
@@ -223,7 +275,6 @@ internal class ShootFragment :
                                     putExtra("data", thumbnail)
                                     putExtra(IntentKey.EXTRA_WIDTH, exif?.width)
                                     putExtra(IntentKey.EXTRA_HEIGHT, exif?.height)
-                                    putExtra(IntentKey.EXTRA_ROTATION, exif?.rotation)
                                     setDataAndType(output.savedUri, "image/jpeg")
                                 }.also {
                                     requireActivity().setResult(Activity.RESULT_OK, it)
@@ -237,7 +288,7 @@ internal class ShootFragment :
             }
         }
 
-        binding.buttonFlash.setOnClickListener {
+        binding.adbCameralibraryButtonFlash.setOnClickListener {
             Intent().apply {
                 action = viewModel.item.value.action
                 putExtra(IntentKey.EXTRA_URIS, viewModel.item.value.uris)
@@ -257,7 +308,7 @@ internal class ShootFragment :
     /** Initialize CameraX, and prepare to bind the camera use cases  */
     private fun initCamera() {
         // Wait for the views to be properly laid out
-        binding.previewView.post {
+        binding.adbCameralibraryPreviewView.post {
             // Set up the camera and its use cases
             val cameraProviderFuture = ProcessCameraProvider.getInstance(requireContext())
             cameraProviderFuture.addListener({
@@ -280,7 +331,7 @@ internal class ShootFragment :
     /** Declare and bind preview, capture and analysis use cases */
     private fun bindCameraUseCases() {
         // rotation
-        val rotation = binding.previewView.display.rotation
+        val rotation = binding.adbCameralibraryPreviewView.display.rotation
 
         // CameraProvider
         val cameraProvider = cameraProvider
@@ -330,7 +381,7 @@ internal class ShootFragment :
                 this, cameraSelector, preview, imageCapture, imageAnalyzer
             )
             // Attach the viewfinder's surface provider to preview use case
-            preview?.setSurfaceProvider(binding.previewView.surfaceProvider)
+            preview?.setSurfaceProvider(binding.adbCameralibraryPreviewView.surfaceProvider)
             //
             observeCameraState(camera?.cameraInfo!!)
         } catch (exc: Exception) {

@@ -10,6 +10,7 @@ import android.os.Build
 import android.os.Environment
 import android.os.ParcelFileDescriptor
 import android.provider.MediaStore
+import android.util.Base64
 import timber.log.Timber
 import java.io.File
 import java.io.FileOutputStream
@@ -174,4 +175,12 @@ internal fun Bitmap?.toTransparentBitmap(replaceThisColor: Int): Bitmap? {
         return Bitmap.createBitmap(pix, picw, pich, Bitmap.Config.ARGB_8888)
     }
     return null
+}
+
+// toByteArray.
+fun Bitmap?.toBase64(
+    flags: Int = Base64.NO_WRAP,
+    format: Bitmap.CompressFormat = Bitmap.CompressFormat.JPEG
+): String? {
+    return Base64.encodeToString(toByteArray(format), flags)
 }

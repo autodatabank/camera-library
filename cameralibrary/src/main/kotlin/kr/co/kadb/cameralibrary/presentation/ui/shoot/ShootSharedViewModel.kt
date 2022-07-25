@@ -5,6 +5,7 @@ import android.net.Uri
 import android.util.Size
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageCapture
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.*
@@ -68,9 +69,24 @@ constructor(
     }
 
     // Intent Action 설정.
-    fun initUiState(action: String?, hasMute: Boolean = false) {
+    fun initUiState(
+        action: String?,
+        hasMute: Boolean = false,
+        cropPercent: List<Float>
+    ) {
         // Debug.
         Timber.i(">>>>> ACTION : %s", action)
+
+        val (unusedAreaWidth, unusedAreaHeight) = if (cropPercent.isNotEmpty()) {
+            if (cropPercent.size == 1) {
+                Pair(0, 0)
+            } else {
+
+            }
+            Pair(0, 0)
+        } else {
+            Pair(0, 0)
+        }
 
         // Update.
         state.value.value?.let {
@@ -78,13 +94,17 @@ constructor(
                 action = action,
                 isShooted = false,
                 isMultiplePicture = action == ACTION_TAKE_MULTIPLE_PICTURE,
-                hasMute = hasMute
+                hasMute = hasMute,
+                cropPercent= cropPercent
             )
         } ?: ShootUiState(
             action = action,
             isShooted = false,
             isMultiplePicture = action == ACTION_TAKE_MULTIPLE_PICTURE,
             hasMute = hasMute,
+            cropPercent= listOf(),
+            unusedAreaWidth = unusedAreaWidth,
+            unusedAreaHeight = unusedAreaHeight,
             uris = arrayListOf(),
             sizes = arrayListOf()
         ).run {

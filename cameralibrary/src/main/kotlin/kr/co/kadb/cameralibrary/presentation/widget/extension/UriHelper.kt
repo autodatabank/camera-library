@@ -135,29 +135,13 @@ fun Uri.toBitmap(context: Context): Bitmap? {
     return null
 }
 
-fun Uri.rotateAndCrop(
-    bitmap: Bitmap,
-    rotationDegrees: Int,
-    cropRect: Rect
-): Bitmap {
-    val matrix = Matrix()
-    matrix.preRotate(rotationDegrees.toFloat())
-    return Bitmap.createBitmap(
-        bitmap,
-        cropRect.left,
-        cropRect.top,
-        cropRect.width(),
-        cropRect.height(),
-        matrix,
-        true
-    )
-}
-
+//
 fun Uri.rotateAndCrop(
     context: Context,
-    cropRect: Rect
+    cropRect: Rect,
+    rotationDegrees: Int? = null,
 ): Bitmap? {
-    val rotation = exif(context)?.rotation?.toFloat() ?: return null
+    val rotation = rotationDegrees?.toFloat() ?: (exif(context)?.rotation?.toFloat() ?: return null)
     val bitmap = toBitmap(context) ?: return null
     val matrix = Matrix()
     matrix.preRotate(rotation)
@@ -172,6 +156,48 @@ fun Uri.rotateAndCrop(
     )
 }
 
+// 이미지 Uri에서 회전후 중앙 기준 Crop한 Bitmap 반환.
+fun Uri.rotateAndCenterCrop(
+    context: Context,
+    cropSize: Size
+): Bitmap? {
+    val exif = exif(context) ?: return null
+    val bitmap = toBitmap(context) ?: return null
+    val rotation = exif.rotation
+    val matrix = Matrix()
+    matrix.preRotate(rotation.toFloat())
+    if (cropSize.width < exif.width && cropSize.height < exif.height) {
+        val (widthCrop, heightCrop) = when (rotation) {
+            90, 270 -> {
+                Pair(cropSize.height, cropSize.width)
+            }
+            else -> {
+                Pair(cropSize.width, cropSize.height)
+            }
+        }
+        return Bitmap.createBitmap(
+            bitmap,
+            (exif.width / 2) - (widthCrop / 2),
+            (exif.height / 2) - (heightCrop / 2) ,
+            widthCrop,
+            heightCrop,
+            matrix,
+            true
+        )
+    } else {
+        return Bitmap.createBitmap(
+            bitmap,
+            0,
+            0,
+            exif.width,
+            exif.height,
+            matrix,
+            true
+        )
+    }
+}
+
+// 이미지 리사이징.
 internal fun Uri.resize(context: Context, resize: Int): Bitmap? {
     try {
         val options: BitmapFactory.Options = BitmapFactory.Options()

@@ -28,21 +28,21 @@ object IntentKey {
 	// data.
 	internal const val EXTRA_DATA = "data"
 
-	// hsa mute.
+	// 촬영음 Mute 가능 여부 요청용.
 	const val EXTRA_HAS_MUTE = "EXTRA_HAS_MUTE"
 
-	// rotation.
-	const val EXTRA_ROTATION = "EXTRA_ROTATION"
+	// 촬영 후 자를 이미지 크기(백분율) 요청용.
+	const val EXTRA_CROP_PERCENT = "EXTRA_CROP_PERCENT"
 
-	// uris.
-	const val EXTRA_URIS = "EXTRA_URIS"
-
-	// width.
+	// 한 장 촬영 시 width 반환용.
 	const val EXTRA_WIDTH = "EXTRA_WIDTH"
 
-	// height.
+	// 한 장 촬영 시 height 반환용.
 	const val EXTRA_HEIGHT = "EXTRA_HEIGHT"
 
-	// sizes.
+	// 여러 장 촬영 시 uris 반환용.
+	const val EXTRA_URIS = "EXTRA_URIS"
+
+	// 여러 장 촬영 시 sizes 반환용.
 	const val EXTRA_SIZES = "EXTRA_SIZES"
 }

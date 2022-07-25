@@ -289,3 +289,21 @@ internal fun Context.outputFileOptionsBuilder(
         )
     }
 }
+
+internal fun Context.pxToDp(px: Int): Float {
+    return if (px > 0) {
+        val density = resources.displayMetrics.density
+        px / density
+    } else {
+        0.0f
+    }
+}
+
+internal fun Context.dpToPx(dp: Int): Float {
+    return if (dp > 0) {
+        val density = resources.displayMetrics.density
+        dp * density
+    } else {
+        0.0f
+    }
+}
