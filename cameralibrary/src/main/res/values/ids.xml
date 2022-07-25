@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <item type="id" name="adb_cameralibrary_view_unused_area_top" />
-    <item type="id" name="adb_cameralibrary_view_unused_area_start" />
-    <item type="id" name="adb_cameralibrary_view_unused_area_end" />
-    <item type="id" name="adb_cameralibrary_view_unused_area_bottom" />
+<!--    <item type="id" name="adb_cameralibrary_view_unused_area_top" />-->
+<!--    <item type="id" name="adb_cameralibrary_view_unused_area_start" />-->
+<!--    <item type="id" name="adb_cameralibrary_view_unused_area_end" />-->
+<!--    <item type="id" name="adb_cameralibrary_view_unused_area_bottom" />-->
 </resources>

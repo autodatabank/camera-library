@@ -67,7 +67,8 @@ class TextAnalyzer(
             (imageWidth * widthCrop / 2).toInt(),
             (imageHeight * heightCrop / 2).toInt()
         )
-        val croppedBitmap = ImageUtils.rotateAndCrop(convertImageToBitmap, rotationDegrees, cropRect)
+        val croppedBitmap =
+            ImageUtils.rotateAndCrop(convertImageToBitmap, rotationDegrees, cropRect)
 
         // TODO call recognizeText() once implemented
         action.invoke(croppedBitmap)

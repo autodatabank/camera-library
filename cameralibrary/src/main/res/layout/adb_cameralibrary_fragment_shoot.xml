@@ -23,26 +23,14 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             />
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/adb_cameralibrary_unused_area_view"
+        <FrameLayout
+            android:id="@+id/adb_cameralibrary_view_unused_area"
             android:layout_width="0dp"
             android:layout_height="0dp"
             app:layout_constraintBottom_toBottomOf="@+id/adb_cameralibrary_preview_view"
             app:layout_constraintEnd_toEndOf="@+id/adb_cameralibrary_preview_view"
             app:layout_constraintStart_toStartOf="@+id/adb_cameralibrary_preview_view"
             app:layout_constraintTop_toTopOf="@+id/adb_cameralibrary_preview_view"
-            >
-        </androidx.constraintlayout.widget.ConstraintLayout>
-        <androidx.appcompat.widget.AppCompatImageView
-            android:id="@+id/adb_cameralibrary_imageview"
-            android:layout_width="80dp"
-            android:layout_height="0dp"
-            android:scaleType="fitCenter"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintDimensionRatio="h, 3:4"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
             />
         <!-- 플래쉬. -->
         <androidx.appcompat.widget.AppCompatImageButton

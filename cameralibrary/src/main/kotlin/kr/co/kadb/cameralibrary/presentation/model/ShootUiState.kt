@@ -12,8 +12,8 @@ internal data class ShootUiState(
     val isMultiplePicture: Boolean,
     val hasMute: Boolean,
     val cropPercent: List<Float>,
-    val unusedAreaWidth: Int,
-    val unusedAreaHeight: Int,
+//    val unusedAreaWidth: Int,
+//    val unusedAreaHeight: Int,
     val uris: ArrayList<String>,
     val sizes: ArrayList<Size>
 ) {
@@ -35,8 +35,8 @@ internal data class ShootUiState(
             isMultiplePicture = false,
             hasMute = false,
             cropPercent = listOf(),
-            unusedAreaWidth = 0,
-            unusedAreaHeight = 0,
+//            unusedAreaWidth = 0,
+//            unusedAreaHeight = 0,
             uris = arrayListOf(),
             sizes = arrayListOf()
         )

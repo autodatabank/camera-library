@@ -5,7 +5,6 @@ import android.net.Uri
 import android.util.Size
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageCapture
-import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.*
@@ -15,6 +14,8 @@ import kr.co.kadb.cameralibrary.presentation.model.ShootUiState
 import kr.co.kadb.cameralibrary.presentation.model.UiState
 import kr.co.kadb.cameralibrary.presentation.viewmodel.BaseAndroidViewModel
 import kr.co.kadb.cameralibrary.presentation.widget.extension.outputFileOptionsBuilder
+import kr.co.kadb.cameralibrary.presentation.widget.extension.pxToDp
+import kr.co.kadb.cameralibrary.presentation.widget.extension.toJsonPretty
 import kr.co.kadb.cameralibrary.presentation.widget.util.IntentKey.ACTION_TAKE_MULTIPLE_PICTURE
 import timber.log.Timber
 
@@ -72,21 +73,23 @@ constructor(
     fun initUiState(
         action: String?,
         hasMute: Boolean = false,
-        cropPercent: List<Float>
+        cropPercent: Array<Float>?
     ) {
         // Debug.
-        Timber.i(">>>>> ACTION : %s", action)
-
-        val (unusedAreaWidth, unusedAreaHeight) = if (cropPercent.isNotEmpty()) {
-            if (cropPercent.size == 1) {
-                Pair(0, 0)
-            } else {
-
-            }
-            Pair(0, 0)
-        } else {
-            Pair(0, 0)
-        }
+        Timber.i(">>>>> initUiState action : $action")
+        Timber.i(">>>>> initUiState hasMute : $hasMute")
+        Timber.i(">>>>> initUiState cropPercent : ${cropPercent.toJsonPretty()}")
+//
+//        val (unusedAreaWidth, unusedAreaHeight) = if (!cropPercent.isNullOrEmpty()) {
+//            if (cropPercent.size == 1) {
+//                Pair(0, 0)
+//            } else {
+//
+//            }
+//            Pair(0, 0)
+//        } else {
+//            Pair(0, 0)
+//        }
 
         // Update.
         state.value.value?.let {
@@ -95,21 +98,47 @@ constructor(
                 isShooted = false,
                 isMultiplePicture = action == ACTION_TAKE_MULTIPLE_PICTURE,
                 hasMute = hasMute,
-                cropPercent= cropPercent
+                cropPercent= cropPercent?.toList() ?: listOf()
             )
         } ?: ShootUiState(
             action = action,
             isShooted = false,
             isMultiplePicture = action == ACTION_TAKE_MULTIPLE_PICTURE,
             hasMute = hasMute,
-            cropPercent= listOf(),
-            unusedAreaWidth = unusedAreaWidth,
-            unusedAreaHeight = unusedAreaHeight,
+            cropPercent= cropPercent?.toList() ?: listOf(),
+//            unusedAreaWidth = unusedAreaWidth,
+//            unusedAreaHeight = unusedAreaHeight,
             uris = arrayListOf(),
             sizes = arrayListOf()
         ).run {
             updateState(value = this)
         }
+    }
+
+    fun unusedAreaSize(width: Int, height: Int): Pair<Int, Int> {
+        val context = getApplication<Application>().applicationContext
+        val (unusedAreaWidth, unusedAreaHeight) = if (item.value.cropPercent.size == 2) {
+            Pair(width * item.value.cropPercent[0] * 0.5f, height * item.value.cropPercent[1] * 0.5f)
+        } else {
+            Pair(0.0f, 0.0f)
+        }
+        // Debug.
+        Timber.i(">>>>> unusedAreaSize size : ${item.value.cropPercent}")
+        Timber.i(">>>>> unusedAreaSize width : $unusedAreaWidth")
+        Timber.i(">>>>> unusedAreaSize width : $unusedAreaHeight")
+        return if (unusedAreaWidth > 0.0f && unusedAreaHeight > 0.0f) {
+            return Pair(
+                context.pxToDp(unusedAreaWidth.toInt()).toInt(),
+                context.pxToDp(unusedAreaHeight.toInt()).toInt()
+            )
+        } else {
+            Pair(0, 0)
+        }
+//        return if (item.value.cropPercent.size == 2) {
+//            Pair((width * item.value.cropPercent[0]).toInt(), (height * item.value.cropPercent[1]).toInt())
+//        } else {
+//            Pair(0, 0)
+//        }
     }
 
     // 촬영 버튼 누름.

@@ -29,7 +29,7 @@ internal abstract class BaseBindingFragment<T : ViewDataBinding, VM : ViewModel>
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         binding = DataBindingUtil.inflate(inflater, layoutResourceId, container, false)
-        binding.lifecycleOwner = this@BaseBindingFragment
+        binding.lifecycleOwner = viewLifecycleOwner
         return binding.root
     }
 

@@ -31,7 +31,7 @@ internal class ShootActivity : BaseActivity() {
 
 		val action = intent.action
 		val hasMute = intent.getBooleanExtra(IntentKey.EXTRA_HAS_MUTE, false)
-		val cropPercent = intent.getFloatArrayExtra(IntentKey.EXTRA_CROP_PERCENT)?.toList() ?: listOf()
+		val cropPercent = intent.getSerializableExtra(IntentKey.EXTRA_CROP_PERCENT) as? Array<Float>
 		viewModel.initUiState(action, hasMute, cropPercent)
 		if (savedInstanceState == null) {
 			viewController.navigateToShooting()
