@@ -26,12 +26,6 @@ constructor(
     application: Application,
     @Suppress("UNUSED_PARAMETER") preferences: PreferenceManager
 ) : BaseAndroidViewModel<ShootUiState>(application, UiState.loading()) {
-
-    companion object {
-        const val DESIRED_WIDTH_CROP_PERCENT = 10
-        const val DESIRED_HEIGHT_CROP_PERCENT = 10
-    }
-
     // Event.
     sealed class Event {
     }
@@ -93,8 +87,6 @@ constructor(
             canMute = canMute,
             canUiRotation = canUiRotation,
             cropPercent = cropPercent?.toList() ?: listOf(),
-//            unusedAreaWidth = unusedAreaWidth,
-//            unusedAreaHeight = unusedAreaHeight,
             uris = arrayListOf(),
             sizes = arrayListOf()
         ).run {
