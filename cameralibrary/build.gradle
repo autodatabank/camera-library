@@ -34,6 +34,7 @@ android {
 
     kotlinOptions {
         jvmTarget = '1.8'
+        moduleName = 'kr.co.kadb.cameralibrary'
     }
 
     sourceSets {
