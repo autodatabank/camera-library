@@ -36,10 +36,10 @@ internal fun Uri.exif(context: Context): Exif? {
         } else {
             Exif.createFromFile(this.toFile())
         }
-        Timber.i(">>>>> Exif : $exif")
+        Timber.i(">>>>> exif : $exif")
     } catch (ex: Exception) {
         // Debug.
-        Timber.e(">>>>> Exif : $ex")
+        Timber.e(">>>>> exif : $ex")
     } finally {
         inputStream?.close()
     }
@@ -65,7 +65,7 @@ internal fun Uri.exifInterface(context: Context): ExifInterface? {
             if (it.name.startsWith("TAG_")) {
                 val value = it.get(it.name) as String
                 Timber.i(
-                    ">>>>> ExifInterface ${it.name} : " +
+                    ">>>>> exifInterface ${it.name} : " +
                             "${exifInterface?.getAttribute(value)}"
                 )
             }
@@ -94,9 +94,9 @@ internal fun Uri.toThumbnail(
         }
 
         // Debug.
-        Timber.i(">>>>> Thumbnail Sample : $sample")
-        Timber.i(">>>>> Thumbnail Origin Size : ${exif?.width} x ${exif?.height}")
-        Timber.i(">>>>> Thumbnail Sample Size : ${width / sample} x ${height / sample}")
+        Timber.i(">>>>> toThumbnail Sample : $sample")
+        Timber.i(">>>>> toThumbnail origin size : ${exif?.width} x ${exif?.height}")
+        Timber.i(">>>>> toThumbnail thumbnail size : ${width / sample} x ${height / sample}")
 
         // Thumbnail.
         context.contentResolver.loadThumbnail(
@@ -135,7 +135,7 @@ fun Uri.toBitmap(context: Context): Bitmap? {
     return null
 }
 
-//
+// 이미지 Uri에서 회전후 Crop한 Bitmap 반환.
 fun Uri.rotateAndCrop(
     context: Context,
     cropRect: Rect,
@@ -169,16 +169,16 @@ fun Uri.rotateAndCenterCrop(
     if (cropSize.width < exif.width && cropSize.height < exif.height) {
         val (widthCrop, heightCrop) = when (rotation) {
             90, 270 -> {
-                Pair(cropSize.height, cropSize.width)
+                Pair(cropSize.width, cropSize.height)
             }
             else -> {
-                Pair(cropSize.width, cropSize.height)
+                Pair(cropSize.height, cropSize.width)
             }
         }
         return Bitmap.createBitmap(
             bitmap,
             (exif.width / 2) - (widthCrop / 2),
-            (exif.height / 2) - (heightCrop / 2) ,
+            (exif.height / 2) - (heightCrop / 2),
             widthCrop,
             heightCrop,
             matrix,
@@ -195,6 +195,41 @@ fun Uri.rotateAndCenterCrop(
             true
         )
     }
+}
+
+// 이미지 Uri에서 회전후 중앙 기준 Crop한 Bitmap 반환.
+fun Uri.rotateAndCenterCrop(
+    context: Context,
+    cropPercent: Array<Float>
+): Bitmap? {
+    val exif = exif(context) ?: return null
+    val bitmap = toBitmap(context) ?: return null
+    val rotation = exif.rotation
+    val matrix = Matrix()
+    matrix.preRotate(rotation.toFloat())
+    val (widthCrop, heightCrop) = when (rotation) {
+        90, 270 -> {
+            Pair(
+                (exif.width * cropPercent[1]).toInt(),
+                (exif.height * cropPercent[0]).toInt()
+            )
+        }
+        else -> {
+            Pair(
+                (exif.width * cropPercent[0]).toInt(),
+                (exif.height * cropPercent[1]).toInt()
+            )
+        }
+    }
+    return Bitmap.createBitmap(
+        bitmap,
+        (exif.width / 2) - (widthCrop / 2),
+        (exif.height / 2) - (heightCrop / 2),
+        widthCrop,
+        heightCrop,
+        matrix,
+        true
+    )
 }
 
 // 이미지 리사이징.

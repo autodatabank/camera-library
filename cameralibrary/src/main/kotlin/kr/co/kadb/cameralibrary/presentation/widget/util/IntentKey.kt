@@ -29,10 +29,13 @@ object IntentKey {
 	internal const val EXTRA_DATA = "data"
 
 	// 촬영음 Mute 가능 여부 요청용.
-	const val EXTRA_HAS_MUTE = "EXTRA_HAS_MUTE"
+	const val EXTRA_CAN_MUTE = "EXTRA_HAS_MUTE"
 
-	// 촬영 후 자를 이미지 크기(백분율) 요청용.
-	const val EXTRA_CROP_PERCENT = "EXTRA_CROP_PERCENT"
+	// 촬영 시 미리보기에 화면에 표시 할 마스크(백분융) 크기 요청용.
+	const val EXTRA_CROP_PERCENT = "EXTRA_MASK_PERCENT"
+
+	// 촬영 시 UI 로테이션 금지(Image Exif값에는 영향 없음) 요청용.
+	const val EXTRA_CAN_UI_ROTATION = "EXTRA_CAN_UI_ROTATION"
 
 	// 한 장 촬영 시 width 반환용.
 	const val EXTRA_WIDTH = "EXTRA_WIDTH"

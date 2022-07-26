@@ -52,8 +52,6 @@ import java.util.concurrent.Executors
 internal class ShootFragment :
     BaseBindingFragment<AdbCameralibraryFragmentShootBinding, ShootSharedViewModel>() {
     companion object {
-        //private const val RATIO_4_3_VALUE = 4.0 / 3.0
-        //private const val RATIO_16_9_VALUE = 16.0 / 9.0
         fun create() = ShootFragment()
     }
 
@@ -106,7 +104,11 @@ internal class ShootFragment :
                     else -> Surface.ROTATION_0
                 }
 
-                preview?.targetRotation = rotation
+                if (viewModel.item.value.canUiRotation && imageCapture?.targetRotation != rotation) {
+                    initUnusedAreaLayout()
+                }
+
+                //preview?.targetRotation = rotation
                 imageCapture?.targetRotation = rotation
                 imageAnalyzer?.targetRotation = rotation
             }
@@ -173,7 +175,7 @@ internal class ShootFragment :
                 if (it.isShooted && !it.isMultiplePicture) {
                     return@setOnClickListener
                 }
-                if (it.hasMute) {
+                if (it.canMute) {
                     // 미디어 볼륨으로 셔터효과음 재생.
                     mediaActionSound.playWithStreamVolume(
                         MediaActionSound.SHUTTER_CLICK,
@@ -189,19 +191,19 @@ internal class ShootFragment :
 
             // Get a stable reference of the modifiable image capture use case
             imageCapture?.let { imageCapture ->
-                //
+                // 출력 옵션.
                 val outputOptions = viewModel.outputFileOptions(lensFacing)
 
-                // Setup image capture listener which is triggered after photo has been taken
+                // 촬영 후 이미지 저장.
                 imageCapture.takePicture(
                     outputOptions, cameraExecutor, object : ImageCapture.OnImageSavedCallback {
                         override fun onError(exc: ImageCaptureException) {
-                            Timber.e(">>>>> Photo capture failed: ${exc.message}", exc)
+                            Timber.e(">>>>> ImageCapture onError: ${exc.message}")
                         }
 
                         override fun onImageSaved(output: ImageCapture.OutputFileResults) {
                             // Debug.
-                            Timber.i(">>>>> Photo capture succeeded: ${output.savedUri}")
+                            Timber.i(">>>>> ImageCapture onImageSaved: ${output.savedUri}")
 
                             // Exif Logging.
                             val exif = output.savedUri?.exif(requireContext())
@@ -231,6 +233,7 @@ internal class ShootFragment :
             }
         }
 
+        // 플래쉬.
         binding.adbCameralibraryButtonFlash.setOnClickListener {
             Intent().apply {
                 action = viewModel.item.value.action
@@ -250,8 +253,11 @@ internal class ShootFragment :
 
     // Init Unused area layout.
     private fun initUnusedAreaLayout() {
+        // Debug.
+        Timber.i(">>>>> initUnusedAreaLayout")
         binding.adbCameralibraryViewUnusedArea.post {
             val (unusedAreaWidth, unusedAreaHeight) = viewModel.unusedAreaSize(
+                imageCapture?.targetRotation ?: 0,
                 binding.adbCameralibraryViewUnusedArea.width,
                 binding.adbCameralibraryViewUnusedArea.height
             )
@@ -347,6 +353,7 @@ internal class ShootFragment :
             }
 
             // Debug.
+            Timber.i(">>>>> initLayout rotation : ${imageCapture?.targetRotation}")
             Timber.i(">>>>> initLayout previewView width : ${binding.adbCameralibraryViewUnusedArea.width}")
             Timber.i(">>>>> initLayout previewView height : ${binding.adbCameralibraryViewUnusedArea.height}")
             Timber.i(">>>>> initLayout unusedArea width : $unusedAreaWidth")
@@ -406,19 +413,7 @@ internal class ShootFragment :
         imageAnalyzer = ImageAnalysis.Builder()
             .setTargetAspectRatio(AspectRatio.RATIO_4_3)
             .setTargetRotation(rotation)
-            //.setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
-            //.setOutputImageFormat(ImageAnalysis.OUTPUT_IMAGE_FORMAT_RGBA_8888)
-            //.setOutputImageFormat(ImageAnalysis.OUTPUT_IMAGE_FORMAT_YUV_420_888)
             .build()
-        // The analyzer can then be assigned to the instance
-//            .also { imageAnalysis ->
-//                imageAnalysis.setAnalyzer(
-//                    cameraExecutor, ImageAnalyzer(
-//                        requireContext(),
-//                        viewModel.imageCropPercentages
-//                    )
-//                )
-//            }
 
         // Must unbind the use-cases before rebinding them
         cameraProvider.unbindAll()
@@ -439,6 +434,7 @@ internal class ShootFragment :
         }
     }
 
+    // 카메라 상태 로깅.
     private fun observeCameraState(cameraInfo: CameraInfo) {
         cameraInfo.cameraState.observe(viewLifecycleOwner) { cameraState ->
             when (cameraState.type) {

@@ -237,10 +237,6 @@ internal fun Context.outputFileOptionsBuilder(
         Bitmap.CompressFormat.JPEG -> "jpg"
         else -> "webp"
     }
-
-    // OutputFileOptions Builder.
-    //val builder: ImageCapture.OutputFileOptions.Builder
-
     return if (isPublicDirectory) {
         // 하위 디렉토리명.
         val childDirectory = this.packageName?.split('.')?.last() ?: "adbcamerax"
@@ -290,6 +286,7 @@ internal fun Context.outputFileOptionsBuilder(
     }
 }
 
+// Pixel to dp
 internal fun Context.pxToDp(px: Int): Float {
     return if (px > 0) {
         val density = resources.displayMetrics.density
@@ -299,6 +296,7 @@ internal fun Context.pxToDp(px: Int): Float {
     }
 }
 
+// Dp to pixel
 internal fun Context.dpToPx(dp: Int): Float {
     return if (dp > 0) {
         val density = resources.displayMetrics.density

@@ -177,7 +177,7 @@ internal fun Bitmap?.toTransparentBitmap(replaceThisColor: Int): Bitmap? {
     return null
 }
 
-// toByteArray.
+// Base64.
 fun Bitmap?.toBase64(
     flags: Int = Base64.NO_WRAP,
     format: Bitmap.CompressFormat = Bitmap.CompressFormat.JPEG

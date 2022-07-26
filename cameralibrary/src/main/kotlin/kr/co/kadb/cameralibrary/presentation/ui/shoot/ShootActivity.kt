@@ -30,9 +30,11 @@ internal class ShootActivity : BaseActivity() {
 		setContentView(R.layout.adb_cameralibrary_activity_shoot)
 
 		val action = intent.action
-		val hasMute = intent.getBooleanExtra(IntentKey.EXTRA_HAS_MUTE, false)
+		val canMute = intent.getBooleanExtra(IntentKey.EXTRA_CAN_MUTE, false)
+		val canUiRotation = intent.getBooleanExtra(IntentKey.EXTRA_CAN_UI_ROTATION, false)
+		@Suppress("UNCHECKED_CAST")
 		val cropPercent = intent.getSerializableExtra(IntentKey.EXTRA_CROP_PERCENT) as? Array<Float>
-		viewModel.initUiState(action, hasMute, cropPercent)
+		viewModel.initUiState(action, canMute, canUiRotation, cropPercent)
 		if (savedInstanceState == null) {
 			viewController.navigateToShooting()
 		}

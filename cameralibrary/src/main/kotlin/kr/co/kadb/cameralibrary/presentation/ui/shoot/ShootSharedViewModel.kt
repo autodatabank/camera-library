@@ -5,7 +5,6 @@ import android.net.Uri
 import android.util.Size
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageCapture
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -67,12 +66,14 @@ constructor(
     // Intent Action 설정.
     fun initUiState(
         action: String?,
-        hasMute: Boolean = false,
+        canMute: Boolean = false,
+        canUiRotation: Boolean = false,
         cropPercent: Array<Float>?
     ) {
         // Debug.
         Timber.i(">>>>> initUiState action : $action")
-        Timber.i(">>>>> initUiState hasMute : $hasMute")
+        Timber.i(">>>>> initUiState canMute : $canMute")
+        Timber.i(">>>>> initUiState canUiRotation : $canUiRotation")
         Timber.i(">>>>> initUiState cropPercent : ${cropPercent.toJsonPretty()}")
 
         // Update.
@@ -81,14 +82,16 @@ constructor(
                 action = action,
                 isShooted = false,
                 isMultiplePicture = action == ACTION_TAKE_MULTIPLE_PICTURE,
-                hasMute = hasMute,
+                canMute = canMute,
+                canUiRotation = canUiRotation,
                 cropPercent = cropPercent?.toList() ?: listOf()
             )
         } ?: ShootUiState(
             action = action,
             isShooted = false,
             isMultiplePicture = action == ACTION_TAKE_MULTIPLE_PICTURE,
-            hasMute = hasMute,
+            canMute = canMute,
+            canUiRotation = canUiRotation,
             cropPercent = cropPercent?.toList() ?: listOf(),
 //            unusedAreaWidth = unusedAreaWidth,
 //            unusedAreaHeight = unusedAreaHeight,
@@ -100,12 +103,22 @@ constructor(
     }
 
     // 사용하지 않는 영역 크기.
-    fun unusedAreaSize(width: Int, height: Int): Pair<Int, Int> {
+    fun unusedAreaSize(rotation: Int, width: Int, height: Int): Pair<Int, Int> {
         return if (item.value.cropPercent.size == 2) {
-            Pair(
-                (width * item.value.cropPercent[0] * 0.5f).toInt(),
-                (height * item.value.cropPercent[1] * 0.5f).toInt()
-            )
+            when (rotation) {
+                0, 2 -> {
+                    Pair(
+                        (width * (1.0f - item.value.cropPercent[0]) * 0.5f).toInt(),
+                        (height * (1.0f - item.value.cropPercent[1]) * 0.5f).toInt()
+                    )
+                }
+                else -> {
+                    Pair(
+                        (width * (1.0f - item.value.cropPercent[1]) * 0.5f).toInt(),
+                        (height * (1.0f - item.value.cropPercent[0]) * 0.5f).toInt()
+                    )
+                }
+            }
         } else {
             Pair(0, 0)
         }

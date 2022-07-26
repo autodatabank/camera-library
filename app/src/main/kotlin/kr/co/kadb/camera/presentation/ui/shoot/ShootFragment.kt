@@ -3,8 +3,6 @@ package kr.co.kadb.camera.presentation.ui.shoot
 import android.app.Activity
 import android.content.Intent
 import android.graphics.Bitmap
-import android.graphics.Rect
-import android.util.Size
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.viewModels
@@ -15,9 +13,6 @@ import kr.co.kadb.camera.databinding.FragmentShootBinding
 import kr.co.kadb.camera.presentation.base.BaseBindingFragment
 import kr.co.kadb.camera.presentation.widget.extension.save
 import kr.co.kadb.cameralibrary.presentation.widget.extension.rotateAndCenterCrop
-import kr.co.kadb.cameralibrary.presentation.widget.extension.rotateAndCrop
-import kr.co.kadb.cameralibrary.presentation.widget.extension.toBase64
-import kr.co.kadb.cameralibrary.presentation.widget.extension.toBitmap
 import kr.co.kadb.cameralibrary.presentation.widget.util.IntentKey
 import timber.log.Timber
 import javax.inject.Inject
@@ -65,11 +60,9 @@ internal class ShootFragment : BaseBindingFragment<FragmentShootBinding, ShootVi
                     binding.imageviewThumbnail.setImageBitmap(thumbnailBitmap)
 //
 //                    imageUri?.toBitmap(requireContext())?.save(requireContext(), true)
-                    val bitmap = imageUri?.rotateAndCenterCrop(requireContext(), Size(1000, 1000))
+//                    val bitmap = imageUri?.rotateAndCenterCrop(requireContext(), Size(562, 750))
+                    val bitmap = imageUri?.rotateAndCenterCrop(requireContext(), arrayOf(0.7f, 0.5f))
                     bitmap.save(requireContext(), true)
-
-                    // Debug.
-                    Timber.i(">>>>> Base64 : %s", bitmap.toBase64())
 
 //                    val bitmap = imageUri?.rotateAndCrop(
 //                        requireContext(),
@@ -112,8 +105,9 @@ internal class ShootFragment : BaseBindingFragment<FragmentShootBinding, ShootVi
         binding.buttonShooting.setOnClickListener {
 //            Intent(IntentKey.ACTION_TAKE_MULTIPLE_PICTURE).also { takePictureIntent ->
             Intent(IntentKey.ACTION_TAKE_PICTURE).also { takePictureIntent ->
-                takePictureIntent.putExtra(IntentKey.EXTRA_HAS_MUTE, false)
-                takePictureIntent.putExtra(IntentKey.EXTRA_CROP_PERCENT, arrayOf(0.5f, 0.5f))
+                takePictureIntent.putExtra(IntentKey.EXTRA_CAN_MUTE, true)
+                takePictureIntent.putExtra(IntentKey.EXTRA_CROP_PERCENT, arrayOf(0.7f, 0.5f))
+                takePictureIntent.putExtra(IntentKey.EXTRA_CAN_UI_ROTATION, true)
                 resultLauncher.launch(takePictureIntent)
             }
         }
