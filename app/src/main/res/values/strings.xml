@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">camera</string>
-
+    <string name="text_one_shoot">한 장 촬영</string>
+    <string name="text_multiple_shoot">여러 장 촬영</string>
 
     <!-- 권한. -->
     <string name="text_adb_camera_permission_title">권한 필요</string>

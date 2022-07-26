@@ -101,9 +101,8 @@ internal class ShootFragment : BaseBindingFragment<FragmentShootBinding, ShootVi
 
     // Init Listener.
     override fun initListener() {
-        // 촬영.
-        binding.buttonShooting.setOnClickListener {
-//            Intent(IntentKey.ACTION_TAKE_MULTIPLE_PICTURE).also { takePictureIntent ->
+        // 한장 촬영.
+        binding.buttonOneShoot.setOnClickListener {
             Intent(IntentKey.ACTION_TAKE_PICTURE).also { takePictureIntent ->
                 //takePictureIntent.putExtra(IntentKey.EXTRA_CAN_MUTE, true)
                 takePictureIntent.putExtra(IntentKey.EXTRA_CROP_PERCENT, arrayOf(0.7f, 0.5f))
@@ -111,6 +110,19 @@ internal class ShootFragment : BaseBindingFragment<FragmentShootBinding, ShootVi
                 resultLauncher.launch(takePictureIntent)
             }
         }
+
+        // 여러장 촬영.
+        binding.buttonMultipleShoot.setOnClickListener {
+            Intent(IntentKey.ACTION_TAKE_MULTIPLE_PICTURE).also { takePictureIntent ->
+                //takePictureIntent.putExtra(IntentKey.EXTRA_CAN_MUTE, true)
+                takePictureIntent.putExtra(IntentKey.EXTRA_CROP_PERCENT, arrayOf(0.7f, 0.5f))
+                takePictureIntent.putExtra(IntentKey.EXTRA_CAN_UI_ROTATION, true)
+                resultLauncher.launch(takePictureIntent)
+            }
+        }
+
+
+
     }
 
     // Init Callback.

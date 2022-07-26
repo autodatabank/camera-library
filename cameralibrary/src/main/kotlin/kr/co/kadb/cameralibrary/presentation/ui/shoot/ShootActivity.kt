@@ -64,9 +64,6 @@ internal class ShootActivity : BaseActivity() {
 			// This work only for android 4.4+
 			if (currentApiVersion >= Build.VERSION_CODES.KITKAT) {
 				window.decorView.systemUiVisibility = flags
-				// Code below is to handle presses of Volume up or Volume down.
-				// Without this, after pressing volume buttons, the navigation bar will
-				// show up and won't hide
 				val decorView = window.decorView
 				decorView.setOnSystemUiVisibilityChangeListener { visibility: Int ->
 					if (visibility and View.SYSTEM_UI_FLAG_FULLSCREEN == 0) {

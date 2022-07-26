@@ -18,13 +18,29 @@ android {
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles "consumer-rules.pro"
+
+        manifestPlaceholders = [hostName:"www.example.com"]
     }
 
     buildTypes {
+//        Random rnd = new Random()
+//        debug {
+//            debuggable true
+//            buildConfigField "boolean", "DEBUG_VERBOSE", "true"
+//            buildConfigField "int", "RAND", rnd
+//        }
+
         release {
+//            buildConfigField "int", "RAND", rnd
+//            buildConfigField "boolean", "DEBUG_VERBOSE", "true"
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
+//        buildTypes.each {
+//            it.buildConfigField "int", "RAND", rnd
+//            //it.buildConfigField 'String', 'APP_KEY_1', "AppKey"
+//            //it.resValue 'string', 'APP_KEY_2', AppKey
+//        }
     }
 
     compileOptions {
@@ -47,6 +63,11 @@ android {
         mlModelBinding true
     }
 
+    packagingOptions {
+        exclude 'META-INF/**'
+    }
+
+    // predix.
     resourcePrefix 'adb_cameralibrary_'
 
     namespace = 'kr.co.kadb.cameralibrary'
@@ -117,7 +138,7 @@ afterEvaluate {
                 // You can then customize attributes of the publication as shown below.
                 groupId = 'com.github.autodatabank'
                 artifactId = 'camera-library'
-                version = '0.0.1'
+                version = android.defaultConfig.versionName
             }
             // Creates a Maven publication called “debug”.
             debug(MavenPublication) {
@@ -126,7 +147,7 @@ afterEvaluate {
 
                 groupId = 'com.github.autodatabank'
                 artifactId = 'camera-library'
-                version = '0.0.1'
+                version = android.defaultConfig.versionName
             }
         }
     }
