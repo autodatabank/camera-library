@@ -1,5 +1,6 @@
 package kr.co.kadb.cameralibrary.presentation.model
 
+import android.net.Uri
 import android.util.Size
 
 /**
@@ -15,7 +16,7 @@ internal data class ShootUiState(
     val cropPercent: List<Float>,
 //    val unusedAreaWidth: Int,
 //    val unusedAreaHeight: Int,
-    val uris: ArrayList<String>,
+    val uris: ArrayList<Uri>,
     val sizes: ArrayList<Size>
 ) {
     /*class DiffCallback : DiffUtil.ItemCallback<NewsItemUiState>() {

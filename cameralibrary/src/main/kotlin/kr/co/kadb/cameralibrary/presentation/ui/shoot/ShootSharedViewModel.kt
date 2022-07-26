@@ -134,7 +134,7 @@ constructor(
                 this.add(Size(width ?: 0, height ?: 0))
             } ?: arrayListOf()
             val uris = uiState?.uris?.apply {
-                this.add(uri?.toString() ?: "")
+                this.add(uri ?: Uri.EMPTY)
             } ?: arrayListOf()
             state.value.value?.copy(
                 isShooted = true,
