@@ -103,9 +103,9 @@ internal class ShootFragment : BaseBindingFragment<FragmentShootBinding, ShootVi
     override fun initListener() {
         // 촬영.
         binding.buttonShooting.setOnClickListener {
-            Intent(IntentKey.ACTION_TAKE_MULTIPLE_PICTURE).also { takePictureIntent ->
-//            Intent(IntentKey.ACTION_TAKE_PICTURE).also { takePictureIntent ->
-                takePictureIntent.putExtra(IntentKey.EXTRA_CAN_MUTE, true)
+//            Intent(IntentKey.ACTION_TAKE_MULTIPLE_PICTURE).also { takePictureIntent ->
+            Intent(IntentKey.ACTION_TAKE_PICTURE).also { takePictureIntent ->
+                //takePictureIntent.putExtra(IntentKey.EXTRA_CAN_MUTE, true)
                 takePictureIntent.putExtra(IntentKey.EXTRA_CROP_PERCENT, arrayOf(0.7f, 0.5f))
                 takePictureIntent.putExtra(IntentKey.EXTRA_CAN_UI_ROTATION, true)
                 resultLauncher.launch(takePictureIntent)

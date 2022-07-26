@@ -10,7 +10,7 @@ constructor(context: Context) {
     private val preferences: SharedPreferences =
         context.getSharedPreferences(context.packageName, Context.MODE_PRIVATE)
     var flashMode: Int
-        get() = preferences.getInt("flashMode", 0)
+        get() = preferences.getInt("flashMode", 2)
         set(value) {
             val editor = preferences.edit()
             editor.putInt("flashMode", value)
