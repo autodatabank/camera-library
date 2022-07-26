@@ -47,6 +47,17 @@ constructor(
         }
         .stateIn(viewModelScope, SharingStarted.Eagerly, false)
 
+    var flashMode: Int = ImageCapture.FLASH_MODE_AUTO
+        get() = PreferenceManager.getInstance(
+            getApplication<Application>().applicationContext
+        ).flashMode
+        set(value) {
+            PreferenceManager.getInstance(
+                getApplication<Application>().applicationContext
+            ).flashMode = value
+            field = value
+        }
+
     init {
         // UIState.
         viewModelScope.launch {

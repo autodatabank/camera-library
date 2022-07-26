@@ -8,7 +8,7 @@
     <!-- 네트워크 상태. -->
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <!-- 외장 메모리(읽기). -->
-<!--    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />-->
+    <!--    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />-->
     <!-- 외장 메모리(쓰기). -->
     <uses-permission
         android:name="android.permission.WRITE_EXTERNAL_STORAGE"
@@ -23,7 +23,7 @@
     <application>
         <provider
             android:name="kr.co.kadb.cameralibrary.AdbCameraContentProvider"
-            android:authorities="kr.co.kadb.cameralibrary.provider"
+            android:authorities="${applicationId}.provider"
             android:exported="false"
             />
         <!-- 촬영. -->
@@ -31,7 +31,7 @@
             android:name=".presentation.ui.shoot.ShootActivity"
             android:clearTaskOnLaunch="true"
             android:configChanges="orientation|screenLayout|screenSize|smallestScreenSize"
-            android:exported="true"
+            android:exported="false"
             android:launchMode="singleTop"
             android:resizeableActivity="true"
             android:rotationAnimation="seamless"

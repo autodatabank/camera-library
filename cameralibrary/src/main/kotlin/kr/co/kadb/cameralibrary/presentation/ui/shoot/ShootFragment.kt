@@ -23,12 +23,14 @@ import android.media.MediaActionSound
 import android.view.OrientationEventListener
 import android.view.Surface
 import android.view.View
+import android.widget.ImageButton
 import androidx.camera.core.*
 import androidx.camera.core.CameraState.Type
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.content.ContextCompat
+import androidx.core.view.isVisible
 import androidx.fragment.app.activityViewModels
 import kr.co.kadb.cameralibrary.R
 import kr.co.kadb.cameralibrary.data.local.PreferenceManager
@@ -160,6 +162,23 @@ internal class ShootFragment :
             initCamera()
             initUnusedAreaLayout()
         }
+
+        // 여러장 촬영 상태에서만 촬영 완료 버튼 활성화.
+        binding.adbCameralibraryButtonFinish.isVisible = viewModel.item.value.isMultiplePicture
+        binding.adbCameralibraryTextviewFinish.isVisible = viewModel.item.value.isMultiplePicture
+
+        // 플래쉬.
+        when (viewModel.flashMode) {
+            ImageCapture.FLASH_MODE_OFF -> binding.adbCameralibraryButtonFlash.setImageResource(
+                R.drawable.adb_cameralibrary_ic_baseline_flash_off_white_48
+            )
+            ImageCapture.FLASH_MODE_ON -> binding.adbCameralibraryButtonFlash.setImageResource(
+                R.drawable.adb_cameralibrary_ic_baseline_flash_on_white_48
+            )
+            ImageCapture.FLASH_MODE_AUTO -> binding.adbCameralibraryButtonFlash.setImageResource(
+                R.drawable.adb_cameralibrary_ic_baseline_flash_auto_white_48
+            )
+        }
     }
 
     // Init Observer.
@@ -235,6 +254,32 @@ internal class ShootFragment :
 
         // 플래쉬.
         binding.adbCameralibraryButtonFlash.setOnClickListener {
+            viewModel.flashMode = when (viewModel.flashMode) {
+                ImageCapture.FLASH_MODE_OFF -> {
+                    (it as ImageButton).setImageResource(
+                        R.drawable.adb_cameralibrary_ic_baseline_flash_on_white_48
+                    )
+                    ImageCapture.FLASH_MODE_ON
+                }
+                ImageCapture.FLASH_MODE_ON -> {
+                    (it as ImageButton).setImageResource(
+                        R.drawable.adb_cameralibrary_ic_baseline_flash_auto_white_48
+                    )
+                    ImageCapture.FLASH_MODE_AUTO
+                }
+                else -> {
+                    (it as ImageButton).setImageResource(
+                        R.drawable.adb_cameralibrary_ic_baseline_flash_off_white_48
+                    )
+                    ImageCapture.FLASH_MODE_OFF
+                }
+
+            }
+            imageCapture?.flashMode = viewModel.flashMode
+        }
+
+        // 촬영종료.
+        binding.adbCameralibraryButtonFinish.setOnClickListener {
             Intent().apply {
                 action = viewModel.item.value.action
                 putExtra(IntentKey.EXTRA_URIS, viewModel.item.value.uris)
@@ -351,13 +396,6 @@ internal class ShootFragment :
                     }
                 }
             }
-
-            // Debug.
-            Timber.i(">>>>> initLayout rotation : ${imageCapture?.targetRotation}")
-            Timber.i(">>>>> initLayout previewView width : ${binding.adbCameralibraryViewUnusedArea.width}")
-            Timber.i(">>>>> initLayout previewView height : ${binding.adbCameralibraryViewUnusedArea.height}")
-            Timber.i(">>>>> initLayout unusedArea width : $unusedAreaWidth")
-            Timber.i(">>>>> initLayout unusedArea height : $unusedAreaHeight")
         }
     }
 
@@ -407,6 +445,7 @@ internal class ShootFragment :
             .setCaptureMode(ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY)
             .setTargetAspectRatio(AspectRatio.RATIO_4_3)
             .setTargetRotation(rotation)
+            .setFlashMode(viewModel.flashMode)
             .build()
 
         // ImageAnalysis
@@ -424,6 +463,9 @@ internal class ShootFragment :
             camera = cameraProvider.bindToLifecycle(
                 this, cameraSelector, preview, imageCapture, imageAnalyzer
             )
+//            camera?.cameraInfo?.hasFlashUnit()
+//            camera?.cameraControl?.enableTorch(true)
+
             // Attach the viewfinder's surface provider to preview use case
             preview?.setSurfaceProvider(binding.adbCameralibraryPreviewView.surfaceProvider)
             //

@@ -96,5 +96,29 @@
             app:layout_constraintStart_toStartOf="parent"
             app:srcCompat="@drawable/adb_cameralibrary_selector_ic_baseline_camera_white_64"
             />
+        <!-- 완료. -->
+        <androidx.appcompat.widget.AppCompatImageButton
+            android:id="@+id/adb_cameralibrary_button_finish"
+            android:layout_width="@dimen/adb_cameralibrary_dp56"
+            android:layout_height="@dimen/adb_cameralibrary_dp56"
+            android:layout_margin="@dimen/adb_cameralibrary_dp56"
+            android:background="@null"
+            android:scaleType="fitCenter"
+            app:layout_constraintBottom_toBottomOf="@+id/adb_cameralibrary_button_shooting"
+            app:layout_constraintStart_toEndOf="@+id/adb_cameralibrary_button_shooting"
+            app:layout_constraintTop_toTopOf="@+id/adb_cameralibrary_button_shooting"
+            app:srcCompat="@drawable/adb_cameralibrary_selector_ic_baseline_next_plan_white_64"
+            />
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/adb_cameralibrary_textview_finish"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="촬영종료"
+            android:textColor="@color/adb_cameralibrary_white"
+            android:textSize="14sp"
+            app:layout_constraintEnd_toEndOf="@+id/adb_cameralibrary_button_finish"
+            app:layout_constraintStart_toStartOf="@+id/adb_cameralibrary_button_finish"
+            app:layout_constraintTop_toBottomOf="@+id/adb_cameralibrary_button_finish"
+            />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>
