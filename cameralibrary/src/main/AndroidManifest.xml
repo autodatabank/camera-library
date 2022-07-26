@@ -21,11 +21,6 @@
     <uses-permission android:name="android.permission.CAMERA" />
 
     <application>
-        <provider
-            android:name="kr.co.kadb.cameralibrary.AdbCameraContentProvider"
-            android:authorities="${applicationId}.provider"
-            android:exported="false"
-            />
         <!-- 촬영. -->
         <activity
             android:name=".presentation.ui.shoot.ShootActivity"
