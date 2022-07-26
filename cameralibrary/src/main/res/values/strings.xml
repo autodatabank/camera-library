@@ -1,5 +1,5 @@
 <resources>
-    <string name="adb_cameralibrary_text_app_name">camera</string>
+    <string name="adb_cameralibrary_text_app_name">adbcamerax</string>
 
 
     <!-- 권한. -->
