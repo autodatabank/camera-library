@@ -64,6 +64,8 @@
 	<color name="adb_cameralibrary_bg_cover">#55000000</color>
     <color name="adb_cameralibrary_bg_claimed">#8096BDED</color>
     <color name="adb_cameralibrary_bg_camera_unused_area">#AA000000</color>
+    <color name="adb_cameralibrary_bg_camera_unused_area_line">#AA00FF00</color>
+    <color name="adb_cameralibrary_bg_camera_unused_area_horizon">#AAFF0000</color>
 
 
     <!-- Default. -->

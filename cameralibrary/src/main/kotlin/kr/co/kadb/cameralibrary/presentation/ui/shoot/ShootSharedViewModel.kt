@@ -14,7 +14,7 @@ import kr.co.kadb.cameralibrary.presentation.model.UiState
 import kr.co.kadb.cameralibrary.presentation.viewmodel.BaseAndroidViewModel
 import kr.co.kadb.cameralibrary.presentation.widget.extension.outputFileOptionsBuilder
 import kr.co.kadb.cameralibrary.presentation.widget.extension.toJsonPretty
-import kr.co.kadb.cameralibrary.presentation.widget.util.IntentKey.ACTION_TAKE_MULTIPLE_PICTURE
+import kr.co.kadb.cameralibrary.presentation.widget.util.IntentKey.ACTION_TAKE_MULTIPLE_PICTURES
 import timber.log.Timber
 
 /**
@@ -72,6 +72,7 @@ constructor(
     fun initUiState(
         action: String?,
         canMute: Boolean = false,
+        hasHorizon: Boolean = false,
         canUiRotation: Boolean = false,
         cropPercent: Array<Float>?
     ) {
@@ -86,16 +87,18 @@ constructor(
             state.value.value?.copy(
                 action = action,
                 isShooted = false,
-                isMultiplePicture = action == ACTION_TAKE_MULTIPLE_PICTURE,
+                isMultiplePicture = action == ACTION_TAKE_MULTIPLE_PICTURES,
                 canMute = canMute,
+                hasHorizon = hasHorizon,
                 canUiRotation = canUiRotation,
                 cropPercent = cropPercent?.toList() ?: listOf()
             )
         } ?: ShootUiState(
             action = action,
             isShooted = false,
-            isMultiplePicture = action == ACTION_TAKE_MULTIPLE_PICTURE,
+            isMultiplePicture = action == ACTION_TAKE_MULTIPLE_PICTURES,
             canMute = canMute,
+            hasHorizon = hasHorizon,
             canUiRotation = canUiRotation,
             cropPercent = cropPercent?.toList() ?: listOf(),
             uris = arrayListOf(),

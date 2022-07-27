@@ -12,6 +12,7 @@ import kr.co.kadb.camera.data.local.PreferenceManager
 import kr.co.kadb.camera.databinding.FragmentShootBinding
 import kr.co.kadb.camera.presentation.base.BaseBindingFragment
 import kr.co.kadb.camera.presentation.widget.extension.save
+import kr.co.kadb.cameralibrary.presentation.CameraIntent
 import kr.co.kadb.cameralibrary.presentation.widget.extension.rotateAndCenterCrop
 import kr.co.kadb.cameralibrary.presentation.widget.util.IntentKey
 import timber.log.Timber
@@ -74,7 +75,7 @@ internal class ShootFragment : BaseBindingFragment<FragmentShootBinding, ShootVi
                     Timber.i(">>>>> TAKE_PICTURE imageUri : $imageUri")
                     Timber.i(">>>>> TAKE_PICTURE imageWidth : $imageWidth")
                     Timber.i(">>>>> TAKE_PICTURE imageHeight : $imageHeight")
-                } else if (intent?.action == IntentKey.ACTION_TAKE_MULTIPLE_PICTURE) {
+                } else if (intent?.action == IntentKey.ACTION_TAKE_MULTIPLE_PICTURES) {
                     // 여러장.
                     // 이미지 URI.
                     val imageUris = intent.getStringArrayListExtra(IntentKey.EXTRA_URIS)
@@ -103,26 +104,43 @@ internal class ShootFragment : BaseBindingFragment<FragmentShootBinding, ShootVi
     override fun initListener() {
         // 한장 촬영.
         binding.buttonOneShoot.setOnClickListener {
-            Intent(IntentKey.ACTION_TAKE_PICTURE).also { takePictureIntent ->
-                //takePictureIntent.putExtra(IntentKey.EXTRA_CAN_MUTE, true)
-                takePictureIntent.putExtra(IntentKey.EXTRA_CROP_PERCENT, arrayOf(0.7f, 0.5f))
-                takePictureIntent.putExtra(IntentKey.EXTRA_CAN_UI_ROTATION, true)
-                resultLauncher.launch(takePictureIntent)
+//            Intent(IntentKey.ACTION_TAKE_PICTURE).also { takePictureIntent ->
+//                takePictureIntent.putExtra(IntentKey.EXTRA_CAN_MUTE, false)
+//                takePictureIntent.putExtra(IntentKey.EXTRA_HAS_HORIZON, true)
+//                takePictureIntent.putExtra(IntentKey.EXTRA_CROP_PERCENT, arrayOf(0.7f, 0.5f))
+//                takePictureIntent.putExtra(IntentKey.EXTRA_CAN_UI_ROTATION, true)
+//                resultLauncher.launch(takePictureIntent)
+//            }
+            CameraIntent.Build(requireActivity()).apply {
+                setAction(IntentKey.ACTION_TAKE_PICTURE)
+                setCanMute(false)
+                setHasHorizon(true)
+                setCropPercent(arrayOf(0.7f, 0.5f))
+                setCanUiRotation(true)
+            }.run {
+                resultLauncher.launch(this.build())
             }
         }
 
         // 여러장 촬영.
         binding.buttonMultipleShoot.setOnClickListener {
-            Intent(IntentKey.ACTION_TAKE_MULTIPLE_PICTURE).also { takePictureIntent ->
-                //takePictureIntent.putExtra(IntentKey.EXTRA_CAN_MUTE, true)
-                takePictureIntent.putExtra(IntentKey.EXTRA_CROP_PERCENT, arrayOf(0.7f, 0.5f))
-                takePictureIntent.putExtra(IntentKey.EXTRA_CAN_UI_ROTATION, true)
-                resultLauncher.launch(takePictureIntent)
+//            Intent(IntentKey.ACTION_TAKE_MULTIPLE_PICTURES).also { takePictureIntent ->
+//                takePictureIntent.putExtra(IntentKey.EXTRA_CAN_MUTE, false)
+//                takePictureIntent.putExtra(IntentKey.EXTRA_HAS_HORIZON, true)
+//                takePictureIntent.putExtra(IntentKey.EXTRA_CROP_PERCENT, arrayOf(0.7f, 0.5f))
+//                takePictureIntent.putExtra(IntentKey.EXTRA_CAN_UI_ROTATION, true)
+//                resultLauncher.launch(takePictureIntent)
+//            }
+            CameraIntent.Build(requireActivity()).apply {
+                setAction(IntentKey.ACTION_TAKE_MULTIPLE_PICTURES)
+                setCanMute(false)
+                setHasHorizon(true)
+                setCropPercent(arrayOf(0.7f, 0.5f))
+                setCanUiRotation(true)
+            }.run {
+                resultLauncher.launch(this.build())
             }
         }
-
-
-
     }
 
     // Init Callback.

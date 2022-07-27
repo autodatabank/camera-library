@@ -28,9 +28,8 @@
             android:adjustViewBounds="true"
             android:background="@color/disable"
             android:scaleType="fitCenter"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/imageview"
+            app:layout_constraintBottom_toBottomOf="@+id/imageview"
+            app:layout_constraintEnd_toEndOf="@+id/imageview"
             />
         <!-- 한 장 촬영. -->
         <androidx.appcompat.widget.AppCompatButton

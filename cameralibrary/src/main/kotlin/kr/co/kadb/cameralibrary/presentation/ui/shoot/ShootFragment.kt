@@ -23,6 +23,7 @@ import android.media.MediaActionSound
 import android.view.OrientationEventListener
 import android.view.Surface
 import android.view.View
+import android.view.animation.AccelerateDecelerateInterpolator
 import android.widget.ImageButton
 import androidx.camera.core.*
 import androidx.camera.core.CameraState.Type
@@ -32,6 +33,9 @@ import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import androidx.fragment.app.activityViewModels
+import androidx.transition.ChangeBounds
+import androidx.transition.TransitionManager
+import androidx.transition.addListener
 import kr.co.kadb.cameralibrary.R
 import kr.co.kadb.cameralibrary.data.local.PreferenceManager
 import kr.co.kadb.cameralibrary.databinding.AdbCameralibraryFragmentShootBinding
@@ -134,6 +138,7 @@ internal class ShootFragment :
     }
 
     override fun onBackPressed(): Boolean {
+        Intent(context, ShootActivity::class.java)
         Intent().apply {
             action = viewModel.item.value.action
             putExtra(IntentKey.EXTRA_URIS, viewModel.item.value.uris)
@@ -299,7 +304,7 @@ internal class ShootFragment :
     // Init Unused area layout.
     private fun initUnusedAreaLayout() {
         // Debug.
-        Timber.i(">>>>> initUnusedAreaLayout")
+        Timber.i(">>>>> initUnusedAreaLayout rotation : %s", imageCapture?.targetRotation)
         binding.adbCameralibraryViewUnusedArea.post {
             val (unusedAreaWidth, unusedAreaHeight) = viewModel.unusedAreaSize(
                 imageCapture?.targetRotation ?: 0,
@@ -372,7 +377,7 @@ internal class ShootFragment :
                         unusedAreaWidth,
                         0
                     )
-                    ConstraintSet().let {
+                    ConstraintSet().also {
                         it.clone(binding.adbCameralibraryViewUnusedArea)
                         it.connect(
                             id,
@@ -394,6 +399,63 @@ internal class ShootFragment :
                         )
                         it.applyTo(binding.adbCameralibraryViewUnusedArea)
                     }
+                }
+                binding.adbCameralibraryViewUnusedAreaHorizon.apply {
+                    layoutParams = ConstraintLayout.LayoutParams(1, 1)
+                    ConstraintSet().also {
+                        it.clone(binding.adbCameralibraryViewUnusedArea)
+                        it.connect(
+                            id,
+                            ConstraintSet.START,
+                            binding.adbCameralibraryViewUnusedArea.id,
+                            ConstraintSet.START
+                        )
+                        it.connect(
+                            id,
+                            ConstraintSet.END,
+                            binding.adbCameralibraryViewUnusedArea.id,
+                            ConstraintSet.END
+                        )
+                        it.connect(
+                            id,
+                            ConstraintSet.TOP,
+                            binding.adbCameralibraryViewUnusedArea.id,
+                            ConstraintSet.TOP
+                        )
+                        it.connect(
+                            id,
+                            ConstraintSet.BOTTOM,
+                            binding.adbCameralibraryViewUnusedArea.id,
+                            ConstraintSet.BOTTOM
+                        )
+                        it.applyTo(binding.adbCameralibraryViewUnusedArea)
+                    }
+                }.run {
+                    val transition = ChangeBounds()
+                    transition.interpolator = AccelerateDecelerateInterpolator()
+                    transition.addListener(onEnd = {
+                        val parentView = binding.adbCameralibraryViewUnusedArea
+                        val (width, height) = when (imageCapture?.targetRotation ?: 0) {
+                            1, 3 -> Pair(2, 0)
+                            else -> Pair(0, 2)
+                        }
+                        layoutParams = ConstraintLayout.LayoutParams(width, height)
+                        val constraintSet = ConstraintSet()
+                        constraintSet.clone(parentView)
+                        constraintSet.connect(id, ConstraintSet.START, parentView.id, ConstraintSet.START)
+                        constraintSet.connect(id, ConstraintSet.END, parentView.id, ConstraintSet.END)
+                        constraintSet.connect(id, ConstraintSet.TOP, parentView.id, ConstraintSet.TOP)
+                        constraintSet.connect(id, ConstraintSet.BOTTOM, parentView.id, ConstraintSet.BOTTOM)
+                        constraintSet.applyTo(parentView)
+                        val innerTransition = ChangeBounds()
+                        innerTransition.interpolator = AccelerateDecelerateInterpolator()
+                        TransitionManager.beginDelayedTransition(
+                            binding.adbCameralibraryViewUnusedArea, innerTransition
+                        )
+                    })
+                    TransitionManager.beginDelayedTransition(
+                        binding.adbCameralibraryViewUnusedArea, transition
+                    )
                 }
             }
         }

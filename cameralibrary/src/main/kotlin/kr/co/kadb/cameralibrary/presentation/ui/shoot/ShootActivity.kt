@@ -31,10 +31,11 @@ internal class ShootActivity : BaseActivity() {
 
 		val action = intent.action
 		val canMute = intent.getBooleanExtra(IntentKey.EXTRA_CAN_MUTE, false)
+		val hasHorizon = intent.getBooleanExtra(IntentKey.EXTRA_HAS_HORIZON, false)
 		val canUiRotation = intent.getBooleanExtra(IntentKey.EXTRA_CAN_UI_ROTATION, false)
 		@Suppress("UNCHECKED_CAST")
 		val cropPercent = intent.getSerializableExtra(IntentKey.EXTRA_CROP_PERCENT) as? Array<Float>
-		viewModel.initUiState(action, canMute, canUiRotation, cropPercent)
+		viewModel.initUiState(action, canMute, hasHorizon, canUiRotation, cropPercent)
 		if (savedInstanceState == null) {
 			viewController.navigateToShooting()
 		}
