@@ -47,6 +47,7 @@ import kr.co.kadb.cameralibrary.presentation.widget.util.MediaActionSound2
 import timber.log.Timber
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
+import java.util.concurrent.TimeUnit
 
 /**
  * Modified by oooobang on 2022. 7. 16..
@@ -110,11 +111,12 @@ internal class ShootFragment :
                     else -> Surface.ROTATION_0
                 }
 
+                // 회전에 따른 UI 변경.
                 if (viewModel.item.value.canUiRotation && imageCapture?.targetRotation != rotation) {
                     initUnusedAreaLayout()
                 }
 
-                //preview?.targetRotation = rotation
+                // Rotation 갱신.
                 imageCapture?.targetRotation = rotation
                 imageAnalyzer?.targetRotation = rotation
             }
@@ -162,17 +164,19 @@ internal class ShootFragment :
 
     // Init Layout.
     override fun initLayout(view: View) {
-        // 카메라 권한 요청.
+        // 권한 확인 후 카메라 및 UI 초기화.
         viewController.requestCameraPermission {
             initCamera()
             initUnusedAreaLayout()
         }
 
         // 여러장 촬영 상태에서만 촬영 완료 버튼 활성화.
-        binding.adbCameralibraryButtonFinish.isVisible = viewModel.item.value.isMultiplePicture
-        binding.adbCameralibraryTextviewFinish.isVisible = viewModel.item.value.isMultiplePicture
+        viewModel.item.value.isMultiplePicture.also {
+            binding.adbCameralibraryButtonFinish.isVisible = it
+            binding.adbCameralibraryTextviewFinish.isVisible = it
+        }
 
-        // 플래쉬.
+        // 플래쉬 초기 아이콘 상태.
         when (viewModel.flashMode) {
             ImageCapture.FLASH_MODE_OFF -> binding.adbCameralibraryButtonFlash.setImageResource(
                 R.drawable.adb_cameralibrary_ic_baseline_flash_off_white_48
@@ -221,10 +225,6 @@ internal class ShootFragment :
                 // 촬영 후 이미지 저장.
                 imageCapture.takePicture(
                     outputOptions, cameraExecutor, object : ImageCapture.OnImageSavedCallback {
-                        override fun onError(exc: ImageCaptureException) {
-                            Timber.e(">>>>> ImageCapture onError: ${exc.message}")
-                        }
-
                         override fun onImageSaved(output: ImageCapture.OutputFileResults) {
                             // Debug.
                             Timber.i(">>>>> ImageCapture onImageSaved: ${output.savedUri}")
@@ -252,6 +252,10 @@ internal class ShootFragment :
                                     thumbnail?.recycle()
                                 }
                             }
+                        }
+
+                        override fun onError(exc: ImageCaptureException) {
+                            Timber.e(">>>>> ImageCapture onError: ${exc.message}")
                         }
                     })
             }
@@ -303,8 +307,16 @@ internal class ShootFragment :
 
     // Init Unused area layout.
     private fun initUnusedAreaLayout() {
-        // Debug.
-        Timber.i(">>>>> initUnusedAreaLayout rotation : %s", imageCapture?.targetRotation)
+        // 크롭지정 시 영역 표시 라인 활성화.
+        viewModel.item.value.cropPercent.let {
+            it.size == 2
+        }.also {
+            binding.adbCameralibraryViewUnusedAreaLineTop.isVisible = it
+            binding.adbCameralibraryViewUnusedAreaLineEnd.isVisible = it
+            binding.adbCameralibraryViewUnusedAreaLineStart.isVisible = it
+            binding.adbCameralibraryViewUnusedAreaLineBottom.isVisible = it
+        }
+
         binding.adbCameralibraryViewUnusedArea.post {
             val (unusedAreaWidth, unusedAreaHeight) = viewModel.unusedAreaSize(
                 imageCapture?.targetRotation ?: 0,
@@ -442,10 +454,30 @@ internal class ShootFragment :
                         layoutParams = ConstraintLayout.LayoutParams(width, height)
                         val constraintSet = ConstraintSet()
                         constraintSet.clone(parentView)
-                        constraintSet.connect(id, ConstraintSet.START, parentView.id, ConstraintSet.START)
-                        constraintSet.connect(id, ConstraintSet.END, parentView.id, ConstraintSet.END)
-                        constraintSet.connect(id, ConstraintSet.TOP, parentView.id, ConstraintSet.TOP)
-                        constraintSet.connect(id, ConstraintSet.BOTTOM, parentView.id, ConstraintSet.BOTTOM)
+                        constraintSet.connect(
+                            id,
+                            ConstraintSet.START,
+                            parentView.id,
+                            ConstraintSet.START
+                        )
+                        constraintSet.connect(
+                            id,
+                            ConstraintSet.END,
+                            parentView.id,
+                            ConstraintSet.END
+                        )
+                        constraintSet.connect(
+                            id,
+                            ConstraintSet.TOP,
+                            parentView.id,
+                            ConstraintSet.TOP
+                        )
+                        constraintSet.connect(
+                            id,
+                            ConstraintSet.BOTTOM,
+                            parentView.id,
+                            ConstraintSet.BOTTOM
+                        )
                         constraintSet.applyTo(parentView)
                         val innerTransition = ChangeBounds()
                         innerTransition.interpolator = AccelerateDecelerateInterpolator()
@@ -504,6 +536,7 @@ internal class ShootFragment :
 
         // ImageCapture
         imageCapture = ImageCapture.Builder()
+            //.setJpegQuality(50)
             .setCaptureMode(ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY)
             .setTargetAspectRatio(AspectRatio.RATIO_4_3)
             .setTargetRotation(rotation)
@@ -527,6 +560,22 @@ internal class ShootFragment :
             )
 //            camera?.cameraInfo?.hasFlashUnit()
 //            camera?.cameraControl?.enableTorch(true)
+
+            val autoFocusPoint = SurfaceOrientedMeteringPointFactory(1f, 1f)
+                .createPoint(.5f, .5f)
+            val autoFocusAction = FocusMeteringAction.Builder(
+                autoFocusPoint,
+                FocusMeteringAction.FLAG_AF
+            ).apply {
+                //start auto-focusing after 2 seconds
+                setAutoCancelDuration(2, TimeUnit.SECONDS)
+            }.build()
+            val focusListenableFuture = camera?.cameraControl?.startFocusAndMetering(autoFocusAction)?.addListener({
+            //camera?.cameraControl?.startFocusAndMetering(FocusMeteringAction.FLAG_AF)?.addListener({
+//                val result = focusListenableFuture.get()
+//                val isSuccessful = result.isFocusSuccessful
+                Timber.i(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> startFocusAndMetering")
+            }, ContextCompat.getMainExecutor(requireContext()))
 
             // Attach the viewfinder's surface provider to preview use case
             preview?.setSurfaceProvider(binding.adbCameralibraryPreviewView.surfaceProvider)

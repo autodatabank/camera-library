@@ -15,8 +15,6 @@ internal data class ShootUiState(
     val hasHorizon: Boolean,
     val canUiRotation: Boolean,
     val cropPercent: List<Float>,
-//    val unusedAreaWidth: Int,
-//    val unusedAreaHeight: Int,
     val uris: ArrayList<Uri>,
     val sizes: ArrayList<Size>
 ) {
@@ -40,8 +38,6 @@ internal data class ShootUiState(
             hasHorizon = false,
             canUiRotation = false,
             cropPercent = listOf(),
-//            unusedAreaWidth = 0,
-//            unusedAreaHeight = 0,
             uris = arrayListOf(),
             sizes = arrayListOf()
         )

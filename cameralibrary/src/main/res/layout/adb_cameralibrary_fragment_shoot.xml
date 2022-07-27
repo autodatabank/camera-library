@@ -35,7 +35,7 @@
             <View
                 android:id="@+id/adb_cameralibrary_view_unused_area_top"
                 android:layout_width="0dp"
-                android:layout_height="0dp"
+                android:layout_height="1dp"
                 android:background="@color/adb_cameralibrary_bg_camera_unused_area"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -44,7 +44,7 @@
             <View
                 android:id="@+id/adb_cameralibrary_view_unused_area_bottom"
                 android:layout_width="0dp"
-                android:layout_height="0dp"
+                android:layout_height="1dp"
                 android:background="@color/adb_cameralibrary_bg_camera_unused_area"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -52,7 +52,7 @@
                 />
             <View
                 android:id="@+id/adb_cameralibrary_view_unused_area_start"
-                android:layout_width="0dp"
+                android:layout_width="1dp"
                 android:layout_height="0dp"
                 android:background="@color/adb_cameralibrary_bg_camera_unused_area"
                 app:layout_constraintBottom_toTopOf="@+id/adb_cameralibrary_view_unused_area_bottom"
@@ -61,7 +61,7 @@
                 />
             <View
                 android:id="@+id/adb_cameralibrary_view_unused_area_end"
-                android:layout_width="0dp"
+                android:layout_width="1dp"
                 android:layout_height="0dp"
                 android:background="@color/adb_cameralibrary_bg_camera_unused_area"
                 app:layout_constraintBottom_toTopOf="@+id/adb_cameralibrary_view_unused_area_bottom"
@@ -71,37 +71,37 @@
             <View
                 android:id="@+id/adb_cameralibrary_view_unused_area_line_top"
                 android:layout_width="0dp"
-                android:layout_height="0dp"
+                android:layout_height="1dp"
                 android:background="@color/adb_cameralibrary_bg_camera_unused_area_line"
-                app:layout_constraintBottom_toTopOf="@+id/adb_cameralibrary_view_unused_area_top"
+                app:layout_constraintBottom_toBottomOf="@+id/adb_cameralibrary_view_unused_area_top"
                 app:layout_constraintEnd_toStartOf="@+id/adb_cameralibrary_view_unused_area_end"
                 app:layout_constraintStart_toEndOf="@+id/adb_cameralibrary_view_unused_area_start"
                 />
             <View
                 android:id="@+id/adb_cameralibrary_view_unused_area_line_bottom"
                 android:layout_width="0dp"
-                android:layout_height="0dp"
+                android:layout_height="1dp"
                 android:background="@color/adb_cameralibrary_bg_camera_unused_area_line"
                 app:layout_constraintEnd_toStartOf="@+id/adb_cameralibrary_view_unused_area_end"
                 app:layout_constraintStart_toEndOf="@+id/adb_cameralibrary_view_unused_area_start"
-                app:layout_constraintTop_toBottomOf="@+id/adb_cameralibrary_view_unused_area_bottom"
+                app:layout_constraintTop_toTopOf="@+id/adb_cameralibrary_view_unused_area_bottom"
                 />
             <View
                 android:id="@+id/adb_cameralibrary_view_unused_area_line_start"
-                android:layout_width="0dp"
+                android:layout_width="1dp"
                 android:layout_height="0dp"
                 android:background="@color/adb_cameralibrary_bg_camera_unused_area_line"
                 app:layout_constraintBottom_toTopOf="@+id/adb_cameralibrary_view_unused_area_bottom"
-                app:layout_constraintEnd_toStartOf="@+id/adb_cameralibrary_view_unused_area_start"
+                app:layout_constraintEnd_toEndOf="@+id/adb_cameralibrary_view_unused_area_start"
                 app:layout_constraintTop_toBottomOf="@+id/adb_cameralibrary_view_unused_area_top"
                 />
             <View
                 android:id="@+id/adb_cameralibrary_view_unused_area_line_end"
-                android:layout_width="0dp"
+                android:layout_width="1dp"
                 android:layout_height="0dp"
                 android:background="@color/adb_cameralibrary_bg_camera_unused_area_line"
                 app:layout_constraintBottom_toTopOf="@+id/adb_cameralibrary_view_unused_area_bottom"
-                app:layout_constraintStart_toEndOf="@+id/adb_cameralibrary_view_unused_area_end"
+                app:layout_constraintStart_toStartOf="@+id/adb_cameralibrary_view_unused_area_end"
                 app:layout_constraintTop_toBottomOf="@+id/adb_cameralibrary_view_unused_area_top"
                 />
             <View

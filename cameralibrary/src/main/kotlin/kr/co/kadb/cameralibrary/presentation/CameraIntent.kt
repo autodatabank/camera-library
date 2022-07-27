@@ -4,14 +4,13 @@ import android.content.Context
 import android.content.Intent
 import kr.co.kadb.cameralibrary.presentation.ui.shoot.ShootActivity
 import kr.co.kadb.cameralibrary.presentation.widget.util.IntentKey
-import kotlin.reflect.KClass
 
 /**
- * Created by oooobang on 2020. 2. 3..
- * Controller.
+ * Created by oooobang on 2022. 7. 27..
+ * 카메라용 Intent Builder.
  */
 class CameraIntent {
-    //
+    // 한 장 촬영.
     fun navigateToTakePicture(
         activityContext: Context,
         canMute: Boolean? = null,
@@ -36,7 +35,7 @@ class CameraIntent {
         }
     }
 
-    //
+    // 여러 장 촬영.
     fun navigateToTakeMultiplePictures(
         activityContext: Context,
         canMute: Boolean? = null,
@@ -60,21 +59,8 @@ class CameraIntent {
             }
         }
     }
-//
-//    constructor(activityContext: Context, cls: KClass<*>) {
-//
-//    }
-//
-//    private constructor(build: Build) {
-//        Intent().also { cameraIntent ->
-//            cameraIntent.action = build.action
-//            cameraIntent.putExtra(IntentKey.EXTRA_CAN_MUTE, build.canMute)
-//            cameraIntent.putExtra(IntentKey.EXTRA_HAS_HORIZON, build.hasHorizon)
-//            cameraIntent.putExtra(IntentKey.EXTRA_CROP_PERCENT, this.cropPercent)
-//            cameraIntent.putExtra(IntentKey.EXTRA_CAN_UI_ROTATION, this.canUiRotation)
-//        }
-//    }
 
+    // Builder.
     class Build(private val activityContext: Context) {
         private var action: String? = null
         private var canMute: Boolean? = null
