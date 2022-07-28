@@ -18,13 +18,18 @@ package kr.co.kadb.cameralibrary.presentation.ui.shoot
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
+import android.hardware.camera2.*
 import android.media.AudioManager
 import android.media.MediaActionSound
+import android.os.Handler
+import android.os.HandlerThread
+import android.os.Message
 import android.view.OrientationEventListener
 import android.view.Surface
 import android.view.View
 import android.view.animation.AccelerateDecelerateInterpolator
 import android.widget.ImageButton
+import androidx.camera.camera2.interop.Camera2Interop
 import androidx.camera.core.*
 import androidx.camera.core.CameraState.Type
 import androidx.camera.lifecycle.ProcessCameraProvider
@@ -33,9 +38,14 @@ import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.transition.ChangeBounds
 import androidx.transition.TransitionManager
 import androidx.transition.addListener
+import kotlinx.coroutines.asCoroutineDispatcher
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import kr.co.kadb.cameralibrary.R
 import kr.co.kadb.cameralibrary.data.local.PreferenceManager
 import kr.co.kadb.cameralibrary.databinding.AdbCameralibraryFragmentShootBinding
@@ -48,6 +58,7 @@ import timber.log.Timber
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
+
 
 /**
  * Modified by oooobang on 2022. 7. 16..
@@ -192,30 +203,84 @@ internal class ShootFragment :
 
     // Init Observer.
     override fun initObserver() {
+
+        binding.adbCameralibraryPreviewView.previewStreamState.observe(viewLifecycleOwner) {
+            Timber.i(">>>>>>>>>> previewStreamState[1] : %s", it.name)
+            Timber.i(">>>>>>>>>> previewStreamState[2] : %s", it.toString())
+        }
+    }
+
+    // 촬영 후 이미지 저장.
+    val imageSavedCallback = object : ImageCapture.OnImageSavedCallback {
+        override fun onImageSaved(output: ImageCapture.OutputFileResults) {
+            if (viewModel.item.value.canMute) {
+                // 미디어 볼륨으로 셔터효과음 재생.
+                mediaActionSound.playWithStreamVolume(
+                    MediaActionSound.SHUTTER_CLICK,
+                    audioManager
+                )
+            } else {
+                // 최소 볼륨으로 셔터효과음 재생.
+                mediaActionSound.playWithMinimumVolume(
+                    MediaActionSound.SHUTTER_CLICK
+                )
+            }
+
+            // Debug.
+            Timber.i(">>>>> ImageCapture onImageSaved: ${output.savedUri}")
+
+            // Exif Logging.
+            val exif = output.savedUri?.exif(requireContext())
+
+            // Result.
+            if (viewModel.item.value.isMultiplePicture) {
+                viewModel.pressedShutter(output.savedUri, exif?.width, exif?.height)
+            } else {
+                // Thumbnail Bitmap.
+                val thumbnail = output.savedUri?.toThumbnail(requireContext(), exif)
+                // 결과 전달.
+                Intent().apply {
+                    action = viewModel.item.value.action
+                    putExtra("data", thumbnail)
+                    putExtra(IntentKey.EXTRA_WIDTH, exif?.width)
+                    putExtra(IntentKey.EXTRA_HEIGHT, exif?.height)
+                    setDataAndType(output.savedUri, "image/jpeg")
+                }.also {
+                    requireActivity().setResult(Activity.RESULT_OK, it)
+                }.run {
+                    activity?.finish()
+                    thumbnail?.recycle()
+                }
+            }
+        }
+
+        override fun onError(exc: ImageCaptureException) {
+            Timber.e(">>>>> ImageCapture onError: ${exc.message}")
+        }
     }
 
     // Init Listener.
     override fun initListener() {
         // 촬영.
         binding.adbCameralibraryButtonShooting.setOnClickListener {
+            // Debug.
+            Timber.d(">>>>> Shooting OnClickListener")
             //
             viewModel.item.value.also {
                 if (it.isShooted && !it.isMultiplePicture) {
                     return@setOnClickListener
                 }
-                if (it.canMute) {
-                    // 미디어 볼륨으로 셔터효과음 재생.
-                    mediaActionSound.playWithStreamVolume(
-                        MediaActionSound.SHUTTER_CLICK,
-                        audioManager
-                    )
-                } else {
-                    // 최소 볼륨으로 셔터효과음 재생.
-                    mediaActionSound.playWithMinimumVolume(
-                        MediaActionSound.SHUTTER_CLICK
-                    )
-                }
+
             }
+//
+//            lifecycleScope.launch {
+//                for (i in 0..1000) {
+//                    Timber.i(">>>>> CoroutineScope sleeping : $i => %s", cameraExecutor.toString())
+//                    Timber.i(">>>>> CoroutineScope sleeping : $i => %s", cameraExecutor.isTerminated)
+//                    Timber.i(">>>>> CoroutineScope sleeping : $i => %s", cameraExecutor.isShutdown)
+//                    delay(10L)
+//                }
+//            }
 
             // Get a stable reference of the modifiable image capture use case
             imageCapture?.let { imageCapture ->
@@ -223,11 +288,24 @@ internal class ShootFragment :
                 val outputOptions = viewModel.outputFileOptions(lensFacing)
 
                 // 촬영 후 이미지 저장.
-                imageCapture.takePicture(
-                    outputOptions, cameraExecutor, object : ImageCapture.OnImageSavedCallback {
+                imageCapture.takePicture(outputOptions, cameraExecutor,
+                    object : ImageCapture.OnImageSavedCallback {
                         override fun onImageSaved(output: ImageCapture.OutputFileResults) {
+                            if (viewModel.item.value.canMute) {
+                                // 미디어 볼륨으로 셔터효과음 재생.
+                                mediaActionSound.playWithStreamVolume(
+                                    MediaActionSound.SHUTTER_CLICK,
+                                    audioManager
+                                )
+                            } else {
+                                // 최소 볼륨으로 셔터효과음 재생.
+                                mediaActionSound.playWithMinimumVolume(
+                                    MediaActionSound.SHUTTER_CLICK
+                                )
+                            }
+
                             // Debug.
-                            Timber.i(">>>>> ImageCapture onImageSaved: ${output.savedUri}")
+                            Timber.i(">>>>> OnImageSavedCallback onImageSaved: ${output.savedUri}")
 
                             // Exif Logging.
                             val exif = output.savedUri?.exif(requireContext())
@@ -255,7 +333,7 @@ internal class ShootFragment :
                         }
 
                         override fun onError(exc: ImageCaptureException) {
-                            Timber.e(">>>>> ImageCapture onError: ${exc.message}")
+                            Timber.e(">>>>> OnImageSavedCallback onError: ${exc.message}")
                         }
                     })
             }
@@ -528,19 +606,159 @@ internal class ShootFragment :
         // CameraSelector
         val cameraSelector = CameraSelector.Builder().requireLensFacing(lensFacing).build()
 
+
+        val manager = requireContext().getSystemService(Context.CAMERA_SERVICE) as CameraManager
+        manager.registerTorchCallback(cameraExecutor, object : CameraManager.TorchCallback() {
+            override fun onTorchModeChanged(cameraId: String, enabled: Boolean) {
+                super.onTorchModeChanged(cameraId, enabled)
+                Timber.i(">>>>>>>>>> TorchCallback onTorchModeChanged")
+            }
+
+            override fun onTorchModeUnavailable(cameraId: String) {
+                super.onTorchModeUnavailable(cameraId)
+                Timber.i(">>>>>>>>>> TorchCallback onTorchModeUnavailable")
+            }
+        })
+
+
+        // Create the callback you want to attach to the Preview use case
+        val captureCallback = object : CameraCaptureSession.CaptureCallback() {
+            override fun onCaptureBufferLost(session: CameraCaptureSession, request: CaptureRequest, target: Surface, frameNumber: Long) {
+                super.onCaptureBufferLost(session, request, target, frameNumber)
+                Timber.i(">>>>>>>>>> CaptureCallback onCaptureBufferLost")
+            }
+
+            override fun onCaptureFailed(session: CameraCaptureSession, request: CaptureRequest, failure: CaptureFailure) {
+                super.onCaptureFailed(session, request, failure)
+                Timber.i(">>>>>>>>>> CaptureCallback onCaptureFailed")
+            }
+
+            override fun onCaptureProgressed(session: CameraCaptureSession, request: CaptureRequest, partialResult: CaptureResult) {
+                super.onCaptureProgressed(session, request, partialResult)
+                Timber.i(">>>>>>>>>> CaptureCallback onCaptureProgressed")
+            }
+
+            override fun onCaptureSequenceAborted(session: CameraCaptureSession, sequenceId: Int) {
+                super.onCaptureSequenceAborted(session, sequenceId)
+                Timber.i(">>>>>>>>>> CaptureCallback onCaptureSequenceAborted")
+            }
+
+            override fun onCaptureSequenceCompleted(session: CameraCaptureSession, sequenceId: Int, frameNumber: Long) {
+                super.onCaptureSequenceCompleted(session, sequenceId, frameNumber)
+                Timber.i(">>>>>>>>>> CaptureCallback onCaptureSequenceCompleted")
+            }
+
+            override fun onCaptureStarted(session: CameraCaptureSession, request: CaptureRequest, timestamp: Long, frameNumber: Long) {
+                super.onCaptureStarted(session, request, timestamp, frameNumber)
+                Timber.i(">>>>>>>>>> CaptureCallback onCaptureStarted : $session")
+            }
+
+            override fun onCaptureCompleted(session: CameraCaptureSession, request: CaptureRequest, result: TotalCaptureResult) {
+                super.onCaptureCompleted(session, request, result)
+                Timber.i(">>>>>>>>>> CaptureCallback onCaptureCompleted : ${session.device}")
+            }
+        }
+
+
+        //CaptureRequest.Builder()
+        var captureRequestBuilder: CaptureRequest.Builder? = null
+
+        // Set up and configure the Preview's builder
+        val builder = ImageCapture.Builder()
+
+        val stateCallback = object : CameraCaptureSession.StateCallback() {
+            override fun onActive(session: CameraCaptureSession) {
+                super.onActive(session)
+                session.setRepeatingRequest(
+                    captureRequestBuilder?.build()!!,
+                    captureCallback, object : Handler() {
+                        override fun handleMessage(msg: Message) {
+                            super.handleMessage(msg)
+                            Timber.i(">>>>>>>>>> StateCallback onActive")
+                        }
+                    }
+                )
+            }
+
+            override fun onCaptureQueueEmpty(session: CameraCaptureSession) {
+                super.onCaptureQueueEmpty(session)
+                Timber.i(">>>>>>>>>> StateCallback onCaptureQueueEmpty : $session")
+            }
+
+            override fun onClosed(session: CameraCaptureSession) {
+                super.onClosed(session)
+                Timber.i(">>>>>>>>>> StateCallback onClosed")
+            }
+
+            override fun onReady(session: CameraCaptureSession) {
+                super.onReady(session)
+                Timber.i(">>>>>>>>>> StateCallback onReady")
+            }
+
+            override fun onSurfacePrepared(session: CameraCaptureSession, surface: Surface) {
+                super.onSurfacePrepared(session, surface)
+                Timber.i(">>>>>>>>>> StateCallback onSurfacePrepared")
+            }
+
+            override fun onConfigured(session: CameraCaptureSession) {
+                Timber.i(">>>>>>>>>> StateCallback onConfigured")
+            }
+
+            override fun onConfigureFailed(session: CameraCaptureSession) {
+                Timber.i(">>>>>>>>>> StateCallback onConfigureFailed")
+            }
+
+        }
+
+        val deviceStateCallback = object : CameraDevice.StateCallback() {
+            override fun onOpened(camera: CameraDevice) {
+                captureRequestBuilder = camera.createCaptureRequest(CameraDevice.TEMPLATE_PREVIEW)
+                Timber.i(">>>>>>>>>> CameraDevice.StateCallback onOpened")
+            }
+
+            override fun onError(camera: CameraDevice, error: Int) {
+                Timber.i(">>>>>>>>>> CameraDevice.StateCallback onError")
+            }
+
+            override fun onClosed(camera: CameraDevice) {
+                super.onClosed(camera)
+                Timber.i(">>>>>>>>>> CameraDevice.StateCallback onClosed")
+            }
+
+            override fun onDisconnected(camera: CameraDevice) {
+                Timber.i(">>>>>>>>>> CameraDevice.StateCallback onDisconnected")
+            }
+        }
+
+//
+//        val burstCaptureCallback = object : CameraBurstCaptureCallback() {
+//
+//        }
+
+        // Create an Extender to attach Camera2 options
+        val previewExtender = Camera2Interop.Extender(builder)
+//        //previewExtender.setCaptureRequestTemplate(CameraDevice.TEMPLATE_ZERO_SHUTTER_LAG)
+
+        previewExtender.setSessionStateCallback(stateCallback)
+        previewExtender.setDeviceStateCallback(deviceStateCallback)
+        // Attach the Camera2 CaptureCallback
+        //previewExtender.setSessionCaptureCallback(captureCallback)
+
         // Preview
         preview = Preview.Builder()
             .setTargetAspectRatio(AspectRatio.RATIO_4_3)
             .setTargetRotation(rotation)
             .build()
 
+
         // ImageCapture
-        imageCapture = ImageCapture.Builder()
+        imageCapture = builder//ImageCapture.Builder()
             //.setJpegQuality(50)
             .setCaptureMode(ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY)
             .setTargetAspectRatio(AspectRatio.RATIO_4_3)
             .setTargetRotation(rotation)
             .setFlashMode(viewModel.flashMode)
+            .setSessionProcessorEnabled(true)
             .build()
 
         // ImageAnalysis
@@ -548,6 +766,12 @@ internal class ShootFragment :
             .setTargetAspectRatio(AspectRatio.RATIO_4_3)
             .setTargetRotation(rotation)
             .build()
+//            .also {
+//                it.setAnalyzer(cameraExecutor) { imageProxy ->
+//                    Timber.i(">>>>>>>>>> imageAnalyzer")
+//                    imageProxy.close()
+//                }
+//            }
 
         // Must unbind the use-cases before rebinding them
         cameraProvider.unbindAll()
@@ -558,29 +782,29 @@ internal class ShootFragment :
             camera = cameraProvider.bindToLifecycle(
                 this, cameraSelector, preview, imageCapture, imageAnalyzer
             )
-//            camera?.cameraInfo?.hasFlashUnit()
-//            camera?.cameraControl?.enableTorch(true)
-
-            val autoFocusPoint = SurfaceOrientedMeteringPointFactory(1f, 1f)
-                .createPoint(.5f, .5f)
-            val autoFocusAction = FocusMeteringAction.Builder(
-                autoFocusPoint,
-                FocusMeteringAction.FLAG_AF
-            ).apply {
-                //start auto-focusing after 2 seconds
-                setAutoCancelDuration(2, TimeUnit.SECONDS)
-            }.build()
-            val focusListenableFuture = camera?.cameraControl?.startFocusAndMetering(autoFocusAction)?.addListener({
-            //camera?.cameraControl?.startFocusAndMetering(FocusMeteringAction.FLAG_AF)?.addListener({
-//                val result = focusListenableFuture.get()
-//                val isSuccessful = result.isFocusSuccessful
-                Timber.i(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> startFocusAndMetering")
-            }, ContextCompat.getMainExecutor(requireContext()))
 
             // Attach the viewfinder's surface provider to preview use case
             preview?.setSurfaceProvider(binding.adbCameralibraryPreviewView.surfaceProvider)
             //
             observeCameraState(camera?.cameraInfo!!)
+
+//
+//
+//            camera?.cameraControl?.enableTorch(true)?.addListener({
+//                Timber.i(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> enableTorch")
+//            }, ContextCompat.getMainExecutor(requireContext()))
+//            val autoFocusPoint = SurfaceOrientedMeteringPointFactory(1f, 1f)
+//                .createPoint(.5f, .5f)
+//            val autoFocusAction = FocusMeteringAction.Builder(
+//                autoFocusPoint,
+//                FocusMeteringAction.FLAG_AF
+//            ).apply {
+//                //start auto-focusing after 2 seconds
+//                setAutoCancelDuration(2, TimeUnit.SECONDS)
+//            }.build()
+//            val focusListenableFuture = camera?.cameraControl?.startFocusAndMetering(autoFocusAction)?.addListener({
+//                Timber.i(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> startFocusAndMetering")
+//            }, ContextCompat.getMainExecutor(requireContext()))
         } catch (exc: Exception) {
             // Debug.
             Timber.e(">>>>> Use case binding failed: $exc")
