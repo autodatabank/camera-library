@@ -594,6 +594,14 @@ internal class ShootFragment :
         }
     }
 
+    private var cameraDevice: CameraDevice? = null
+
+    /** [HandlerThread] where all camera operations run */
+    private val cameraThread = HandlerThread("CameraThread").apply { start() }
+
+    /** [Handler] corresponding to [cameraThread] */
+    private val cameraHandler = Handler(cameraThread.looper)
+
     /** Declare and bind preview, capture and analysis use cases */
     private fun bindCameraUseCases() {
         // rotation
@@ -623,17 +631,30 @@ internal class ShootFragment :
 
         // Create the callback you want to attach to the Preview use case
         val captureCallback = object : CameraCaptureSession.CaptureCallback() {
-            override fun onCaptureBufferLost(session: CameraCaptureSession, request: CaptureRequest, target: Surface, frameNumber: Long) {
+            override fun onCaptureBufferLost(
+                session: CameraCaptureSession,
+                request: CaptureRequest,
+                target: Surface,
+                frameNumber: Long
+            ) {
                 super.onCaptureBufferLost(session, request, target, frameNumber)
                 Timber.i(">>>>>>>>>> CaptureCallback onCaptureBufferLost")
             }
 
-            override fun onCaptureFailed(session: CameraCaptureSession, request: CaptureRequest, failure: CaptureFailure) {
+            override fun onCaptureFailed(
+                session: CameraCaptureSession,
+                request: CaptureRequest,
+                failure: CaptureFailure
+            ) {
                 super.onCaptureFailed(session, request, failure)
                 Timber.i(">>>>>>>>>> CaptureCallback onCaptureFailed")
             }
 
-            override fun onCaptureProgressed(session: CameraCaptureSession, request: CaptureRequest, partialResult: CaptureResult) {
+            override fun onCaptureProgressed(
+                session: CameraCaptureSession,
+                request: CaptureRequest,
+                partialResult: CaptureResult
+            ) {
                 super.onCaptureProgressed(session, request, partialResult)
                 Timber.i(">>>>>>>>>> CaptureCallback onCaptureProgressed")
             }
@@ -643,17 +664,30 @@ internal class ShootFragment :
                 Timber.i(">>>>>>>>>> CaptureCallback onCaptureSequenceAborted")
             }
 
-            override fun onCaptureSequenceCompleted(session: CameraCaptureSession, sequenceId: Int, frameNumber: Long) {
+            override fun onCaptureSequenceCompleted(
+                session: CameraCaptureSession,
+                sequenceId: Int,
+                frameNumber: Long
+            ) {
                 super.onCaptureSequenceCompleted(session, sequenceId, frameNumber)
                 Timber.i(">>>>>>>>>> CaptureCallback onCaptureSequenceCompleted")
             }
 
-            override fun onCaptureStarted(session: CameraCaptureSession, request: CaptureRequest, timestamp: Long, frameNumber: Long) {
+            override fun onCaptureStarted(
+                session: CameraCaptureSession,
+                request: CaptureRequest,
+                timestamp: Long,
+                frameNumber: Long
+            ) {
                 super.onCaptureStarted(session, request, timestamp, frameNumber)
                 Timber.i(">>>>>>>>>> CaptureCallback onCaptureStarted : $session")
             }
 
-            override fun onCaptureCompleted(session: CameraCaptureSession, request: CaptureRequest, result: TotalCaptureResult) {
+            override fun onCaptureCompleted(
+                session: CameraCaptureSession,
+                request: CaptureRequest,
+                result: TotalCaptureResult
+            ) {
                 super.onCaptureCompleted(session, request, result)
                 Timber.i(">>>>>>>>>> CaptureCallback onCaptureCompleted : ${session.device}")
             }
@@ -664,79 +698,44 @@ internal class ShootFragment :
         var captureRequestBuilder: CaptureRequest.Builder? = null
 
         // Set up and configure the Preview's builder
-        val builder = ImageCapture.Builder()
+        val previewBuilder = Preview.Builder()
 
         val stateCallback = object : CameraCaptureSession.StateCallback() {
-            override fun onActive(session: CameraCaptureSession) {
-                super.onActive(session)
+            override fun onConfigured(session: CameraCaptureSession) {
+                captureRequestBuilder = cameraDevice?.createCaptureRequest(CameraDevice.TEMPLATE_PREVIEW)
+                captureRequestBuilder.addTarget(binding.adbCameralibraryPreviewView.surfaceProvider.)
                 session.setRepeatingRequest(
                     captureRequestBuilder?.build()!!,
-                    captureCallback, object : Handler() {
-                        override fun handleMessage(msg: Message) {
-                            super.handleMessage(msg)
-                            Timber.i(">>>>>>>>>> StateCallback onActive")
-                        }
-                    }
+                    captureCallback,
+                    cameraHandler
                 )
-            }
-
-            override fun onCaptureQueueEmpty(session: CameraCaptureSession) {
-                super.onCaptureQueueEmpty(session)
-                Timber.i(">>>>>>>>>> StateCallback onCaptureQueueEmpty : $session")
-            }
-
-            override fun onClosed(session: CameraCaptureSession) {
-                super.onClosed(session)
-                Timber.i(">>>>>>>>>> StateCallback onClosed")
-            }
-
-            override fun onReady(session: CameraCaptureSession) {
-                super.onReady(session)
-                Timber.i(">>>>>>>>>> StateCallback onReady")
-            }
-
-            override fun onSurfacePrepared(session: CameraCaptureSession, surface: Surface) {
-                super.onSurfacePrepared(session, surface)
-                Timber.i(">>>>>>>>>> StateCallback onSurfacePrepared")
-            }
-
-            override fun onConfigured(session: CameraCaptureSession) {
                 Timber.i(">>>>>>>>>> StateCallback onConfigured")
             }
 
             override fun onConfigureFailed(session: CameraCaptureSession) {
                 Timber.i(">>>>>>>>>> StateCallback onConfigureFailed")
             }
-
         }
 
         val deviceStateCallback = object : CameraDevice.StateCallback() {
             override fun onOpened(camera: CameraDevice) {
-                captureRequestBuilder = camera.createCaptureRequest(CameraDevice.TEMPLATE_PREVIEW)
+                cameraDevice = camera
                 Timber.i(">>>>>>>>>> CameraDevice.StateCallback onOpened")
             }
 
             override fun onError(camera: CameraDevice, error: Int) {
+                cameraDevice?.close()
+                cameraDevice = null
                 Timber.i(">>>>>>>>>> CameraDevice.StateCallback onError")
             }
 
-            override fun onClosed(camera: CameraDevice) {
-                super.onClosed(camera)
-                Timber.i(">>>>>>>>>> CameraDevice.StateCallback onClosed")
-            }
-
             override fun onDisconnected(camera: CameraDevice) {
-                Timber.i(">>>>>>>>>> CameraDevice.StateCallback onDisconnected")
+                cameraDevice?.close()
             }
         }
 
-//
-//        val burstCaptureCallback = object : CameraBurstCaptureCallback() {
-//
-//        }
-
         // Create an Extender to attach Camera2 options
-        val previewExtender = Camera2Interop.Extender(builder)
+        val previewExtender = Camera2Interop.Extender(previewBuilder)
 //        //previewExtender.setCaptureRequestTemplate(CameraDevice.TEMPLATE_ZERO_SHUTTER_LAG)
 
         previewExtender.setSessionStateCallback(stateCallback)
@@ -745,14 +744,14 @@ internal class ShootFragment :
         //previewExtender.setSessionCaptureCallback(captureCallback)
 
         // Preview
-        preview = Preview.Builder()
+        preview = previewBuilder//Preview.Builder()
             .setTargetAspectRatio(AspectRatio.RATIO_4_3)
             .setTargetRotation(rotation)
             .build()
 
 
         // ImageCapture
-        imageCapture = builder//ImageCapture.Builder()
+        imageCapture = ImageCapture.Builder()
             //.setJpegQuality(50)
             .setCaptureMode(ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY)
             .setTargetAspectRatio(AspectRatio.RATIO_4_3)
