@@ -159,7 +159,7 @@ internal inline fun Context.registerReceiver(
 internal fun Context?.createFile(
     isPublicDirectory: Boolean = false,
     filename: String = System.currentTimeMillis().toString(),
-    format: Bitmap.CompressFormat = Bitmap.CompressFormat.JPEG
+    format: Bitmap.CompressFormat = Bitmap.CompressFormat.JPEG,
 ): File? {
     var path: String? = null
     val extension = when (format) {

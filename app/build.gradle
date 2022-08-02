@@ -32,7 +32,7 @@ android {
 
     kotlinOptions {
         jvmTarget = '1.8'
-        moduleName = 'kr.co.kadb.camera'
+        //moduleName = 'kr.co.kadb.camera'
         //freeCompilerArgs += '-Xexplicit-api=strict'
     }
 

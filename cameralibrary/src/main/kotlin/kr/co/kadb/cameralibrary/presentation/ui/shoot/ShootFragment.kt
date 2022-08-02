@@ -31,15 +31,22 @@ import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.content.ContextCompat
+import androidx.core.net.toUri
 import androidx.core.view.isVisible
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.transition.ChangeBounds
 import androidx.transition.TransitionManager
 import androidx.transition.addListener
+import kotlinx.coroutines.launch
 import kr.co.kadb.cameralibrary.R
 import kr.co.kadb.cameralibrary.data.local.PreferenceManager
 import kr.co.kadb.cameralibrary.databinding.AdbCameralibraryFragmentShootBinding
 import kr.co.kadb.cameralibrary.presentation.base.BaseBindingFragment
+import kr.co.kadb.cameralibrary.presentation.widget.extension.exif
+import kr.co.kadb.cameralibrary.presentation.widget.extension.exifInterface
+import kr.co.kadb.cameralibrary.presentation.widget.extension.save
+import kr.co.kadb.cameralibrary.presentation.widget.extension.toThumbnail
 import kr.co.kadb.cameralibrary.presentation.widget.util.IntentKey
 import kr.co.kadb.cameralibrary.presentation.widget.util.MediaActionSound2
 import timber.log.Timber
@@ -190,61 +197,13 @@ internal class ShootFragment :
 
     // Init Observer.
     override fun initObserver() {
-
-        binding.adbCameralibraryPreviewView.previewStreamState.observe(viewLifecycleOwner) {
-            Timber.i(">>>>>>>>>> previewStreamState[1] : %s", it.name)
-            Timber.i(">>>>>>>>>> previewStreamState[2] : %s", it.toString())
+        lifecycleScope.launch {
+            viewModel.item.collect {
+                // Debug.
+                Timber.i(">>>>>>>>>> ShootFragment item collect : $it")
+            }
         }
     }
-//
-//    // 촬영 후 이미지 저장.
-//    val imageSavedCallback = object : ImageCapture.OnImageSavedCallback {
-//        override fun onImageSaved(output: ImageCapture.OutputFileResults) {
-//            if (viewModel.item.value.canMute) {
-//                // 미디어 볼륨으로 셔터효과음 재생.
-//                mediaActionSound.playWithStreamVolume(
-//                    MediaActionSound.SHUTTER_CLICK,
-//                    audioManager
-//                )
-//            } else {
-//                // 최소 볼륨으로 셔터효과음 재생.
-//                mediaActionSound.playWithMinimumVolume(
-//                    MediaActionSound.SHUTTER_CLICK
-//                )
-//            }
-//
-//            // Debug.
-//            Timber.i(">>>>> ImageCapture onImageSaved: ${output.savedUri}")
-//
-//            // Exif Logging.
-//            val exif = output.savedUri?.exif(requireContext())
-//
-//            // Result.
-//            if (viewModel.item.value.isMultiplePicture) {
-//                viewModel.pressedShutter(output.savedUri, exif?.width, exif?.height)
-//            } else {
-//                // Thumbnail Bitmap.
-//                val thumbnail = output.savedUri?.toThumbnail(requireContext(), exif)
-//                // 결과 전달.
-//                Intent().apply {
-//                    action = viewModel.item.value.action
-//                    putExtra("data", thumbnail)
-//                    putExtra(IntentKey.EXTRA_WIDTH, exif?.width)
-//                    putExtra(IntentKey.EXTRA_HEIGHT, exif?.height)
-//                    setDataAndType(output.savedUri, "image/jpeg")
-//                }.also {
-//                    requireActivity().setResult(Activity.RESULT_OK, it)
-//                }.run {
-//                    activity?.finish()
-//                    thumbnail?.recycle()
-//                }
-//            }
-//        }
-//
-//        override fun onError(exc: ImageCaptureException) {
-//            Timber.e(">>>>> ImageCapture onError: ${exc.message}")
-//        }
-//    }
 
     // Init Listener.
     override fun initListener() {
@@ -257,8 +216,10 @@ internal class ShootFragment :
                 if (it.isShooted && !it.isMultiplePicture) {
                     return@setOnClickListener
                 }
-
             }
+
+            //
+            viewModel.pressedShutter()
 //
 //            lifecycleScope.launch {
 //                for (i in 0..1000) {
@@ -269,24 +230,77 @@ internal class ShootFragment :
 //                }
 //            }
 
-            imageCapture?.let { imageCapture ->
-                imageCapture.takePicture(
-                    cameraExecutor,
-                    object : ImageCapture.OnImageCapturedCallback() {
-                        override fun onCaptureSuccess(image: ImageProxy) {
-                            super.onCaptureSuccess(image)
 
-                            // Debug.
-                            Timber.i(">>>>> ImageCapture onCaptureSuccess: ${output.savedUri}")
-                            image.close()
+
+            imageCapture?.takePicture(
+                cameraExecutor,
+                object : ImageCapture.OnImageCapturedCallback() {
+                    override fun onCaptureSuccess(image: ImageProxy) {
+                        super.onCaptureSuccess(image)
+                        // Debug.
+                        Timber.i(">>>>> ImageCapture onCaptureSuccess")
+
+                        if (viewModel.item.value.canMute) {
+                            // 미디어 볼륨으로 셔터효과음 재생.
+                            mediaActionSound.playWithStreamVolume(
+                                MediaActionSound.SHUTTER_CLICK,
+                                audioManager
+                            )
+                        } else {
+                            // 최소 볼륨으로 셔터효과음 재생.
+                            mediaActionSound.playWithMinimumVolume(
+                                MediaActionSound.SHUTTER_CLICK
+                            )
                         }
 
-                        override fun onError(exception: ImageCaptureException) {
-                            super.onError(exception)
-                            // Debug.
-                            Timber.e(">>>>> OnImageSavedCallback onError: ${exception.message}")
+////                        val imageFile = requireContext().createFile(true)
+////                        val output = FileOutputStream(imageFile)
+//                        val buffer = image.planes[0].buffer
+//                        val uri = ByteArray(buffer.capacity()).also {
+//                            buffer.get(it)
+//                        }.let {
+//                            it.save(requireContext(), true)?.toUri()
+//                        }
+////                        output.write(bytes)
+
+                        val uri = viewModel.toUri(image.planes[0].buffer)
+
+                        // Exif Logging.
+                        //val uri = imageFile?.toUri()
+                        val exif = uri?.exif(requireContext())
+                        val exifInterface = uri?.exifInterface(requireContext())
+
+
+                        // Result.
+                        if (viewModel.item.value.isMultiplePicture) {
+                            viewModel.pressedShutter(uri, exif?.width, exif?.height)
+                        } else {
+                            // Thumbnail Bitmap.
+                            val thumbnail = uri?.toThumbnail(requireContext(), exif)
+                            // 결과 전달.
+                            Intent().apply {
+                                action = viewModel.item.value.action
+                                putExtra("data", thumbnail)
+                                putExtra(IntentKey.EXTRA_WIDTH, exif?.width)
+                                putExtra(IntentKey.EXTRA_HEIGHT, exif?.height)
+                                setDataAndType(uri, "image/jpeg")
+                            }.also {
+                                requireActivity().setResult(Activity.RESULT_OK, it)
+                            }.run {
+                                activity?.finish()
+                                thumbnail?.recycle()
+                            }
                         }
-                    })
+
+                        image.close()
+                    }
+
+                    override fun onError(exception: ImageCaptureException) {
+                        super.onError(exception)
+                        // Debug.
+                        Timber.e(">>>>> OnImageSavedCallback onError: ${exception.message}")
+                    }
+                })
 
 //            // Get a stable reference of the modifiable image capture use case
 //            imageCapture?.let { imageCapture ->
@@ -343,7 +357,8 @@ internal class ShootFragment :
 //                            Timber.e(">>>>> OnImageSavedCallback onError: ${exception.message}")
 //                        }
 //                    })
-            }
+//            }
+
         }
 
         // 플래쉬.

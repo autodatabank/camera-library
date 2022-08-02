@@ -5,6 +5,7 @@ import android.net.Uri
 import android.util.Size
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageCapture
+import androidx.core.net.toUri
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -12,10 +13,13 @@ import kr.co.kadb.cameralibrary.data.local.PreferenceManager
 import kr.co.kadb.cameralibrary.presentation.model.ShootUiState
 import kr.co.kadb.cameralibrary.presentation.model.UiState
 import kr.co.kadb.cameralibrary.presentation.viewmodel.BaseAndroidViewModel
+import kr.co.kadb.cameralibrary.presentation.widget.extension.exif
 import kr.co.kadb.cameralibrary.presentation.widget.extension.outputFileOptionsBuilder
+import kr.co.kadb.cameralibrary.presentation.widget.extension.save
 import kr.co.kadb.cameralibrary.presentation.widget.extension.toJsonPretty
 import kr.co.kadb.cameralibrary.presentation.widget.util.IntentKey.ACTION_TAKE_MULTIPLE_PICTURES
 import timber.log.Timber
+import java.nio.ByteBuffer
 
 /**
  * Created by oooobang on 2022. 7. 11..
@@ -127,6 +131,41 @@ constructor(
             }
         } else {
             Pair(0, 0)
+        }
+    }
+
+    fun toUri(byteBuffer: ByteBuffer) {
+        viewModelScope.launch {
+            val context = getApplication<Application>().applicationContext
+            ByteArray(byteBuffer.capacity()).also {
+                byteBuffer.get(it)
+            }.let {
+                it.save(context, true)?.toUri()
+            }?.run {
+                val exif = this.exif(context)
+                updateState { uiState ->
+                    val sizes = uiState?.sizes?.also {
+                        it.add(Size(exif?.width ?: 0, exif?.height ?: 0))
+                    } ?: arrayListOf()
+                    val uris = uiState?.uris?.also {
+                        it.add(this)
+                    } ?: arrayListOf()
+                    state.value.value?.copy(
+                        isShooted = true,
+                        uris = uris,
+                        sizes = sizes
+                    )
+                }
+            }
+        }
+    }
+
+    // 촬영 버튼 누름.
+    fun pressedShutter() {
+        updateState {
+            state.value.value?.copy(
+                isShooted = true
+            )
         }
     }
 
