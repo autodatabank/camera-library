@@ -1,6 +1,7 @@
 package kr.co.kadb.cameralibrary.presentation.ui.shoot
 
 import android.app.Application
+import android.graphics.Bitmap
 import android.net.Uri
 import android.util.Size
 import androidx.camera.core.CameraSelector
@@ -13,6 +14,7 @@ import kr.co.kadb.cameralibrary.data.local.PreferenceManager
 import kr.co.kadb.cameralibrary.presentation.model.ShootUiState
 import kr.co.kadb.cameralibrary.presentation.model.UiState
 import kr.co.kadb.cameralibrary.presentation.viewmodel.BaseAndroidViewModel
+import kr.co.kadb.cameralibrary.presentation.widget.extension.*
 import kr.co.kadb.cameralibrary.presentation.widget.extension.exif
 import kr.co.kadb.cameralibrary.presentation.widget.extension.outputFileOptionsBuilder
 import kr.co.kadb.cameralibrary.presentation.widget.extension.save
@@ -32,6 +34,9 @@ constructor(
 ) : BaseAndroidViewModel<ShootUiState>(application, UiState.loading()) {
     // Event.
     sealed class Event {
+        data class PlayShutterSound(val canMute: Boolean) : Event()
+        data class TakePicture(val uri: Uri, val size: Size, val thumbnailBitmap: Bitmap?) : Event()
+        data class TakeMultiplePictures(val uris: ArrayList<Uri>, val sizes: ArrayList<Size>) : Event()
     }
 
     // Event.
@@ -72,6 +77,13 @@ constructor(
         }
     }
 
+    // Emit event.
+    private fun event(event: Event) {
+        viewModelScope.launch {
+            _eventFlow.emit(event)
+        }
+    }
+
     // Intent Action 설정.
     fun initUiState(
         action: String?,
@@ -87,17 +99,15 @@ constructor(
         Timber.i(">>>>> initUiState cropPercent : ${cropPercent.toJsonPretty()}")
 
         // Update.
-        state.value.value?.let {
-            state.value.value?.copy(
-                action = action,
-                isShooted = false,
-                isMultiplePicture = action == ACTION_TAKE_MULTIPLE_PICTURES,
-                canMute = canMute,
-                hasHorizon = hasHorizon,
-                canUiRotation = canUiRotation,
-                cropPercent = cropPercent?.toList() ?: listOf()
-            )
-        } ?: ShootUiState(
+        state.value.value?.copy(
+            action = action,
+            isShooted = false,
+            isMultiplePicture = action == ACTION_TAKE_MULTIPLE_PICTURES,
+            canMute = canMute,
+            hasHorizon = hasHorizon,
+            canUiRotation = canUiRotation,
+            cropPercent = cropPercent?.toList() ?: listOf()
+        ) ?: ShootUiState(
             action = action,
             isShooted = false,
             isMultiplePicture = action == ACTION_TAKE_MULTIPLE_PICTURES,
@@ -108,7 +118,7 @@ constructor(
             uris = arrayListOf(),
             sizes = arrayListOf()
         ).run {
-            updateState(value = this)
+            updateState(isLoading = false, value = this)
         }
     }
 
@@ -134,56 +144,23 @@ constructor(
         }
     }
 
-    fun toUri(byteBuffer: ByteBuffer) {
-        viewModelScope.launch {
-            val context = getApplication<Application>().applicationContext
-            ByteArray(byteBuffer.capacity()).also {
-                byteBuffer.get(it)
-            }.let {
-                it.save(context, true)?.toUri()
-            }?.run {
-                val exif = this.exif(context)
-                updateState { uiState ->
-                    val sizes = uiState?.sizes?.also {
-                        it.add(Size(exif?.width ?: 0, exif?.height ?: 0))
-                    } ?: arrayListOf()
-                    val uris = uiState?.uris?.also {
-                        it.add(this)
-                    } ?: arrayListOf()
-                    state.value.value?.copy(
-                        isShooted = true,
-                        uris = uris,
-                        sizes = sizes
-                    )
+    // 이미지 가져오기 가능한.
+    fun canTakePicture(): Boolean {
+        return item.value.let {
+            if (it.isShooted && !it.isMultiplePicture) {
+                false
+            } else {
+                updateState { value ->
+                    value?.copy(isShooted = true)
                 }
+                true
             }
         }
     }
 
-    // 촬영 버튼 누름.
-    fun pressedShutter() {
-        updateState {
-            state.value.value?.copy(
-                isShooted = true
-            )
-        }
-    }
-
-    // 촬영 버튼 누름.
-    fun pressedShutter(uri: Uri?, width: Int?, height: Int?) {
-        updateState { uiState ->
-            val sizes = uiState?.sizes?.apply {
-                this.add(Size(width ?: 0, height ?: 0))
-            } ?: arrayListOf()
-            val uris = uiState?.uris?.apply {
-                this.add(uri ?: Uri.EMPTY)
-            } ?: arrayListOf()
-            state.value.value?.copy(
-                isShooted = true,
-                uris = uris,
-                sizes = sizes
-            )
-        }
+    // 촬영완료 이벤트.
+    fun stopShooting() {
+        event(Event.TakeMultiplePictures(item.value.uris, item.value.sizes))
     }
 
     // 메타를 포함한 출력 옵션 반환.
@@ -200,5 +177,47 @@ constructor(
         return context.outputFileOptionsBuilder(isPublicDirectory).apply {
             setMetadata(metadata)
         }.build()
+    }
+
+    fun saveImage(byteBuffer: ByteBuffer) {
+        // 셔터음 이벤트.
+        event(Event.PlayShutterSound(item.value.canMute))
+
+        // 이미지 저장.
+        val context = getApplication<Application>().applicationContext
+        val byteArray = ByteArray(byteBuffer.capacity()).also {
+            byteBuffer.get(it)
+        }
+        val uri = byteArray.save(context, true)?.toUri() ?: Uri.EMPTY
+
+        // Exif: Size.
+        val exif = uri.exif(context)
+        val size = exif?.let {
+            Size(it.width, it.height)
+        } ?: Size(0, 0)
+
+        // 상태 업데이트.
+        updateState { value ->
+            val uris = arrayListOf<Uri>().apply {
+                addAll(value?.uris ?: arrayListOf())
+                add(uri)
+            }
+            val sizes = arrayListOf<Size>().apply {
+                addAll(value?.sizes ?: arrayListOf())
+                add(size)
+            }
+            value?.copy(
+                uris = uris,
+                sizes = sizes
+            )
+        }
+
+        // 촬영 완료.
+        if (!item.value.isMultiplePicture) {
+            // Thumbnail.
+            val thumbnail = uri?.toThumbnail(context, exif)
+            // 촬영완료 이벤트.
+            event(Event.TakePicture(uri, size, thumbnail))
+        }
     }
 }

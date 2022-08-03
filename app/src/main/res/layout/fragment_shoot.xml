@@ -39,10 +39,9 @@
             android:layout_margin="@dimen/dp16"
             android:text="@string/text_one_shoot"
             android:textSize="18sp"
-            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintBottom_toTopOf="@+id/button_multiple_shoot"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
             />
         <!-- 여러장 촬영. -->
         <androidx.appcompat.widget.AppCompatButton
@@ -52,9 +51,9 @@
             android:layout_margin="@dimen/dp16"
             android:text="@string/text_multiple_shoot"
             android:textSize="18sp"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/button_one_shoot"
             />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

@@ -31,28 +31,22 @@ import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.content.ContextCompat
-import androidx.core.net.toUri
 import androidx.core.view.isVisible
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.lifecycleScope
 import androidx.transition.ChangeBounds
 import androidx.transition.TransitionManager
 import androidx.transition.addListener
-import kotlinx.coroutines.launch
 import kr.co.kadb.cameralibrary.R
 import kr.co.kadb.cameralibrary.data.local.PreferenceManager
 import kr.co.kadb.cameralibrary.databinding.AdbCameralibraryFragmentShootBinding
+import kr.co.kadb.cameralibrary.presentation.ui.shoot.ShootSharedViewModel.Event
 import kr.co.kadb.cameralibrary.presentation.base.BaseBindingFragment
-import kr.co.kadb.cameralibrary.presentation.widget.extension.exif
-import kr.co.kadb.cameralibrary.presentation.widget.extension.exifInterface
-import kr.co.kadb.cameralibrary.presentation.widget.extension.save
-import kr.co.kadb.cameralibrary.presentation.widget.extension.toThumbnail
+import kr.co.kadb.cameralibrary.presentation.widget.extension.repeatOnStarted
 import kr.co.kadb.cameralibrary.presentation.widget.util.IntentKey
 import kr.co.kadb.cameralibrary.presentation.widget.util.MediaActionSound2
 import timber.log.Timber
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
-
 
 /**
  * Modified by oooobang on 2022. 7. 16..
@@ -145,15 +139,8 @@ internal class ShootFragment :
     }
 
     override fun onBackPressed(): Boolean {
-        Intent(context, ShootActivity::class.java)
-        Intent().apply {
-            action = viewModel.item.value.action
-            putExtra(IntentKey.EXTRA_URIS, viewModel.item.value.uris)
-            putExtra(IntentKey.EXTRA_SIZES, viewModel.item.value.sizes)
-        }.also {
-            requireActivity().setResult(Activity.RESULT_OK, it)
-        }
-        return super.onBackPressed()
+        viewModel.stopShooting()
+        return false
     }
 
     // Init Variable.
@@ -197,10 +184,41 @@ internal class ShootFragment :
 
     // Init Observer.
     override fun initObserver() {
-        lifecycleScope.launch {
-            viewModel.item.collect {
+        repeatOnStarted {
+            viewModel.eventFlow.collect { event ->
                 // Debug.
-                Timber.i(">>>>>>>>>> ShootFragment item collect : $it")
+                Timber.i(">>>>> ShootFragment event collect : $event")
+                when (event) {
+                    is Event.PlayShutterSound -> {
+                        playShutterSound(event.canMute)
+                    }
+                    is Event.TakePicture -> {
+                        // 결과 전달.
+                        Intent().apply {
+                            action = IntentKey.ACTION_TAKE_PICTURE
+                            putExtra("data", event.thumbnailBitmap)
+                            putExtra(IntentKey.EXTRA_WIDTH, event.size.width)
+                            putExtra(IntentKey.EXTRA_HEIGHT, event.size.height)
+                            setDataAndType(event.uri, "image/jpeg")
+                        }.also {
+                            requireActivity().setResult(Activity.RESULT_OK, it)
+                        }.run {
+                            activity?.finish()
+                            event.thumbnailBitmap?.recycle()
+                        }
+                    }
+                    is Event.TakeMultiplePictures -> {
+                        Intent().apply {
+                            action = IntentKey.ACTION_TAKE_MULTIPLE_PICTURES
+                            putExtra(IntentKey.EXTRA_URIS, event.uris)
+                            putExtra(IntentKey.EXTRA_SIZES, event.sizes)
+                        }.also {
+                            requireActivity().setResult(Activity.RESULT_OK, it)
+                        }.run {
+                            activity?.finish()
+                        }
+                    }
+                }
             }
         }
     }
@@ -211,27 +229,13 @@ internal class ShootFragment :
         binding.adbCameralibraryButtonShooting.setOnClickListener {
             // Debug.
             Timber.d(">>>>> Shooting OnClickListener")
-            //
-            viewModel.item.value.also {
-                if (it.isShooted && !it.isMultiplePicture) {
-                    return@setOnClickListener
-                }
+
+            // 촬영 가능 확인.
+            if (!viewModel.canTakePicture()) {
+                return@setOnClickListener
             }
 
-            //
-            viewModel.pressedShutter()
-//
-//            lifecycleScope.launch {
-//                for (i in 0..1000) {
-//                    Timber.i(">>>>> CoroutineScope sleeping : $i => %s", cameraExecutor.toString())
-//                    Timber.i(">>>>> CoroutineScope sleeping : $i => %s", cameraExecutor.isTerminated)
-//                    Timber.i(">>>>> CoroutineScope sleeping : $i => %s", cameraExecutor.isShutdown)
-//                    delay(10L)
-//                }
-//            }
-
-
-
+            // 이미지 가져오기.
             imageCapture?.takePicture(
                 cameraExecutor,
                 object : ImageCapture.OnImageCapturedCallback() {
@@ -240,58 +244,9 @@ internal class ShootFragment :
                         // Debug.
                         Timber.i(">>>>> ImageCapture onCaptureSuccess")
 
-                        if (viewModel.item.value.canMute) {
-                            // 미디어 볼륨으로 셔터효과음 재생.
-                            mediaActionSound.playWithStreamVolume(
-                                MediaActionSound.SHUTTER_CLICK,
-                                audioManager
-                            )
-                        } else {
-                            // 최소 볼륨으로 셔터효과음 재생.
-                            mediaActionSound.playWithMinimumVolume(
-                                MediaActionSound.SHUTTER_CLICK
-                            )
-                        }
-
-////                        val imageFile = requireContext().createFile(true)
-////                        val output = FileOutputStream(imageFile)
-//                        val buffer = image.planes[0].buffer
-//                        val uri = ByteArray(buffer.capacity()).also {
-//                            buffer.get(it)
-//                        }.let {
-//                            it.save(requireContext(), true)?.toUri()
-//                        }
-////                        output.write(bytes)
-
-                        val uri = viewModel.toUri(image.planes[0].buffer)
-
-                        // Exif Logging.
-                        //val uri = imageFile?.toUri()
-                        val exif = uri?.exif(requireContext())
-                        val exifInterface = uri?.exifInterface(requireContext())
-
-
-                        // Result.
-                        if (viewModel.item.value.isMultiplePicture) {
-                            viewModel.pressedShutter(uri, exif?.width, exif?.height)
-                        } else {
-                            // Thumbnail Bitmap.
-                            val thumbnail = uri?.toThumbnail(requireContext(), exif)
-                            // 결과 전달.
-                            Intent().apply {
-                                action = viewModel.item.value.action
-                                putExtra("data", thumbnail)
-                                putExtra(IntentKey.EXTRA_WIDTH, exif?.width)
-                                putExtra(IntentKey.EXTRA_HEIGHT, exif?.height)
-                                setDataAndType(uri, "image/jpeg")
-                            }.also {
-                                requireActivity().setResult(Activity.RESULT_OK, it)
-                            }.run {
-                                activity?.finish()
-                                thumbnail?.recycle()
-                            }
-                        }
-
+                        // 이미지 저장.
+                        viewModel.saveImage(image.planes[0].buffer)
+                        // Close ImageProxy.
                         image.close()
                     }
 
@@ -301,64 +256,6 @@ internal class ShootFragment :
                         Timber.e(">>>>> OnImageSavedCallback onError: ${exception.message}")
                     }
                 })
-
-//            // Get a stable reference of the modifiable image capture use case
-//            imageCapture?.let { imageCapture ->
-//                // 출력 옵션.
-//                val outputOptions = viewModel.outputFileOptions(lensFacing)
-//
-//                // 촬영 후 이미지 저장.
-//                imageCapture.takePicture(outputOptions, cameraExecutor,
-//                    object : ImageCapture.OnImageSavedCallback {
-//                        override fun onImageSaved(output: ImageCapture.OutputFileResults) {
-//                            if (viewModel.item.value.canMute) {
-//                                // 미디어 볼륨으로 셔터효과음 재생.
-//                                mediaActionSound.playWithStreamVolume(
-//                                    MediaActionSound.SHUTTER_CLICK,
-//                                    audioManager
-//                                )
-//                            } else {
-//                                // 최소 볼륨으로 셔터효과음 재생.
-//                                mediaActionSound.playWithMinimumVolume(
-//                                    MediaActionSound.SHUTTER_CLICK
-//                                )
-//                            }
-//
-//                            // Debug.
-//                            Timber.i(">>>>> OnImageSavedCallback onImageSaved: ${output.savedUri}")
-//
-//                            // Exif Logging.
-//                            val exif = output.savedUri?.exif(requireContext())
-//                            val exifInterface = output.savedUri?.exifInterface(requireContext())
-//
-//                            // Result.
-//                            if (viewModel.item.value.isMultiplePicture) {
-//                                viewModel.pressedShutter(output.savedUri, exif?.width, exif?.height)
-//                            } else {
-//                                // Thumbnail Bitmap.
-//                                val thumbnail = output.savedUri?.toThumbnail(requireContext(), exif)
-//                                // 결과 전달.
-//                                Intent().apply {
-//                                    action = viewModel.item.value.action
-//                                    putExtra("data", thumbnail)
-//                                    putExtra(IntentKey.EXTRA_WIDTH, exif?.width)
-//                                    putExtra(IntentKey.EXTRA_HEIGHT, exif?.height)
-//                                    setDataAndType(output.savedUri, "image/jpeg")
-//                                }.also {
-//                                    requireActivity().setResult(Activity.RESULT_OK, it)
-//                                }.run {
-//                                    activity?.finish()
-//                                    thumbnail?.recycle()
-//                                }
-//                            }
-//                        }
-//
-//                        override fun onError(exception: ImageCaptureException) {
-//                            Timber.e(">>>>> OnImageSavedCallback onError: ${exception.message}")
-//                        }
-//                    })
-//            }
-
         }
 
         // 플래쉬.
@@ -389,15 +286,7 @@ internal class ShootFragment :
 
         // 촬영종료.
         binding.adbCameralibraryButtonFinish.setOnClickListener {
-            Intent().apply {
-                action = viewModel.item.value.action
-                putExtra(IntentKey.EXTRA_URIS, viewModel.item.value.uris)
-                putExtra(IntentKey.EXTRA_SIZES, viewModel.item.value.sizes)
-            }.also {
-                requireActivity().setResult(Activity.RESULT_OK, it)
-            }.run {
-                activity?.finish()
-            }
+            viewModel.stopShooting()
         }
     }
 
@@ -615,14 +504,6 @@ internal class ShootFragment :
             }, ContextCompat.getMainExecutor(requireContext()))
         }
     }
-//
-//    private var cameraDevice: CameraDevice? = null
-//
-//    /** [HandlerThread] where all camera operations run */
-//    private val cameraThread = HandlerThread("CameraThread").apply { start() }
-//
-//    /** [Handler] corresponding to [cameraThread] */
-//    private val cameraHandler = Handler(cameraThread.looper)
 
     /** Declare and bind preview, capture and analysis use cases */
     private fun bindCameraUseCases() {
@@ -635,135 +516,6 @@ internal class ShootFragment :
 
         // CameraSelector
         val cameraSelector = CameraSelector.Builder().requireLensFacing(lensFacing).build()
-//
-//
-//        val manager = requireContext().getSystemService(Context.CAMERA_SERVICE) as CameraManager
-//        manager.registerTorchCallback(cameraExecutor, object : CameraManager.TorchCallback() {
-//            override fun onTorchModeChanged(cameraId: String, enabled: Boolean) {
-//                super.onTorchModeChanged(cameraId, enabled)
-//                Timber.i(">>>>>>>>>> TorchCallback onTorchModeChanged")
-//            }
-//
-//            override fun onTorchModeUnavailable(cameraId: String) {
-//                super.onTorchModeUnavailable(cameraId)
-//                Timber.i(">>>>>>>>>> TorchCallback onTorchModeUnavailable")
-//            }
-//        })
-//
-//
-//        // Create the callback you want to attach to the Preview use case
-//        val captureCallback = object : CameraCaptureSession.CaptureCallback() {
-//            override fun onCaptureBufferLost(
-//                session: CameraCaptureSession,
-//                request: CaptureRequest,
-//                target: Surface,
-//                frameNumber: Long
-//            ) {
-//                super.onCaptureBufferLost(session, request, target, frameNumber)
-//                Timber.i(">>>>>>>>>> CaptureCallback onCaptureBufferLost")
-//            }
-//
-//            override fun onCaptureFailed(
-//                session: CameraCaptureSession,
-//                request: CaptureRequest,
-//                failure: CaptureFailure
-//            ) {
-//                super.onCaptureFailed(session, request, failure)
-//                Timber.i(">>>>>>>>>> CaptureCallback onCaptureFailed")
-//            }
-//
-//            override fun onCaptureProgressed(
-//                session: CameraCaptureSession,
-//                request: CaptureRequest,
-//                partialResult: CaptureResult
-//            ) {
-//                super.onCaptureProgressed(session, request, partialResult)
-//                Timber.i(">>>>>>>>>> CaptureCallback onCaptureProgressed")
-//            }
-//
-//            override fun onCaptureSequenceAborted(session: CameraCaptureSession, sequenceId: Int) {
-//                super.onCaptureSequenceAborted(session, sequenceId)
-//                Timber.i(">>>>>>>>>> CaptureCallback onCaptureSequenceAborted")
-//            }
-//
-//            override fun onCaptureSequenceCompleted(
-//                session: CameraCaptureSession,
-//                sequenceId: Int,
-//                frameNumber: Long
-//            ) {
-//                super.onCaptureSequenceCompleted(session, sequenceId, frameNumber)
-//                Timber.i(">>>>>>>>>> CaptureCallback onCaptureSequenceCompleted")
-//            }
-//
-//            override fun onCaptureStarted(
-//                session: CameraCaptureSession,
-//                request: CaptureRequest,
-//                timestamp: Long,
-//                frameNumber: Long
-//            ) {
-//                super.onCaptureStarted(session, request, timestamp, frameNumber)
-//                Timber.i(">>>>>>>>>> CaptureCallback onCaptureStarted : $session")
-//            }
-//
-//            override fun onCaptureCompleted(
-//                session: CameraCaptureSession,
-//                request: CaptureRequest,
-//                result: TotalCaptureResult
-//            ) {
-//                super.onCaptureCompleted(session, request, result)
-//                Timber.i(">>>>>>>>>> CaptureCallback onCaptureCompleted : ${session.device}")
-//            }
-//        }
-//
-//
-//        //CaptureRequest.Builder()
-//        var captureRequestBuilder: CaptureRequest.Builder? = null
-//
-//        // Set up and configure the Preview's builder
-//        val previewBuilder = Preview.Builder()
-//
-//        val stateCallback = object : CameraCaptureSession.StateCallback() {
-//            override fun onConfigured(session: CameraCaptureSession) {
-//                captureRequestBuilder = cameraDevice?.createCaptureRequest(CameraDevice.TEMPLATE_PREVIEW)
-//                captureRequestBuilder.addTarget(binding.adbCameralibraryPreviewView.surfaceProvider.)
-//                session.setRepeatingRequest(
-//                    captureRequestBuilder?.build()!!,
-//                    captureCallback,
-//                    cameraHandler
-//                )
-//                Timber.i(">>>>>>>>>> StateCallback onConfigured")
-//            }
-//
-//            override fun onConfigureFailed(session: CameraCaptureSession) {
-//                Timber.i(">>>>>>>>>> StateCallback onConfigureFailed")
-//            }
-//        }
-//
-//        val deviceStateCallback = object : CameraDevice.StateCallback() {
-//            override fun onOpened(camera: CameraDevice) {
-//                cameraDevice = camera
-//                Timber.i(">>>>>>>>>> CameraDevice.StateCallback onOpened")
-//            }
-//
-//            override fun onError(camera: CameraDevice, error: Int) {
-//                cameraDevice?.close()
-//                cameraDevice = null
-//                Timber.i(">>>>>>>>>> CameraDevice.StateCallback onError")
-//            }
-//
-//            override fun onDisconnected(camera: CameraDevice) {
-//                cameraDevice?.close()
-//            }
-//        }
-//
-//        // Create an Extender to attach Camera2 options
-//        val previewExtender = Camera2Interop.Extender(previewBuilder)
-////        //previewExtender.setCaptureRequestTemplate(CameraDevice.TEMPLATE_ZERO_SHUTTER_LAG)
-//
-//        previewExtender.setSessionStateCallback(stateCallback)
-//        previewExtender.setDeviceStateCallback(deviceStateCallback)
-//        // Attach the Camera2 CaptureCallback
-//        //previewExtender.setSessionCaptureCallback(captureCallback)
 
         // Preview
         preview = Preview.Builder()
@@ -807,24 +559,6 @@ internal class ShootFragment :
             preview?.setSurfaceProvider(binding.adbCameralibraryPreviewView.surfaceProvider)
             //
             observeCameraState(camera?.cameraInfo!!)
-
-//
-//
-//            camera?.cameraControl?.enableTorch(true)?.addListener({
-//                Timber.i(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> enableTorch")
-//            }, ContextCompat.getMainExecutor(requireContext()))
-//            val autoFocusPoint = SurfaceOrientedMeteringPointFactory(1f, 1f)
-//                .createPoint(.5f, .5f)
-//            val autoFocusAction = FocusMeteringAction.Builder(
-//                autoFocusPoint,
-//                FocusMeteringAction.FLAG_AF
-//            ).apply {
-//                //start auto-focusing after 2 seconds
-//                setAutoCancelDuration(2, TimeUnit.SECONDS)
-//            }.build()
-//            val focusListenableFuture = camera?.cameraControl?.startFocusAndMetering(autoFocusAction)?.addListener({
-//                Timber.i(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> startFocusAndMetering")
-//            }, ContextCompat.getMainExecutor(requireContext()))
         } catch (exc: Exception) {
             // Debug.
             Timber.e(">>>>> Use case binding failed: $exc")
@@ -875,5 +609,21 @@ internal class ShootFragment :
     /** Returns true if the device has an available front camera. False otherwise */
     private fun hasFrontCamera(): Boolean {
         return cameraProvider?.hasCamera(CameraSelector.DEFAULT_FRONT_CAMERA) ?: false
+    }
+
+    // 셔터음.
+    private fun playShutterSound(canMute: Boolean) {
+        if (canMute) {
+            // 미디어 볼륨으로 셔터효과음 재생.
+            mediaActionSound.playWithStreamVolume(
+                MediaActionSound.SHUTTER_CLICK,
+                audioManager
+            )
+        } else {
+            // 최소 볼륨으로 셔터효과음 재생.
+            mediaActionSound.playWithMinimumVolume(
+                MediaActionSound.SHUTTER_CLICK
+            )
+        }
     }
 }

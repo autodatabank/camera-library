@@ -20,8 +20,10 @@ internal abstract class BaseAndroidViewModel<T>(
     val state = _state.asStateFlow()
 
     protected fun updateState(transform: (T?) -> T?) {
+        Timber.i(">>>>> AndroidViewModel updateState")
         val state = state.value
         val value = state.value ?: return
+        Timber.i(">>>>> AndroidViewModel updateState : %s", value)
         _state.update {
             UiState.success(transform(value))
         }
