@@ -166,5 +166,14 @@
             app:layout_constraintStart_toStartOf="@+id/adb_cameralibrary_button_finish"
             app:layout_constraintTop_toBottomOf="@+id/adb_cameralibrary_button_finish"
             />
+        <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/adb_cameralibrary_imageview_thumbnail"
+            android:layout_width="160dp"
+            android:layout_height="wrap_content"
+            android:adjustViewBounds="true"
+            android:scaleType="fitCenter"
+            app:layout_constraintTop_toTopOf="@+id/adb_cameralibrary_preview_view"
+            app:layout_constraintEnd_toEndOf="@+id/adb_cameralibrary_preview_view"
+            />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

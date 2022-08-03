@@ -36,7 +36,8 @@ constructor(
     sealed class Event {
         data class PlayShutterSound(val canMute: Boolean) : Event()
         data class TakePicture(val uri: Uri, val size: Size, val thumbnailBitmap: Bitmap?) : Event()
-        data class TakeMultiplePictures(val uris: ArrayList<Uri>, val sizes: ArrayList<Size>) : Event()
+        data class TakeMultiplePictures(val uris: ArrayList<Uri>, val sizes: ArrayList<Size>) :
+            Event()
     }
 
     // Event.
@@ -56,6 +57,7 @@ constructor(
         }
         .stateIn(viewModelScope, SharingStarted.Eagerly, false)
 
+    // 카메라 플래쉬 모드.
     var flashMode: Int = ImageCapture.FLASH_MODE_OFF
         get() = PreferenceManager.getInstance(
             getApplication<Application>().applicationContext

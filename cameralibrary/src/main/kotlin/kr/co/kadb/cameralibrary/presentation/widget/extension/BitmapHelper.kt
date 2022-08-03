@@ -5,6 +5,7 @@ package kr.co.kadb.cameralibrary.presentation.widget.extension
 import android.content.ContentValues
 import android.content.Context
 import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.graphics.Color
 import android.os.Build
 import android.os.Environment
@@ -12,14 +13,16 @@ import android.os.ParcelFileDescriptor
 import android.provider.MediaStore
 import android.util.Base64
 import timber.log.Timber
-import java.io.File
-import java.io.FileOutputStream
 import java.io.ByteArrayOutputStream
+import java.io.File
+import java.io.FileNotFoundException
+import java.io.FileOutputStream
 
 /**
  * Created by oooobang on 2018. 5. 11..
  * Bitmap Extension.
  */
+// 저장.
 internal fun Bitmap?.save(
     context: Context? = null,
     isPublicDirectory: Boolean = false,
@@ -149,9 +152,7 @@ internal fun Bitmap?.toByteArray(format: Bitmap.CompressFormat = Bitmap.Compress
     return stream.toByteArray()
 }
 
-/**
- * Bitmap 특정 컬러 투명처리.
- */
+// 특정 컬러 투명처리.
 internal fun Bitmap?.toTransparentBitmap(replaceThisColor: Int): Bitmap? {
     if (this != null) {
         val picw = this.width
@@ -173,6 +174,35 @@ internal fun Bitmap?.toTransparentBitmap(replaceThisColor: Int): Bitmap? {
             }
         }
         return Bitmap.createBitmap(pix, picw, pich, Bitmap.Config.ARGB_8888)
+    }
+    return null
+}
+
+// 리사이징.
+internal fun Bitmap?.resize(resize: Int): Bitmap? {
+    try {
+        return this?.let { bitmap ->
+            val byteArray = bitmap.toByteArray()
+            val options = BitmapFactory.Options().apply {
+                inJustDecodeBounds = true
+            }
+            BitmapFactory.decodeByteArray(byteArray, 0, byteArray?.size ?: 0, options)
+            var width = options.outWidth
+            var height = options.outHeight
+            var sampleSize = 1
+            while (true) {
+                if (width / 2 < resize || height / 2 < resize) {
+                    break
+                }
+                width /= 2
+                height /= 2
+                sampleSize *= 2
+            }
+            options.inSampleSize = sampleSize
+            Bitmap.createScaledBitmap(bitmap, resize, resize, true)
+        }
+    } catch (ex: FileNotFoundException) {
+        ex.printStackTrace()
     }
     return null
 }

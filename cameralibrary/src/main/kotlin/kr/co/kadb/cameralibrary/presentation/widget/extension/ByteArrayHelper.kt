@@ -12,12 +12,14 @@ import android.os.ParcelFileDescriptor
 import android.provider.MediaStore
 import timber.log.Timber
 import java.io.File
+import java.io.FileNotFoundException
 import java.io.FileOutputStream
 
 /**
  * Created by oooobang on 2018. 5. 11..
  * ByteArray Extension.
  */
+// 저장.
 internal fun ByteArray?.save(
     context: Context? = null,
     isPublicDirectory: Boolean = false,
@@ -141,6 +143,38 @@ internal fun ByteArray?.save(
 
     return path
 }
+
+// 리사이징.
+internal fun ByteArray?.resize(resize: Int): Bitmap? {
+    try {
+        this?.let { byteArray ->
+            val options = BitmapFactory.Options().apply {
+                inJustDecodeBounds = true
+            }
+            BitmapFactory.decodeByteArray(byteArray, 0, byteArray.size, options)
+            var width = options.outWidth
+            var height = options.outHeight
+            var sampleSize = 1
+            while (true) {
+                if (width / 2 < resize || height / 2 < resize) {
+                    break
+                }
+                width /= 2
+                height /= 2
+                sampleSize *= 2
+            }
+            options.inSampleSize = sampleSize
+            byteArray.toBitmap(sampleSize)?.let { bitmap ->
+                Bitmap.createScaledBitmap(bitmap, resize, resize, true)
+            }
+        }
+    } catch (ex: FileNotFoundException) {
+        ex.printStackTrace()
+    }
+    return null
+}
+
+
 
 // toByteArray.
 internal fun ByteArray?.toBitmap(sampleSize: Int? = null): Bitmap? {
