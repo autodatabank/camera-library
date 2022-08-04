@@ -181,6 +181,13 @@ constructor(
         }.build()
     }
 
+    fun rotateAndCenterCrop(bitmap: Bitmap, rotationDegrees: Int): Bitmap? {
+        return bitmap.rotateAndCenterCrop(
+            item.value.cropPercent.toTypedArray(),
+            rotationDegrees
+        )
+    }
+
     fun saveImage(byteBuffer: ByteBuffer) {
         // 셔터음 이벤트.
         event(Event.PlayShutterSound(item.value.canMute))

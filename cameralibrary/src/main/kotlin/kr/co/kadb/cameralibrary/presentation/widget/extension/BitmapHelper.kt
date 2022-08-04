@@ -7,11 +7,14 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Color
+import android.graphics.Matrix
+import android.net.Uri
 import android.os.Build
 import android.os.Environment
 import android.os.ParcelFileDescriptor
 import android.provider.MediaStore
 import android.util.Base64
+import android.util.Size
 import timber.log.Timber
 import java.io.ByteArrayOutputStream
 import java.io.File
@@ -178,6 +181,78 @@ internal fun Bitmap?.toTransparentBitmap(replaceThisColor: Int): Bitmap? {
     return null
 }
 
+// 이미지 Uri에서 회전후 중앙 기준 Crop한 Bitmap 반환.
+fun Bitmap.rotateAndCenterCrop(
+    cropSize: Size,
+    rotationDegrees: Int
+): Bitmap? {
+    val matrix = Matrix().apply {
+        preRotate(rotationDegrees.toFloat())
+    }
+    if (cropSize.width < width && cropSize.height < height) {
+        val (widthCrop, heightCrop) = when (rotationDegrees) {
+            90, 270 -> {
+                Pair(cropSize.width, cropSize.height)
+            }
+            else -> {
+                Pair(cropSize.height, cropSize.width)
+            }
+        }
+        return Bitmap.createBitmap(
+            this,
+            (width / 2) - (widthCrop / 2),
+            (height / 2) - (heightCrop / 2),
+            widthCrop,
+            heightCrop,
+            matrix,
+            true
+        )
+    } else {
+        return Bitmap.createBitmap(
+            this,
+            0,
+            0,
+            width,
+            height,
+            matrix,
+            true
+        )
+    }
+}
+
+// 이미지 Uri에서 회전후 중앙 기준 Crop한 Bitmap 반환.
+fun Bitmap.rotateAndCenterCrop(
+    cropPercent: Array<Float>,
+    rotationDegrees: Int
+): Bitmap? {
+    val matrix = Matrix().apply {
+        preRotate(rotationDegrees.toFloat())
+    }
+    val (widthCrop, heightCrop) = when (rotationDegrees) {
+        90, 270 -> {
+            Pair(
+                (width * cropPercent[1]).toInt(),
+                (height * cropPercent[0]).toInt()
+            )
+        }
+        else -> {
+            Pair(
+                (width * cropPercent[0]).toInt(),
+                (height * cropPercent[1]).toInt()
+            )
+        }
+    }
+    return Bitmap.createBitmap(
+        this,
+        (width / 2) - (widthCrop / 2),
+        (height / 2) - (heightCrop / 2),
+        widthCrop,
+        heightCrop,
+        matrix,
+        true
+    )
+}
+
 // 리사이징.
 internal fun Bitmap?.resize(resize: Int): Bitmap? {
     try {
@@ -199,7 +274,7 @@ internal fun Bitmap?.resize(resize: Int): Bitmap? {
                 sampleSize *= 2
             }
             options.inSampleSize = sampleSize
-            Bitmap.createScaledBitmap(bitmap, resize, resize, true)
+            Bitmap.createScaledBitmap(bitmap, width, height, true)
         }
     } catch (ex: FileNotFoundException) {
         ex.printStackTrace()

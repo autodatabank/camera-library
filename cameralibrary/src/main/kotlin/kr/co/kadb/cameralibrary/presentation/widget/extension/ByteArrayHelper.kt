@@ -165,7 +165,7 @@ internal fun ByteArray?.resize(resize: Int): Bitmap? {
             }
             options.inSampleSize = sampleSize
             byteArray.toBitmap(sampleSize)?.let { bitmap ->
-                Bitmap.createScaledBitmap(bitmap, resize, resize, true)
+                Bitmap.createScaledBitmap(bitmap, width, height, true)
             }
         }
     } catch (ex: FileNotFoundException) {

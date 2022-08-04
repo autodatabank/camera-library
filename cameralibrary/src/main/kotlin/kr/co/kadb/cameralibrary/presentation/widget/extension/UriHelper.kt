@@ -139,7 +139,7 @@ fun Uri.toBitmap(context: Context): Bitmap? {
 fun Uri.rotateAndCrop(
     context: Context,
     cropRect: Rect,
-    rotationDegrees: Int? = null,
+    rotationDegrees: Int? = null
 ): Bitmap? {
     val rotation = rotationDegrees?.toFloat() ?: (exif(context)?.rotation?.toFloat() ?: return null)
     val bitmap = toBitmap(context) ?: return null
@@ -159,14 +159,22 @@ fun Uri.rotateAndCrop(
 // 이미지 Uri에서 회전후 중앙 기준 Crop한 Bitmap 반환.
 fun Uri.rotateAndCenterCrop(
     context: Context,
-    cropSize: Size
+    cropSize: Size,
+    originSize: Size? = null,
+    rotationDegrees: Int? = null
 ): Bitmap? {
-    val exif = exif(context) ?: return null
     val bitmap = toBitmap(context) ?: return null
-    val rotation = exif.rotation
-    val matrix = Matrix()
-    matrix.preRotate(rotation.toFloat())
-    if (cropSize.width < exif.width && cropSize.height < exif.height) {
+    val (width, height, rotation) = if (originSize == null || rotationDegrees == null) {
+        exif(context)?.let {
+            Triple(it.width, it.height, it.rotation)
+        } ?: return null
+    } else {
+        Triple(originSize.width, originSize.height, rotationDegrees)
+    }
+    val matrix = Matrix().apply {
+        preRotate(rotation.toFloat())
+    }
+    if (cropSize.width < width && cropSize.height < height) {
         val (widthCrop, heightCrop) = when (rotation) {
             90, 270 -> {
                 Pair(cropSize.width, cropSize.height)
@@ -177,8 +185,8 @@ fun Uri.rotateAndCenterCrop(
         }
         return Bitmap.createBitmap(
             bitmap,
-            (exif.width / 2) - (widthCrop / 2),
-            (exif.height / 2) - (heightCrop / 2),
+            (width / 2) - (widthCrop / 2),
+            (height / 2) - (heightCrop / 2),
             widthCrop,
             heightCrop,
             matrix,
@@ -189,8 +197,8 @@ fun Uri.rotateAndCenterCrop(
             bitmap,
             0,
             0,
-            exif.width,
-            exif.height,
+            width,
+            height,
             matrix,
             true
         )
@@ -200,31 +208,39 @@ fun Uri.rotateAndCenterCrop(
 // 이미지 Uri에서 회전후 중앙 기준 Crop한 Bitmap 반환.
 fun Uri.rotateAndCenterCrop(
     context: Context,
-    cropPercent: Array<Float>
+    cropPercent: Array<Float>,
+    originSize: Size? = null,
+    rotationDegrees: Int? = null
 ): Bitmap? {
-    val exif = exif(context) ?: return null
     val bitmap = toBitmap(context) ?: return null
-    val rotation = exif.rotation
-    val matrix = Matrix()
-    matrix.preRotate(rotation.toFloat())
+    val (width, height, rotation) = if (originSize == null || rotationDegrees == null) {
+        exif(context)?.let {
+            Triple(it.width, it.height, it.rotation)
+        } ?: return null
+    } else {
+        Triple(originSize.width, originSize.height, rotationDegrees)
+    }
+    val matrix = Matrix().apply {
+        preRotate(rotation.toFloat())
+    }
     val (widthCrop, heightCrop) = when (rotation) {
         90, 270 -> {
             Pair(
-                (exif.width * cropPercent[1]).toInt(),
-                (exif.height * cropPercent[0]).toInt()
+                (width * cropPercent[1]).toInt(),
+                (height * cropPercent[0]).toInt()
             )
         }
         else -> {
             Pair(
-                (exif.width * cropPercent[0]).toInt(),
-                (exif.height * cropPercent[1]).toInt()
+                (width * cropPercent[0]).toInt(),
+                (height * cropPercent[1]).toInt()
             )
         }
     }
     return Bitmap.createBitmap(
         bitmap,
-        (exif.width / 2) - (widthCrop / 2),
-        (exif.height / 2) - (heightCrop / 2),
+        (width / 2) - (widthCrop / 2),
+        (height / 2) - (heightCrop / 2),
         widthCrop,
         heightCrop,
         matrix,

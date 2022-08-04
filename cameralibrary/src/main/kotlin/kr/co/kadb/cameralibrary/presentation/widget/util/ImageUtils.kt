@@ -50,6 +50,7 @@ object ImageUtils {
                     )
             }
         }
+        //val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
         val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
         bitmap.setPixels(argb8888, 0, width, 0, 0, width, height)
         return bitmap
