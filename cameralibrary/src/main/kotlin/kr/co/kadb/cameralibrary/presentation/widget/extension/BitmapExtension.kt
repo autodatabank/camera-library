@@ -23,7 +23,7 @@ import java.io.FileOutputStream
  * Bitmap Extension.
  */
 // 저장.
-internal fun Bitmap?.save(
+fun Bitmap?.save(
     context: Context? = null,
     isPublicDirectory: Boolean = false,
     filename: String = System.currentTimeMillis().toString(),
@@ -146,14 +146,14 @@ internal fun Bitmap?.save(
 }
 
 // toByteArray.
-internal fun Bitmap?.toByteArray(format: Bitmap.CompressFormat = Bitmap.CompressFormat.JPEG): ByteArray? {
+fun Bitmap?.toByteArray(format: Bitmap.CompressFormat = Bitmap.CompressFormat.JPEG): ByteArray? {
     val stream = ByteArrayOutputStream()
     this?.compress(format, 90, stream)
     return stream.toByteArray()
 }
 
 // 특정 컬러 투명처리.
-internal fun Bitmap?.toTransparentBitmap(replaceThisColor: Int): Bitmap? {
+fun Bitmap?.toTransparentBitmap(replaceThisColor: Int): Bitmap? {
     if (this != null) {
         val picw = this.width
         val pich = this.height
@@ -179,7 +179,7 @@ internal fun Bitmap?.toTransparentBitmap(replaceThisColor: Int): Bitmap? {
 }
 
 // 리사이징.
-internal fun Bitmap?.resize(resize: Int): Bitmap? {
+fun Bitmap?.resize(resize: Int): Bitmap? {
     try {
         return this?.let { bitmap ->
             val byteArray = bitmap.toByteArray()

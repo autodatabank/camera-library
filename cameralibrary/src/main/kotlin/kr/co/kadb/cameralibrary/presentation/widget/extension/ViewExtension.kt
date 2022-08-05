@@ -9,10 +9,10 @@ import android.view.View
  * View Extension.
  */
 
-internal fun View.showSoftInput() {
+fun View.showSoftInput() {
 	context.inputMethodManager.showSoftInput(this, 0)
 }
 
-internal fun View.hideSoftInput() {
+fun View.hideSoftInput() {
 	context.inputMethodManager.hideSoftInputFromWindow(this.applicationWindowToken, 0)
 }

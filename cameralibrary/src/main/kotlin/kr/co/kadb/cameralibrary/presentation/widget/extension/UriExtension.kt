@@ -24,7 +24,7 @@ import kotlin.math.min
  * Uri Extension.
  */
 // 이미지 Exif.
-internal fun Uri.exif(context: Context): Exif? {
+fun Uri.exif(context: Context): Exif? {
     var exif: Exif? = null
     var inputStream: InputStream? = null
     try {
@@ -47,7 +47,7 @@ internal fun Uri.exif(context: Context): Exif? {
 }
 
 // 이미지 ExifInterface.
-internal fun Uri.exifInterface(context: Context): ExifInterface? {
+fun Uri.exifInterface(context: Context): ExifInterface? {
     var exifInterface: ExifInterface? = null
     var inputStream: InputStream? = null
     try {
@@ -80,7 +80,7 @@ internal fun Uri.exifInterface(context: Context): ExifInterface? {
 }
 
 // 이미지 Thumbnail 반환.
-internal fun Uri.toThumbnail(
+fun Uri.toThumbnail(
     context: Context,
     exif: Exif? = null,
     size: Int = 96
@@ -233,7 +233,7 @@ fun Uri.rotateAndCenterCrop(
 }
 
 // 이미지 리사이징.
-internal fun Uri.resize(context: Context, resize: Int): Bitmap? {
+fun Uri.resize(context: Context, resize: Int): Bitmap? {
     try {
         val options: BitmapFactory.Options = BitmapFactory.Options()
         BitmapFactory.decodeStream(context.contentResolver.openInputStream(this), null, options)

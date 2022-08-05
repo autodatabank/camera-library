@@ -9,15 +9,10 @@ import java.text.DecimalFormat
  * String Extension.
  */
 // 콤마를 포함한 숫자형식.
-internal fun Int?.numberWithComma(): String {
+fun Long?.numberWithComma(): String {
 	return try {
 		DecimalFormat("#,###").format(this)
 	} catch (ex: Exception) {
 		"0"
 	}
-}
-
-// toNotNull.
-internal fun Int?.toNotNull(): Int {
-	return this ?: 0
 }

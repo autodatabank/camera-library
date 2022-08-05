@@ -20,7 +20,7 @@ import java.io.FileOutputStream
  * ByteArray Extension.
  */
 // 저장.
-internal fun ByteArray?.save(
+fun ByteArray?.save(
     context: Context? = null,
     isPublicDirectory: Boolean = false,
     filename: String = System.currentTimeMillis().toString(),
@@ -145,7 +145,7 @@ internal fun ByteArray?.save(
 }
 
 // 리사이징.
-internal fun ByteArray?.resize(resize: Int): Bitmap? {
+fun ByteArray?.resize(resize: Int): Bitmap? {
     try {
         this?.let { byteArray ->
             val options = BitmapFactory.Options().apply {
@@ -177,7 +177,7 @@ internal fun ByteArray?.resize(resize: Int): Bitmap? {
 
 
 // toByteArray.
-internal fun ByteArray?.toBitmap(sampleSize: Int? = null): Bitmap? {
+fun ByteArray?.toBitmap(sampleSize: Int? = null): Bitmap? {
     // 샘플링.
     val options = BitmapFactory.Options()
     sampleSize?.let {

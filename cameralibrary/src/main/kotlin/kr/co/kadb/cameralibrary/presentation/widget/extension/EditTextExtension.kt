@@ -16,7 +16,7 @@ import android.widget.EditText
  * EditText Extension.
  */
 // 키보드 보기.
-internal fun EditText.showSoftInput() {
+fun EditText.showSoftInput() {
 	requestFocus()
 	postDelayed({
 		val imm = context.getSystemService(Context.INPUT_METHOD_SERVICE) as? InputMethodManager
@@ -135,7 +135,7 @@ internal fun EditText.showSoftInput() {
 //}
 
 // Action.
-internal inline fun EditText.onImeAction(crossinline action: (text: String) -> Unit) {
+inline fun EditText.onImeAction(crossinline action: (text: String) -> Unit) {
 	setOnKeyListener(View.OnKeyListener { _, keyCode, event ->
 		if ((event?.action == KeyEvent.ACTION_DOWN) && (keyCode == KeyEvent.KEYCODE_ENTER)) {
 			action(text.toString())
@@ -151,7 +151,7 @@ internal inline fun EditText.onImeAction(crossinline action: (text: String) -> U
 
 // Done.
 @Suppress("unused")
-internal inline fun EditText.onDone(crossinline action: (text: String) -> Unit) {
+inline fun EditText.onDone(crossinline action: (text: String) -> Unit) {
 	imeOptions = EditorInfo.IME_ACTION_DONE
 	onImeAction {
 		hideSoftInput()
@@ -161,7 +161,7 @@ internal inline fun EditText.onDone(crossinline action: (text: String) -> Unit) 
 
 // Send.
 @Suppress("unused")
-internal inline fun EditText.onSend(crossinline action: (text: String) -> Unit) {
+inline fun EditText.onSend(crossinline action: (text: String) -> Unit) {
 	imeOptions = EditorInfo.IME_ACTION_SEND
 	onImeAction {
 		hideSoftInput()
@@ -171,7 +171,7 @@ internal inline fun EditText.onSend(crossinline action: (text: String) -> Unit) 
 
 // Search.
 @Suppress("unused")
-internal inline fun EditText.onSearch(crossinline action: (text: String) -> Unit) {
+inline fun EditText.onSearch(crossinline action: (text: String) -> Unit) {
 	imeOptions = EditorInfo.IME_ACTION_SEARCH
 	onImeAction {
 		hideSoftInput()
@@ -180,7 +180,7 @@ internal inline fun EditText.onSearch(crossinline action: (text: String) -> Unit
 }
 
 // TextWatcher.
-internal inline fun EditText.afterTextChanged(crossinline afterTextChanged: (String) -> Unit) {
+inline fun EditText.afterTextChanged(crossinline afterTextChanged: (String) -> Unit) {
 	addTextChangedListener(object : TextWatcher {
 		var recentText = this@afterTextChanged.text.toString()
 		override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
