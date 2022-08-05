@@ -13,8 +13,8 @@ android {
     defaultConfig {
         minSdk 21
         targetSdk 31
-        versionCode 22072601
-        versionName "1.0.0"
+        versionCode 22080501
+        versionName "1.0.1"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles "consumer-rules.pro"
@@ -22,24 +22,10 @@ android {
     }
 
     buildTypes {
-//        Random rnd = new Random()
-//        debug {
-//            debuggable true
-//            buildConfigField "boolean", "DEBUG_VERBOSE", "true"
-//            buildConfigField "int", "RAND", rnd
-//        }
-
         release {
-//            buildConfigField "int", "RAND", rnd
-//            buildConfigField "boolean", "DEBUG_VERBOSE", "true"
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
-//        buildTypes.each {
-//            it.buildConfigField "int", "RAND", rnd
-//            //it.buildConfigField 'String', 'APP_KEY_1', "AppKey"
-//            //it.resValue 'string', 'APP_KEY_2', AppKey
-//        }
     }
 
     compileOptions {
@@ -49,10 +35,6 @@ android {
 
     kotlinOptions {
         jvmTarget = '1.8'
-//        moduleName = 'kr.co.kadb.cameralibrary'
-//        freeCompilerArgs += [
-//                "-Xuse-experimental=kotlinx.coroutines.ExperimentalCoroutinesApi",
-//                "-Xuse-experimental=kotlinx.coroutines.ObsoleteCoroutinesApi"]
     }
 
     sourceSets {
