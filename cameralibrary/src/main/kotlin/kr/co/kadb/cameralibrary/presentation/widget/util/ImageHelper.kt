@@ -10,7 +10,7 @@ import androidx.annotation.ColorInt
 /**
  * Utility class for manipulating images.
  */
-object ImageUtils {
+internal object ImageUtils {
     private val CHANNEL_RANGE = 0 until (1 shl 18)
 
     fun convertYuv420888ImageToBitmap(image: Image): Bitmap {

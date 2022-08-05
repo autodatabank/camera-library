@@ -12,9 +12,7 @@ import kr.co.kadb.camera.R
 import kr.co.kadb.camera.data.local.PreferenceManager
 import kr.co.kadb.camera.databinding.FragmentShootBinding
 import kr.co.kadb.camera.presentation.base.BaseBindingFragment
-import kr.co.kadb.camera.presentation.widget.extension.save
 import kr.co.kadb.cameralibrary.presentation.CameraIntent
-import kr.co.kadb.cameralibrary.presentation.widget.extension.rotateAndCenterCrop
 import kr.co.kadb.cameralibrary.presentation.widget.util.IntentKey
 import javax.inject.Inject
 

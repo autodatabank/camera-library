@@ -17,11 +17,11 @@ import java.util.regex.Pattern
  * String Extension.
  */
 // String to Calendar.
-internal fun String?.toBigDecimalOrDouble(): BigDecimal = this?.toBigDecimalOrNull()
+fun String?.toBigDecimalOrDouble(): BigDecimal = this?.toBigDecimalOrNull()
         ?: BigDecimal.valueOf(0.0)
 
 // String to Calendar.
-internal fun String?.yyyymmdd(): String? {
+fun String?.yyyymmdd(): String? {
     return if ((this?.length ?: 0) >= 10) {
         this?.substring(0, 10)
     } else {
@@ -30,7 +30,7 @@ internal fun String?.yyyymmdd(): String? {
 }
 
 // String to Calendar.
-internal fun String?.toYyyymmdd(): Calendar? = try {
+fun String?.toYyyymmdd(): Calendar? = try {
     this?.let {
         val formatter = SimpleDateFormat("yyyy-MM-dd", Locale.KOREAN)
         val calendar = Calendar.getInstance()
@@ -44,7 +44,7 @@ internal fun String?.toYyyymmdd(): Calendar? = try {
 }
 
 // 전화번호 '-' 하이픈 추가.
-internal fun String?.addHyphenPhoneNumber(): String {
+fun String?.addHyphenPhoneNumber(): String {
     return this?.let {
         when (it.length) {
 			8 -> it.replaceFirst("^([0-9]{4})([0-9]{4})$".toRegex(), "$1-$2")
@@ -55,7 +55,7 @@ internal fun String?.addHyphenPhoneNumber(): String {
 }
 
 // 전화번호 '-' 하이픈 분리.
-internal fun String?.splitPhoneNumber(): Array<String?> {
+fun String?.splitPhoneNumber(): Array<String?> {
     val numbers = arrayOfNulls<String>(3)
     this?.split("-")?.forEachIndexed { index, s ->
         try {
@@ -67,7 +67,7 @@ internal fun String?.splitPhoneNumber(): Array<String?> {
 }
 
 // Email.
-internal fun String?.splitEmail(): Array<String?> {
+fun String?.splitEmail(): Array<String?> {
     val emails = arrayOfNulls<String>(2)
     this?.split("@")?.forEachIndexed { index, s ->
         try {
@@ -79,14 +79,14 @@ internal fun String?.splitEmail(): Array<String?> {
 }
 
 // Json Pretty.
-internal fun String?.toJsonPretty(): String {
+fun String?.toJsonPretty(): String {
     val json = JsonParser.parseString(this).asJsonObject
     val gson = GsonBuilder().setPrettyPrinting().create()
     return gson.toJson(json)
 }
 
 // 콤마를 포함한 숫자형식.
-internal fun String?.numberWithComma(): String {
+fun String?.numberWithComma(): String {
     return try {
         DecimalFormat("#,###").format(this?.toLong())
     } catch (ex: Exception) {
@@ -95,7 +95,7 @@ internal fun String?.numberWithComma(): String {
 }
 
 // 콤마 제거.
-internal fun String?.removeCommas(): String {
+fun String?.removeCommas(): String {
     return try {
         this?.replace("[,]".toRegex(), "") ?: ""
     } catch (ex: Exception) {
@@ -104,14 +104,14 @@ internal fun String?.removeCommas(): String {
 }
 
 // 소숫점 '0' 제거.
-internal fun String?.removeDecimalZero() = try {
+fun String?.removeDecimalZero() = try {
     (this?.toDoubleOrNull() ?: "0").toString()
 } catch (ex: Exception) {
     "0"
 }
 
 // Remove URL.
-internal fun String.removeUrl(): String {
+fun String.removeUrl(): String {
     val urlPattern = "((https?|ftp|gopher|telnet|file|Unsure|http):((//)|(\\\\))+[\\w\\d:#@%/;$()~_?\\+-=\\\\\\.&]*)"
     val pattern = Pattern.compile(urlPattern, Pattern.CASE_INSENSITIVE)
     val matcher = pattern.matcher(this)
@@ -127,7 +127,7 @@ internal fun String.removeUrl(): String {
 }
 
 // 파일명, 확장자명 변경.
-internal fun String.change(filename: String? = null,
+fun String.change(filename: String? = null,
 				  extension: String? = null,
 				  format: Bitmap.CompressFormat? = null): String {
     val name = filename ?: this.split(".").first()
@@ -143,11 +143,11 @@ internal fun String.change(filename: String? = null,
 }
 
 // toNotNull.
-internal fun String?.toNotNull(): String {
+fun String?.toNotNull(): String {
     return this ?: ""
 }
 
 // toNotNull.
-internal fun String?.equalsBlank(other: String?) = if (isNullOrBlank() && other.isNullOrBlank()) {
+fun String?.equalsBlank(other: String?) = if (isNullOrBlank() && other.isNullOrBlank()) {
     true
 } else this == other

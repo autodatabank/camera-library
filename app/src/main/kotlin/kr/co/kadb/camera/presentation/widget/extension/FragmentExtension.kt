@@ -12,7 +12,7 @@ import androidx.fragment.app.Fragment
 import androidx.appcompat.app.AlertDialog
 import android.view.inputmethod.InputMethodManager
 import androidx.annotation.StyleRes
-import kr.co.kadb.camera.R
+import kr.co.kadb.cameralibrary.R
 import java.util.*
 
 /**
@@ -20,13 +20,13 @@ import java.util.*
  * Fragment Extension.
  */
 // 키보드 내리기.
-internal fun Fragment.hideSoftInput() {
+fun Fragment.hideSoftInput() {
     val imm = context?.getSystemService(Context.INPUT_METHOD_SERVICE) as? InputMethodManager
     imm?.hideSoftInputFromWindow(view?.applicationWindowToken, 0)
 }
 
 // Show DatePicker.
-internal inline fun Fragment.showDatePicker(
+inline fun Fragment.showDatePicker(
     stringDate: String? = null,
     @StyleRes themeResId: Int = android.R.style.Widget_Material_Light_DatePicker,
     crossinline action: (Calendar) -> Unit
@@ -52,7 +52,7 @@ internal inline fun Fragment.showDatePicker(
 }
 
 // Show DatePicker.
-internal inline fun Fragment.showTimePicker(
+inline fun Fragment.showTimePicker(
     stringDate: String? = null,
     @StyleRes themeResId: Int = android.R.style.Widget_Material_Light_DatePicker,
     crossinline action: (Calendar) -> Unit
@@ -75,13 +75,13 @@ internal inline fun Fragment.showTimePicker(
 }
 
 // 전화걸기.
-internal fun Fragment.dial(number: String?) {
+fun Fragment.dial(number: String?) {
     when {
         number == null || number.isBlank() -> {
-            showAlert(getString(R.string.text_adb_camera_call_error_string, getString(R.string.text_adb_camera_nothing)), R.string.text_adb_camera_notify)
+            showAlert(getString(R.string.adb_cameralibrary_text_call_error_string, getString(R.string.adb_cameralibrary_text_nothing)), R.string.adb_cameralibrary_text_notify)
         }
         number.length < 9 -> {
-            showAlert(getString(R.string.text_adb_camera_call_error_string, number), R.string.text_adb_camera_notify)
+            showAlert(getString(R.string.adb_cameralibrary_text_call_error_string, number), R.string.adb_cameralibrary_text_notify)
         }
         else -> {
             val intent = Intent(Intent.ACTION_DIAL)
@@ -92,70 +92,70 @@ internal fun Fragment.dial(number: String?) {
 }
 
 // Toast.
-internal fun Fragment.showToast(message: CharSequence) {
+fun Fragment.showToast(message: CharSequence) {
     activity?.showToast(message)
 }
 
 // Toast.
-internal fun Fragment.showToast(@StringRes messageId: Int) {
+fun Fragment.showToast(@StringRes messageId: Int) {
     activity?.showToast(messageId)
 }
 
 // 알림 Toast.
-internal fun Fragment.showNotificationToast(message: CharSequence) {
+fun Fragment.showNotificationToast(message: CharSequence) {
     activity?.showNotificationToast(message)
 }
 
 // 알림 Toast.
-internal fun Fragment.showNotificationToast(@StringRes messageId: Int) {
+fun Fragment.showNotificationToast(@StringRes messageId: Int) {
     activity?.showNotificationToast(messageId)
 }
 
 // 성공 Toast.
-internal fun Fragment.showSuccessToast(@StringRes messageId: Int) {
+fun Fragment.showSuccessToast(@StringRes messageId: Int) {
     activity?.showSuccessToast(messageId)
 }
 
 // 성공 Toast.
-internal fun Fragment.showSuccessToast(message: String) {
+fun Fragment.showSuccessToast(message: String) {
     activity?.showSuccessToast(message)
 }
 
 // 오류 Toast.
-internal fun Fragment.showErrorToast(@StringRes messageId: Int) {
+fun Fragment.showErrorToast(@StringRes messageId: Int) {
     activity?.showErrorToast(messageId)
 }
 
 // 오류 Toast.
-internal fun Fragment.showErrorToast(message: String) {
+fun Fragment.showErrorToast(message: String) {
     activity?.showErrorToast(message)
 }
 
 //
-internal fun Fragment.showAlert(message: CharSequence?, @StringRes titleId: Int = R.string.text_adb_camera_notify) {
+fun Fragment.showAlert(message: CharSequence?, @StringRes titleId: Int = R.string.adb_cameralibrary_text_notify) {
     activity?.showAlert(message, titleId)
 }
 
-internal fun Fragment.showAlert(@StringRes messageId: Int, @StringRes titleId: Int = R.string.text_adb_camera_notify) {
+fun Fragment.showAlert(@StringRes messageId: Int, @StringRes titleId: Int = R.string.adb_cameralibrary_text_notify) {
     activity?.showAlert(messageId, titleId)
 }
 
-internal inline fun Fragment.showAlert(
+inline fun Fragment.showAlert(
     message: CharSequence?,
-    @StringRes titleId: Int = R.string.text_adb_camera_notify,
+    @StringRes titleId: Int = R.string.adb_cameralibrary_text_notify,
     showAlertDialog: AlertDialog.Builder.() -> Unit
 ) {
     activity?.showAlert(message, titleId, showAlertDialog)
 }
 
-internal inline fun Fragment.showAlert(
+inline fun Fragment.showAlert(
     @StringRes messageId: Int,
-    @StringRes titleId: Int = R.string.text_adb_camera_notify,
+    @StringRes titleId: Int = R.string.adb_cameralibrary_text_notify,
     showAlertDialog: AlertDialog.Builder.() -> Unit
 ) {
     activity?.showAlert(messageId, titleId, showAlertDialog)
 }
 
-internal inline fun Fragment.showAlert(showAlertDialog: AlertDialog.Builder.() -> Unit) {
+inline fun Fragment.showAlert(showAlertDialog: AlertDialog.Builder.() -> Unit) {
     activity?.showAlert(showAlertDialog)
 }

@@ -9,7 +9,7 @@ import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AlertDialog
-import kr.co.kadb.camera.R
+import kr.co.kadb.cameralibrary.R
 
 /**
  * Created by oooobang on 2018. 3. 2..
@@ -20,14 +20,14 @@ import kr.co.kadb.camera.R
 internal var toast: Toast? = null
 
 // 키보드 내리기.
-internal fun Activity.hideSoftInput() {
+fun Activity.hideSoftInput() {
     val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as? InputMethodManager
     imm?.hideSoftInputFromWindow(window?.decorView?.rootView?.applicationWindowToken, 0)
 }
 
 // Toast.
 @SuppressLint("ShowToast")
-internal fun Activity.showToast(message: CharSequence) {
+fun Activity.showToast(message: CharSequence) {
     toast?.cancel()
     toast = Toast.makeText(this, message, Toast.LENGTH_SHORT)
     toast?.show()
@@ -35,7 +35,7 @@ internal fun Activity.showToast(message: CharSequence) {
 
 // Toast.
 @SuppressLint("ShowToast")
-internal fun Activity.showToast(@StringRes messageId: Int) {
+fun Activity.showToast(@StringRes messageId: Int) {
     toast?.cancel()
     toast = Toast.makeText(this, messageId, Toast.LENGTH_SHORT)
     toast?.show()
@@ -43,7 +43,7 @@ internal fun Activity.showToast(@StringRes messageId: Int) {
 
 // 알림 Toast.
 @SuppressLint("ShowToast")
-internal fun Activity.showNotificationToast(message: CharSequence) {
+fun Activity.showNotificationToast(message: CharSequence) {
     toast?.cancel()
     toast = Toast.makeText(this, message, Toast.LENGTH_SHORT)
     toast?.show()
@@ -51,7 +51,7 @@ internal fun Activity.showNotificationToast(message: CharSequence) {
 
 // 알림 Toast.
 @SuppressLint("ShowToast")
-internal fun Activity.showNotificationToast(@StringRes messageId: Int) {
+fun Activity.showNotificationToast(@StringRes messageId: Int) {
     toast?.cancel()
     toast = Toast.makeText(this, messageId, Toast.LENGTH_SHORT)
     toast?.show()
@@ -59,7 +59,7 @@ internal fun Activity.showNotificationToast(@StringRes messageId: Int) {
 
 // 성공 Toast.
 @SuppressLint("ShowToast")
-internal fun Activity.showSuccessToast(@StringRes messageId: Int) {
+fun Activity.showSuccessToast(@StringRes messageId: Int) {
     toast?.cancel()
     toast = Toast.makeText(this, messageId, Toast.LENGTH_SHORT)
     toast?.show()
@@ -67,7 +67,7 @@ internal fun Activity.showSuccessToast(@StringRes messageId: Int) {
 
 // 성공 Toast.
 @SuppressLint("ShowToast")
-internal fun Activity.showSuccessToast(message: String) {
+fun Activity.showSuccessToast(message: String) {
     toast?.cancel()
     toast = Toast.makeText(this, message, Toast.LENGTH_SHORT)
     toast?.show()
@@ -75,7 +75,7 @@ internal fun Activity.showSuccessToast(message: String) {
 
 // 오류 Toast.
 @SuppressLint("ShowToast")
-internal fun Activity.showErrorToast(@StringRes messageId: Int) {
+fun Activity.showErrorToast(@StringRes messageId: Int) {
     toast?.cancel()
     toast = Toast.makeText(this, messageId, Toast.LENGTH_SHORT)
     toast?.show()
@@ -83,13 +83,13 @@ internal fun Activity.showErrorToast(@StringRes messageId: Int) {
 
 // 오류 Toast.
 @SuppressLint("ShowToast")
-internal fun Activity.showErrorToast(message: String) {
+fun Activity.showErrorToast(message: String) {
     toast?.cancel()
     toast = Toast.makeText(this, message, Toast.LENGTH_SHORT)
     toast?.show()
 }
 
-internal fun Activity.showAlert(message: CharSequence?, @StringRes titleId: Int = R.string.text_adb_camera_notify) {
+fun Activity.showAlert(message: CharSequence?, @StringRes titleId: Int = R.string.adb_cameralibrary_text_notify) {
     showAlert {
         setTitle(titleId)
         setMessage(message)
@@ -97,7 +97,7 @@ internal fun Activity.showAlert(message: CharSequence?, @StringRes titleId: Int 
     }
 }
 
-internal fun Activity.showAlert(@StringRes messageId: Int, @StringRes titleId: Int = R.string.text_adb_camera_notify) {
+fun Activity.showAlert(@StringRes messageId: Int, @StringRes titleId: Int = R.string.adb_cameralibrary_text_notify) {
     showAlert {
         setTitle(titleId)
         setMessage(messageId)
@@ -105,8 +105,8 @@ internal fun Activity.showAlert(@StringRes messageId: Int, @StringRes titleId: I
     }
 }
 
-internal inline fun Activity.showAlert(message: CharSequence?,
-                                       @StringRes titleId: Int = R.string.text_adb_camera_notify,
+inline fun Activity.showAlert(message: CharSequence?,
+                                       @StringRes titleId: Int = R.string.adb_cameralibrary_text_notify,
                                        showAlertDialog: AlertDialog.Builder.() -> Unit) {
     if (!this.isFinishing) {
         val dialogBuilder = AlertDialog.Builder(this)
@@ -114,13 +114,13 @@ internal inline fun Activity.showAlert(message: CharSequence?,
         dialogBuilder.create()
         dialogBuilder.setTitle(titleId)
         dialogBuilder.setMessage(message)
-        dialogBuilder.setPositiveButton(R.string.text_adb_camera_confirm, null)
+        dialogBuilder.setPositiveButton(R.string.adb_cameralibrary_text_confirm, null)
         dialogBuilder.show()
     }
 }
 
-internal inline fun Activity.showAlert(@StringRes messageId: Int,
-                                       @StringRes titleId: Int = R.string.text_adb_camera_notify,
+inline fun Activity.showAlert(@StringRes messageId: Int,
+                                       @StringRes titleId: Int = R.string.adb_cameralibrary_text_notify,
                                        showAlertDialog: AlertDialog.Builder.() -> Unit) {
     if (!this.isFinishing) {
         val dialogBuilder = AlertDialog.Builder(this)
@@ -128,12 +128,12 @@ internal inline fun Activity.showAlert(@StringRes messageId: Int,
         dialogBuilder.create()
         dialogBuilder.setTitle(titleId)
         dialogBuilder.setMessage(messageId)
-        dialogBuilder.setPositiveButton(R.string.text_adb_camera_confirm, null)
+        dialogBuilder.setPositiveButton(R.string.adb_cameralibrary_text_confirm, null)
         dialogBuilder.show()
     }
 }
 
-internal inline fun Activity.showAlert(showAlertDialog: AlertDialog.Builder.() -> Any) {
+inline fun Activity.showAlert(showAlertDialog: AlertDialog.Builder.() -> Any) {
     if (!this.isFinishing) {
         val dialogBuilder = AlertDialog.Builder(this)
         dialogBuilder.showAlertDialog()

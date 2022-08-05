@@ -317,35 +317,35 @@ internal class ShootFragment :
                 binding.adbCameralibraryLayoutUnusedArea.height
             )
 
-            binding.adbCameralibraryButtonFlash.apply {
-                layoutParams = ConstraintLayout.LayoutParams(
-                    0,
-                    unusedAreaHeight
-                )
-                ConstraintSet().let {
-                    it.clone(binding.adbCameralibraryLayout)
-                    it.connect(
-                        id,
-                        ConstraintSet.TOP,
-                        binding.adbCameralibraryLayout.id,
-                        ConstraintSet.TOP
-                    )
-                    it.connect(
-                        id,
-                        ConstraintSet.END,
-                        binding.adbCameralibraryLayout.id,
-                        ConstraintSet.END
-                    )
-                    it.setRotation(id, rotation.toFloat())
-                    it.applyTo(binding.adbCameralibraryLayout)
-                }
-            }.run {
-                val transition = ChangeBounds()
-                transition.interpolator = AccelerateDecelerateInterpolator()
-                TransitionManager.beginDelayedTransition(
-                    binding.adbCameralibraryLayoutUnusedArea, transition
-                )
-            }
+//            binding.adbCameralibraryButtonFlash.apply {
+//                layoutParams = ConstraintLayout.LayoutParams(
+//                    0,
+//                    unusedAreaHeight
+//                )
+//                ConstraintSet().let {
+//                    it.clone(binding.adbCameralibraryLayout)
+//                    it.connect(
+//                        id,
+//                        ConstraintSet.TOP,
+//                        binding.adbCameralibraryLayout.id,
+//                        ConstraintSet.TOP
+//                    )
+//                    it.connect(
+//                        id,
+//                        ConstraintSet.END,
+//                        binding.adbCameralibraryLayout.id,
+//                        ConstraintSet.END
+//                    )
+//                    it.setRotation(id, rotation.toFloat())
+//                    it.applyTo(binding.adbCameralibraryLayout)
+//                }
+//            }.run {
+//                val transition = ChangeBounds()
+//                transition.interpolator = AccelerateDecelerateInterpolator()
+//                TransitionManager.beginDelayedTransition(
+//                    binding.adbCameralibraryLayoutUnusedArea, transition
+//                )
+//            }
             if (unusedAreaWidth > 0 && unusedAreaHeight > 0) {
                 binding.adbCameralibraryViewUnusedAreaTop.apply {
                     layoutParams = ConstraintLayout.LayoutParams(
