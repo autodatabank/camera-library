@@ -16,7 +16,9 @@ internal data class ShootUiState(
     val canUiRotation: Boolean,
     val cropPercent: List<Float>,
     val uris: ArrayList<Uri>,
-    val sizes: ArrayList<Size>
+    val sizes: ArrayList<Size>,
+    val horizonColor: Int,
+    val unusedAreaBorderColor: Int
 ) {
     /*class DiffCallback : DiffUtil.ItemCallback<NewsItemUiState>() {
         override fun areItemsTheSame(
@@ -39,7 +41,9 @@ internal data class ShootUiState(
             canUiRotation = false,
             cropPercent = listOf(),
             uris = arrayListOf(),
-            sizes = arrayListOf()
+            sizes = arrayListOf(),
+            horizonColor = -1,
+            unusedAreaBorderColor = -1
         )
     }
 }

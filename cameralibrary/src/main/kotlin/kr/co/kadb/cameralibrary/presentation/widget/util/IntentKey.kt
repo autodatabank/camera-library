@@ -34,11 +34,17 @@ object IntentKey {
 	// 촬영 시 수평선 표시 요청용.
 	const val EXTRA_HAS_HORIZON = "EXTRA_HAS_HORIZON"
 
-	// 촬영 시 미리보기에 화면에 표시 할 마스크(백분융) 크기 요청용.
+	// 촬영 시 미리보기 화면에 표시 할 마스크(백분율) 크기 요청용.
 	const val EXTRA_CROP_PERCENT = "EXTRA_MASK_PERCENT"
 
 	// 촬영 시 UI 로테이션 금지(Image Exif값에는 영향 없음) 요청용.
 	const val EXTRA_CAN_UI_ROTATION = "EXTRA_CAN_UI_ROTATION"
+
+	// 촬영 시 수평선 Color 요청용.
+	const val EXTRA_HORIZON_COLOR = "EXTRA_HORIZON_COLOR"
+
+	// 촬영 시 미리보기 화면에 표시 할 마스크(백분율) Border Color 요청용.
+	const val EXTRA_CROP_BORDER_COLOR = "EXTRA_CROP_BORDER_COLOR"
 
 	// 한 장 촬영 시 width 반환용.
 	const val EXTRA_WIDTH = "EXTRA_WIDTH"

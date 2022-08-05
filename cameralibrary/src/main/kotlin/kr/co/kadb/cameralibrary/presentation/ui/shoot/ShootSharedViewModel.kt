@@ -92,7 +92,9 @@ constructor(
         canMute: Boolean = false,
         hasHorizon: Boolean = false,
         canUiRotation: Boolean = false,
-        cropPercent: Array<Float>?
+        cropPercent: Array<Float>?,
+        horizonColor: Int,
+        unusedAreaBorderColor: Int
     ) {
         // Debug.
         Timber.i(">>>>> initUiState action : $action")
@@ -108,7 +110,9 @@ constructor(
             canMute = canMute,
             hasHorizon = hasHorizon,
             canUiRotation = canUiRotation,
-            cropPercent = cropPercent?.toList() ?: listOf()
+            cropPercent = cropPercent?.toList() ?: listOf(),
+            horizonColor = horizonColor,
+            unusedAreaBorderColor = unusedAreaBorderColor
         ) ?: ShootUiState(
             action = action,
             isShooted = false,
@@ -118,10 +122,17 @@ constructor(
             canUiRotation = canUiRotation,
             cropPercent = cropPercent?.toList() ?: listOf(),
             uris = arrayListOf(),
-            sizes = arrayListOf()
+            sizes = arrayListOf(),
+            horizonColor = horizonColor,
+            unusedAreaBorderColor = unusedAreaBorderColor
         ).run {
             updateState(isLoading = false, value = this)
         }
+    }
+
+    // Horizon, UnusedAreaBorder 색상.
+    fun horizonAndUnusedAreaBorderColor(): Pair<Int, Int> {
+        return Pair(item.value.horizonColor, item.value.unusedAreaBorderColor)
     }
 
     // 사용하지 않는 영역 크기.

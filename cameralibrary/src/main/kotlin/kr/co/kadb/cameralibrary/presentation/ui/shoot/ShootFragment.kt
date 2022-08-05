@@ -88,7 +88,8 @@ internal class ShootFragment :
     private var lensFacing: Int = CameraSelector.LENS_FACING_BACK
     private var preview: Preview? = null
     private var imageCapture: ImageCapture? = null
-    private var imageAnalyzer: ImageAnalysis? = null
+
+    //    private var imageAnalyzer: ImageAnalysis? = null
     private var camera: Camera? = null
     private var cameraProvider: ProcessCameraProvider? = null
 
@@ -117,7 +118,6 @@ internal class ShootFragment :
 
                 // Rotation 갱신.
                 imageCapture?.targetRotation = rotation
-                imageAnalyzer?.targetRotation = rotation
             }
         }
     }
@@ -247,7 +247,7 @@ internal class ShootFragment :
                         // 이미지 저장.
                         viewModel.saveImage(image.planes[0].buffer)
                         // Close ImageProxy.
-//                        image.close()
+                        image.close()
                     }
 
                     override fun onError(exception: ImageCaptureException) {
@@ -300,12 +300,23 @@ internal class ShootFragment :
         viewModel.item.value.cropPercent.let {
             it.size == 2
         }.also {
-            binding.adbCameralibraryViewUnusedAreaLineTop.isVisible = it
-            binding.adbCameralibraryViewUnusedAreaLineEnd.isVisible = it
-            binding.adbCameralibraryViewUnusedAreaLineStart.isVisible = it
-            binding.adbCameralibraryViewUnusedAreaLineBottom.isVisible = it
+            binding.adbCameralibraryViewUnusedAreaBorderTop.isVisible = it
+            binding.adbCameralibraryViewUnusedAreaBorderEnd.isVisible = it
+            binding.adbCameralibraryViewUnusedAreaBorderStart.isVisible = it
+            binding.adbCameralibraryViewUnusedAreaBorderBottom.isVisible = it
         }
 
+        // 수평선, 크롭 시 사용하지 않는 영역의 Border Color.
+        val (horizonColor, unusedAreaBorderColor) = viewModel.horizonAndUnusedAreaBorderColor()
+        binding.apply {
+            adbCameralibraryViewHorizon.setBackgroundColor(horizonColor)
+            adbCameralibraryViewUnusedAreaBorderTop.setBackgroundColor(unusedAreaBorderColor)
+            adbCameralibraryViewUnusedAreaBorderEnd.setBackgroundColor(unusedAreaBorderColor)
+            adbCameralibraryViewUnusedAreaBorderStart.setBackgroundColor(unusedAreaBorderColor)
+            adbCameralibraryViewUnusedAreaBorderBottom.setBackgroundColor(unusedAreaBorderColor)
+        }
+
+        // 크롭크기로 영역 지정.
         binding.adbCameralibraryViewUnusedArea.post {
             val (unusedAreaWidth, unusedAreaHeight) = viewModel.unusedAreaSize(
                 imageCapture?.targetRotation ?: 0,
@@ -401,7 +412,7 @@ internal class ShootFragment :
                         it.applyTo(binding.adbCameralibraryViewUnusedArea)
                     }
                 }
-                binding.adbCameralibraryViewUnusedAreaHorizon.apply {
+                binding.adbCameralibraryViewHorizon.apply {
                     layoutParams = ConstraintLayout.LayoutParams(1, 1)
                     ConstraintSet().also {
                         it.clone(binding.adbCameralibraryViewUnusedArea)
@@ -532,12 +543,12 @@ internal class ShootFragment :
             .setTargetRotation(rotation)
             .setFlashMode(viewModel.flashMode)
             .build()
-
-        // ImageAnalysis
-        imageAnalyzer = ImageAnalysis.Builder()
-            .setTargetAspectRatio(AspectRatio.RATIO_4_3)
-            .setTargetRotation(rotation)
-            .build()
+//
+//        // ImageAnalysis
+//        imageAnalyzer = ImageAnalysis.Builder()
+//            .setTargetAspectRatio(AspectRatio.RATIO_4_3)
+//            .setTargetRotation(rotation)
+//            .build()
 
         // Must unbind the use-cases before rebinding them
         cameraProvider.unbindAll()
@@ -546,7 +557,7 @@ internal class ShootFragment :
             // A variable number of use-cases can be passed here -
             // camera provides access to CameraControl & CameraInfo
             camera = cameraProvider.bindToLifecycle(
-                this, cameraSelector, preview, imageCapture, imageAnalyzer
+                this, cameraSelector, preview, imageCapture
             )
 
             // Attach the viewfinder's surface provider to preview use case

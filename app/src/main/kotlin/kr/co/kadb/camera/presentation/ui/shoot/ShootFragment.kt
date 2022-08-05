@@ -3,6 +3,7 @@ package kr.co.kadb.camera.presentation.ui.shoot
 import android.app.Activity
 import android.content.Intent
 import android.graphics.Bitmap
+import android.graphics.Color
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.viewModels
@@ -15,7 +16,6 @@ import kr.co.kadb.camera.presentation.widget.extension.save
 import kr.co.kadb.cameralibrary.presentation.CameraIntent
 import kr.co.kadb.cameralibrary.presentation.widget.extension.rotateAndCenterCrop
 import kr.co.kadb.cameralibrary.presentation.widget.util.IntentKey
-import timber.log.Timber
 import javax.inject.Inject
 
 /**
@@ -56,35 +56,25 @@ internal class ShootFragment : BaseBindingFragment<FragmentShootBinding, ShootVi
                     // 썸네임 이미지.
                     val thumbnailBitmap = intent.extras?.get("data") as? Bitmap
 
-                    // Debug.
+                    // 촬영 원본 이미지.
                     binding.imageview.setImageURI(imageUri)
+                    // 썸네일 이미지.
                     binding.imageviewThumbnail.setImageBitmap(thumbnailBitmap)
-//
-//                    imageUri?.toBitmap(requireContext())?.save(requireContext(), true)
-//                    val bitmap = imageUri?.rotateAndCenterCrop(requireContext(), Size(562, 750))
-                    val bitmap = imageUri?.rotateAndCenterCrop(requireContext(), arrayOf(0.7f, 0.5f))
+
+                    // 이미지 중앙 기준 Crop(%).
+                    val bitmap = imageUri?.rotateAndCenterCrop(
+                        requireContext(), arrayOf(0.7f, 0.5f)
+                    )
+                    // 이미지 저장.
                     bitmap.save(requireContext(), true)
-
-//                    val bitmap = imageUri?.rotateAndCrop(
-//                        requireContext(),
-//                        Rect(100, 100, 2000, 2000)
-//                    )
+                    // 크롭 이미지.
                     binding.imageviewThumbnail.setImageBitmap(bitmap)
-
-                    // Debug.
-                    Timber.i(">>>>> TAKE_PICTURE imageUri : $imageUri")
-                    Timber.i(">>>>> TAKE_PICTURE imageWidth : $imageWidth")
-                    Timber.i(">>>>> TAKE_PICTURE imageHeight : $imageHeight")
                 } else if (intent?.action == IntentKey.ACTION_TAKE_MULTIPLE_PICTURES) {
                     // 여러장.
                     // 이미지 URI.
                     val imageUris = intent.getStringArrayListExtra(IntentKey.EXTRA_URIS)
                     // 이미지 사이즈.
                     val imageSizes = intent.getSerializableExtra(IntentKey.EXTRA_SIZES)
-
-                    // Debug.
-                    Timber.i(">>>>> TAKE_MULTIPLE_PICTURE imageUris : $imageUris")
-                    Timber.i(">>>>> TAKE_MULTIPLE_PICTURE imageSizes : $imageSizes")
                 }
             }
         }
@@ -109,6 +99,8 @@ internal class ShootFragment : BaseBindingFragment<FragmentShootBinding, ShootVi
 //                takePictureIntent.putExtra(IntentKey.EXTRA_HAS_HORIZON, true)
 //                takePictureIntent.putExtra(IntentKey.EXTRA_CROP_PERCENT, arrayOf(0.7f, 0.5f))
 //                takePictureIntent.putExtra(IntentKey.EXTRA_CAN_UI_ROTATION, true)
+//                takePictureIntent.putExtra(IntentKey.EXTRA_HORIZON_COLOR, true)
+//                takePictureIntent.putExtra(IntentKey.EXTRA_CROP_BORDER_COLOR, true)
 //                resultLauncher.launch(takePictureIntent)
 //            }
             CameraIntent.Build(requireActivity()).apply {
@@ -117,6 +109,8 @@ internal class ShootFragment : BaseBindingFragment<FragmentShootBinding, ShootVi
                 setHasHorizon(true)
                 setCropPercent(arrayOf(0.7f, 0.5f))
                 setCanUiRotation(true)
+                setHorizonColor(Color.RED)
+                setUnusedAreaBorderColor(Color.GREEN)
             }.run {
                 resultLauncher.launch(this.build())
             }
@@ -129,6 +123,8 @@ internal class ShootFragment : BaseBindingFragment<FragmentShootBinding, ShootVi
 //                takePictureIntent.putExtra(IntentKey.EXTRA_HAS_HORIZON, true)
 //                takePictureIntent.putExtra(IntentKey.EXTRA_CROP_PERCENT, arrayOf(0.7f, 0.5f))
 //                takePictureIntent.putExtra(IntentKey.EXTRA_CAN_UI_ROTATION, true)
+//                takePictureIntent.putExtra(IntentKey.EXTRA_HORIZON_COLOR, true)
+//                takePictureIntent.putExtra(IntentKey.EXTRA_CROP_BORDER_COLOR, true)
 //                resultLauncher.launch(takePictureIntent)
 //            }
             CameraIntent.Build(requireActivity()).apply {
@@ -137,6 +133,8 @@ internal class ShootFragment : BaseBindingFragment<FragmentShootBinding, ShootVi
                 setHasHorizon(true)
                 setCropPercent(arrayOf(0.7f, 0.5f))
                 setCanUiRotation(true)
+                setHorizonColor(Color.RED)
+                setUnusedAreaBorderColor(Color.GREEN)
             }.run {
                 resultLauncher.launch(this.build())
             }
