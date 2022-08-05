@@ -14,6 +14,7 @@ import kr.co.kadb.camera.databinding.FragmentShootBinding
 import kr.co.kadb.camera.presentation.base.BaseBindingFragment
 import kr.co.kadb.cameralibrary.presentation.CameraIntent
 import kr.co.kadb.cameralibrary.presentation.widget.util.IntentKey
+import kr.co.kadb.cameralibrary.presentation.widget.util.UriHelper
 import javax.inject.Inject
 
 /**
@@ -60,11 +61,14 @@ internal class ShootFragment : BaseBindingFragment<FragmentShootBinding, ShootVi
                     binding.imageviewThumbnail.setImageBitmap(thumbnailBitmap)
 
                     // 이미지 중앙 기준 Crop(%).
-                    val bitmap = imageUri?.rotateAndCenterCrop(
-                        requireContext(), arrayOf(0.7f, 0.5f)
+                    val bitmap = UriHelper.rotateAndCenterCrop(
+                        requireContext(),
+                        imageUri,
+                        arrayOf(0.7f, 0.5f)
                     )
+
                     // 이미지 저장.
-                    bitmap.save(requireContext(), true)
+                    //bitmap.save(requireContext(), true)
                     // 크롭 이미지.
                     binding.imageviewThumbnail.setImageBitmap(bitmap)
                 } else if (intent?.action == IntentKey.ACTION_TAKE_MULTIPLE_PICTURES) {

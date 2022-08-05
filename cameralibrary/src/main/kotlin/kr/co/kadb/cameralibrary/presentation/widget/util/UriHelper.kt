@@ -13,10 +13,10 @@ class UriHelper {
         @JvmStatic
         fun rotateAndCenterCrop(
             context: Context,
-            uri: Uri,
+            uri: Uri?,
             cropPercent: Array<Float>
         ): Bitmap? {
-            return uri.rotateAndCenterCrop(context, cropPercent)
+            return uri?.rotateAndCenterCrop(context, cropPercent)
         }
     }
 }
