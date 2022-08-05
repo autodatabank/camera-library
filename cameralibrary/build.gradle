@@ -5,7 +5,7 @@ plugins {
     id 'maven-publish'
 }
 
-//group = 'com.github.autodatabank'
+group = 'com.github.autodatabank'
 
 android {
     compileSdk 31
@@ -13,8 +13,8 @@ android {
     defaultConfig {
         minSdk 21
         targetSdk 31
-        versionCode 22080501
-        versionName "1.0.1"
+        versionCode 22080502
+        versionName "1.0.2"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles "consumer-rules.pro"
