@@ -18,9 +18,6 @@ package kr.co.kadb.cameralibrary.presentation.ui.shoot
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
-import android.graphics.Bitmap
-import android.graphics.ImageFormat
-import android.graphics.Matrix
 import android.media.AudioManager
 import android.media.MediaActionSound
 import android.view.OrientationEventListener
@@ -36,27 +33,16 @@ import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.lifecycleScope
 import androidx.transition.ChangeBounds
 import androidx.transition.TransitionManager
 import androidx.transition.addListener
-import kotlinx.coroutines.launch
 import kr.co.kadb.cameralibrary.R
 import kr.co.kadb.cameralibrary.databinding.AdbCameralibraryFragmentShootBinding
 import kr.co.kadb.cameralibrary.presentation.base.BaseBindingFragment
 import kr.co.kadb.cameralibrary.presentation.ui.shoot.ShootSharedViewModel.Event
 import kr.co.kadb.cameralibrary.presentation.widget.extension.repeatOnStarted
-import kr.co.kadb.cameralibrary.presentation.widget.extension.resize
-import kr.co.kadb.cameralibrary.presentation.widget.util.ImageUtils
 import kr.co.kadb.cameralibrary.presentation.widget.util.IntentKey
 import kr.co.kadb.cameralibrary.presentation.widget.util.MediaActionSound2
-import org.opencv.android.OpenCVLoader
-import org.opencv.android.Utils
-import org.opencv.core.Mat
-import org.opencv.core.MatOfPoint
-import org.opencv.core.MatOfPoint2f
-import org.opencv.core.Scalar
-import org.opencv.imgproc.Imgproc
 import timber.log.Timber
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
@@ -73,10 +59,6 @@ internal class ShootFragment :
     BaseBindingFragment<AdbCameralibraryFragmentShootBinding, ShootSharedViewModel>() {
     companion object {
         fun create() = ShootFragment()
-    }
-
-    init {
-        OpenCVLoader.initDebug()
     }
 
     // SharedPreferences.
@@ -556,15 +538,6 @@ internal class ShootFragment :
             .setTargetAspectRatio(AspectRatio.RATIO_4_3)
             .setTargetRotation(rotation)
             .build()
-            .also {
-                it.setAnalyzer(cameraExecutor) { imageProxy ->
-                    imageProxy.image?.let { image ->
-                        val bitmap = ImageUtils.convertYuv420888ImageToBitmap(image)
-                        opencv(bitmap)
-                    }
-                    imageProxy.close()
-                }
-            }
 
         // Must unbind the use-cases before rebinding them
         cameraProvider.unbindAll()
@@ -645,80 +618,6 @@ internal class ShootFragment :
             mediaActionSound.playWithMinimumVolume(
                 MediaActionSound.SHUTTER_CLICK
             )
-        }
-    }
-
-    private fun opencv(bitmap: Bitmap?) {
-        //var bitmap = BitmapFactory.decodeResource(resources, R.drawable.coffret)
-        if (bitmap == null) {
-            Timber.i(">>>>> bitmap : null")
-            return
-        }
-
-        //compress bitmap
-        val resizedBitmap = bitmap.resize(200)
-        val rgbMat = Mat()
-        Utils.bitmapToMat(resizedBitmap, rgbMat)
-
-
-        val grayMat = Mat()
-        val bwMat = Mat()
-
-        Imgproc.cvtColor(rgbMat, grayMat, Imgproc.COLOR_RGB2GRAY)
-        Imgproc.equalizeHist(grayMat, grayMat)
-
-        //Imgproc.adaptiveThreshold(grayMat, grayMat, 255, Imgproc.ADAPTIVE_THRESH_MEAN_C, Imgproc.THRESH_BINARY, 15, 40);
-
-        //Imgproc.adaptiveThreshold(grayMat, grayMat, 255, Imgproc.ADAPTIVE_THRESH_MEAN_C, Imgproc.THRESH_BINARY, 15, 40);
-        Imgproc.Canny(grayMat, bwMat, 50.0, 200.0, 3, false)
-
-        //find largest contour
-
-        //find largest contour
-        val contours: List<MatOfPoint> = ArrayList()
-        Imgproc.findContours(bwMat, contours, Mat(), Imgproc.RETR_LIST, Imgproc.CHAIN_APPROX_NONE)
-
-        var maxArea = -1.0
-        var maxAreaIdx = -1
-        if (contours.size > 0) {
-            var temp_contour = contours[0] //the largest is at the index 0 for starting point
-            val approxCurve = MatOfPoint2f()
-            var largest_contour: Mat = contours[0]
-            var largest_contours: MutableList<MatOfPoint?> = ArrayList()
-            for (idx in contours.indices) {
-                temp_contour = contours[idx]
-                val contourarea = Imgproc.contourArea(temp_contour)
-                //compare this contour to the previous largest contour found
-                if (contourarea > maxArea) {
-                    //check if this contour is a square
-                    val new_mat = MatOfPoint2f(*temp_contour.toArray())
-                    val contourSize = temp_contour.total().toInt()
-                    Imgproc.approxPolyDP(new_mat, approxCurve, contourSize * 0.05, true)
-                    if (approxCurve.total() == 4L) {
-                        maxArea = contourarea
-                        maxAreaIdx = idx
-                        largest_contours.add(temp_contour)
-                        largest_contour = temp_contour
-                    }
-                }
-            }
-            if (largest_contours.size >= 1) {
-                val temp_largest = largest_contours[largest_contours.size - 1]
-                largest_contours = ArrayList()
-                largest_contours.add(temp_largest)
-                Imgproc.cvtColor(bwMat, bwMat, Imgproc.COLOR_BayerBG2RGB)
-                Imgproc.drawContours(bwMat, largest_contours, -1, Scalar(0.0, 255.0, 0.0), 1)
-            }
-        }
-
-
-        Utils.matToBitmap(bwMat, resizedBitmap)
-
-        val matrix = Matrix()
-        matrix.postRotate(180.0f)
-
-        lifecycleScope.launch {
-            binding.adbCameralibraryImageviewThumbnail.setImageBitmap(resizedBitmap)
         }
     }
 }
