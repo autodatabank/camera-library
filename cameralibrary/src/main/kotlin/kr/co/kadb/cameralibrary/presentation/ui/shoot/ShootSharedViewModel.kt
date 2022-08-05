@@ -1,10 +1,10 @@
 package kr.co.kadb.cameralibrary.presentation.ui.shoot
 
+import android.annotation.SuppressLint
 import android.app.Application
 import android.graphics.Bitmap
 import android.net.Uri
 import android.util.Size
-import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageCapture
 import androidx.core.net.toUri
 import androidx.lifecycle.viewModelScope
@@ -14,11 +14,10 @@ import kr.co.kadb.cameralibrary.data.local.PreferenceManager
 import kr.co.kadb.cameralibrary.presentation.model.ShootUiState
 import kr.co.kadb.cameralibrary.presentation.model.UiState
 import kr.co.kadb.cameralibrary.presentation.viewmodel.BaseAndroidViewModel
-import kr.co.kadb.cameralibrary.presentation.widget.extension.*
 import kr.co.kadb.cameralibrary.presentation.widget.extension.exif
-import kr.co.kadb.cameralibrary.presentation.widget.extension.outputFileOptionsBuilder
 import kr.co.kadb.cameralibrary.presentation.widget.extension.save
 import kr.co.kadb.cameralibrary.presentation.widget.extension.toJsonPretty
+import kr.co.kadb.cameralibrary.presentation.widget.extension.toThumbnail
 import kr.co.kadb.cameralibrary.presentation.widget.util.IntentKey.ACTION_TAKE_MULTIPLE_PICTURES
 import timber.log.Timber
 import java.nio.ByteBuffer
@@ -51,6 +50,7 @@ constructor(
         }
         .stateIn(viewModelScope, SharingStarted.Eagerly, ShootUiState.Uninitialized)
 
+    @Suppress("unused")
     val isEmpty: StateFlow<Boolean> = state.filter { !it.isLoading }
         .map {
             it.value?.action.isNullOrEmpty()
@@ -176,29 +176,8 @@ constructor(
         event(Event.TakeMultiplePictures(item.value.uris, item.value.sizes))
     }
 
-    // 메타를 포함한 출력 옵션 반환.
-    fun outputFileOptions(
-        lensFacing: Int,
-        isPublicDirectory: Boolean = true
-    ): ImageCapture.OutputFileOptions {
-        val context = getApplication<Application>().applicationContext
-        val metadata = ImageCapture.Metadata().apply {
-            // 전면 카메라에 대한 반전 설정.
-            isReversedHorizontal = lensFacing == CameraSelector.LENS_FACING_FRONT
-        }
-        // 메타를 포함한 출력 옵션 반환.
-        return context.outputFileOptionsBuilder(isPublicDirectory).apply {
-            setMetadata(metadata)
-        }.build()
-    }
-
-    fun rotateAndCenterCrop(bitmap: Bitmap, rotationDegrees: Int): Bitmap? {
-        return bitmap.rotateAndCenterCrop(
-            item.value.cropPercent.toTypedArray(),
-            rotationDegrees
-        )
-    }
-
+    // 이미지 저장.
+    @SuppressLint("RestrictedApi")
     fun saveImage(byteBuffer: ByteBuffer) {
         // 셔터음 이벤트.
         event(Event.PlayShutterSound(item.value.canMute))

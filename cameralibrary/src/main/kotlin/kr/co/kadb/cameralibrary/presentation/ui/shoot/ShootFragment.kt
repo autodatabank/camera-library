@@ -18,7 +18,6 @@ package kr.co.kadb.cameralibrary.presentation.ui.shoot
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
-import android.graphics.Bitmap
 import android.media.AudioManager
 import android.media.MediaActionSound
 import android.view.OrientationEventListener
@@ -47,7 +46,6 @@ import kr.co.kadb.cameralibrary.presentation.widget.util.MediaActionSound2
 import timber.log.Timber
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
-import kotlin.math.sqrt
 
 
 /**
@@ -62,9 +60,6 @@ internal class ShootFragment :
     companion object {
         fun create() = ShootFragment()
     }
-
-    // SharedPreferences.
-    //lateinit var preferences: PreferenceManager
 
     // ViewController.
     private val viewController: ShootController by lazy {
@@ -90,8 +85,6 @@ internal class ShootFragment :
     private var lensFacing: Int = CameraSelector.LENS_FACING_BACK
     private var preview: Preview? = null
     private var imageCapture: ImageCapture? = null
-
-    //    private var imageAnalyzer: ImageAnalysis? = null
     private var camera: Camera? = null
     private var cameraProvider: ProcessCameraProvider? = null
 
@@ -150,7 +143,6 @@ internal class ShootFragment :
     override fun initVariable() {
         // Initialize Background Executor
         cameraExecutor = Executors.newSingleThreadExecutor()
-
         // Initialize MediaActionSound
         mediaActionSound = MediaActionSound2().apply {
             load(MediaActionSound.SHUTTER_CLICK)
@@ -230,9 +222,6 @@ internal class ShootFragment :
     override fun initListener() {
         // 촬영.
         binding.adbCameralibraryButtonShooting.setOnClickListener {
-            // Debug.
-            Timber.d(">>>>> Shooting OnClickListener")
-
             // 촬영 가능 확인.
             if (!viewModel.canTakePicture()) {
                 return@setOnClickListener
