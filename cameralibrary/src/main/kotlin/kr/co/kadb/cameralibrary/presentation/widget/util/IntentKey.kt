@@ -5,7 +5,7 @@ object IntentKey {
 	const val ACTION_TAKE_PICTURE = "kr.co.kadb.cameralibrary.ACTION_TAKE_PICTURE"
 
 	// 여러장 촬영.
-	const val ACTION_TAKE_MULTIPLE_PICTURES = "kr.co.kadb.cameralibrary.ACTION_TAKE_MULTIPLE_PICTURE"
+	const val ACTION_TAKE_MULTIPLE_PICTURES = "kr.co.kadb.cameralibrary.ACTION_TAKE_MULTIPLE_PICTURES"
 
 	// 종료.
 	internal const val BROADCAST_FINISH = "kr.co.kadb.cameralibrary.finish"
