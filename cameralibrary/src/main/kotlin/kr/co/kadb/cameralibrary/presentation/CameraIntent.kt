@@ -17,6 +17,8 @@ class CameraIntent {
         hasHorizon: Boolean? = null,
         canUiRotation: Boolean? = null,
         cropPercent: Array<Float>? = null,
+        horizonColor: Array<Float>? = null,
+        unusedAreaBorderColor: Array<Float>? = null
     ): Intent {
         return Intent(activityContext, ShootActivity::class.java).also { intent ->
             intent.action = IntentKey.ACTION_TAKE_PICTURE
@@ -32,6 +34,12 @@ class CameraIntent {
             cropPercent?.let {
                 intent.putExtra(IntentKey.EXTRA_CROP_PERCENT, it)
             }
+            horizonColor?.let {
+                intent.putExtra(IntentKey.EXTRA_HORIZON_COLOR, it)
+            }
+            unusedAreaBorderColor?.let {
+                intent.putExtra(IntentKey.EXTRA_CROP_BORDER_COLOR, it)
+            }
         }
     }
 
@@ -42,6 +50,8 @@ class CameraIntent {
         hasHorizon: Boolean? = null,
         canUiRotation: Boolean? = null,
         cropPercent: Array<Float>? = null,
+        horizonColor: Array<Float>? = null,
+        unusedAreaBorderColor: Array<Float>? = null
     ): Intent {
         return Intent(activityContext, ShootActivity::class.java).also { intent ->
             intent.action = IntentKey.ACTION_TAKE_MULTIPLE_PICTURES
@@ -57,6 +67,12 @@ class CameraIntent {
             cropPercent?.let {
                 intent.putExtra(IntentKey.EXTRA_CROP_PERCENT, it)
             }
+            horizonColor?.let {
+                intent.putExtra(IntentKey.EXTRA_HORIZON_COLOR, it)
+            }
+            unusedAreaBorderColor?.let {
+                intent.putExtra(IntentKey.EXTRA_CROP_BORDER_COLOR, it)
+            }
         }
     }
 
@@ -67,6 +83,8 @@ class CameraIntent {
         private var hasHorizon: Boolean? = null
         private var cropPercent: Array<Float>? = null
         private var canUiRotation: Boolean? = null
+        private var horizonColor: Int? = null
+        private var unusedAreaBorderColor: Int? = null
 
         fun setAction(action: String?): Build {
             action?.let {
@@ -103,6 +121,20 @@ class CameraIntent {
             return this
         }
 
+        fun setHorizonColor(horizonColor: Int?): Build {
+            horizonColor?.let {
+                this.horizonColor = it
+            }
+            return this
+        }
+
+        fun setUnusedAreaBorderColor(unusedAreaBorderColor: Int?): Build {
+            unusedAreaBorderColor?.let {
+                this.unusedAreaBorderColor = it
+            }
+            return this
+        }
+
         fun build(): Intent {
             return Intent(activityContext, ShootActivity::class.java).also { cameraIntent ->
                 cameraIntent.action = action
@@ -110,6 +142,8 @@ class CameraIntent {
                 cameraIntent.putExtra(IntentKey.EXTRA_HAS_HORIZON, hasHorizon)
                 cameraIntent.putExtra(IntentKey.EXTRA_CROP_PERCENT, cropPercent)
                 cameraIntent.putExtra(IntentKey.EXTRA_CAN_UI_ROTATION, canUiRotation)
+                cameraIntent.putExtra(IntentKey.EXTRA_HORIZON_COLOR, horizonColor)
+                cameraIntent.putExtra(IntentKey.EXTRA_CROP_BORDER_COLOR, unusedAreaBorderColor)
             }
         }
     }

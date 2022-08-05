@@ -18,7 +18,10 @@ package kr.co.kadb.cameralibrary.presentation.ui.shoot
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
+<<<<<<< HEAD
 import android.graphics.Bitmap
+=======
+>>>>>>> cad48ccd3d3b356b58abe6ba262bc325e2f0685c
 import android.media.AudioManager
 import android.media.MediaActionSound
 import android.view.OrientationEventListener
@@ -34,25 +37,24 @@ import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.lifecycleScope
 import androidx.transition.ChangeBounds
 import androidx.transition.TransitionManager
 import androidx.transition.addListener
-import kotlinx.coroutines.launch
 import kr.co.kadb.cameralibrary.R
 import kr.co.kadb.cameralibrary.databinding.AdbCameralibraryFragmentShootBinding
 import kr.co.kadb.cameralibrary.presentation.base.BaseBindingFragment
 import kr.co.kadb.cameralibrary.presentation.ui.shoot.ShootSharedViewModel.Event
 import kr.co.kadb.cameralibrary.presentation.widget.extension.repeatOnStarted
-import kr.co.kadb.cameralibrary.presentation.widget.extension.resize
-import kr.co.kadb.cameralibrary.presentation.widget.util.ImageUtils
 import kr.co.kadb.cameralibrary.presentation.widget.util.IntentKey
 import kr.co.kadb.cameralibrary.presentation.widget.util.MediaActionSound2
+<<<<<<< HEAD
 import org.opencv.android.BaseLoaderCallback
 import org.opencv.android.OpenCVLoader
 import org.opencv.android.Utils
 import org.opencv.core.*
 import org.opencv.imgproc.Imgproc
+=======
+>>>>>>> cad48ccd3d3b356b58abe6ba262bc325e2f0685c
 import timber.log.Timber
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
@@ -70,10 +72,6 @@ internal class ShootFragment :
     BaseBindingFragment<AdbCameralibraryFragmentShootBinding, ShootSharedViewModel>() {
     companion object {
         fun create() = ShootFragment()
-    }
-
-    init {
-        OpenCVLoader.initDebug()
     }
 
     // SharedPreferences.
@@ -103,7 +101,8 @@ internal class ShootFragment :
     private var lensFacing: Int = CameraSelector.LENS_FACING_BACK
     private var preview: Preview? = null
     private var imageCapture: ImageCapture? = null
-    private var imageAnalyzer: ImageAnalysis? = null
+
+    //    private var imageAnalyzer: ImageAnalysis? = null
     private var camera: Camera? = null
     private var cameraProvider: ProcessCameraProvider? = null
 
@@ -135,7 +134,6 @@ internal class ShootFragment :
 
                 // Rotation 갱신.
                 imageCapture?.targetRotation = rotation
-                imageAnalyzer?.targetRotation = rotation
             }
         }
     }
@@ -265,7 +263,7 @@ internal class ShootFragment :
                         // 이미지 저장.
                         viewModel.saveImage(image.planes[0].buffer)
                         // Close ImageProxy.
-//                        image.close()
+                        image.close()
                     }
 
                     override fun onError(exception: ImageCaptureException) {
@@ -318,12 +316,23 @@ internal class ShootFragment :
         viewModel.item.value.cropPercent.let {
             it.size == 2
         }.also {
-            binding.adbCameralibraryViewUnusedAreaLineTop.isVisible = it
-            binding.adbCameralibraryViewUnusedAreaLineEnd.isVisible = it
-            binding.adbCameralibraryViewUnusedAreaLineStart.isVisible = it
-            binding.adbCameralibraryViewUnusedAreaLineBottom.isVisible = it
+            binding.adbCameralibraryViewUnusedAreaBorderTop.isVisible = it
+            binding.adbCameralibraryViewUnusedAreaBorderEnd.isVisible = it
+            binding.adbCameralibraryViewUnusedAreaBorderStart.isVisible = it
+            binding.adbCameralibraryViewUnusedAreaBorderBottom.isVisible = it
         }
 
+        // 수평선, 크롭 시 사용하지 않는 영역의 Border Color.
+        val (horizonColor, unusedAreaBorderColor) = viewModel.horizonAndUnusedAreaBorderColor()
+        binding.apply {
+            adbCameralibraryViewHorizon.setBackgroundColor(horizonColor)
+            adbCameralibraryViewUnusedAreaBorderTop.setBackgroundColor(unusedAreaBorderColor)
+            adbCameralibraryViewUnusedAreaBorderEnd.setBackgroundColor(unusedAreaBorderColor)
+            adbCameralibraryViewUnusedAreaBorderStart.setBackgroundColor(unusedAreaBorderColor)
+            adbCameralibraryViewUnusedAreaBorderBottom.setBackgroundColor(unusedAreaBorderColor)
+        }
+
+        // 크롭크기로 영역 지정.
         binding.adbCameralibraryViewUnusedArea.post {
             val (unusedAreaWidth, unusedAreaHeight) = viewModel.unusedAreaSize(
                 imageCapture?.targetRotation ?: 0,
@@ -419,7 +428,7 @@ internal class ShootFragment :
                         it.applyTo(binding.adbCameralibraryViewUnusedArea)
                     }
                 }
-                binding.adbCameralibraryViewUnusedAreaHorizon.apply {
+                binding.adbCameralibraryViewHorizon.apply {
                     layoutParams = ConstraintLayout.LayoutParams(1, 1)
                     ConstraintSet().also {
                         it.clone(binding.adbCameralibraryViewUnusedArea)
@@ -550,6 +559,7 @@ internal class ShootFragment :
             .setTargetRotation(rotation)
             .setFlashMode(viewModel.flashMode)
             .build()
+<<<<<<< HEAD
 
         // ImageAnalysis
         imageAnalyzer = ImageAnalysis.Builder()
@@ -570,6 +580,14 @@ internal class ShootFragment :
                     imageProxy.close()
                 }
             }
+=======
+//
+//        // ImageAnalysis
+//        imageAnalyzer = ImageAnalysis.Builder()
+//            .setTargetAspectRatio(AspectRatio.RATIO_4_3)
+//            .setTargetRotation(rotation)
+//            .build()
+>>>>>>> cad48ccd3d3b356b58abe6ba262bc325e2f0685c
 
         // Must unbind the use-cases before rebinding them
         cameraProvider.unbindAll()
@@ -578,7 +596,7 @@ internal class ShootFragment :
             // A variable number of use-cases can be passed here -
             // camera provides access to CameraControl & CameraInfo
             camera = cameraProvider.bindToLifecycle(
-                this, cameraSelector, preview, imageCapture, imageAnalyzer
+                this, cameraSelector, preview, imageCapture
             )
 
             // Attach the viewfinder's surface provider to preview use case
@@ -654,6 +672,7 @@ internal class ShootFragment :
             )
         }
     }
+<<<<<<< HEAD
 
     private fun opencv(bitmap: Bitmap?) {
         //compress bitmap
@@ -826,4 +845,6 @@ internal class ShootFragment :
         val dy2: Double = pt2.y - pt0.y
         return (dx1 * dx2 + dy1 * dy2) / sqrt((dx1 * dx1 + dy1 * dy1) * (dx2 * dx2 + dy2 * dy2) + 1e-10)
     }
+=======
+>>>>>>> cad48ccd3d3b356b58abe6ba262bc325e2f0685c
 }
