@@ -61,9 +61,6 @@ internal class ShootFragment :
         fun create() = ShootFragment()
     }
 
-    // SharedPreferences.
-    //lateinit var preferences: PreferenceManager
-
     // ViewController.
     private val viewController: ShootController by lazy {
         ShootController(requireActivity())
@@ -88,8 +85,6 @@ internal class ShootFragment :
     private var lensFacing: Int = CameraSelector.LENS_FACING_BACK
     private var preview: Preview? = null
     private var imageCapture: ImageCapture? = null
-
-    //    private var imageAnalyzer: ImageAnalysis? = null
     private var camera: Camera? = null
     private var cameraProvider: ProcessCameraProvider? = null
 
@@ -100,6 +95,7 @@ internal class ShootFragment :
     private val orientationEventListener by lazy {
         object : OrientationEventListener(requireContext()) {
             override fun onOrientationChanged(orientation: Int) {
+
                 if (orientation == ORIENTATION_UNKNOWN) {
                     return
                 }
@@ -147,7 +143,6 @@ internal class ShootFragment :
     override fun initVariable() {
         // Initialize Background Executor
         cameraExecutor = Executors.newSingleThreadExecutor()
-
         // Initialize MediaActionSound
         mediaActionSound = MediaActionSound2().apply {
             load(MediaActionSound.SHUTTER_CLICK)
@@ -227,9 +222,6 @@ internal class ShootFragment :
     override fun initListener() {
         // 촬영.
         binding.adbCameralibraryButtonShooting.setOnClickListener {
-            // Debug.
-            Timber.d(">>>>> Shooting OnClickListener")
-
             // 촬영 가능 확인.
             if (!viewModel.canTakePicture()) {
                 return@setOnClickListener
@@ -317,12 +309,43 @@ internal class ShootFragment :
         }
 
         // 크롭크기로 영역 지정.
-        binding.adbCameralibraryViewUnusedArea.post {
+        binding.adbCameralibraryLayoutUnusedArea.post {
+            val rotation = imageCapture?.targetRotation ?: 0
             val (unusedAreaWidth, unusedAreaHeight) = viewModel.unusedAreaSize(
-                imageCapture?.targetRotation ?: 0,
-                binding.adbCameralibraryViewUnusedArea.width,
-                binding.adbCameralibraryViewUnusedArea.height
+                rotation,
+                binding.adbCameralibraryLayoutUnusedArea.width,
+                binding.adbCameralibraryLayoutUnusedArea.height
             )
+
+            binding.adbCameralibraryButtonFlash.apply {
+                layoutParams = ConstraintLayout.LayoutParams(
+                    0,
+                    unusedAreaHeight
+                )
+                ConstraintSet().let {
+                    it.clone(binding.adbCameralibraryLayout)
+                    it.connect(
+                        id,
+                        ConstraintSet.TOP,
+                        binding.adbCameralibraryLayout.id,
+                        ConstraintSet.TOP
+                    )
+                    it.connect(
+                        id,
+                        ConstraintSet.END,
+                        binding.adbCameralibraryLayout.id,
+                        ConstraintSet.END
+                    )
+                    it.setRotation(id, rotation.toFloat())
+                    it.applyTo(binding.adbCameralibraryLayout)
+                }
+            }.run {
+                val transition = ChangeBounds()
+                transition.interpolator = AccelerateDecelerateInterpolator()
+                TransitionManager.beginDelayedTransition(
+                    binding.adbCameralibraryLayoutUnusedArea, transition
+                )
+            }
             if (unusedAreaWidth > 0 && unusedAreaHeight > 0) {
                 binding.adbCameralibraryViewUnusedAreaTop.apply {
                     layoutParams = ConstraintLayout.LayoutParams(
@@ -330,14 +353,14 @@ internal class ShootFragment :
                         unusedAreaHeight
                     )
                     ConstraintSet().let {
-                        it.clone(binding.adbCameralibraryViewUnusedArea)
+                        it.clone(binding.adbCameralibraryLayoutUnusedArea)
                         it.connect(
                             id,
                             ConstraintSet.TOP,
-                            binding.adbCameralibraryViewUnusedArea.id,
+                            binding.adbCameralibraryLayoutUnusedArea.id,
                             ConstraintSet.TOP
                         )
-                        it.applyTo(binding.adbCameralibraryViewUnusedArea)
+                        it.applyTo(binding.adbCameralibraryLayoutUnusedArea)
                     }
                 }
                 binding.adbCameralibraryViewUnusedAreaBottom.apply {
@@ -346,14 +369,14 @@ internal class ShootFragment :
                         unusedAreaHeight
                     )
                     ConstraintSet().let {
-                        it.clone(binding.adbCameralibraryViewUnusedArea)
+                        it.clone(binding.adbCameralibraryLayoutUnusedArea)
                         it.connect(
                             id,
                             ConstraintSet.BOTTOM,
-                            binding.adbCameralibraryViewUnusedArea.id,
+                            binding.adbCameralibraryLayoutUnusedArea.id,
                             ConstraintSet.BOTTOM
                         )
-                        it.applyTo(binding.adbCameralibraryViewUnusedArea)
+                        it.applyTo(binding.adbCameralibraryLayoutUnusedArea)
                     }
                 }
                 binding.adbCameralibraryViewUnusedAreaStart.apply {
@@ -362,11 +385,11 @@ internal class ShootFragment :
                         0
                     )
                     ConstraintSet().let {
-                        it.clone(binding.adbCameralibraryViewUnusedArea)
+                        it.clone(binding.adbCameralibraryLayoutUnusedArea)
                         it.connect(
                             id,
                             ConstraintSet.START,
-                            binding.adbCameralibraryViewUnusedArea.id,
+                            binding.adbCameralibraryLayoutUnusedArea.id,
                             ConstraintSet.START
                         )
                         it.connect(
@@ -381,7 +404,7 @@ internal class ShootFragment :
                             binding.adbCameralibraryViewUnusedAreaBottom.id,
                             ConstraintSet.TOP
                         )
-                        it.applyTo(binding.adbCameralibraryViewUnusedArea)
+                        it.applyTo(binding.adbCameralibraryLayoutUnusedArea)
                     }
                 }
                 binding.adbCameralibraryViewUnusedAreaEnd.apply {
@@ -390,11 +413,11 @@ internal class ShootFragment :
                         0
                     )
                     ConstraintSet().also {
-                        it.clone(binding.adbCameralibraryViewUnusedArea)
+                        it.clone(binding.adbCameralibraryLayoutUnusedArea)
                         it.connect(
                             id,
                             ConstraintSet.END,
-                            binding.adbCameralibraryViewUnusedArea.id,
+                            binding.adbCameralibraryLayoutUnusedArea.id,
                             ConstraintSet.END
                         )
                         it.connect(
@@ -409,44 +432,44 @@ internal class ShootFragment :
                             binding.adbCameralibraryViewUnusedAreaBottom.id,
                             ConstraintSet.TOP
                         )
-                        it.applyTo(binding.adbCameralibraryViewUnusedArea)
+                        it.applyTo(binding.adbCameralibraryLayoutUnusedArea)
                     }
                 }
                 binding.adbCameralibraryViewHorizon.apply {
                     layoutParams = ConstraintLayout.LayoutParams(1, 1)
                     ConstraintSet().also {
-                        it.clone(binding.adbCameralibraryViewUnusedArea)
+                        it.clone(binding.adbCameralibraryLayoutUnusedArea)
                         it.connect(
                             id,
                             ConstraintSet.START,
-                            binding.adbCameralibraryViewUnusedArea.id,
+                            binding.adbCameralibraryLayoutUnusedArea.id,
                             ConstraintSet.START
                         )
                         it.connect(
                             id,
                             ConstraintSet.END,
-                            binding.adbCameralibraryViewUnusedArea.id,
+                            binding.adbCameralibraryLayoutUnusedArea.id,
                             ConstraintSet.END
                         )
                         it.connect(
                             id,
                             ConstraintSet.TOP,
-                            binding.adbCameralibraryViewUnusedArea.id,
+                            binding.adbCameralibraryLayoutUnusedArea.id,
                             ConstraintSet.TOP
                         )
                         it.connect(
                             id,
                             ConstraintSet.BOTTOM,
-                            binding.adbCameralibraryViewUnusedArea.id,
+                            binding.adbCameralibraryLayoutUnusedArea.id,
                             ConstraintSet.BOTTOM
                         )
-                        it.applyTo(binding.adbCameralibraryViewUnusedArea)
+                        it.applyTo(binding.adbCameralibraryLayoutUnusedArea)
                     }
                 }.run {
                     val transition = ChangeBounds()
                     transition.interpolator = AccelerateDecelerateInterpolator()
                     transition.addListener(onEnd = {
-                        val parentView = binding.adbCameralibraryViewUnusedArea
+                        val parentView = binding.adbCameralibraryLayoutUnusedArea
                         val (width, height) = when (imageCapture?.targetRotation ?: 0) {
                             1, 3 -> Pair(2, 0)
                             else -> Pair(0, 2)
@@ -482,11 +505,11 @@ internal class ShootFragment :
                         val innerTransition = ChangeBounds()
                         innerTransition.interpolator = AccelerateDecelerateInterpolator()
                         TransitionManager.beginDelayedTransition(
-                            binding.adbCameralibraryViewUnusedArea, innerTransition
+                            binding.adbCameralibraryLayoutUnusedArea, innerTransition
                         )
                     })
                     TransitionManager.beginDelayedTransition(
-                        binding.adbCameralibraryViewUnusedArea, transition
+                        binding.adbCameralibraryLayoutUnusedArea, transition
                     )
                 }
             }
@@ -543,12 +566,6 @@ internal class ShootFragment :
             .setTargetRotation(rotation)
             .setFlashMode(viewModel.flashMode)
             .build()
-//
-//        // ImageAnalysis
-//        imageAnalyzer = ImageAnalysis.Builder()
-//            .setTargetAspectRatio(AspectRatio.RATIO_4_3)
-//            .setTargetRotation(rotation)
-//            .build()
 
         // Must unbind the use-cases before rebinding them
         cameraProvider.unbindAll()
@@ -568,6 +585,17 @@ internal class ShootFragment :
             // Debug.
             Timber.e(">>>>> Use case binding failed: $exc")
         }
+    }
+
+
+    /** Returns true if the device has an available back camera. False otherwise */
+    private fun hasBackCamera(): Boolean {
+        return cameraProvider?.hasCamera(CameraSelector.DEFAULT_BACK_CAMERA) ?: false
+    }
+
+    /** Returns true if the device has an available front camera. False otherwise */
+    private fun hasFrontCamera(): Boolean {
+        return cameraProvider?.hasCamera(CameraSelector.DEFAULT_FRONT_CAMERA) ?: false
     }
 
     // 카메라 상태 로깅.
@@ -606,15 +634,6 @@ internal class ShootFragment :
         }
     }
 
-    /** Returns true if the device has an available back camera. False otherwise */
-    private fun hasBackCamera(): Boolean {
-        return cameraProvider?.hasCamera(CameraSelector.DEFAULT_BACK_CAMERA) ?: false
-    }
-
-    /** Returns true if the device has an available front camera. False otherwise */
-    private fun hasFrontCamera(): Boolean {
-        return cameraProvider?.hasCamera(CameraSelector.DEFAULT_FRONT_CAMERA) ?: false
-    }
 
     // 셔터음.
     private fun playShutterSound(canMute: Boolean) {
