@@ -76,7 +76,7 @@ fun Bitmap?.save(
                         )
                         parcelFileDescriptor?.let {
                             fileOutputStream = FileOutputStream(parcelFileDescriptor.fileDescriptor)
-                            this?.compress(format, 90, fileOutputStream)
+                            this?.compress(format, 95, fileOutputStream)
                             contentResolver.update(uri, contentValues, null, null)
                         }
                     } catch (ex: Exception) {
@@ -107,7 +107,7 @@ fun Bitmap?.save(
 
                 path = "${directory.absolutePath}/$filename.$extension"
                 fileOutputStream = FileOutputStream(path)
-                this?.compress(format, 90, fileOutputStream)
+                this?.compress(format, 95, fileOutputStream)
 
                 // Media Scanning.
                 path?.let {
@@ -130,7 +130,7 @@ fun Bitmap?.save(
             }
             path = "${directory?.absolutePath}/$filename.$extension"
             fileOutputStream = FileOutputStream(path)
-            this?.compress(format, 90, fileOutputStream)
+            this?.compress(format, 95, fileOutputStream)
         } catch (ex: Exception) {
             // Debug.
             Timber.e(">>>>> Save Bitmap Exception : %s", ex.toString())
@@ -148,7 +148,7 @@ fun Bitmap?.save(
 // toByteArray.
 fun Bitmap?.toByteArray(format: Bitmap.CompressFormat = Bitmap.CompressFormat.JPEG): ByteArray? {
     val stream = ByteArrayOutputStream()
-    this?.compress(format, 90, stream)
+    this?.compress(format, 95, stream)
     return stream.toByteArray()
 }
 
