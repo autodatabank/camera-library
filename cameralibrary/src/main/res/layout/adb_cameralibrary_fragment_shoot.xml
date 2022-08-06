@@ -115,21 +115,54 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
                 />
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/adb_cameralibrary_textview_debug"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="@dimen/adb_cameralibrary_dp4"
+                android:textColor="@color/adb_cameralibrary_red_A700"
+                android:textSize="@dimen/adb_cameralibrary_sp10"
+                app:layout_constraintBottom_toTopOf="@+id/adb_cameralibrary_view_unused_area_border_top"
+                app:layout_constraintEnd_toEndOf="@+id/adb_cameralibrary_view_unused_area_border_top"
+                />
         </androidx.constraintlayout.widget.ConstraintLayout>
         <!-- 플래쉬. -->
-        <androidx.appcompat.widget.AppCompatImageButton
-            android:id="@+id/adb_cameralibrary_button_flash"
-            android:layout_width="@dimen/adb_cameralibrary_dp48"
-            android:layout_height="@dimen/adb_cameralibrary_dp48"
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/adb_cameralibrary_layout_flash"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/adb_cameralibrary_dp26"
             android:layout_marginEnd="@dimen/adb_cameralibrary_dp16"
-            android:background="@null"
-            android:padding="@dimen/adb_cameralibrary_dp8"
-            android:scaleType="fitCenter"
-            android:src="@drawable/adb_cameralibrary_ic_baseline_flash_off_white_48"
+            android:padding="@dimen/adb_cameralibrary_dp16"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            />
+            >
+            <androidx.appcompat.widget.AppCompatImageButton
+                android:id="@+id/adb_cameralibrary_button_flash"
+                android:layout_width="@dimen/adb_cameralibrary_dp64"
+                android:layout_height="@dimen/adb_cameralibrary_dp32"
+                android:adjustViewBounds="true"
+                android:background="@null"
+                android:clickable="false"
+                android:paddingHorizontal="@dimen/adb_cameralibrary_dp16"
+                android:scaleType="fitCenter"
+                android:src="@drawable/adb_cameralibrary_selector_ic_baseline_flash_off_white_48"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                />
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/adb_cameralibrary_textview_flash"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/adb_cameralibrary_text_flash"
+                android:textColor="@color/adb_cameralibrary_white"
+                android:textSize="12sp"
+                app:layout_constraintEnd_toEndOf="@+id/adb_cameralibrary_button_flash"
+                app:layout_constraintStart_toStartOf="@+id/adb_cameralibrary_button_flash"
+                app:layout_constraintTop_toBottomOf="@+id/adb_cameralibrary_button_flash"
+                />
+        </androidx.constraintlayout.widget.ConstraintLayout>
         <!-- 촬영. -->
         <androidx.appcompat.widget.AppCompatImageButton
             android:id="@+id/adb_cameralibrary_button_shooting"
@@ -144,37 +177,47 @@
             app:srcCompat="@drawable/adb_cameralibrary_selector_ic_baseline_camera_white_64"
             />
         <!-- 완료. -->
-        <androidx.appcompat.widget.AppCompatImageButton
-            android:id="@+id/adb_cameralibrary_button_finish"
-            android:layout_width="@dimen/adb_cameralibrary_dp56"
-            android:layout_height="@dimen/adb_cameralibrary_dp56"
-            android:layout_margin="@dimen/adb_cameralibrary_dp56"
-            android:background="@null"
-            android:scaleType="fitCenter"
-            app:layout_constraintBottom_toBottomOf="@+id/adb_cameralibrary_button_shooting"
-            app:layout_constraintStart_toEndOf="@+id/adb_cameralibrary_button_shooting"
-            app:layout_constraintTop_toTopOf="@+id/adb_cameralibrary_button_shooting"
-            app:srcCompat="@drawable/adb_cameralibrary_selector_ic_baseline_next_plan_white_64"
-            />
-        <androidx.appcompat.widget.AppCompatTextView
-            android:id="@+id/adb_cameralibrary_textview_finish"
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/adb_cameralibrary_layout_finish"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="촬영종료"
-            android:textColor="@color/adb_cameralibrary_white"
-            android:textSize="14sp"
-            app:layout_constraintEnd_toEndOf="@+id/adb_cameralibrary_button_finish"
-            app:layout_constraintStart_toStartOf="@+id/adb_cameralibrary_button_finish"
-            app:layout_constraintTop_toBottomOf="@+id/adb_cameralibrary_button_finish"
-            />
+            android:layout_marginEnd="@dimen/adb_cameralibrary_dp40"
+            android:layout_marginBottom="@dimen/adb_cameralibrary_sp40"
+            android:paddingTop="@dimen/adb_cameralibrary_dp16"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            >
+            <androidx.appcompat.widget.AppCompatImageButton
+                android:id="@+id/adb_cameralibrary_button_finish"
+                android:layout_width="@dimen/adb_cameralibrary_dp56"
+                android:layout_height="@dimen/adb_cameralibrary_dp56"
+                android:background="@null"
+                android:scaleType="fitCenter"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:srcCompat="@drawable/adb_cameralibrary_selector_ic_baseline_check_circle_white_64"
+                />
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/adb_cameralibrary_textview_finish"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/adb_cameralibrary_dp16"
+                android:text="@string/adb_cameralibrary_text_shoot_finish"
+                android:textColor="@color/adb_cameralibrary_white"
+                android:textSize="14sp"
+                app:layout_constraintEnd_toEndOf="@+id/adb_cameralibrary_button_finish"
+                app:layout_constraintStart_toStartOf="@+id/adb_cameralibrary_button_finish"
+                app:layout_constraintTop_toBottomOf="@+id/adb_cameralibrary_button_finish"
+                />
+        </androidx.constraintlayout.widget.ConstraintLayout>
         <androidx.appcompat.widget.AppCompatImageView
             android:id="@+id/adb_cameralibrary_imageview_thumbnail"
             android:layout_width="160dp"
             android:layout_height="wrap_content"
             android:adjustViewBounds="true"
             android:scaleType="fitCenter"
-            app:layout_constraintTop_toTopOf="@+id/adb_cameralibrary_preview_view"
             app:layout_constraintEnd_toEndOf="@+id/adb_cameralibrary_preview_view"
+            app:layout_constraintTop_toTopOf="@+id/adb_cameralibrary_preview_view"
             />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>
