@@ -32,8 +32,6 @@ android {
 
     kotlinOptions {
         jvmTarget = '1.8'
-        //moduleName = 'kr.co.kadb.camera'
-        //freeCompilerArgs += '-Xexplicit-api=strict'
     }
 
     sourceSets {
@@ -63,8 +61,8 @@ android {
 
 dependencies {
     // AutoDataBank CameraLibrary.
-    implementation project(':cameralibrary')
-//    implementation 'com.github.autodatabank:camera-library:1.0.2'
+//    implementation project(':cameralibrary')
+    implementation 'com.github.autodatabank:camera-library:1.0.3'
 
     implementation 'androidx.core:core-ktx:1.8.0'
     implementation 'androidx.appcompat:appcompat:1.4.2'

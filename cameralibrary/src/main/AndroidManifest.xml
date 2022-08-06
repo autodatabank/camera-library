@@ -2,20 +2,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     >
-    <!-- 네트워크 사용. -->
-    <uses-permission android:name="android.permission.INTERNET" />
-    <!-- 네트워크 상태. -->
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-    <!-- 외장 메모리(쓰기). -->
-    <uses-permission
-        android:name="android.permission.WRITE_EXTERNAL_STORAGE"
-        android:maxSdkVersion="28"
-        tools:ignore="ScopedStorage"
-        />
-    <!-- 애플리케이션이 사용자의 공유 컬렉션에있는 모든 지리적 위치에 액세스 할 수 있도록합니다. -->
-    <uses-permission android:name="android.permission.ACCESS_MEDIA_LOCATION" />
-    <!-- 카메라. -->
-    <uses-permission android:name="android.permission.CAMERA" />
 
     <application>
         <!-- 촬영. -->
