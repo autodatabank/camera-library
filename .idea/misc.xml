@@ -26,6 +26,20 @@
         <entry key="app/src/main/res/layout/activity_shoot.xml" value="0.165" />
         <entry key="app/src/main/res/layout/fragment_shoot.xml" value="0.165" />
         <entry key="cameralibrary/src/main/res/drawable-v24/ic_launcher_foreground.xml" value="0.1435" />
+        <entry key="cameralibrary/src/main/res/drawable/adb_cameralibrary_ic_baseline_camera_accent_64.xml" value="0.1085" />
+        <entry key="cameralibrary/src/main/res/drawable/adb_cameralibrary_ic_baseline_camera_disable_64.xml" value="0.1085" />
+        <entry key="cameralibrary/src/main/res/drawable/adb_cameralibrary_ic_baseline_camera_white_64.xml" value="0.1085" />
+        <entry key="cameralibrary/src/main/res/drawable/adb_cameralibrary_ic_baseline_check_circle_accent_64.xml" value="0.1085" />
+        <entry key="cameralibrary/src/main/res/drawable/adb_cameralibrary_ic_baseline_check_circle_disable_64.xml" value="0.1085" />
+        <entry key="cameralibrary/src/main/res/drawable/adb_cameralibrary_ic_baseline_check_circle_white_64.xml" value="0.1085" />
+        <entry key="cameralibrary/src/main/res/drawable/adb_cameralibrary_selector_ic_baseline_camera_white_64.xml" value="0.1085" />
+        <entry key="cameralibrary/src/main/res/drawable/adb_cameralibrary_selector_ic_baseline_check_circle_white_64.xml" value="0.1085" />
+        <entry key="cameralibrary/src/main/res/drawable/adb_cameralibrary_selector_ic_baseline_flash_auto_accent_48.xml" value="0.1085" />
+        <entry key="cameralibrary/src/main/res/drawable/adb_cameralibrary_selector_ic_baseline_flash_off_white_48.xml" value="0.1085" />
+        <entry key="cameralibrary/src/main/res/drawable/adb_cameralibrary_selector_ic_baseline_flash_on_accent_48.xml" value="0.1085" />
+        <entry key="cameralibrary/src/main/res/drawable/adb_cameralibrary_selector_ic_baseline_flash_on_accent_64.xml" value="0.1085" />
+        <entry key="cameralibrary/src/main/res/drawable/adb_cameralibrary_selector_ic_baseline_flash_white_64.xml" value="0.1085" />
+        <entry key="cameralibrary/src/main/res/drawable/adb_cameralibrary_selector_ic_baseline_next_plan_white_64.xml" value="0.1085" />
         <entry key="cameralibrary/src/main/res/drawable/ic_launcher_background.xml" value="0.1435" />
         <entry key="cameralibrary/src/main/res/layout-land/adb_cameralibrary_fragment_shoot.xml" value="0.125" />
         <entry key="cameralibrary/src/main/res/layout/activity_shoot.xml" value="0.3591485507246377" />
