@@ -2,6 +2,14 @@
     <string name="adb_cameralibrary_text_app_name">adbcamerax</string>
 
 
+    <!-- 촬영. -->
+    <string name="adb_cameralibrary_text_flash">플래쉬</string>
+    <string name="adb_cameralibrary_text_flash_on">ON</string>
+    <string name="adb_cameralibrary_text_flash_off">OFF</string>
+    <string name="adb_cameralibrary_text_flash_auto">AUTO</string>
+    <string name="adb_cameralibrary_text_shoot_finish">촬영종료</string>
+
+
     <!-- 권한. -->
     <string name="adb_cameralibrary_text_permission_title">권한 필요</string>
     <string name="adb_cameralibrary_text_goto_settings">설정으로 바로가기</string>
