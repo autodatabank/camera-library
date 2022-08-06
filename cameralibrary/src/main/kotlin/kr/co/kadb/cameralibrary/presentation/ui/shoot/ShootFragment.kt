@@ -317,45 +317,6 @@ internal class ShootFragment :
         }
 
         // 크롭크기로 영역 지정.
-<<<<<<< HEAD
-        binding.adbCameralibraryLayoutUnusedArea.post {
-            val rotation = imageCapture?.targetRotation ?: 0
-            val (unusedAreaWidth, unusedAreaHeight) = viewModel.unusedAreaSize(
-                rotation,
-                binding.adbCameralibraryLayoutUnusedArea.width,
-                binding.adbCameralibraryLayoutUnusedArea.height
-            )
-
-            binding.adbCameralibraryButtonFlash.apply {
-                layoutParams = ConstraintLayout.LayoutParams(
-                    0,
-                    unusedAreaHeight
-                )
-                ConstraintSet().let {
-                    it.clone(binding.adbCameralibraryLayout)
-                    it.connect(
-                        id,
-                        ConstraintSet.TOP,
-                        binding.adbCameralibraryLayout.id,
-                        ConstraintSet.TOP
-                    )
-                    it.connect(
-                        id,
-                        ConstraintSet.END,
-                        binding.adbCameralibraryLayout.id,
-                        ConstraintSet.END
-                    )
-                    it.setRotation(id, rotation.toFloat())
-                    it.applyTo(binding.adbCameralibraryLayout)
-                }
-            }.run {
-                val transition = ChangeBounds()
-                transition.interpolator = AccelerateDecelerateInterpolator()
-                TransitionManager.beginDelayedTransition(
-                    binding.adbCameralibraryLayoutUnusedArea, transition
-                )
-            }
-=======
         binding.adbCameralibraryLayout.post {
             val targetRotation = imageCapture?.targetRotation ?: 0
             val unusedAreaView = binding.adbCameralibraryLayoutUnusedArea
@@ -373,65 +334,33 @@ internal class ShootFragment :
             }
 
             // 크롭 사용 시 Layout 설정.
->>>>>>> origin/develop
             if (unusedAreaWidth > 0 && unusedAreaHeight > 0) {
                 binding.adbCameralibraryViewUnusedAreaTop.apply {
                     layoutParams = ConstraintLayout.LayoutParams(0, unusedAreaHeight.toInt())
                     ConstraintSet().let {
-<<<<<<< HEAD
-                        it.clone(binding.adbCameralibraryLayoutUnusedArea)
-                        it.connect(
-                            id,
-                            ConstraintSet.TOP,
-                            binding.adbCameralibraryLayoutUnusedArea.id,
-                            ConstraintSet.TOP
-                        )
-                        it.applyTo(binding.adbCameralibraryLayoutUnusedArea)
-=======
                         it.clone(unusedAreaView)
                         it.connect(
                             id, ConstraintSet.TOP, unusedAreaView.id, ConstraintSet.TOP
                         )
                         it.applyTo(unusedAreaView)
->>>>>>> origin/develop
                     }
                 }
                 binding.adbCameralibraryViewUnusedAreaBottom.apply {
                     layoutParams = ConstraintLayout.LayoutParams(0, unusedAreaHeight.toInt())
                     ConstraintSet().let {
-<<<<<<< HEAD
-                        it.clone(binding.adbCameralibraryLayoutUnusedArea)
-                        it.connect(
-                            id,
-                            ConstraintSet.BOTTOM,
-                            binding.adbCameralibraryLayoutUnusedArea.id,
-                            ConstraintSet.BOTTOM
-                        )
-                        it.applyTo(binding.adbCameralibraryLayoutUnusedArea)
-=======
                         it.clone(unusedAreaView)
                         it.connect(
                             id, ConstraintSet.BOTTOM, unusedAreaView.id, ConstraintSet.BOTTOM
                         )
                         it.applyTo(unusedAreaView)
->>>>>>> origin/develop
                     }
                 }
                 binding.adbCameralibraryViewUnusedAreaStart.apply {
                     layoutParams = ConstraintLayout.LayoutParams(unusedAreaWidth.toInt(), 0)
                     ConstraintSet().let {
-<<<<<<< HEAD
-                        it.clone(binding.adbCameralibraryLayoutUnusedArea)
-                        it.connect(
-                            id,
-                            ConstraintSet.START,
-                            binding.adbCameralibraryLayoutUnusedArea.id,
-                            ConstraintSet.START
-=======
                         it.clone(unusedAreaView)
                         it.connect(
                             id, ConstraintSet.START, unusedAreaView.id, ConstraintSet.START
->>>>>>> origin/develop
                         )
                         it.connect(
                             id, ConstraintSet.TOP, unusedAreaViewTop.id, ConstraintSet.BOTTOM
@@ -439,28 +368,15 @@ internal class ShootFragment :
                         it.connect(
                             id, ConstraintSet.BOTTOM, unusedAreaViewBottom.id, ConstraintSet.TOP
                         )
-<<<<<<< HEAD
-                        it.applyTo(binding.adbCameralibraryLayoutUnusedArea)
-=======
                         it.applyTo(unusedAreaView)
->>>>>>> origin/develop
                     }
                 }
                 binding.adbCameralibraryViewUnusedAreaEnd.apply {
                     layoutParams = ConstraintLayout.LayoutParams(unusedAreaWidth.toInt(), 0)
                     ConstraintSet().also {
-<<<<<<< HEAD
-                        it.clone(binding.adbCameralibraryLayoutUnusedArea)
-                        it.connect(
-                            id,
-                            ConstraintSet.END,
-                            binding.adbCameralibraryLayoutUnusedArea.id,
-                            ConstraintSet.END
-=======
                         it.clone(unusedAreaView)
                         it.connect(
                             id, ConstraintSet.END, unusedAreaView.id, ConstraintSet.END
->>>>>>> origin/develop
                         )
                         it.connect(
                             id, ConstraintSet.TOP, unusedAreaViewTop.id, ConstraintSet.BOTTOM
@@ -468,44 +384,12 @@ internal class ShootFragment :
                         it.connect(
                             id, ConstraintSet.BOTTOM, unusedAreaViewBottom.id, ConstraintSet.TOP
                         )
-<<<<<<< HEAD
-                        it.applyTo(binding.adbCameralibraryLayoutUnusedArea)
-=======
                         it.applyTo(unusedAreaView)
->>>>>>> origin/develop
                     }
                 }
                 binding.adbCameralibraryViewHorizon.apply {
                     layoutParams = ConstraintLayout.LayoutParams(1, 1)
                     ConstraintSet().also {
-<<<<<<< HEAD
-                        it.clone(binding.adbCameralibraryLayoutUnusedArea)
-                        it.connect(
-                            id,
-                            ConstraintSet.START,
-                            binding.adbCameralibraryLayoutUnusedArea.id,
-                            ConstraintSet.START
-                        )
-                        it.connect(
-                            id,
-                            ConstraintSet.END,
-                            binding.adbCameralibraryLayoutUnusedArea.id,
-                            ConstraintSet.END
-                        )
-                        it.connect(
-                            id,
-                            ConstraintSet.TOP,
-                            binding.adbCameralibraryLayoutUnusedArea.id,
-                            ConstraintSet.TOP
-                        )
-                        it.connect(
-                            id,
-                            ConstraintSet.BOTTOM,
-                            binding.adbCameralibraryLayoutUnusedArea.id,
-                            ConstraintSet.BOTTOM
-                        )
-                        it.applyTo(binding.adbCameralibraryLayoutUnusedArea)
-=======
                         it.clone(unusedAreaView)
                         it.connect(
                             id, ConstraintSet.START, unusedAreaView.id, ConstraintSet.START
@@ -520,18 +404,12 @@ internal class ShootFragment :
                             id, ConstraintSet.BOTTOM, unusedAreaView.id, ConstraintSet.BOTTOM
                         )
                         it.applyTo(unusedAreaView)
->>>>>>> origin/develop
                     }
                 }.run {
                     val transition = ChangeBounds()
                     transition.interpolator = AccelerateDecelerateInterpolator()
                     transition.addListener(onEnd = {
-<<<<<<< HEAD
-                        val parentView = binding.adbCameralibraryLayoutUnusedArea
-                        val (width, height) = when (imageCapture?.targetRotation ?: 0) {
-=======
                         val (width, height) = when (targetRotation) {
->>>>>>> origin/develop
                             1, 3 -> Pair(2, 0)
                             else -> Pair(0, 2)
                         }
@@ -554,13 +432,6 @@ internal class ShootFragment :
                         val innerTransition = ChangeBounds()
                         innerTransition.interpolator = AccelerateDecelerateInterpolator()
                         TransitionManager.beginDelayedTransition(
-<<<<<<< HEAD
-                            binding.adbCameralibraryLayoutUnusedArea, innerTransition
-                        )
-                    })
-                    TransitionManager.beginDelayedTransition(
-                        binding.adbCameralibraryLayoutUnusedArea, transition
-=======
                             binding.adbCameralibraryLayout, innerTransition
                         )
                     })
@@ -574,7 +445,6 @@ internal class ShootFragment :
                     1, 3 -> Pair(
                         unusedAreaView.height.toFloat() - (unusedAreaHeight * 2.0f),
                         unusedAreaView.width.toFloat() - (unusedAreaWidth * 2.0f)
->>>>>>> origin/develop
                     )
                     else -> Pair(
                         unusedAreaView.width.toFloat() - (unusedAreaWidth * 2.0f),
@@ -706,10 +576,6 @@ internal class ShootFragment :
         }
     }
 
-<<<<<<< HEAD
-
-=======
->>>>>>> origin/develop
     // 셔터음.
     private fun playShutterSound(canMute: Boolean) {
         if (canMute) {
