@@ -13,14 +13,8 @@ android {
     defaultConfig {
         minSdk 21
         targetSdk 31
-<<<<<<< HEAD
-        versionCode 22080601
-        versionName "1.0.3"
-=======
         versionCode 22080501
         versionName "0.0.1"
->>>>>>> origin/develop
-
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
