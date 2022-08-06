@@ -136,28 +136,28 @@ constructor(
     }
 
     // 사용하지 않는 영역 크기.
-    fun unusedAreaSize(rotation: Int, width: Int, height: Int): Pair<Int, Int> {
+    fun unusedAreaSize(rotation: Int, width: Int, height: Int): Pair<Float, Float> {
         return if (item.value.cropPercent.size == 2) {
             when (rotation) {
                 0, 2 -> {
                     Pair(
-                        (width * (1.0f - item.value.cropPercent[0]) * 0.5f).toInt(),
-                        (height * (1.0f - item.value.cropPercent[1]) * 0.5f).toInt()
+                        (width.toFloat() * (1.0f - item.value.cropPercent[0]) * 0.5f),
+                        (height.toFloat() * (1.0f - item.value.cropPercent[1]) * 0.5f)
                     )
                 }
                 else -> {
                     Pair(
-                        (width * (1.0f - item.value.cropPercent[1]) * 0.5f).toInt(),
-                        (height * (1.0f - item.value.cropPercent[0]) * 0.5f).toInt()
+                        (width.toFloat() * (1.0f - item.value.cropPercent[1]) * 0.5f),
+                        (height.toFloat() * (1.0f - item.value.cropPercent[0]) * 0.5f)
                     )
                 }
             }
         } else {
-            Pair(0, 0)
+            Pair(0.0f, 0.0f)
         }
     }
 
-    // 이미지 가져오기 가능한.
+    // 촬영 가능 여부.
     fun canTakePicture(): Boolean {
         return item.value.let {
             if (it.isShooted && !it.isMultiplePicture) {
