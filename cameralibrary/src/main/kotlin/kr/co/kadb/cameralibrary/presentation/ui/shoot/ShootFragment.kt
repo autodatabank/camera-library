@@ -246,7 +246,7 @@ internal class ShootFragment :
                         Timber.i(">>>>> ImageCapture onCaptureSuccess")
 
                         // 이미지 저장.
-                        viewModel.saveImage(image.planes[0].buffer)
+                        viewModel.saveImage(image.planes[0].buffer, image.width, image.height)
                         // Close ImageProxy.
                         image.close()
                     }

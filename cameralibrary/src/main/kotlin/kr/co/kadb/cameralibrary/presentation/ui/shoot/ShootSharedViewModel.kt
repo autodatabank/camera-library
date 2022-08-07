@@ -14,7 +14,6 @@ import kr.co.kadb.cameralibrary.data.local.PreferenceManager
 import kr.co.kadb.cameralibrary.presentation.model.ShootUiState
 import kr.co.kadb.cameralibrary.presentation.model.UiState
 import kr.co.kadb.cameralibrary.presentation.viewmodel.BaseAndroidViewModel
-import kr.co.kadb.cameralibrary.presentation.widget.extension.exif
 import kr.co.kadb.cameralibrary.presentation.widget.extension.save
 import kr.co.kadb.cameralibrary.presentation.widget.extension.toJsonPretty
 import kr.co.kadb.cameralibrary.presentation.widget.extension.toThumbnail
@@ -178,7 +177,7 @@ constructor(
 
     // 이미지 저장.
     @SuppressLint("RestrictedApi")
-    fun saveImage(byteBuffer: ByteBuffer) {
+    fun saveImage(byteBuffer: ByteBuffer, width: Int, height: Int) {
         // 셔터음 이벤트.
         event(Event.PlayShutterSound(item.value.canMute))
 
@@ -189,11 +188,8 @@ constructor(
         }
         val uri = byteArray.save(context, true)?.toUri() ?: Uri.EMPTY
 
-        // Exif: Size.
-        val exif = uri.exif(context)
-        val size = exif?.let {
-            Size(it.width, it.height)
-        } ?: Size(0, 0)
+        // 이미지 사이즈.
+        val size = Size(width, height)
 
         // 상태 업데이트.
         updateState { value ->
@@ -214,7 +210,7 @@ constructor(
         // 촬영 완료.
         if (!item.value.isMultiplePicture) {
             // Thumbnail.
-            val thumbnail = uri?.toThumbnail(context, exif)
+            val thumbnail = uri?.toThumbnail(context, size)
             // 촬영완료 이벤트.
             event(Event.TakePicture(uri, size, thumbnail))
         }

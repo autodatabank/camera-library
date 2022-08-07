@@ -82,20 +82,21 @@ fun Uri.exifInterface(context: Context): ExifInterface? {
 // 이미지 Thumbnail 반환.
 fun Uri.toThumbnail(
     context: Context,
-    exif: Exif? = null,
-    size: Int = 96
+    //exif: Exif? = null,
+    originSize: Size?,
+    thumbnailSize: Int = 96
 ): Bitmap? {
     @Suppress("DEPRECATION")
     return if ((Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q)) {
-        val width = exif?.width ?: 0
-        val height = exif?.height ?: 0
-        val sample = min(width / size, height / size).let {
+        val width = originSize?.width ?: 0//exif?.width ?: 0
+        val height = originSize?.height ?: 0//exif?.height ?: 0
+        val sample = min(width / thumbnailSize, height / thumbnailSize).let {
             if (it == 0) 1 else it
         }
 
         // Debug.
         Timber.i(">>>>> toThumbnail Sample : $sample")
-        Timber.i(">>>>> toThumbnail origin size : ${exif?.width} x ${exif?.height}")
+        Timber.i(">>>>> toThumbnail origin size : ${originSize?.width} x ${originSize?.height}")
         Timber.i(">>>>> toThumbnail thumbnail size : ${width / sample} x ${height / sample}")
 
         // Thumbnail.
@@ -105,7 +106,7 @@ fun Uri.toThumbnail(
             null
         )
     } else {
-        val kind = when (size) {
+        val kind = when (thumbnailSize) {
             in 0..96 -> MediaStore.Images.Thumbnails.MICRO_KIND
             in 97..384 -> MediaStore.Images.Thumbnails.MINI_KIND
             else -> MediaStore.Images.Thumbnails.FULL_SCREEN_KIND
