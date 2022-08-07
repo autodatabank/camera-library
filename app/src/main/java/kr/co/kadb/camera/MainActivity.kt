@@ -12,6 +12,7 @@ import kr.co.kadb.cameralibrary.presentation.CameraIntent
 import kr.co.kadb.cameralibrary.presentation.widget.util.BitmapHelper
 import kr.co.kadb.cameralibrary.presentation.widget.util.IntentKey
 import kr.co.kadb.cameralibrary.presentation.widget.util.UriHelper
+import timber.log.Timber
 
 class MainActivity : AppCompatActivity() {
     // Activity for result.
@@ -32,19 +33,16 @@ class MainActivity : AppCompatActivity() {
                     // 썸네임 이미지.
                     val thumbnailBitmap = intent.extras?.get("data") as? Bitmap
 
-                    // 촬영 원본 이미지.
-                    findViewById<ImageView>(R.id.imageview).setImageURI(imageUri)
-                    // 썸네일 이미지.
-                    findViewById<ImageView>(R.id.imageview_thumbnail).setImageBitmap(thumbnailBitmap)
-
                     // 이미지 중앙 기준 Crop(%).
                     val cropBitmap = UriHelper.rotateAndCenterCrop(
                         baseContext, imageUri, arrayOf(0.7f, 0.5f)
                     )
 
-                    // 이미지 저장.
-                    BitmapHelper.save(baseContext, cropBitmap, true)
+                    // Base64
+                    val base64 = BitmapHelper.toBase64(cropBitmap)
 
+                    // 촬영 원본 이미지.
+                    findViewById<ImageView>(R.id.imageview).setImageURI(imageUri)
                     // 크롭 이미지.
                     findViewById<ImageView>(R.id.imageview_thumbnail).setImageBitmap(cropBitmap)
                 } else if (intent?.action == IntentKey.ACTION_TAKE_MULTIPLE_PICTURES) {
@@ -53,6 +51,10 @@ class MainActivity : AppCompatActivity() {
                     val imageUris = intent.getSerializableExtra(IntentKey.EXTRA_URIS)
                     // 이미지 사이즈.
                     val imageSizes = intent.getSerializableExtra(IntentKey.EXTRA_SIZES)
+
+                    // Debug.
+                    Timber.d(">>>>> imageUris : $imageUris")
+                    Timber.d(">>>>> imageSizes : $imageSizes")
                 }
             }
         }
