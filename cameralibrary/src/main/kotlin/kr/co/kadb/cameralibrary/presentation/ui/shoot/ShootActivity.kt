@@ -38,6 +38,7 @@ internal class ShootActivity : BaseActivity() {
         )
 
         val action = intent.action
+        val isDebug = intent.getBooleanExtra(IntentKey.EXTRA_IS_DEBUG_MODE, false)
         val canMute = intent.getBooleanExtra(IntentKey.EXTRA_CAN_MUTE, false)
         val hasHorizon = intent.getBooleanExtra(IntentKey.EXTRA_HAS_HORIZON, false)
         val canUiRotation = intent.getBooleanExtra(IntentKey.EXTRA_CAN_UI_ROTATION, false)
@@ -49,6 +50,7 @@ internal class ShootActivity : BaseActivity() {
         val cropPercent = intent.getSerializableExtra(IntentKey.EXTRA_CROP_PERCENT) as? Array<Float>
         viewModel.initUiState(
             action,
+            isDebug,
             canMute,
             hasHorizon,
             canUiRotation,

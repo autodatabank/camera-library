@@ -9,6 +9,7 @@ import android.util.Size
  */
 internal data class ShootUiState(
     val action: String?,
+    val isDebug: Boolean,
     val isShooted: Boolean,
     val isMultiplePicture: Boolean,
     val canMute: Boolean,
@@ -34,6 +35,7 @@ internal data class ShootUiState(
     companion object {
         val Uninitialized = ShootUiState(
             action = null,
+            isDebug = false,
             isShooted = false,
             isMultiplePicture = false,
             canMute = false,

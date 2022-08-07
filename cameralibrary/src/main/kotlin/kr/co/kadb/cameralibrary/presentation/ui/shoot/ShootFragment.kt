@@ -439,21 +439,21 @@ internal class ShootFragment :
                         binding.adbCameralibraryLayout, transition
                     )
                 }
-
-                // Debug - 해상도 표시.
-                val (cropWidth, cropHeight) = when (targetRotation) {
-                    1, 3 -> Pair(
-                        unusedAreaView.height.toFloat() - (unusedAreaHeight * 2.0f),
-                        unusedAreaView.width.toFloat() - (unusedAreaWidth * 2.0f)
-                    )
-                    else -> Pair(
-                        unusedAreaView.width.toFloat() - (unusedAreaWidth * 2.0f),
-                        unusedAreaView.height.toFloat() - (unusedAreaHeight * 2.0f)
-                    )
-                }
-                binding.adbCameralibraryTextviewDebug.text = resources.displayMetrics.density.let {
-                    "${(cropWidth * it).toInt()}x${(cropHeight * it).toInt()}"
-                }
+//
+//                // Debug - 해상도 표시.
+//                val (cropWidth, cropHeight) = when (targetRotation) {
+//                    1, 3 -> Pair(
+//                        unusedAreaView.height.toFloat() - (unusedAreaHeight * 2.0f),
+//                        unusedAreaView.width.toFloat() - (unusedAreaWidth * 2.0f)
+//                    )
+//                    else -> Pair(
+//                        unusedAreaView.width.toFloat() - (unusedAreaWidth * 2.0f),
+//                        unusedAreaView.height.toFloat() - (unusedAreaHeight * 2.0f)
+//                    )
+//                }
+//                binding.adbCameralibraryTextviewDebug.text = resources.displayMetrics.density.let {
+//                    "${(cropWidth * it).toInt()}x${(cropHeight * it).toInt()}"
+//                }
             }
         }
     }

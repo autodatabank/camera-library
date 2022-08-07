@@ -28,6 +28,9 @@ object IntentKey {
 	// data.
 	internal const val EXTRA_DATA = "data"
 
+	// 촬영 디버그 모드 요청용.
+	const val EXTRA_IS_DEBUG_MODE = "EXTRA_IS_DEBUG_MODE"
+
 	// 촬영음 Mute 가능 여부 요청용.
 	const val EXTRA_CAN_MUTE = "EXTRA_CAN_MUTE"
 

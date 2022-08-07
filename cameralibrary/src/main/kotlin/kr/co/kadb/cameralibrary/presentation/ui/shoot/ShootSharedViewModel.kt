@@ -88,6 +88,7 @@ constructor(
     // Intent Action 설정.
     fun initUiState(
         action: String?,
+        isDebug: Boolean = false,
         canMute: Boolean = false,
         hasHorizon: Boolean = false,
         canUiRotation: Boolean = false,
@@ -95,15 +96,10 @@ constructor(
         horizonColor: Int,
         unusedAreaBorderColor: Int
     ) {
-        // Debug.
-        Timber.i(">>>>> initUiState action : $action")
-        Timber.i(">>>>> initUiState canMute : $canMute")
-        Timber.i(">>>>> initUiState canUiRotation : $canUiRotation")
-        Timber.i(">>>>> initUiState cropPercent : ${cropPercent.toJsonPretty()}")
-
         // Update.
         state.value.value?.copy(
             action = action,
+            isDebug = isDebug,
             isShooted = false,
             isMultiplePicture = action == ACTION_TAKE_MULTIPLE_PICTURES,
             canMute = canMute,
@@ -114,6 +110,7 @@ constructor(
             unusedAreaBorderColor = unusedAreaBorderColor
         ) ?: ShootUiState(
             action = action,
+            isDebug = isDebug,
             isShooted = false,
             isMultiplePicture = action == ACTION_TAKE_MULTIPLE_PICTURES,
             canMute = canMute,
