@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/black"
+    >
+    <androidx.appcompat.widget.AppCompatImageView
+        android:id="@+id/imageview"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:adjustViewBounds="true"
+        android:scaleType="fitCenter"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        />
+    <androidx.appcompat.widget.AppCompatImageView
+        android:id="@+id/imageview_thumbnail"
+        android:layout_width="160dp"
+        android:layout_height="wrap_content"
+        android:adjustViewBounds="true"
+        android:scaleType="fitCenter"
+        app:layout_constraintBottom_toBottomOf="@+id/imageview"
+        app:layout_constraintEnd_toEndOf="@+id/imageview"
+        />
+    <!-- 한 장 촬영. -->
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/button_one_shoot"
+        android:layout_width="240dp"
+        android:layout_height="64dp"
+        android:layout_margin="16dp"
+        android:text="한장촬영"
+        android:textSize="18sp"
+        app:layout_constraintBottom_toTopOf="@+id/button_multiple_shoot"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        />
+    <!-- 여러장 촬영. -->
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/button_multiple_shoot"
+        android:layout_width="240dp"
+        android:layout_height="64dp"
+        android:layout_margin="16dp"
+        android:text="여러장촬영"
+        android:textSize="18sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        />
+</androidx.constraintlayout.widget.ConstraintLayout>
