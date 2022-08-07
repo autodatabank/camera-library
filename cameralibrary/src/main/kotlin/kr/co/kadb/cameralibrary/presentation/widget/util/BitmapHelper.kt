@@ -25,14 +25,14 @@ class BitmapHelper {
         }
 
         @JvmStatic
-        fun base64(
+        fun toBase64(
             bitmap: Bitmap?
         ): String? {
             return bitmap.toBase64()
         }
 
         @JvmStatic
-        fun base64(
+        fun toBase64(
             bitmap: Bitmap?,
             flags: Int = Base64.NO_WRAP,
             format: Bitmap.CompressFormat = Bitmap.CompressFormat.JPEG
