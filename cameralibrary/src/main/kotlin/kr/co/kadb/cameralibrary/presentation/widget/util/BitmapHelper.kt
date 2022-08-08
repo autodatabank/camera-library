@@ -2,9 +2,8 @@ package kr.co.kadb.cameralibrary.presentation.widget.util
 
 import android.content.Context
 import android.graphics.Bitmap
-import android.net.Uri
 import android.util.Base64
-import kr.co.kadb.cameralibrary.presentation.widget.extension.rotateAndCenterCrop
+import kr.co.kadb.cameralibrary.presentation.widget.extension.resize
 import kr.co.kadb.cameralibrary.presentation.widget.extension.save
 import kr.co.kadb.cameralibrary.presentation.widget.extension.toBase64
 
@@ -22,6 +21,11 @@ class BitmapHelper {
             format: Bitmap.CompressFormat = Bitmap.CompressFormat.JPEG
         ): String? {
             return bitmap?.save(context, isPublicDirectory, filename, format)
+        }
+
+        @JvmStatic
+        fun resize(bitmap: Bitmap?, resizePixcel: Int): Bitmap? {
+            return bitmap?.resize(resizePixcel)
         }
 
         @JvmStatic
