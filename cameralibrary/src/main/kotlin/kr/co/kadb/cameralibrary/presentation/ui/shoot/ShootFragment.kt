@@ -42,6 +42,7 @@ import kr.co.kadb.cameralibrary.databinding.AdbCameralibraryFragmentShootBinding
 import kr.co.kadb.cameralibrary.presentation.base.BaseBindingFragment
 import kr.co.kadb.cameralibrary.presentation.ui.shoot.ShootSharedViewModel.Event
 import kr.co.kadb.cameralibrary.presentation.widget.extension.repeatOnStarted
+import kr.co.kadb.cameralibrary.presentation.widget.util.ImageAnalyzer
 import kr.co.kadb.cameralibrary.presentation.widget.util.IntentKey
 import kr.co.kadb.cameralibrary.presentation.widget.util.MediaActionSound2
 import timber.log.Timber
@@ -85,6 +86,7 @@ internal class ShootFragment :
     private var lensFacing: Int = CameraSelector.LENS_FACING_BACK
     private var preview: Preview? = null
     private var imageCapture: ImageCapture? = null
+    private var imageAnalyzer: ImageAnalysis? = null
     private var camera: Camera? = null
     private var cameraProvider: ProcessCameraProvider? = null
 
@@ -114,6 +116,7 @@ internal class ShootFragment :
 
                 // Rotation 갱신.
                 imageCapture?.targetRotation = rotation
+                imageAnalyzer?.targetRotation = rotation
             }
         }
     }
@@ -509,6 +512,18 @@ internal class ShootFragment :
             .setFlashMode(viewModel.flashMode)
             .build()
 
+        // ImageAnalysis
+        imageAnalyzer = ImageAnalysis.Builder()
+            .setTargetAspectRatio(AspectRatio.RATIO_4_3)
+            .setTargetRotation(rotation)
+            .build()
+            .apply {
+                setAnalyzer(
+                    cameraExecutor,
+                    ImageAnalyzer(viewModel.item.value.cropPercent.toTypedArray())
+                )
+            }
+
         // Must unbind the use-cases before rebinding them
         cameraProvider.unbindAll()
 
@@ -516,7 +531,7 @@ internal class ShootFragment :
             // A variable number of use-cases can be passed here -
             // camera provides access to CameraControl & CameraInfo
             camera = cameraProvider.bindToLifecycle(
-                this, cameraSelector, preview, imageCapture
+                this, cameraSelector, preview, imageCapture, imageAnalyzer
             )
 
             // Attach the viewfinder's surface provider to preview use case
