@@ -16,11 +16,57 @@ class BitmapHelper {
         fun save(
             context: Context,
             bitmap: Bitmap?,
+            isPublicDirectory: Boolean = false
+        ): String? {
+            return bitmap?.save(context, isPublicDirectory)
+        }
+
+        @JvmStatic
+        fun save(
+            context: Context,
+            bitmap: Bitmap?,
+            isPublicDirectory: Boolean = false,
+            rotation: Int?
+        ): String? {
+            return bitmap?.save(
+                context = context,
+                isPublicDirectory = isPublicDirectory,
+                rotation = rotation
+            )
+        }
+
+        @JvmStatic
+        fun save(
+            context: Context,
+            bitmap: Bitmap?,
             isPublicDirectory: Boolean = false,
             filename: String = System.currentTimeMillis().toString(),
             format: Bitmap.CompressFormat = Bitmap.CompressFormat.JPEG
         ): String? {
-            return bitmap?.save(context, isPublicDirectory, filename, format)
+            return bitmap?.save(
+                context = context,
+                isPublicDirectory = isPublicDirectory,
+                filename = filename,
+                format = format
+            )
+        }
+
+        @JvmStatic
+        fun save(
+            context: Context,
+            bitmap: Bitmap?,
+            isPublicDirectory: Boolean = false,
+            filename: String = System.currentTimeMillis().toString(),
+            format: Bitmap.CompressFormat = Bitmap.CompressFormat.JPEG,
+            rotation: Int?
+        ): String? {
+            return bitmap?.save(
+                context = context,
+                isPublicDirectory = isPublicDirectory,
+                filename = filename,
+                format = format,
+                rotation = rotation
+            )
         }
 
         @JvmStatic
