@@ -2,6 +2,7 @@
 
 package kr.co.kadb.cameralibrary.presentation.widget.extension
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
@@ -18,6 +19,7 @@ import timber.log.Timber
 import java.io.FileNotFoundException
 import java.io.InputStream
 import kotlin.math.min
+
 
 /**
  * Created by oooobang on 2022. 7. 20..
@@ -60,16 +62,23 @@ fun Uri.exifInterface(context: Context): ExifInterface? {
             ExifInterface(this.toFile())
         }
 
-        // Debug.
-        ExifInterface::class.java.fields.forEach {
-            if (it.name.startsWith("TAG_")) {
-                val value = it.get(it.name) as String
-                Timber.i(
-                    ">>>>> exifInterface ${it.name} : " +
-                            "${exifInterface?.getAttribute(value)}"
-                )
-            }
-        }
+        Timber.i(
+            ">>>>> ExifInterface Rotation : %s",
+            exifInterface?.getAttribute(ExifInterface.TAG_ORIENTATION)
+        )
+
+//        // Debug.
+//        if (BuildConfig.DEBUG) {
+//            ExifInterface::class.java.fields.forEach {
+//                if (it.name.startsWith("TAG_")) {
+//                    val value = it.get(it.name) as String
+//                    Timber.i(
+//                        ">>>>> exifInterface ${it.name} : " +
+//                                "${exifInterface?.getAttribute(value)}"
+//                    )
+//                }
+//            }
+//        }
     } catch (ex: Exception) {
         // Debug.
         Timber.e(">>>>> ExifInterface : $ex")
@@ -79,17 +88,33 @@ fun Uri.exifInterface(context: Context): ExifInterface? {
     return exifInterface
 }
 
+//// Exif 태그 데이터를 원본 이미지 파일에 저장.
+//// JPEG, PNG, WebP 및 DNG 파일에 대해 지원
+//fun Uri.saveExifInterface(exifInterface: ExifInterface): ExifInterface? {
+//    val exif = ExifInterface(File(this.toString()))
+//    exif.setAttribute(
+//        ExifInterface.TAG_ORIENTATION,
+//        exifInterface.getAttribute(ExifInterface.TAG_ORIENTATION)
+//    )
+//    ExifInterface.ORIENTATION_ROTATE_270
+//    exif.saveAttributes()
+//    return exif
+//}
+
 // 이미지 Thumbnail 반환.
 fun Uri.toThumbnail(
     context: Context,
-    //exif: Exif? = null,
-    originSize: Size?,
+    originSize: Size? = null,
     thumbnailSize: Int = 96
 ): Bitmap? {
     @Suppress("DEPRECATION")
     return if ((Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q)) {
-        val width = originSize?.width ?: 0//exif?.width ?: 0
-        val height = originSize?.height ?: 0//exif?.height ?: 0
+        val (width, height) = if (originSize == null) {
+            val exif = this.exif(context)
+            Pair(exif?.width ?: 0, exif?.height ?: 0)
+        } else {
+            Pair(originSize.width, originSize.height)
+        }
         val sample = min(width / thumbnailSize, height / thumbnailSize).let {
             if (it == 0) 1 else it
         }
@@ -101,9 +126,7 @@ fun Uri.toThumbnail(
 
         // Thumbnail.
         context.contentResolver.loadThumbnail(
-            this,
-            Size(width / sample, height / sample),
-            null
+            this, Size(width / sample, height / sample), null
         )
     } else {
         val kind = when (thumbnailSize) {
@@ -111,12 +134,37 @@ fun Uri.toThumbnail(
             in 97..384 -> MediaStore.Images.Thumbnails.MINI_KIND
             else -> MediaStore.Images.Thumbnails.FULL_SCREEN_KIND
         }
-        MediaStore.Images.Thumbnails.getThumbnail(
-            context.contentResolver,
-            lastPathSegment?.toLong() ?: 0,
-            kind,
+
+        val cursor = context.contentResolver.query(
+            MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+            arrayOf(MediaStore.MediaColumns._ID),
+            MediaStore.MediaColumns.DATA + "=?",
+            arrayOf(this.toString()),
             null
         )
+//        val cursor = context.contentResolver.query(
+//            MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+//            arrayOf(MediaStore.MediaColumns._ID, MediaStore.MediaColumns.DATA),
+//            null,
+//            null,
+//            null
+//        )
+        if (cursor?.moveToFirst() == true) {
+        //while (cursor?.moveToNext() == true) {
+            @SuppressLint("Range")
+            val imageId = cursor.getInt(cursor.getColumnIndex(MediaStore.MediaColumns._ID))
+            //val imageData = cursor.getString(cursor.getColumnIndex(MediaStore.MediaColumns.DATA))
+            //Timber.i(">>>>> IMAGE URI[2] : $imageData")
+            cursor.close()
+            return MediaStore.Images.Thumbnails.getThumbnail(
+                context.contentResolver,
+                imageId.toLong(),
+                kind,
+                null
+            )
+        }
+        cursor?.close()
+        return null
     }
 }
 
