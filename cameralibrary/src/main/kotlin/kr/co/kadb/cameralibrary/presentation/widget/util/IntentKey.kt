@@ -55,9 +55,15 @@ object IntentKey {
 	// 한 장 촬영 시 height 반환용.
 	const val EXTRA_HEIGHT = "EXTRA_HEIGHT"
 
-	// 여러 장 촬영 시 uris 반환용.
+	// 한 장 촬영 시 rotation 반환용.
+	const val EXTRA_ROTATION = "EXTRA_ROTATION"
+
+	// 여러 장 촬영 시 uri 반환용.
 	const val EXTRA_URIS = "EXTRA_URIS"
 
-	// 여러 장 촬영 시 sizes 반환용.
+	// 여러 장 촬영 시 size 반환용.
 	const val EXTRA_SIZES = "EXTRA_SIZES"
+
+	// 여러 장 촬영 시 rotation 반환용.
+	const val EXTRA_ROTATIONS = "EXTRA_ROTATIONS"
 }
