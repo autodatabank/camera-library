@@ -1,10 +1,20 @@
-package com.intravan.signing.domain.model
+package kr.co.kadb.cameralibrary.domain.model
 
-data class AgreeItem(
-    val companyCode: String,
-    val companyName: String,
-    val vehicleNumber: String,
-    val customerName: String,
-    val phoneNumber: String,
-    val serial: String
+import android.net.Uri
+import android.util.Size
+
+internal data class ShootItem(
+    val action: String?,
+    val isDebug: Boolean,
+    val isShooted: Boolean,
+    val isMultiplePicture: Boolean,
+    val canMute: Boolean,
+    val hasHorizon: Boolean,
+    val canUiRotation: Boolean,
+    val cropPercent: List<Float>,
+    val uris: ArrayList<Uri>,
+    val sizes: ArrayList<Size>,
+    val rotations: ArrayList<Int>,
+    val horizonColor: Int,
+    val unusedAreaBorderColor: Int
 )
