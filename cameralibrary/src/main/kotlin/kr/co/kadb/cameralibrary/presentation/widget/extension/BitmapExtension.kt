@@ -8,18 +8,17 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Color
 import android.graphics.Matrix
-import android.net.Uri
 import android.os.Build
 import android.os.Environment
 import android.os.ParcelFileDescriptor
 import android.provider.MediaStore
 import android.util.Base64
 import android.util.Size
+import androidx.camera.core.impl.utils.Exif
+import androidx.core.net.toUri
+import androidx.exifinterface.media.ExifInterface
 import timber.log.Timber
-import java.io.ByteArrayOutputStream
-import java.io.File
-import java.io.FileNotFoundException
-import java.io.FileOutputStream
+import java.io.*
 
 /**
  * Created by oooobang on 2018. 5. 11..
@@ -30,7 +29,8 @@ fun Bitmap?.save(
     context: Context? = null,
     isPublicDirectory: Boolean = false,
     filename: String = System.currentTimeMillis().toString(),
-    format: Bitmap.CompressFormat = Bitmap.CompressFormat.JPEG
+    format: Bitmap.CompressFormat = Bitmap.CompressFormat.JPEG,
+    rotation: Int? = null
 ): String? {
     // Debug.
     Timber.i(">>>>> Save ByteArray")
@@ -57,8 +57,10 @@ fun Bitmap?.save(
                 )
             }
 
+            // 저장.
             context?.contentResolver?.let { contentResolver ->
-                // ContentResolver을 통해 insert.
+                // ContentResolver을 통해 insert를 해주고 해당 insert가 되는 위치의 Uri를 리턴받는다.
+                // 이후로는 해당 Uri를 통해 파일 관리를 해줄 수 있다.
                 val collection = MediaStore.Images.Media.EXTERNAL_CONTENT_URI
                 contentResolver.insert(collection, contentValues)?.let { uri ->
                     // Debug.
@@ -67,24 +69,22 @@ fun Bitmap?.save(
                     // 반환용.
                     path = uri.toString()
 
-                    // 파일 쓰.
+                    // 파일 쓰기.
                     var fileOutputStream: FileOutputStream? = null
                     var parcelFileDescriptor: ParcelFileDescriptor? = null
                     try {
                         // Uri(item)의 위치에 파일을 생성해준다.
                         parcelFileDescriptor = contentResolver.openFileDescriptor(
-                            uri,
-                            "w",
-                            null
+                            uri, "w", null
                         )
-                        parcelFileDescriptor?.let {
-                            fileOutputStream = FileOutputStream(parcelFileDescriptor.fileDescriptor)
+                        parcelFileDescriptor?.fileDescriptor?.also { fileDescriptor ->
+                            fileOutputStream = FileOutputStream(fileDescriptor)
                             this?.compress(format, 95, fileOutputStream)
                             contentResolver.update(uri, contentValues, null, null)
                         }
                     } catch (ex: Exception) {
                         // Debug.
-                        Timber.e(">>>>> Save ByteArray Exception : %s", ex.toString())
+                        Timber.e(">>>>> Save Bitmap Exception : %s", ex.toString())
                     } finally {
                         fileOutputStream?.close()
                         parcelFileDescriptor?.close()
@@ -94,6 +94,37 @@ fun Bitmap?.save(
                     // 파일을 모두 write하고 다른곳에서 사용할 수 있도록 0으로 업데이트를 해줍니다.
                     contentValues.put(MediaStore.Images.Media.IS_PENDING, 0)
                     contentResolver.update(uri, contentValues, null, null)
+
+                    // Exif 태그 데이터를 이미지 파일에 저장.
+                    try {
+                        parcelFileDescriptor = contentResolver.openFileDescriptor(
+                            uri, "rw", null
+                        )
+                        parcelFileDescriptor?.fileDescriptor?.also { fileDescriptor ->
+                            val orientation = when (rotation) {
+                                0 -> ExifInterface.ORIENTATION_NORMAL
+                                90 -> ExifInterface.ORIENTATION_ROTATE_90
+                                180 -> ExifInterface.ORIENTATION_ROTATE_180
+                                270 -> ExifInterface.ORIENTATION_ROTATE_270
+                                else -> null
+                            }
+                            // Debug.
+                            Timber.i(">>>>> ExifInterface Rotation : $rotation => $orientation")
+
+                            orientation?.let {
+                                val exifInterface = ExifInterface(fileDescriptor)
+                                exifInterface.setAttribute(
+                                    ExifInterface.TAG_ORIENTATION, it.toString()
+                                )
+                                exifInterface.saveAttributes()
+                            }
+                        }
+                    } catch (ex: Exception) {
+                        // Debug.
+                        Timber.e(">>>>> Save ExifInterface Exception : %s", ex.toString())
+                    } finally {
+                        parcelFileDescriptor?.close()
+                    }
                 }
             }
         } else {
@@ -111,16 +142,42 @@ fun Bitmap?.save(
                 path = "${directory.absolutePath}/$filename.$extension"
                 fileOutputStream = FileOutputStream(path)
                 this?.compress(format, 95, fileOutputStream)
-
-                // Media Scanning.
-                path?.let {
-                    context?.mediaScanning(it)
-                }
             } catch (ex: Exception) {
                 // Debug.
-                Timber.e(">>>>> Save ByteArray Exception : %s", ex.toString())
+                Timber.e(">>>>> Save Bitmap Exception : %s", ex.toString())
             } finally {
                 fileOutputStream?.close()
+            }
+
+            // Exif 태그 데이터를 이미지 파일에 저장.
+            path?.also { imagePath ->
+                try {
+                    val orientation = when (rotation) {
+                        0 -> ExifInterface.ORIENTATION_NORMAL
+                        90 -> ExifInterface.ORIENTATION_ROTATE_90
+                        180 -> ExifInterface.ORIENTATION_ROTATE_180
+                        270 -> ExifInterface.ORIENTATION_ROTATE_270
+                        else -> null
+                    }
+                    // Debug.
+                    Timber.i(">>>>> ExifInterface Rotation : $rotation => $orientation")
+
+                    orientation?.let {
+                        val exifInterface = ExifInterface(imagePath.toUri().path!!)
+                        exifInterface.setAttribute(
+                            ExifInterface.TAG_ORIENTATION, it.toString()
+                        )
+                        exifInterface.saveAttributes()
+                    }
+                } catch (ex: Exception) {
+                    // Debug.
+                    Timber.e(">>>>> Save ExifInterface Exception : %s", ex.toString())
+                }
+            }
+
+            // Media Scanning.
+            path?.let { imagePath ->
+                context?.mediaScanning(imagePath)
             }
         }
     } else {
