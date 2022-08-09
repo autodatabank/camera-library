@@ -203,6 +203,7 @@ internal class ShootFragment :
                             putExtra("data", event.thumbnailBitmap)
                             putExtra(IntentKey.EXTRA_WIDTH, event.size.width)
                             putExtra(IntentKey.EXTRA_HEIGHT, event.size.height)
+                            putExtra(IntentKey.EXTRA_ROTATION, event.rotation)
                             setDataAndType(event.uri, "image/jpeg")
                         }.also {
                             requireActivity().setResult(Activity.RESULT_OK, it)
@@ -216,6 +217,7 @@ internal class ShootFragment :
                             action = IntentKey.ACTION_TAKE_MULTIPLE_PICTURES
                             putExtra(IntentKey.EXTRA_URIS, event.uris)
                             putExtra(IntentKey.EXTRA_SIZES, event.sizes)
+                            putExtra(IntentKey.EXTRA_ROTATIONS, event.rotations)
                         }.also {
                             requireActivity().setResult(Activity.RESULT_OK, it)
                         }.run {
@@ -246,7 +248,12 @@ internal class ShootFragment :
                         Timber.i(">>>>> ImageCapture onCaptureSuccess")
 
                         // 이미지 저장.
-                        viewModel.saveImage(image.planes[0].buffer, image.width, image.height)
+                        viewModel.saveImage(
+                            image.planes[0].buffer,
+                            image.width,
+                            image.height,
+                            image.imageInfo.rotationDegrees
+                        )
                         // Close ImageProxy.
                         image.close()
                     }
