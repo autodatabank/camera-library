@@ -20,7 +20,9 @@ fun Any?.fieldReflection(obj: Any?) {
                 }
             }
         }
-    } catch (ex: Exception) {}
+    } catch (ex: Exception) {
+        ex.printStackTrace()
+    }
 }
 
 // Json Pretty.

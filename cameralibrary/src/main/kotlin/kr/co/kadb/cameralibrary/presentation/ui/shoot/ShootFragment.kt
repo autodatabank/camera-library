@@ -530,9 +530,8 @@ internal class ShootFragment :
             preview?.setSurfaceProvider(binding.adbCameralibraryPreviewView.surfaceProvider)
             //
             observeCameraState(camera?.cameraInfo!!)
-        } catch (exc: Exception) {
-            // Debug.
-            Timber.e(">>>>> Use case binding failed: $exc")
+        } catch (ex: Exception) {
+            ex.printStackTrace()
         }
     }
 
