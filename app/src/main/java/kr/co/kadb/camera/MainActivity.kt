@@ -10,6 +10,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import kr.co.kadb.cameralibrary.presentation.CameraIntent
 import kr.co.kadb.cameralibrary.presentation.widget.extension.save
+import kr.co.kadb.cameralibrary.presentation.widget.extension.toBitmap
 import kr.co.kadb.cameralibrary.presentation.widget.util.BitmapHelper
 import kr.co.kadb.cameralibrary.presentation.widget.util.IntentKey
 import kr.co.kadb.cameralibrary.presentation.widget.util.UriHelper
@@ -42,10 +43,10 @@ class MainActivity : AppCompatActivity() {
                     )
 
                     // Bitmap 저장.
-                    cropBitmap.save(baseContext, true, rotation = imageRotation)
+                    //cropBitmap.save(baseContext, true, rotation = imageRotation)
 
                     // 가로, 세로 중 큰 길이를 640(pixel)에 가깝게(640이상 ~ 1280미만) 맞춰 비율 축소.
-                    // 예) resizePixcel이 640인 경우 결과는 640이상 ~ 1280미만 임.
+                    // 예) resizePixcel이 640인 경우 결과는 640이상 ~ 1280미만.
                     // 성능 및 좋은 샘플링으로 이미지를 추출.
                     val resizeBitmap = BitmapHelper.resize(cropBitmap, 640)
 
