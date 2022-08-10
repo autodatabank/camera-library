@@ -195,38 +195,41 @@ constructor(
             byteBuffer.get(it)
         }
 
-        // 이미지 Uri.
-        val uri = byteArray.save(context, true)?.toUri() ?: Uri.EMPTY
-        // 이미지 사이즈.
-        val size = Size(width, height)
+        viewModelScope.launch {
+            // 이미지 Uri.
+            byteArray.save(context, true) { imagePath, imageUri ->
+                // 이미지 사이즈.
+                val size = Size(width, height)
 
-        // 상태 업데이트.
-        updateState { value ->
-            val uris = arrayListOf<Uri>().apply {
-                addAll(value?.uris ?: arrayListOf())
-                add(uri)
-            }
-            val sizes = arrayListOf<Size>().apply {
-                addAll(value?.sizes ?: arrayListOf())
-                add(size)
-            }
-            val rotations = arrayListOf<Int>().apply {
-                addAll(value?.rotations ?: arrayListOf())
-                add(rotation)
-            }
-            value?.copy(
-                uris = uris,
-                sizes = sizes,
-                rotations = rotations
-            )
-        }
+                // 상태 업데이트.
+                updateState { value ->
+                    val uris = arrayListOf<Uri>().apply {
+                        addAll(value?.uris ?: arrayListOf())
+                        add(imageUri ?: Uri.EMPTY)
+                    }
+                    val sizes = arrayListOf<Size>().apply {
+                        addAll(value?.sizes ?: arrayListOf())
+                        add(size)
+                    }
+                    val rotations = arrayListOf<Int>().apply {
+                        addAll(value?.rotations ?: arrayListOf())
+                        add(rotation)
+                    }
+                    value?.copy(
+                        uris = uris,
+                        sizes = sizes,
+                        rotations = rotations
+                    )
+                }
 
-        // 촬영 완료.
-        if (!item.value.isMultiplePicture) {
-            // Thumbnail.
-            val thumbnail = uri?.toThumbnail(context, size)
-            // 촬영완료 이벤트.
-            event(Event.TakePicture(uri, size, rotation, thumbnail))
+                // 촬영 완료.
+                if (!item.value.isMultiplePicture) {
+                    // Thumbnail.
+                    val thumbnail = imageUri?.toThumbnail(context, size)
+                    // 촬영완료 이벤트.
+                    event(Event.TakePicture(imageUri ?: Uri.EMPTY, size, rotation, thumbnail))
+                }
+            }
         }
     }
 }
