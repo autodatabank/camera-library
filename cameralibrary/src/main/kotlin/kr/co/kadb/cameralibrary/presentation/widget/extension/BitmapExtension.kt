@@ -5,20 +5,21 @@ package kr.co.kadb.cameralibrary.presentation.widget.extension
 import android.content.ContentValues
 import android.content.Context
 import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.graphics.Color
 import android.graphics.Matrix
+import android.net.Uri
 import android.os.Build
 import android.os.Environment
 import android.os.ParcelFileDescriptor
 import android.provider.MediaStore
 import android.util.Base64
 import android.util.Size
-import androidx.camera.core.impl.utils.Exif
 import androidx.core.net.toUri
 import androidx.exifinterface.media.ExifInterface
 import timber.log.Timber
-import java.io.*
+import java.io.ByteArrayOutputStream
+import java.io.File
+import java.io.FileOutputStream
 
 /**
  * Created by oooobang on 2018. 5. 11..
@@ -30,11 +31,9 @@ fun Bitmap?.save(
     isPublicDirectory: Boolean = false,
     filename: String = System.currentTimeMillis().toString(),
     format: Bitmap.CompressFormat = Bitmap.CompressFormat.JPEG,
-    rotation: Int? = null
+    rotation: Int? = null,
+    action: ((path: String?, uri: Uri?) -> Unit)? = null
 ): String? {
-    // Debug.
-    Timber.i(">>>>> Save ByteArray")
-
     var path: String? = null
     val extension = when (format) {
         Bitmap.CompressFormat.PNG -> "png"
@@ -43,6 +42,7 @@ fun Bitmap?.save(
     }
 
     if (isPublicDirectory) {
+        /* 공용 저장소 사용. */
         // 하위 디렉토리명.
         val childDirectory = context?.packageName?.split('.')?.last() ?: "adbcamerax"
         // 공유 저장소 사용 시 Android Q 대응.
@@ -83,8 +83,7 @@ fun Bitmap?.save(
                             contentResolver.update(uri, contentValues, null, null)
                         }
                     } catch (ex: Exception) {
-                        // Debug.
-                        Timber.e(">>>>> Save Bitmap Exception : %s", ex.toString())
+                        ex.printStackTrace()
                     } finally {
                         fileOutputStream?.close()
                         parcelFileDescriptor?.close()
@@ -120,13 +119,13 @@ fun Bitmap?.save(
                             }
                         }
                     } catch (ex: Exception) {
-                        // Debug.
-                        Timber.e(">>>>> Save ExifInterface Exception : %s", ex.toString())
+                        ex.printStackTrace()
                     } finally {
                         parcelFileDescriptor?.close()
                     }
                 }
             }
+            action?.invoke(path, path?.toUri())
         } else {
             var fileOutputStream: FileOutputStream? = null
             try {
@@ -143,45 +142,33 @@ fun Bitmap?.save(
                 fileOutputStream = FileOutputStream(path)
                 this?.compress(format, 95, fileOutputStream)
             } catch (ex: Exception) {
-                // Debug.
-                Timber.e(">>>>> Save Bitmap Exception : %s", ex.toString())
+                ex.printStackTrace()
             } finally {
                 fileOutputStream?.close()
             }
 
-            // Exif 태그 데이터를 이미지 파일에 저장.
-            path?.also { imagePath ->
-                try {
-                    val orientation = when (rotation) {
-                        0 -> ExifInterface.ORIENTATION_NORMAL
-                        90 -> ExifInterface.ORIENTATION_ROTATE_90
-                        180 -> ExifInterface.ORIENTATION_ROTATE_180
-                        270 -> ExifInterface.ORIENTATION_ROTATE_270
-                        else -> null
-                    }
-                    // Debug.
-                    Timber.i(">>>>> ExifInterface Rotation : $rotation => $orientation")
-
-                    orientation?.let {
-                        val exifInterface = ExifInterface(imagePath.toUri().path!!)
-                        exifInterface.setAttribute(
-                            ExifInterface.TAG_ORIENTATION, it.toString()
-                        )
-                        exifInterface.saveAttributes()
-                    }
-                } catch (ex: Exception) {
-                    // Debug.
-                    Timber.e(">>>>> Save ExifInterface Exception : %s", ex.toString())
-                }
-            }
-
             // Media Scanning.
-            path?.let { imagePath ->
-                context?.mediaScanning(imagePath)
+            context?.mediaScanning(path) { scanPath, scanUri ->
+                action?.invoke(scanPath, scanUri)
+//
+//                // Exif 태그 데이터를 이미지 파일에 저장.
+//                scanUri?.exif(context)?.also { exif ->
+//                    val orientation = when (rotation) {
+//                        0 -> ExifInterface.ORIENTATION_NORMAL
+//                        90 -> ExifInterface.ORIENTATION_ROTATE_90
+//                        180 -> ExifInterface.ORIENTATION_ROTATE_180
+//                        270 -> ExifInterface.ORIENTATION_ROTATE_270
+//                        else -> null
+//                    }
+//                    orientation?.let {
+//                        exif.rotate(it)
+//                        exif.save()
+//                    }
+//                }
             }
         }
     } else {
-        // 내부 저장소 사용.
+        /* 내부 저장소 사용. */
         var fileOutputStream: FileOutputStream? = null
         try {
             val directory = context?.getExternalFilesDir(Environment.DIRECTORY_PICTURES)
@@ -192,8 +179,7 @@ fun Bitmap?.save(
             fileOutputStream = FileOutputStream(path)
             this?.compress(format, 95, fileOutputStream)
         } catch (ex: Exception) {
-            // Debug.
-            Timber.e(">>>>> Save Bitmap Exception : %s", ex.toString())
+            ex.printStackTrace()
         } finally {
             fileOutputStream?.close()
         }
@@ -311,29 +297,51 @@ fun Bitmap.rotateAndCenterCrop(
 }
 
 // 리사이징.
-fun Bitmap?.resize(resize: Int): Bitmap? {
+fun Bitmap?.resize(resizePixcel: Int): Bitmap? {
     try {
         return this?.let { bitmap ->
-            val byteArray = bitmap.toByteArray()
-            val options = BitmapFactory.Options().apply {
-                inJustDecodeBounds = true
+            val sample = if (width >= height) {
+                resizePixcel.toFloat() / width.toFloat()
+            } else {
+                resizePixcel.toFloat() / height.toFloat()
             }
-            BitmapFactory.decodeByteArray(byteArray, 0, byteArray?.size ?: 0, options)
-            var width = options.outWidth
-            var height = options.outHeight
-            var sampleSize = 1
+            val (sampleWidth, sampleHeight) = if (sample < 1) {
+                Pair((width.toFloat() * sample).toInt(), (height.toFloat() * sample).toInt())
+            } else {
+                Pair(width, height)
+            }
+            Bitmap.createScaledBitmap(bitmap, sampleWidth, sampleHeight, true)
+        }
+    } catch (ex: Exception) {
+        ex.printStackTrace()
+    }
+    return null
+}
+
+// 리사이징.
+fun Bitmap?.optimumResize (resize: Int): Bitmap? {
+    try {
+        return this?.let { bitmap ->
+//            val byteArray = bitmap.toByteArray()
+//            val options = BitmapFactory.Options().apply {
+//                inJustDecodeBounds = true
+//            }
+//            BitmapFactory.decodeByteArray(byteArray, 0, byteArray?.size ?: 0, options)
+//            var width = options.outWidth
+//            var height = options.outHeight
+//            var sampleSize = 1
             while (true) {
                 if (width / 2 < resize || height / 2 < resize) {
                     break
                 }
                 width /= 2
                 height /= 2
-                sampleSize *= 2
+//                sampleSize *= 2
             }
-            options.inSampleSize = sampleSize
+//            options.inSampleSize = sampleSize
             Bitmap.createScaledBitmap(bitmap, width, height, true)
         }
-    } catch (ex: FileNotFoundException) {
+    } catch (ex: Exception) {
         ex.printStackTrace()
     }
     return null
