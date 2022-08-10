@@ -5,6 +5,7 @@ import android.graphics.Bitmap
 import android.net.Uri
 import android.util.Size
 import kr.co.kadb.cameralibrary.presentation.widget.extension.rotateAndCenterCrop
+import kr.co.kadb.cameralibrary.presentation.widget.extension.toBitmap
 import kr.co.kadb.cameralibrary.presentation.widget.extension.toThumbnail
 
 /**
@@ -12,6 +13,14 @@ import kr.co.kadb.cameralibrary.presentation.widget.extension.toThumbnail
  */
 class UriHelper {
     companion object {
+        @JvmStatic
+        fun toBitmap(
+            context: Context,
+            uri: Uri?
+        ): Bitmap? {
+            return uri?.toBitmap(context)
+        }
+
         @JvmStatic
         fun toThumbnail(
             context: Context,
