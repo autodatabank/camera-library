@@ -9,8 +9,6 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import kr.co.kadb.cameralibrary.presentation.CameraIntent
-import kr.co.kadb.cameralibrary.presentation.widget.extension.save
-import kr.co.kadb.cameralibrary.presentation.widget.extension.toBitmap
 import kr.co.kadb.cameralibrary.presentation.widget.util.BitmapHelper
 import kr.co.kadb.cameralibrary.presentation.widget.util.IntentKey
 import kr.co.kadb.cameralibrary.presentation.widget.util.UriHelper
@@ -32,7 +30,7 @@ class MainActivity : AppCompatActivity() {
                     val imageWidth = intent.getIntExtra(IntentKey.EXTRA_WIDTH, 0)
                     // 이미지 세로.
                     val imageHeight = intent.getIntExtra(IntentKey.EXTRA_HEIGHT, 0)
-                    // 이미지 세로.
+                    // 이미지 방향.
                     val imageRotation = intent.getIntExtra(IntentKey.EXTRA_ROTATION, 0)
                     // 썸네임 이미지.
                     val thumbnailBitmap = intent.extras?.get("data") as? Bitmap
@@ -43,15 +41,19 @@ class MainActivity : AppCompatActivity() {
                     )
 
                     // Bitmap 저장.
-                    //cropBitmap.save(baseContext, true, rotation = imageRotation)
+                    //cropBitmap.save(baseContext, true)
+
+                    // 가로, 세로 중 큰 길이를 640(pixel)에 맞춰 비율 축소.
+                    val resizeBitmap = BitmapHelper.resize(cropBitmap, 640)
+                    cropBitmap?.recycle()
 
                     // 가로, 세로 중 큰 길이를 640(pixel)에 가깝게(640이상 ~ 1280미만) 맞춰 비율 축소.
                     // 예) resizePixcel이 640인 경우 결과는 640이상 ~ 1280미만.
                     // 성능 및 좋은 샘플링으로 이미지를 추출.
-                    val resizeBitmap = BitmapHelper.resize(cropBitmap, 640)
+                    //val optimumResizeBitmap = BitmapHelper.optimumResize(cropBitmap, 640)
 
                     // Bitmap 저장.
-                    resizeBitmap.save(baseContext, true, rotation = imageRotation)
+                    //resizeBitmap.save(baseContext, true)
 
                     // Base64로 인코딩 된 문자열 반환.
                     val base64 = BitmapHelper.toBase64(resizeBitmap)
