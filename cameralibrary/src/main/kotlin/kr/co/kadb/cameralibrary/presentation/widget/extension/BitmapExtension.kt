@@ -141,6 +141,25 @@ fun Bitmap?.save(
                 path = "${directory.absolutePath}/$filename.$extension"
                 fileOutputStream = FileOutputStream(path)
                 this?.compress(format, 95, fileOutputStream)
+
+                // Exif 태그 데이터를 이미지 파일에 저장.
+                val orientation = when (rotation) {
+                    0 -> ExifInterface.ORIENTATION_NORMAL
+                    90 -> ExifInterface.ORIENTATION_ROTATE_90
+                    180 -> ExifInterface.ORIENTATION_ROTATE_180
+                    270 -> ExifInterface.ORIENTATION_ROTATE_270
+                    else -> null
+                }
+                // Debug.
+                Timber.i(">>>>> ExifInterface Rotation : $rotation => $orientation")
+
+                orientation?.let {
+                    val exifInterface = ExifInterface(File(path!!))
+                    exifInterface.setAttribute(
+                        ExifInterface.TAG_ORIENTATION, it.toString()
+                    )
+                    exifInterface.saveAttributes()
+                }
             } catch (ex: Exception) {
                 ex.printStackTrace()
             } finally {
@@ -150,21 +169,6 @@ fun Bitmap?.save(
             // Media Scanning.
             context?.mediaScanning(path) { scanPath, scanUri ->
                 action?.invoke(scanPath, scanUri)
-//
-//                // Exif 태그 데이터를 이미지 파일에 저장.
-//                scanUri?.exif(context)?.also { exif ->
-//                    val orientation = when (rotation) {
-//                        0 -> ExifInterface.ORIENTATION_NORMAL
-//                        90 -> ExifInterface.ORIENTATION_ROTATE_90
-//                        180 -> ExifInterface.ORIENTATION_ROTATE_180
-//                        270 -> ExifInterface.ORIENTATION_ROTATE_270
-//                        else -> null
-//                    }
-//                    orientation?.let {
-//                        exif.rotate(it)
-//                        exif.save()
-//                    }
-//                }
             }
         }
     } else {
