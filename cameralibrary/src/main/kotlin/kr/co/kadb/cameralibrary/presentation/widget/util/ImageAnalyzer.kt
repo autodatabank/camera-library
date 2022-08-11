@@ -8,9 +8,14 @@ import kr.co.kadb.cameralibrary.presentation.widget.extension.rotateAndCenterCro
 import org.opencv.android.Utils
 import org.opencv.core.*
 import org.opencv.imgproc.Imgproc
+import timber.log.Timber
 import kotlin.math.sqrt
 
-internal class ImageAnalyzer(private val cropPercent: Array<Float>) : ImageAnalysis.Analyzer {
+
+internal class ImageAnalyzer(
+    private val cropPercent: Array<Float>,
+    private val action: ((bitmap: Bitmap?) -> Unit)? = null
+) : ImageAnalysis.Analyzer {
     override fun analyze(imageProxy: ImageProxy) {
         val image = imageProxy.image ?: return
         var bitmap: Bitmap? = ImageUtils.convertYuv420888ImageToBitmap(image)
@@ -20,60 +25,93 @@ internal class ImageAnalyzer(private val cropPercent: Array<Float>) : ImageAnaly
         )
 
         //compress bitmap
-        val resizedBitmap = bitmap.resize(480) ?: return
+        val resizedBitmap = bitmap.resize(1024) ?: return
         val rgbaMat = Mat()
         val grayMat = Mat()
         val bwMat = Mat()
         val hierarchy = Mat()
+
+        // 윤곽 List.
+        val contours: List<MatOfPoint> = ArrayList()
+        // 색상.
+        val scalar = Scalar(255.0, 255.0, 0.0)
+        // 두께.
+        val thickness = 5
+
 
         // Bitmap > Mat.
         Utils.bitmapToMat(resizedBitmap, rgbaMat)
         // RGB > Gray.
         Imgproc.cvtColor(rgbaMat, grayMat, Imgproc.COLOR_RGB2GRAY)
         // 히스토그램 평활화.
-        Imgproc.equalizeHist(grayMat, grayMat)
-//        Imgproc.adaptiveThreshold(
-//            grayMat,
-//            grayMat,
-//            255.0,
-//            Imgproc.ADAPTIVE_THRESH_MEAN_C,
-//            Imgproc.THRESH_BINARY,
-//            15,
-//            40.0
-//        )
+        //Imgproc.equalizeHist(grayMat, grayMat)
+
+
+        val kernel = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, Size(3.0, 3.0))
+        //Imgproc.erode(grayMat, grayMat, kernel)
+        //Imgproc.dilate(grayMat, grayMat, kernel)
+//        Imgproc.morphologyEx(grayMat, grayMat, Imgproc.MORPH_DILATE, kernel)
+//        Imgproc.morphologyEx(grayMat, grayMat, Imgproc.MORPH_ERODE, kernel)
+        Imgproc.morphologyEx(grayMat, grayMat, Imgproc.MORPH_GRADIENT, kernel)
+        //Imgproc.morphologyEx(grayMat, grayMat, Imgproc.MORPH_CLOSE, kernel)
+        Imgproc.morphologyEx(grayMat, grayMat, Imgproc.MORPH_TOPHAT, kernel)
+        //Imgproc.morphologyEx(grayMat, grayMat, Imgproc.MORPH_BLACKHAT, kernel)
+
+        /* Gaussian Blur. */
+        Imgproc.GaussianBlur(grayMat, grayMat, kernel.size(), 0.0)
+
         // 윤곽선.
+        /* Canny */
         // grayMat 입력.
         // bwMat 출력.
         // threshold1 최소 임계값.
         // threshold2 최대 임계값.
-        Imgproc.Canny(grayMat, bwMat, 100.0, 250.0, 3, false)
+        //Imgproc.Canny(grayMat, bwMat, 50.0, 255.0, 3, false)
 
-        //find largest contour
-        val contours: List<MatOfPoint> = ArrayList()
+        /* Global Threshold. */
+        //Imgproc.threshold(grayMat, bwMat, 0.0, 255.0, Imgproc.THRESH_BINARY+Imgproc.THRESH_OTSU)
 
-        // 윤곽선 검출.
+        /* Adaptive Threshold. */
+        // adaptiveMethod: Adaptive Threshold 알고리즘(ADAPTIVE_THRESH_MEAN_C, ADAPTIVE_THRESH_GAUSSIAN_C)
+        Imgproc.adaptiveThreshold(
+            grayMat,
+            bwMat,
+            255.0,
+            Imgproc.ADAPTIVE_THRESH_MEAN_C,
+            Imgproc.THRESH_BINARY_INV,
+            3,
+            2.0
+        )
+        /*Imgproc.adaptiveThreshold(
+            grayMat,
+            grayMat,
+            255.0,
+            Imgproc.ADAPTIVE_THRESH_MEAN_C,
+            Imgproc.THRESH_BINARY,
+            15,
+            40.0
+        )*/
+
+
+        // 윤곽선 찾기.
         // image : 입력영상, 0이 아닌 픽셀을 객체로 간주함.
         // contours : 검출된 윤곽선 좌표
         // hierarchy : 윤곽선 계층정보
-        // mode : 윤곽선 검출 모드
+        // mode : 윤곽선 검출 모드(RETR_LIST: 이미지에서 발견한 모든 Contour들을 계층에 상관 없이 나열, RETR_TREE: 모든 Contour들의 관계를 명확히 해서 리턴)
         // method : 좌표 값 이동 오프셋, 기본값 (0,0)
         Imgproc.findContours(
             bwMat,
             contours,
             hierarchy,
-            //Imgproc.RETR_LIST,
+            // 윤곽선 검출 모드.
+//            Imgproc.RETR_LIST,
             Imgproc.RETR_TREE,
-            Imgproc.CHAIN_APPROX_NONE
+//            Imgproc.RETR_EXTERNAL,
+            // 윤곽선 근사화 방법.
+//            Imgproc.CHAIN_APPROX_NONE
+            Imgproc.CHAIN_APPROX_SIMPLE
         )
-//
-//        contours.forEach { matOfPoint ->
-//            val rect = Imgproc.boundingRect(matOfPoint)
-//            val bitmap = Bitmap.createBitmap(resizedBitmap, rect.tl().x.toInt(), rect.tl().y.toInt(), rect.width, rect.height)
-//
-//            lifecycleScope.launch {
-//                binding.adbCameralibraryImageviewThumbnail.setImageBitmap(bitmap)
-//            }
-//        }
+
 //        for (int idx = 0;
 //            idx >= 0;
 //            idx = (int) hierarchy.get (0, idx)[0]) {
@@ -86,9 +124,6 @@ internal class ImageAnalyzer(private val cropPercent: Array<Float>) : ImageAnaly
 //            ImageView imageView1 = (ImageView)findViewById(R.id.image_result_ROI);
 //            imageView1.setImageBitmap(roi);
 //            }
-
-        val scalar = Scalar(255.0, 255.0, 0.0)
-        val thickness = 2
 
 
 //        contours.forEach { matOfPoint ->
@@ -137,32 +172,66 @@ internal class ImageAnalyzer(private val cropPercent: Array<Float>) : ImageAnaly
 //            }
 //        }
 
-        val maxArea = 50.0
-        val minWidth = 50
+
+//        contours.forEach { thisContour ->
+////            //check if this contour is a square
+////            val curve = MatOfPoint2f(*matOfPoint.toArray())
+////            val contourSize = matOfPoint.total().toInt()
+//
+//            val thisContour2f = MatOfPoint2f()
+//            val approxContour = MatOfPoint()
+//            val approxContour2f = MatOfPoint2f()
+//
+//            thisContour.convertTo(thisContour2f, CvType.CV_32FC2)
+//            Imgproc.approxPolyDP(thisContour2f, approxContour2f, 2.0, true)
+//            approxContour2f.convertTo(approxContour, CvType.CV_32S)
+//
+//            val contourArea = Imgproc.contourArea(thisContour)
+//
+//            if (contourArea > 100 && approxContour.size().height == 4.0) {
+//                Imgproc.boundingRect(approxContour).also {
+////                    it.width >= minWidth && it.height >= minHeight
+////                }?.run {
+////                    Timber.i(">>>>> OPENCV => contourArea : $contourArea , approxCurve : ${approxCurve.total()} , contourSize : $contourSize , ${this.width} x ${this.height}")
+//                    Imgproc.rectangle(bwMat, it, scalar, thickness)
+//                }
+//            }
+//        }
+
+
+        val minArea = 800.0
+        val minWidth = 100
         val minHeight = 50
         val approxCurve = MatOfPoint2f()
 //        val largestContours: MutableList<MatOfPoint?> = ArrayList()
         contours.forEach { matOfPoint ->
             val contourArea = Imgproc.contourArea(matOfPoint)
             //compare this contour to the previous largest contour found
-            if (contourArea > maxArea) {
+            //Timber.i(">>>>> OPENCV => Area : $contourArea , $minArea")
+            if (contourArea > minArea) {
                 //check if this contour is a square
                 val curve = MatOfPoint2f(*matOfPoint.toArray())
-                val contourSize = matOfPoint.total().toInt()
-                Imgproc.approxPolyDP(curve, approxCurve, contourSize * 0.5, true)
-//                val approxDistance = Imgproc.arcLength(curve, true) * 0.02
-//                Imgproc.approxPolyDP(curve, approxCurve, approxDistance, true)
-                if (approxCurve.total() == 4L) {
+//                val contourSize = matOfPoint.total().toInt()
+                //
+                val epsilon = Imgproc.arcLength(curve, true) * 0.05
+                Imgproc.approxPolyDP(curve, approxCurve, epsilon, true)
+//                if (approxCurve.total() > 4L) {
+                if (approxCurve.total() in 4L..256L) {
 //                    maxArea = contourArea
 //                    largestContours.add(matOfPoint)
                     Imgproc.boundingRect(matOfPoint).takeIf {
                         it.width >= minWidth && it.height >= minHeight
                     }?.run {
-                        Imgproc.rectangle(rgbaMat, this, scalar, thickness)
+                        Timber.i(
+                            ">>>>> OPENCV => contourArea : $contourArea , approxCurve : ${approxCurve.total()} , ${this.width} x ${this.height}"
+                        )
+                        Imgproc.rectangle(bwMat, this, scalar, thickness)
                     }
                 }
             }
         }
+
+
 //        if (largestContours.size >= 1) {
 ////            val temp_largest = largestContours[largestContours.size - 1]
 ////            largestContours = ArrayList()
@@ -172,13 +241,14 @@ internal class ImageAnalyzer(private val cropPercent: Array<Float>) : ImageAnaly
 //        }
 
 
-        Utils.matToBitmap(rgbaMat, resizedBitmap)
-//        Utils.matToBitmap(rgbaMat, resizedBitmap)
-//
-//
-//        lifecycleScope.launch {
-//            binding.adbCameralibraryImageviewThumbnail.setImageBitmap(resizedBitmap)
-//        }
+        //
+        Utils.matToBitmap(bwMat, resizedBitmap)
+
+        //
+        imageProxy.close()
+
+        //
+        action?.invoke(resizedBitmap)
     }
 
 

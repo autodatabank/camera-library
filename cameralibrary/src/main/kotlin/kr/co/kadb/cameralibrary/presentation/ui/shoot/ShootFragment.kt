@@ -34,9 +34,11 @@ import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.transition.ChangeBounds
 import androidx.transition.TransitionManager
 import androidx.transition.addListener
+import kotlinx.coroutines.launch
 import kr.co.kadb.cameralibrary.R
 import kr.co.kadb.cameralibrary.databinding.AdbCameralibraryFragmentShootBinding
 import kr.co.kadb.cameralibrary.presentation.base.BaseBindingFragment
@@ -45,6 +47,7 @@ import kr.co.kadb.cameralibrary.presentation.widget.extension.repeatOnStarted
 import kr.co.kadb.cameralibrary.presentation.widget.util.ImageAnalyzer
 import kr.co.kadb.cameralibrary.presentation.widget.util.IntentKey
 import kr.co.kadb.cameralibrary.presentation.widget.util.MediaActionSound2
+import org.opencv.android.OpenCVLoader
 import timber.log.Timber
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
@@ -60,6 +63,12 @@ internal class ShootFragment :
     BaseBindingFragment<AdbCameralibraryFragmentShootBinding, ShootSharedViewModel>() {
     companion object {
         fun create() = ShootFragment()
+    }
+
+    init {
+        if (!OpenCVLoader.initDebug()) {
+            // Handle initialization error
+        }
     }
 
     // ViewController.
@@ -258,7 +267,7 @@ internal class ShootFragment :
                             image.imageInfo.rotationDegrees
                         )
                         // Close ImageProxy.
-                        image.close()
+                        //image.close()
                     }
 
                     override fun onError(exception: ImageCaptureException) {
@@ -527,7 +536,11 @@ internal class ShootFragment :
             .apply {
                 setAnalyzer(
                     cameraExecutor,
-                    ImageAnalyzer(viewModel.item.value.cropPercent.toTypedArray())
+                    ImageAnalyzer(viewModel.item.value.cropPercent.toTypedArray()) {
+                        lifecycleScope.launch {
+                            binding.adbCameralibraryImageviewThumbnail.setImageBitmap(it)
+                        }
+                    }
                 )
             }
 
