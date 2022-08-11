@@ -61,6 +61,7 @@ fun String?.splitPhoneNumber(): Array<String?> {
         try {
             numbers[index] = s
         } catch (ex: Exception) {
+            ex.printStackTrace()
         }
     }
     return numbers
@@ -73,6 +74,7 @@ fun String?.splitEmail(): Array<String?> {
         try {
             emails[index] = s
         } catch (ex: Exception) {
+            ex.printStackTrace()
         }
     }
     return emails

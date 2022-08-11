@@ -30,21 +30,38 @@ class MainActivity : AppCompatActivity() {
                     val imageWidth = intent.getIntExtra(IntentKey.EXTRA_WIDTH, 0)
                     // 이미지 세로.
                     val imageHeight = intent.getIntExtra(IntentKey.EXTRA_HEIGHT, 0)
+                    // 이미지 방향.
+                    val imageRotation = intent.getIntExtra(IntentKey.EXTRA_ROTATION, 0)
                     // 썸네임 이미지.
                     val thumbnailBitmap = intent.extras?.get("data") as? Bitmap
 
-                    // 이미지 중앙 기준 Crop(%).
+                    // 이미지 중앙을 기준으로 원본 사이즈에서 가로:70% 세로:50% 크롭.
                     val cropBitmap = UriHelper.rotateAndCenterCrop(
                         baseContext, imageUri, arrayOf(0.7f, 0.5f)
                     )
 
-                    // Base64
-                    val base64 = BitmapHelper.toBase64(cropBitmap)
+                    // Bitmap 저장.
+                    //cropBitmap.save(baseContext, true)
+
+                    // 가로, 세로 중 큰 길이를 640(pixel)에 맞춰 비율 축소.
+                    val resizeBitmap = BitmapHelper.resize(cropBitmap, 640)
+                    cropBitmap?.recycle()
+
+                    // 가로, 세로 중 큰 길이를 640(pixel)에 가깝게(640이상 ~ 1280미만) 맞춰 비율 축소.
+                    // 예) resizePixcel이 640인 경우 결과는 640이상 ~ 1280미만.
+                    // 성능 및 좋은 샘플링으로 이미지를 추출.
+                    //val optimumResizeBitmap = BitmapHelper.optimumResize(cropBitmap, 640)
+
+                    // Bitmap 저장.
+                    //resizeBitmap.save(baseContext, true)
+
+                    // Base64로 인코딩 된 문자열 반환.
+                    val base64 = BitmapHelper.toBase64(resizeBitmap)
 
                     // 촬영 원본 이미지.
                     findViewById<ImageView>(R.id.imageview).setImageURI(imageUri)
-                    // 크롭 이미지.
-                    findViewById<ImageView>(R.id.imageview_thumbnail).setImageBitmap(cropBitmap)
+                    // 촬영 원본을 크롭 및 리사이즈한 이미지.
+                    findViewById<ImageView>(R.id.imageview_thumbnail).setImageBitmap(resizeBitmap)
                 } else if (intent?.action == IntentKey.ACTION_TAKE_MULTIPLE_PICTURES) {
                     // 여러장.
                     // 이미지 URI.
@@ -62,6 +79,11 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        // Debug.
+        if (BuildConfig.DEBUG) {
+            Timber.plant(Timber.DebugTree())
+        }
 
         // 한장 촬영.
         findViewById<Button>(R.id.button_one_shoot).setOnClickListener {

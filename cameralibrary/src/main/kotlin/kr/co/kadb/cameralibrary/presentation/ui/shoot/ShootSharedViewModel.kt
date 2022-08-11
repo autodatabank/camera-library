@@ -15,7 +15,6 @@ import kr.co.kadb.cameralibrary.presentation.model.ShootUiState
 import kr.co.kadb.cameralibrary.presentation.model.UiState
 import kr.co.kadb.cameralibrary.presentation.viewmodel.BaseAndroidViewModel
 import kr.co.kadb.cameralibrary.presentation.widget.extension.save
-import kr.co.kadb.cameralibrary.presentation.widget.extension.toJsonPretty
 import kr.co.kadb.cameralibrary.presentation.widget.extension.toThumbnail
 import kr.co.kadb.cameralibrary.presentation.widget.util.IntentKey.ACTION_TAKE_MULTIPLE_PICTURES
 import timber.log.Timber
@@ -33,9 +32,13 @@ constructor(
     // Event.
     sealed class Event {
         data class PlayShutterSound(val canMute: Boolean) : Event()
-        data class TakePicture(val uri: Uri, val size: Size, val thumbnailBitmap: Bitmap?) : Event()
-        data class TakeMultiplePictures(val uris: ArrayList<Uri>, val sizes: ArrayList<Size>) :
-            Event()
+        data class TakePicture(
+            val uri: Uri, val size: Size, val rotation: Int, val thumbnailBitmap: Bitmap?
+        ) : Event()
+
+        data class TakeMultiplePictures(
+            val uris: ArrayList<Uri>, val sizes: ArrayList<Size>, val rotations: ArrayList<Int>
+        ) : Event()
     }
 
     // Event.
@@ -106,6 +109,9 @@ constructor(
             hasHorizon = hasHorizon,
             canUiRotation = canUiRotation,
             cropPercent = cropPercent?.toList() ?: listOf(),
+            uris = arrayListOf(),
+            sizes = arrayListOf(),
+            rotations = arrayListOf(),
             horizonColor = horizonColor,
             unusedAreaBorderColor = unusedAreaBorderColor
         ) ?: ShootUiState(
@@ -119,6 +125,7 @@ constructor(
             cropPercent = cropPercent?.toList() ?: listOf(),
             uris = arrayListOf(),
             sizes = arrayListOf(),
+            rotations = arrayListOf(),
             horizonColor = horizonColor,
             unusedAreaBorderColor = unusedAreaBorderColor
         ).run {
@@ -169,12 +176,16 @@ constructor(
 
     // 촬영완료 이벤트.
     fun stopShooting() {
-        event(Event.TakeMultiplePictures(item.value.uris, item.value.sizes))
+        event(
+            Event.TakeMultiplePictures(
+                item.value.uris, item.value.sizes, item.value.rotations
+            )
+        )
     }
 
     // 이미지 저장.
     @SuppressLint("RestrictedApi")
-    fun saveImage(byteBuffer: ByteBuffer, width: Int, height: Int) {
+    fun saveImage(byteBuffer: ByteBuffer, width: Int, height: Int, rotation: Int) {
         // 셔터음 이벤트.
         event(Event.PlayShutterSound(item.value.canMute))
 
@@ -183,33 +194,42 @@ constructor(
         val byteArray = ByteArray(byteBuffer.capacity()).also {
             byteBuffer.get(it)
         }
-        val uri = byteArray.save(context, true)?.toUri() ?: Uri.EMPTY
 
-        // 이미지 사이즈.
-        val size = Size(width, height)
+        viewModelScope.launch {
+            // 이미지 Uri.
+            byteArray.save(context, true) { imagePath, imageUri ->
+                // 이미지 사이즈.
+                val size = Size(width, height)
 
-        // 상태 업데이트.
-        updateState { value ->
-            val uris = arrayListOf<Uri>().apply {
-                addAll(value?.uris ?: arrayListOf())
-                add(uri)
+                // 상태 업데이트.
+                updateState { value ->
+                    val uris = arrayListOf<Uri>().apply {
+                        addAll(value?.uris ?: arrayListOf())
+                        add(imageUri ?: Uri.EMPTY)
+                    }
+                    val sizes = arrayListOf<Size>().apply {
+                        addAll(value?.sizes ?: arrayListOf())
+                        add(size)
+                    }
+                    val rotations = arrayListOf<Int>().apply {
+                        addAll(value?.rotations ?: arrayListOf())
+                        add(rotation)
+                    }
+                    value?.copy(
+                        uris = uris,
+                        sizes = sizes,
+                        rotations = rotations
+                    )
+                }
+
+                // 촬영 완료.
+                if (!item.value.isMultiplePicture) {
+                    // Thumbnail.
+                    val thumbnail = imageUri?.toThumbnail(context, size)
+                    // 촬영완료 이벤트.
+                    event(Event.TakePicture(imageUri ?: Uri.EMPTY, size, rotation, thumbnail))
+                }
             }
-            val sizes = arrayListOf<Size>().apply {
-                addAll(value?.sizes ?: arrayListOf())
-                add(size)
-            }
-            value?.copy(
-                uris = uris,
-                sizes = sizes
-            )
-        }
-
-        // 촬영 완료.
-        if (!item.value.isMultiplePicture) {
-            // Thumbnail.
-            val thumbnail = uri?.toThumbnail(context, size)
-            // 촬영완료 이벤트.
-            event(Event.TakePicture(uri, size, thumbnail))
         }
     }
 }

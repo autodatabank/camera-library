@@ -2,6 +2,7 @@ package kr.co.kadb.cameralibrary.presentation.model
 
 import android.net.Uri
 import android.util.Size
+import kr.co.kadb.cameralibrary.domain.model.ShootItem
 
 /**
  * Created by oooobang on 2022. 7. 17..
@@ -18,6 +19,7 @@ internal data class ShootUiState(
     val cropPercent: List<Float>,
     val uris: ArrayList<Uri>,
     val sizes: ArrayList<Size>,
+    val rotations: ArrayList<Int>,
     val horizonColor: Int,
     val unusedAreaBorderColor: Int
 ) {
@@ -44,14 +46,27 @@ internal data class ShootUiState(
             cropPercent = listOf(),
             uris = arrayListOf(),
             sizes = arrayListOf(),
+            rotations = arrayListOf(),
             horizonColor = -1,
             unusedAreaBorderColor = -1
         )
     }
 }
-//
-//fun List<ShootItem>.toUiState(): List<ShootUiState> = map { it.toUiState() }
-//
-//fun ShootItem.toUiState(): ShootUiState = ShootUiState(
-//    isMultiplePicture = isMultiplePicture
-//)
+
+internal fun List<ShootItem>.toUiState(): List<ShootUiState> = map { it.toUiState() }
+
+internal fun ShootItem.toUiState(): ShootUiState = ShootUiState(
+    action = action,
+    isDebug = isDebug,
+    isShooted = isShooted,
+    isMultiplePicture = isMultiplePicture,
+    canMute = canMute,
+    hasHorizon = hasHorizon,
+    canUiRotation = canUiRotation,
+    cropPercent = cropPercent,
+    uris = uris,
+    sizes = sizes,
+    rotations = rotations,
+    horizonColor = horizonColor,
+    unusedAreaBorderColor = unusedAreaBorderColor
+)

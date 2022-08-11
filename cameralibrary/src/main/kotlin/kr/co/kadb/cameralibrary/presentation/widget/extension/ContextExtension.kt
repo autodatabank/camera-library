@@ -5,6 +5,8 @@ package kr.co.kadb.cameralibrary.presentation.widget.extension
 import android.app.Activity
 import android.content.*
 import android.graphics.Bitmap
+import android.media.MediaScannerConnection
+import android.net.Uri
 import android.os.Build
 import android.os.Environment
 import android.provider.MediaStore
@@ -15,7 +17,6 @@ import androidx.appcompat.app.AlertDialog
 import androidx.camera.core.ImageCapture
 import kr.co.kadb.cameralibrary.R
 import kr.co.kadb.cameralibrary.presentation.widget.util.IntentKey.BROADCAST_FINISH
-import kr.co.kadb.cameralibrary.presentation.widget.util.OBMediaScanning
 import timber.log.Timber
 import java.io.File
 
@@ -117,10 +118,33 @@ inline fun Context.showAlert(showAlertDialog: AlertDialog.Builder.() -> Any) {
 }
 
 // Media Scanning
-internal fun Context.mediaScanning(file: File) = OBMediaScanning(this, file)
+//internal fun Context.mediaScanning(file: File) = OBMediaScanning(this, file)
 
 // Media Scanning
-internal fun Context.mediaScanning(file: String) = OBMediaScanning(this, File(file))
+internal fun Context.mediaScanning(
+    path: String?, mimeType: String? = null, action: ((path: String?, uri: Uri?) -> Unit)? = null
+) = MediaScannerConnection.scanFile(
+    this, arrayOf(path), arrayOf(mimeType)
+) { scanPath, scanUri ->
+    // Debug.
+    Timber.i("MediaScannerConnection URI => %s", scanUri)
+    Timber.i("MediaScannerConnection PATH => %s", scanPath)
+    action?.invoke(scanPath, scanUri)
+}
+
+// Media Scanning
+internal fun Context.mediaScanning(
+    paths: Array<String>?,
+    mimeTypes: Array<String>,
+    action: ((path: String?, uri: Uri?) -> Unit)? = null
+) = MediaScannerConnection.scanFile(
+    this, paths, mimeTypes
+) { scanPath, scanUri ->
+    // Debug.
+    Timber.i("MediaScannerConnection URI => %s", scanUri)
+    Timber.i("MediaScannerConnection PATH => %s", scanPath)
+    action?.invoke(scanPath, scanUri)
+}
 
 // InputMethodManager.
 val Context.inputMethodManager: InputMethodManager

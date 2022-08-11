@@ -2,20 +2,16 @@
 
 package kr.co.kadb.cameralibrary.presentation.widget.extension
 
+import android.annotation.SuppressLint
 import android.content.Context
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
-import android.graphics.Matrix
-import android.graphics.Rect
+import android.graphics.*
 import android.net.Uri
 import android.os.Build
 import android.provider.MediaStore
 import android.util.Size
 import androidx.camera.core.impl.utils.Exif
-import androidx.core.net.toFile
 import androidx.exifinterface.media.ExifInterface
 import timber.log.Timber
-import java.io.FileNotFoundException
 import java.io.InputStream
 import kotlin.math.min
 
@@ -28,18 +24,13 @@ fun Uri.exif(context: Context): Exif? {
     var exif: Exif? = null
     var inputStream: InputStream? = null
     try {
-        exif = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            context.contentResolver.openInputStream(this)?.let { stream ->
-                inputStream = stream
-                Exif.createFromInputStream(stream)
-            }
-        } else {
-            Exif.createFromFile(this.toFile())
+        exif = context.contentResolver.openInputStream(this)?.let { stream ->
+            inputStream = stream
+            Exif.createFromInputStream(stream)
         }
         Timber.i(">>>>> exif : $exif")
     } catch (ex: Exception) {
-        // Debug.
-        Timber.e(">>>>> exif : $ex")
+        ex.printStackTrace()
     } finally {
         inputStream?.close()
     }
@@ -51,28 +42,30 @@ fun Uri.exifInterface(context: Context): ExifInterface? {
     var exifInterface: ExifInterface? = null
     var inputStream: InputStream? = null
     try {
-        exifInterface = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            context.contentResolver.openInputStream(this)?.let { stream ->
-                inputStream = stream
-                ExifInterface(stream)
-            }
-        } else {
-            ExifInterface(this.toFile())
+        exifInterface = context.contentResolver.openInputStream(this)?.let { stream ->
+            inputStream = stream
+            ExifInterface(stream)
         }
 
-        // Debug.
-        ExifInterface::class.java.fields.forEach {
-            if (it.name.startsWith("TAG_")) {
-                val value = it.get(it.name) as String
-                Timber.i(
-                    ">>>>> exifInterface ${it.name} : " +
-                            "${exifInterface?.getAttribute(value)}"
-                )
-            }
-        }
+        Timber.i(
+            ">>>>> ExifInterface Rotation : %s",
+            exifInterface?.getAttribute(ExifInterface.TAG_ORIENTATION)
+        )
+
+//        // Debug.
+//        if (BuildConfig.DEBUG) {
+//            ExifInterface::class.java.fields.forEach {
+//                if (it.name.startsWith("TAG_")) {
+//                    val value = it.get(it.name) as String
+//                    Timber.i(
+//                        ">>>>> exifInterface ${it.name} : " +
+//                                "${exifInterface?.getAttribute(value)}"
+//                    )
+//                }
+//            }
+//        }
     } catch (ex: Exception) {
-        // Debug.
-        Timber.e(">>>>> ExifInterface : $ex")
+        ex.printStackTrace()
     } finally {
         inputStream?.close()
     }
@@ -82,14 +75,17 @@ fun Uri.exifInterface(context: Context): ExifInterface? {
 // 이미지 Thumbnail 반환.
 fun Uri.toThumbnail(
     context: Context,
-    //exif: Exif? = null,
-    originSize: Size?,
+    originSize: Size? = null,
     thumbnailSize: Int = 96
 ): Bitmap? {
     @Suppress("DEPRECATION")
     return if ((Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q)) {
-        val width = originSize?.width ?: 0//exif?.width ?: 0
-        val height = originSize?.height ?: 0//exif?.height ?: 0
+        val (width, height) = if (originSize == null) {
+            val exif = this.exif(context)
+            Pair(exif?.width ?: 0, exif?.height ?: 0)
+        } else {
+            Pair(originSize.width, originSize.height)
+        }
         val sample = min(width / thumbnailSize, height / thumbnailSize).let {
             if (it == 0) 1 else it
         }
@@ -101,9 +97,7 @@ fun Uri.toThumbnail(
 
         // Thumbnail.
         context.contentResolver.loadThumbnail(
-            this,
-            Size(width / sample, height / sample),
-            null
+            this, Size(width / sample, height / sample), null
         )
     } else {
         val kind = when (thumbnailSize) {
@@ -111,26 +105,52 @@ fun Uri.toThumbnail(
             in 97..384 -> MediaStore.Images.Thumbnails.MINI_KIND
             else -> MediaStore.Images.Thumbnails.FULL_SCREEN_KIND
         }
-        MediaStore.Images.Thumbnails.getThumbnail(
-            context.contentResolver,
-            lastPathSegment?.toLong() ?: 0,
-            kind,
+
+        val cursor = context.contentResolver.query(
+            MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+            arrayOf(MediaStore.MediaColumns._ID),
+            MediaStore.MediaColumns.DATA + "=?",
+            arrayOf(this.toString()),
             null
         )
+//        val cursor = context.contentResolver.query(
+//            MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+//            arrayOf(MediaStore.MediaColumns._ID, MediaStore.MediaColumns.DATA),
+//            null,
+//            null,
+//            null
+//        )
+        if (cursor?.moveToFirst() == true) {
+            //while (cursor?.moveToNext() == true) {
+            @SuppressLint("Range")
+            val imageId = cursor.getInt(cursor.getColumnIndex(MediaStore.MediaColumns._ID))
+            //val imageData = cursor.getString(cursor.getColumnIndex(MediaStore.MediaColumns.DATA))
+            //Timber.i(">>>>> IMAGE URI[2] : $imageData")
+            cursor.close()
+            return MediaStore.Images.Thumbnails.getThumbnail(
+                context.contentResolver,
+                imageId.toLong(),
+                kind,
+                null
+            )
+        }
+        cursor?.close()
+        return null
     }
 }
 
 // Bitmap 반환.
-fun Uri.toBitmap(context: Context): Bitmap? {
+@Suppress("DEPRECATION")
+fun Uri.toBitmap(
+    context: Context
+): Bitmap? {
     try {
-        val options: BitmapFactory.Options = BitmapFactory.Options()
-        options.inSampleSize = 1
-        return BitmapFactory.decodeStream(
-            context.contentResolver.openInputStream(this),
-            null,
-            options
-        )
-    } catch (ex: FileNotFoundException) {
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            ImageDecoder.decodeBitmap(ImageDecoder.createSource(context.contentResolver, this))
+        } else {
+            MediaStore.Images.Media.getBitmap(context.contentResolver, this)
+        }
+    } catch (ex: Exception) {
         ex.printStackTrace()
     }
     return null
@@ -271,7 +291,7 @@ fun Uri.resize(context: Context, resize: Int): Bitmap? {
             null,
             options
         )
-    } catch (ex: FileNotFoundException) {
+    } catch (ex: Exception) {
         ex.printStackTrace()
     }
     return null
