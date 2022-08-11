@@ -10,7 +10,7 @@ import org.opencv.core.*
 import org.opencv.imgproc.Imgproc
 import kotlin.math.sqrt
 
-internal class ImageAnalyzer(private val cropPercent: Array<Float>,) : ImageAnalysis.Analyzer {
+internal class ImageAnalyzer(private val cropPercent: Array<Float>) : ImageAnalysis.Analyzer {
     override fun analyze(imageProxy: ImageProxy) {
         val image = imageProxy.image ?: return
         var bitmap: Bitmap? = ImageUtils.convertYuv420888ImageToBitmap(image)

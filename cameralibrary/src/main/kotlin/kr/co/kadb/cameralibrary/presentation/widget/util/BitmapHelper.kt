@@ -3,10 +3,7 @@ package kr.co.kadb.cameralibrary.presentation.widget.util
 import android.content.Context
 import android.graphics.Bitmap
 import android.util.Base64
-<<<<<<< HEAD
-=======
 import kr.co.kadb.cameralibrary.presentation.widget.extension.optimumResize
->>>>>>> origin/develop
 import kr.co.kadb.cameralibrary.presentation.widget.extension.resize
 import kr.co.kadb.cameralibrary.presentation.widget.extension.save
 import kr.co.kadb.cameralibrary.presentation.widget.extension.toBase64
@@ -81,11 +78,6 @@ class BitmapHelper {
         @JvmStatic
         fun optimumResize(bitmap: Bitmap?, resizePixcel: Int): Bitmap? {
             return bitmap?.optimumResize(resizePixcel)
-        }
-
-        @JvmStatic
-        fun resize(bitmap: Bitmap?, resizePixcel: Int): Bitmap? {
-            return bitmap?.resize(resizePixcel)
         }
 
         @JvmStatic
