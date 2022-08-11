@@ -15,7 +15,6 @@ import timber.log.Timber
 import java.io.InputStream
 import kotlin.math.min
 
-
 /**
  * Created by oooobang on 2022. 7. 20..
  * Uri Extension.
