@@ -52,13 +52,13 @@ internal class ImageAnalyzer(
         //Imgproc.dilate(grayMat, grayMat, kernel)
 //        Imgproc.morphologyEx(grayMat, grayMat, Imgproc.MORPH_DILATE, kernel)
 //        Imgproc.morphologyEx(grayMat, grayMat, Imgproc.MORPH_ERODE, kernel)
-        Imgproc.morphologyEx(grayMat, grayMat, Imgproc.MORPH_GRADIENT, kernel)
-        //Imgproc.morphologyEx(grayMat, grayMat, Imgproc.MORPH_CLOSE, kernel)
-        Imgproc.morphologyEx(grayMat, grayMat, Imgproc.MORPH_TOPHAT, kernel)
-        //Imgproc.morphologyEx(grayMat, grayMat, Imgproc.MORPH_BLACKHAT, kernel)
-
-        /* Gaussian Blur. */
-        Imgproc.GaussianBlur(grayMat, grayMat, kernel.size(), 0.0)
+//        Imgproc.morphologyEx(grayMat, grayMat, Imgproc.MORPH_GRADIENT, kernel)
+////        Imgproc.morphologyEx(grayMat, grayMat, Imgproc.MORPH_CLOSE, kernel)
+////        Imgproc.morphologyEx(grayMat, grayMat, Imgproc.MORPH_TOPHAT, kernel)
+////        Imgproc.morphologyEx(grayMat, grayMat, Imgproc.MORPH_BLACKHAT, kernel)
+//
+//        /* Gaussian Blur. */
+//        Imgproc.GaussianBlur(grayMat, grayMat, kernel.size(), 0.0)
 
         // 윤곽선.
         /* Canny */
@@ -66,7 +66,7 @@ internal class ImageAnalyzer(
         // bwMat 출력.
         // threshold1 최소 임계값.
         // threshold2 최대 임계값.
-        //Imgproc.Canny(grayMat, bwMat, 50.0, 255.0, 3, false)
+//        Imgproc.Canny(grayMat, bwMat, 100.0, 100.0)//, 3, false)
 
         /* Global Threshold. */
         //Imgproc.threshold(grayMat, bwMat, 0.0, 255.0, Imgproc.THRESH_BINARY+Imgproc.THRESH_OTSU)
@@ -82,15 +82,18 @@ internal class ImageAnalyzer(
             3,
             2.0
         )
-        /*Imgproc.adaptiveThreshold(
-            grayMat,
-            grayMat,
-            255.0,
-            Imgproc.ADAPTIVE_THRESH_MEAN_C,
-            Imgproc.THRESH_BINARY,
-            15,
-            40.0
-        )*/
+
+        //Imgproc.erode(grayMat, grayMat, kernel)
+        //Imgproc.dilate(grayMat, grayMat, kernel)
+//        Imgproc.morphologyEx(grayMat, grayMat, Imgproc.MORPH_DILATE, kernel)
+//        Imgproc.morphologyEx(grayMat, grayMat, Imgproc.MORPH_ERODE, kernel)
+//        Imgproc.morphologyEx(grayMat, grayMat, Imgproc.MORPH_GRADIENT, kernel)
+////        Imgproc.morphologyEx(grayMat, grayMat, Imgproc.MORPH_CLOSE, kernel)
+////        Imgproc.morphologyEx(grayMat, grayMat, Imgproc.MORPH_TOPHAT, kernel)
+////        Imgproc.morphologyEx(grayMat, grayMat, Imgproc.MORPH_BLACKHAT, kernel)
+//
+//        /* Gaussian Blur. */
+//        Imgproc.GaussianBlur(grayMat, grayMat, kernel.size(), 0.0)
 
 
         // 윤곽선 찾기.
@@ -105,12 +108,15 @@ internal class ImageAnalyzer(
             hierarchy,
             // 윤곽선 검출 모드.
 //            Imgproc.RETR_LIST,
-            Imgproc.RETR_TREE,
-//            Imgproc.RETR_EXTERNAL,
+//            Imgproc.RETR_TREE,
+            Imgproc.RETR_EXTERNAL,
             // 윤곽선 근사화 방법.
 //            Imgproc.CHAIN_APPROX_NONE
             Imgproc.CHAIN_APPROX_SIMPLE
         )
+
+        //Imgproc.cornerHarris(grayMat, bwMat, 2, 3, 0.04)
+        //Imgproc.goodFeaturesToTrack(grayMat, 25, 2, 0.01, 10)
 
 //        for (int idx = 0;
 //            idx >= 0;
@@ -199,7 +205,7 @@ internal class ImageAnalyzer(
 //        }
 
 
-        val minArea = 800.0
+        val minArea = 500.0
         val minWidth = 100
         val minHeight = 50
         val approxCurve = MatOfPoint2f()
@@ -216,7 +222,7 @@ internal class ImageAnalyzer(
                 val epsilon = Imgproc.arcLength(curve, true) * 0.05
                 Imgproc.approxPolyDP(curve, approxCurve, epsilon, true)
 //                if (approxCurve.total() > 4L) {
-                if (approxCurve.total() in 4L..256L) {
+                if (approxCurve.total() in 4L..16L) {
 //                    maxArea = contourArea
 //                    largestContours.add(matOfPoint)
                     Imgproc.boundingRect(matOfPoint).takeIf {
