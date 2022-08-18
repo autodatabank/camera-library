@@ -1,14 +1,12 @@
 package kr.co.kadb.cameralibrary.presentation.base
 
 import android.Manifest
-import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Build
 import android.provider.Settings
-import androidx.activity.result.ActivityResultLauncher
-import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AppCompatActivity
 import com.karumi.dexter.Dexter
@@ -20,7 +18,6 @@ import kr.co.kadb.cameralibrary.R
 import kr.co.kadb.cameralibrary.presentation.widget.extension.negativeButton
 import kr.co.kadb.cameralibrary.presentation.widget.extension.positiveButton
 import kr.co.kadb.cameralibrary.presentation.widget.extension.showAlert
-import kr.co.kadb.cameralibrary.presentation.widget.extension.toJsonPretty
 import timber.log.Timber
 
 /**
@@ -34,16 +31,11 @@ internal open class BaseController constructor(activityContext: Context) {
     // FragmentManager.
     internal val fragmentManager = (activityContext as AppCompatActivity).supportFragmentManager
 
-    private var resultDetailsSettings: ActivityResultLauncher<Intent> =
-        activity.registerForActivityResult(
-            ActivityResultContracts.StartActivityForResult()
-        ) { result ->
-            Activity.RESULT_OK
+    // Activity For Result.
+    private var resultDetailsSettings =
+        activity.registerForActivityResult(StartActivityForResult()) { result ->
             // Debug.
             Timber.i(">>>>> RESULT : %s", result.resultCode)
-            Timber.i(">>>>> RESULT : %s", result.data.toJsonPretty())
-            Timber.i(">>>>> RESULT : %s", result.data?.data)
-            Timber.i(">>>>> RESULT : %s", result.data?.extras?.get("data"))
         }
 
     // BackStack.
@@ -202,6 +194,5 @@ internal open class BaseController constructor(activityContext: Context) {
             null
         )
         resultDetailsSettings.launch(intent)
-        //activity.startActivity(intent)
     }
 }

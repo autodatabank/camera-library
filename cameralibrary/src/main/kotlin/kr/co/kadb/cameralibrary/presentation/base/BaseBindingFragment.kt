@@ -10,8 +10,8 @@ import androidx.databinding.ViewDataBinding
 import androidx.lifecycle.ViewModel
 
 /**
- * Created by oooobang on 2018. 3. 2..
- * Base Fragment.
+ * Created by oooobang on 2022. 7. 2..
+ * Base BindingFragment.
  */
 internal abstract class BaseBindingFragment<T : ViewDataBinding, VM : ViewModel> : BaseFragment() {
     // Binding.
