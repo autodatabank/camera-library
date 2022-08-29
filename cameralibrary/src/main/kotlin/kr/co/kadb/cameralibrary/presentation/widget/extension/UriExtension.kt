@@ -236,14 +236,17 @@ fun Uri.rotateAndCenterCrop(
     val bitmap = toBitmap(context) ?: return null
     val (width, height, rotation) = if (originSize == null || rotationDegrees == null) {
         exif(context)?.let {
-            Triple(it.width, it.height, it.rotation)
+            Triple(it.width, it.height, rotationDegrees ?: it.rotation)
         } ?: return null
     } else {
         Triple(originSize.width, originSize.height, rotationDegrees)
     }
-    val matrix = Matrix().apply {
-        preRotate(rotation.toFloat())
+    val matrix = rotationDegrees?.let {
+        Matrix()
+    }?.also {
+        it.preRotate(rotation.toFloat())
     }
+
     val (widthCrop, heightCrop) = when (rotation) {
         90, 270 -> {
             Pair(
@@ -258,15 +261,25 @@ fun Uri.rotateAndCenterCrop(
             )
         }
     }
-    return Bitmap.createBitmap(
-        bitmap,
-        (width / 2) - (widthCrop / 2),
-        (height / 2) - (heightCrop / 2),
-        widthCrop,
-        heightCrop,
-        matrix,
-        true
-    )
+    return if (matrix != null) {
+        Bitmap.createBitmap(
+            bitmap,
+            (width / 2) - (widthCrop / 2),
+            (height / 2) - (heightCrop / 2),
+            widthCrop,
+            heightCrop,
+            matrix,
+            true
+        )
+    } else {
+        Bitmap.createBitmap(
+            bitmap,
+            (width / 2) - (widthCrop / 2),
+            (height / 2) - (heightCrop / 2),
+            widthCrop,
+            heightCrop
+        )
+    }
 }
 
 // 이미지 리사이징.
