@@ -1,5 +1,3 @@
-@file:Suppress("unused")
-
 package kr.co.kadb.cameralibrary.presentation.widget.extension
 
 import android.content.ContentValues
@@ -7,6 +5,7 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Color
 import android.graphics.Matrix
+import android.graphics.Rect
 import android.net.Uri
 import android.os.Build
 import android.os.Environment
@@ -238,12 +237,8 @@ fun Bitmap.rotateAndCenterCrop(
     }
     if (cropSize.width < width && cropSize.height < height) {
         val (widthCrop, heightCrop) = when (rotationDegrees) {
-            90, 270 -> {
-                Pair(cropSize.width, cropSize.height)
-            }
-            else -> {
-                Pair(cropSize.height, cropSize.width)
-            }
+            90, 270 -> Pair(cropSize.height, cropSize.width)
+            else -> Pair(cropSize.width, cropSize.height)
         }
         return Bitmap.createBitmap(
             this,
@@ -275,11 +270,29 @@ fun Bitmap.rotateAndCenterCrop(
     val matrix = Matrix().apply {
         preRotate(rotationDegrees.toFloat())
     }
-    val (widthCrop, heightCrop) = when (rotationDegrees) {
+//    val (widthCrop, heightCrop) = when (rotationDegrees) {
+//        90, 270 -> {
+//            Pair(
+//                (width * cropPercent[1]).toInt(),
+//                (height * cropPercent[0]).toInt()
+//            )
+//        }
+//        else -> {
+//            Pair(
+//                (width * cropPercent[0]).toInt(),
+//                (height * cropPercent[1]).toInt()
+//            )
+//        }
+//    }
+    val (cropRect, cropSize) = when (rotationDegrees) {
         90, 270 -> {
+            val widthCrop = (height * cropPercent[0]).toInt()
+            val heightCrop = (width * cropPercent[1]).toInt()
+            val x = (height / 2) - (widthCrop / 2)
+            val y = (width / 2) - (heightCrop / 2)
             Pair(
-                (width * cropPercent[1]).toInt(),
-                (height * cropPercent[0]).toInt()
+                Rect(x, y, x + widthCrop, y + heightCrop),
+                Size(widthCrop, heightCrop)
             )
         }
         else -> {
@@ -287,14 +300,23 @@ fun Bitmap.rotateAndCenterCrop(
                 (width * cropPercent[0]).toInt(),
                 (height * cropPercent[1]).toInt()
             )
+            val widthCrop = (width * cropPercent[0]).toInt()
+            val heightCrop = (height * cropPercent[1]).toInt()
+            val x = (width / 2) - (widthCrop / 2)
+            val y = (height / 2) - (heightCrop / 2)
+            Pair(
+                Rect(x, y, x + widthCrop, y + heightCrop),
+                Size(widthCrop, heightCrop)
+            )
         }
     }
+
     return Bitmap.createBitmap(
         this,
-        (width / 2) - (widthCrop / 2),
-        (height / 2) - (heightCrop / 2),
-        widthCrop,
-        heightCrop,
+        cropRect.left,
+        cropRect.top,
+        cropSize.width,
+        cropSize.height,
         matrix,
         true
     )
@@ -323,7 +345,7 @@ fun Bitmap?.resize(resizePixcel: Int): Bitmap? {
 }
 
 // 리사이징.
-fun Bitmap?.optimumResize (resize: Int): Bitmap? {
+fun Bitmap?.optimumResize(resize: Int): Bitmap? {
     try {
         return this?.let { bitmap ->
 //            val byteArray = bitmap.toByteArray()

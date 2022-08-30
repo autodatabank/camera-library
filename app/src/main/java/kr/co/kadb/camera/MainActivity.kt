@@ -43,7 +43,7 @@ class MainActivity : AppCompatActivity() {
 
                     // Bitmap 저장.
                     //cropBitmap.save(baseContext, true)
-
+7
                     // 가로, 세로 중 큰 길이를 640(pixel)에 맞춰 비율 축소.
                     val resizeBitmap = BitmapHelper.resize(cropBitmap, 640)
                     cropBitmap?.recycle()

@@ -1,5 +1,3 @@
-@file:Suppress("unused")
-
 package kr.co.kadb.cameralibrary.presentation.widget.extension
 
 import android.annotation.SuppressLint
@@ -187,22 +185,20 @@ fun Uri.rotateAndCenterCrop(
     val bitmap = toBitmap(context) ?: return null
     val (width, height, rotation) = if (originSize == null || rotationDegrees == null) {
         exif(context)?.let {
-            Triple(it.width, it.height, it.rotation)
+            Triple(it.width, it.height, rotationDegrees ?: it.rotation)
         } ?: return null
     } else {
         Triple(originSize.width, originSize.height, rotationDegrees)
     }
-    val matrix = Matrix().apply {
-        preRotate(rotation.toFloat())
+    val matrix = rotationDegrees?.let {
+        Matrix()
+    }?.also {
+        it.preRotate(rotation.toFloat())
     }
     if (cropSize.width < width && cropSize.height < height) {
         val (widthCrop, heightCrop) = when (rotation) {
-            90, 270 -> {
-                Pair(cropSize.width, cropSize.height)
-            }
-            else -> {
-                Pair(cropSize.height, cropSize.width)
-            }
+            90, 270 -> Pair(cropSize.height, cropSize.width)
+            else -> Pair(cropSize.width, cropSize.height)
         }
         return Bitmap.createBitmap(
             bitmap,
@@ -246,12 +242,15 @@ fun Uri.rotateAndCenterCrop(
     }?.also {
         it.preRotate(rotation.toFloat())
     }
-
-    val (widthCrop, heightCrop) = when (rotation) {
+    val (cropRect, cropSize) = when (rotation) {
         90, 270 -> {
+            val widthCrop = (height * cropPercent[0]).toInt()
+            val heightCrop = (width * cropPercent[1]).toInt()
+            val x = (height / 2) - (widthCrop / 2)
+            val y = (width / 2) - (heightCrop / 2)
             Pair(
-                (width * cropPercent[1]).toInt(),
-                (height * cropPercent[0]).toInt()
+                Rect(x, y, x + widthCrop, y + heightCrop),
+                Size(widthCrop, heightCrop)
             )
         }
         else -> {
@@ -259,27 +258,26 @@ fun Uri.rotateAndCenterCrop(
                 (width * cropPercent[0]).toInt(),
                 (height * cropPercent[1]).toInt()
             )
+            val widthCrop = (width * cropPercent[0]).toInt()
+            val heightCrop = (height * cropPercent[1]).toInt()
+            val x = (width / 2) - (widthCrop / 2)
+            val y = (height / 2) - (heightCrop / 2)
+            Pair(
+                Rect(x, y, x + widthCrop, y + heightCrop),
+                Size(widthCrop, heightCrop)
+            )
         }
     }
-    return if (matrix != null) {
-        Bitmap.createBitmap(
-            bitmap,
-            (width / 2) - (widthCrop / 2),
-            (height / 2) - (heightCrop / 2),
-            widthCrop,
-            heightCrop,
-            matrix,
-            true
-        )
-    } else {
-        Bitmap.createBitmap(
-            bitmap,
-            (width / 2) - (widthCrop / 2),
-            (height / 2) - (heightCrop / 2),
-            widthCrop,
-            heightCrop
-        )
-    }
+
+    return Bitmap.createBitmap(
+        bitmap,
+        cropRect.left,
+        cropRect.top,
+        cropSize.width,
+        cropSize.height,
+        matrix,
+        true
+    )
 }
 
 // 이미지 리사이징.
