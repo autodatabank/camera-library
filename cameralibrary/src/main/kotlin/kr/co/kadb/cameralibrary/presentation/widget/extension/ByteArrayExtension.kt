@@ -1,5 +1,3 @@
-@file:Suppress("unused")
-
 package kr.co.kadb.cameralibrary.presentation.widget.extension
 
 import android.content.ContentValues
@@ -11,6 +9,7 @@ import android.os.Build
 import android.os.Environment
 import android.os.ParcelFileDescriptor
 import android.provider.MediaStore
+import androidx.annotation.IntRange
 import androidx.core.net.toUri
 import androidx.exifinterface.media.ExifInterface
 import timber.log.Timber
@@ -190,83 +189,12 @@ fun ByteArray?.save(
 
     return path
 }
-//
-//// 리사이징.
-//fun ByteArray?.resize(resizePixcel: Int): Bitmap? {
-//    try {
-//        return this?.let { byteArray ->
-//            val options = BitmapFactory.Options().apply {
-//                inJustDecodeBounds = true
-//            }
-//            BitmapFactory.decodeByteArray(byteArray, 0, byteArray.size, options)
-//            var width = options.outWidth
-//            var height = options.outHeight
-//            val sample = if (width >= height) {
-//                resizePixcel.toFloat() / width.toFloat()
-//            } else {
-//                resizePixcel.toFloat() / height.toFloat()
-//            }
-//            val (sampleWidth, sampleHeight) = if (sample < 1) {
-//                Pair((width.toFloat() * sample).toInt(), (height.toFloat() * sample).toInt())
-//            } else {
-//                Pair(width, height)
-//            }
-//            var sampleSize = 1
-//            while (true) {
-//                if (width / 2 < resizePixcel || height / 2 < resizePixcel) {
-//                    break
-//                }
-//                width /= 2
-//                height /= 2
-//                sampleSize *= 2
-//            }
-//            options.inSampleSize = sampleSize
-//            byteArray.toBitmap(sampleSize)?.let { bitmap ->
-//                Bitmap.createScaledBitmap(bitmap, sampleWidth, sampleHeight, true)
-//            }
-//        }
-//    } catch (ex: Exception) {
-//        ex.printStackTrace()
-//    }
-//    return null
-//}
-//
-//// 리사이징.
-//fun ByteArray?.optimumResize(resize: Int): Bitmap? {
-//    try {
-//        this?.let { byteArray ->
-//            val options = BitmapFactory.Options().apply {
-//                inJustDecodeBounds = true
-//            }
-//            BitmapFactory.decodeByteArray(byteArray, 0, byteArray.size, options)
-//            var width = options.outWidth
-//            var height = options.outHeight
-//            var sampleSize = 1
-//            while (true) {
-//                if (width / 2 < resize || height / 2 < resize) {
-//                    break
-//                }
-//                width /= 2
-//                height /= 2
-//                sampleSize *= 2
-//            }
-//            options.inSampleSize = sampleSize
-//            byteArray.toBitmap(sampleSize)?.let { bitmap ->
-//                Bitmap.createScaledBitmap(bitmap, width, height, true)
-//            }
-//        }
-//    } catch (ex: Exception) {
-//        ex.printStackTrace()
-//    }
-//    return null
-//}
 
-// toByteArray.
-fun ByteArray?.toBitmap(sampleSize: Int? = null): Bitmap? {
+// To Bitmap.
+fun ByteArray?.toBitmap(sampleSize: Int = 1): Bitmap? {
     // 샘플링.
-    val options = BitmapFactory.Options()
-    sampleSize?.let {
-        options.inSampleSize = it
+    val options = BitmapFactory.Options().apply {
+        inSampleSize = sampleSize
     }
     return BitmapFactory.decodeByteArray(this, 0, this?.size ?: 0, options)
 }
