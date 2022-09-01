@@ -56,5 +56,15 @@ class UriHelper {
         ): Bitmap? {
             return uri?.rotateAndCenterCrop(context, cropPercent)
         }
+
+        @JvmStatic
+        fun rotateAndCenterCrop(
+            context: Context,
+            uri: Uri?,
+            cropPercent: Array<Float>,
+            rotationDegrees: Int?
+        ): Bitmap? {
+            return uri?.rotateAndCenterCrop(context, cropPercent, rotationDegrees = rotationDegrees)
+        }
     }
 }

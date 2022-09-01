@@ -1,7 +1,6 @@
 package kr.co.kadb.camera
 
 import android.content.Intent
-import android.graphics.Bitmap
 import android.os.Bundle
 import android.widget.Button
 import android.widget.ImageView
@@ -27,18 +26,21 @@ class MainActivity : AppCompatActivity() {
                     // 이미지 URI.
                     val imageUri = intent.data ?: return@registerForActivityResult
                     // 이미지 가로.
-                    val imageWidth = intent.getIntExtra(IntentKey.EXTRA_WIDTH, 0)
+                    //val imageWidth = intent.getIntExtra(IntentKey.EXTRA_WIDTH, 0)
                     // 이미지 세로.
-                    val imageHeight = intent.getIntExtra(IntentKey.EXTRA_HEIGHT, 0)
+                    //val imageHeight = intent.getIntExtra(IntentKey.EXTRA_HEIGHT, 0)
                     // 이미지 방향.
-                    val imageRotation = intent.getIntExtra(IntentKey.EXTRA_ROTATION, 0)
+                    //val imageRotation = intent.getIntExtra(IntentKey.EXTRA_ROTATION, 0)
                     // 썸네임 이미지.
-                    val thumbnailBitmap = intent.extras?.get("data") as? Bitmap
+                    //val thumbnailBitmap = intent.extras?.get("data") as? Bitmap
 
                     // 이미지 중앙을 기준으로 원본 사이즈에서 가로:70% 세로:50% 크롭.
-                    val cropBitmap = UriHelper.rotateAndCenterCrop(
+                    /*val cropBitmap = UriHelper.rotateAndCenterCrop(
                         baseContext, imageUri, arrayOf(0.7f, 0.5f)
-                    )
+                    )*/
+
+                    // Uri를 이미지로 변환.
+                    val cropBitmap = UriHelper.toBitmap(baseContext, imageUri)
 
                     // Bitmap 저장.
                     //cropBitmap.save(baseContext, true)
@@ -56,7 +58,7 @@ class MainActivity : AppCompatActivity() {
                     //resizeBitmap.save(baseContext, true)
 
                     // Base64로 인코딩 된 문자열 반환.
-                    val base64 = BitmapHelper.toBase64(resizeBitmap)
+                    //val base64 = BitmapHelper.toBase64(resizeBitmap)
 
                     // 촬영 원본 이미지.
                     findViewById<ImageView>(R.id.imageview).setImageURI(imageUri)
@@ -93,8 +95,10 @@ class MainActivity : AppCompatActivity() {
                 takePictureIntent.putExtra(IntentKey.EXTRA_HAS_HORIZON, true)
                 takePictureIntent.putExtra(IntentKey.EXTRA_CROP_PERCENT, arrayOf(0.7f, 0.5f))
                 takePictureIntent.putExtra(IntentKey.EXTRA_CAN_UI_ROTATION, true)
+                takePictureIntent.putExtra(IntentKey.EXTRA_IS_SAVE_CROPPED_IMAGE, true)
                 takePictureIntent.putExtra(IntentKey.EXTRA_HORIZON_COLOR, Color.RED)
                 takePictureIntent.putExtra(IntentKey.EXTRA_CROP_BORDER_COLOR, Color.GREEN)
+                takePictureIntent.putExtra(IntentKey.EXTRA_CROPPED_JPEG_QUALITY, 95)
             }.run {
                 startActivityForResult(this)
             }*/
@@ -105,8 +109,10 @@ class MainActivity : AppCompatActivity() {
                 takePictureIntent.putExtra(IntentKey.EXTRA_HAS_HORIZON, true)
                 takePictureIntent.putExtra(IntentKey.EXTRA_CROP_PERCENT, arrayOf(0.7f, 0.5f))
                 takePictureIntent.putExtra(IntentKey.EXTRA_CAN_UI_ROTATION, true)
+                takePictureIntent.putExtra(IntentKey.EXTRA_IS_SAVE_CROPPED_IMAGE, true)
                 takePictureIntent.putExtra(IntentKey.EXTRA_HORIZON_COLOR, Color.RED)
                 takePictureIntent.putExtra(IntentKey.EXTRA_CROP_BORDER_COLOR, Color.GREEN)
+                takePictureIntent.putExtra(IntentKey.EXTRA_CROPPED_JPEG_QUALITY, 95)
             }.run {
                 resultLauncher.launch(this)
             }*/
@@ -118,8 +124,10 @@ class MainActivity : AppCompatActivity() {
                 setHasHorizon(true)
                 setCropPercent(arrayOf(0.7f, 0.5f))
                 setCanUiRotation(true)
+                setSaveCropedImage(true)
                 //setHorizonColor(Color.RED)
                 //setUnusedAreaBorderColor(Color.GREEN)
+                //setCroppedJpegQuality(95)
             }.run {
                 resultLauncher.launch(this.build())
             }
@@ -133,8 +141,10 @@ class MainActivity : AppCompatActivity() {
                 takePictureIntent.putExtra(IntentKey.EXTRA_HAS_HORIZON, true)
                 takePictureIntent.putExtra(IntentKey.EXTRA_CROP_PERCENT, arrayOf(0.7f, 0.5f))
                 takePictureIntent.putExtra(IntentKey.EXTRA_CAN_UI_ROTATION, true)
+                takePictureIntent.putExtra(IntentKey.EXTRA_IS_SAVE_CROPPED_IMAGE, true)
                 takePictureIntent.putExtra(IntentKey.EXTRA_HORIZON_COLOR, Color.RED)
                 takePictureIntent.putExtra(IntentKey.EXTRA_CROP_BORDER_COLOR, Color.GREEN)
+                takePictureIntent.putExtra(IntentKey.EXTRA_CROPPED_JPEG_QUALITY, 95)
             }.run {
                 startActivityForResult(this)
             }*/
@@ -145,8 +155,10 @@ class MainActivity : AppCompatActivity() {
                 takePictureIntent.putExtra(IntentKey.EXTRA_HAS_HORIZON, true)
                 takePictureIntent.putExtra(IntentKey.EXTRA_CROP_PERCENT, arrayOf(0.7f, 0.5f))
                 takePictureIntent.putExtra(IntentKey.EXTRA_CAN_UI_ROTATION, true)
+                takePictureIntent.putExtra(IntentKey.EXTRA_IS_SAVE_CROPPED_IMAGE, true)
                 takePictureIntent.putExtra(IntentKey.EXTRA_HORIZON_COLOR, Color.RED)
                 takePictureIntent.putExtra(IntentKey.EXTRA_CROP_BORDER_COLOR, Color.GREEN)
+                takePictureIntent.putExtra(IntentKey.EXTRA_CROPPED_JPEG_QUALITY, 95)
             }.run {
                 resultLauncher.launch(this)
             }*/
@@ -158,8 +170,10 @@ class MainActivity : AppCompatActivity() {
                 setHasHorizon(true)
                 setCropPercent(arrayOf(0.7f, 0.5f))
                 setCanUiRotation(true)
+                //setSaveCropedImage(true)
                 //setHorizonColor(Color.RED)
                 //setUnusedAreaBorderColor(Color.GREEN)
+                //setCroppedJpegQuality(95)
             }.run {
                 resultLauncher.launch(this.build())
             }

@@ -5,8 +5,9 @@ import android.app.Application
 import android.graphics.Bitmap
 import android.net.Uri
 import android.util.Size
+import androidx.annotation.IntRange
 import androidx.camera.core.ImageCapture
-import androidx.core.net.toUri
+import androidx.exifinterface.media.ExifInterface
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -14,10 +15,15 @@ import kr.co.kadb.cameralibrary.data.local.PreferenceManager
 import kr.co.kadb.cameralibrary.presentation.model.ShootUiState
 import kr.co.kadb.cameralibrary.presentation.model.UiState
 import kr.co.kadb.cameralibrary.presentation.viewmodel.BaseAndroidViewModel
+import kr.co.kadb.cameralibrary.presentation.widget.extension.centerCrop
 import kr.co.kadb.cameralibrary.presentation.widget.extension.save
+import kr.co.kadb.cameralibrary.presentation.widget.extension.toBitmap
 import kr.co.kadb.cameralibrary.presentation.widget.extension.toThumbnail
 import kr.co.kadb.cameralibrary.presentation.widget.util.IntentKey.ACTION_TAKE_MULTIPLE_PICTURES
 import timber.log.Timber
+import java.io.ByteArrayInputStream
+import java.io.IOException
+import java.io.InputStream
 import java.nio.ByteBuffer
 
 /**
@@ -95,9 +101,12 @@ constructor(
         canMute: Boolean = false,
         hasHorizon: Boolean = false,
         canUiRotation: Boolean = false,
+        isSaveCroppedImage: Boolean = false,
         cropPercent: Array<Float>?,
         horizonColor: Int,
-        unusedAreaBorderColor: Int
+        unusedAreaBorderColor: Int,
+        @IntRange(from = 1, to = 100)
+        croppedJpegQuality: Int
     ) {
         // Update.
         state.value.value?.copy(
@@ -108,12 +117,14 @@ constructor(
             canMute = canMute,
             hasHorizon = hasHorizon,
             canUiRotation = canUiRotation,
+            isSaveCroppedImage = isSaveCroppedImage,
             cropPercent = cropPercent?.toList() ?: listOf(),
             uris = arrayListOf(),
             sizes = arrayListOf(),
             rotations = arrayListOf(),
             horizonColor = horizonColor,
-            unusedAreaBorderColor = unusedAreaBorderColor
+            unusedAreaBorderColor = unusedAreaBorderColor,
+            croppedJpegQuality = croppedJpegQuality
         ) ?: ShootUiState(
             action = action,
             isDebug = isDebug,
@@ -122,12 +133,14 @@ constructor(
             canMute = canMute,
             hasHorizon = hasHorizon,
             canUiRotation = canUiRotation,
+            isSaveCroppedImage = isSaveCroppedImage,
             cropPercent = cropPercent?.toList() ?: listOf(),
             uris = arrayListOf(),
             sizes = arrayListOf(),
             rotations = arrayListOf(),
             horizonColor = horizonColor,
-            unusedAreaBorderColor = unusedAreaBorderColor
+            unusedAreaBorderColor = unusedAreaBorderColor,
+            croppedJpegQuality = croppedJpegQuality
         ).run {
             updateState(isLoading = false, value = this)
         }
@@ -189,15 +202,22 @@ constructor(
         // 셔터음 이벤트.
         event(Event.PlayShutterSound(item.value.canMute))
 
-        // 이미지 저장.
+        // Rewind to make sure it is at the beginning of the buffer
+        byteBuffer.rewind()
+
+        // Image Buffer
         val context = getApplication<Application>().applicationContext
         val byteArray = ByteArray(byteBuffer.capacity()).also {
             byteBuffer.get(it)
         }
 
+        // 이미지 저장 및 상태 업데이트.
         viewModelScope.launch {
-            // 이미지 Uri.
-            byteArray.save(context, true) { imagePath, imageUri ->
+            imageSave(
+                byteArray,
+                item.value.isSaveCroppedImage,
+                item.value.croppedJpegQuality
+            ) { imagePath, imageUri ->
                 // 이미지 사이즈.
                 val size = Size(width, height)
 
@@ -215,11 +235,7 @@ constructor(
                         addAll(value?.rotations ?: arrayListOf())
                         add(rotation)
                     }
-                    value?.copy(
-                        uris = uris,
-                        sizes = sizes,
-                        rotations = rotations
-                    )
+                    value?.copy(uris = uris, sizes = sizes, rotations = rotations)
                 }
 
                 // 촬영 완료.
@@ -229,6 +245,49 @@ constructor(
                     // 촬영완료 이벤트.
                     event(Event.TakePicture(imageUri ?: Uri.EMPTY, size, rotation, thumbnail))
                 }
+            }
+        }
+    }
+
+    // 이미지 저장.
+    private fun imageSave(
+        byteArray: ByteArray,
+        isSaveCroppedImage: Boolean,
+        @IntRange(from = 1, to = 100)
+        croppedJpegQuality: Int,
+        action: (path: String?, uri: Uri?) -> Unit
+    ) {
+        val context = getApplication<Application>().applicationContext
+        if (isSaveCroppedImage) {
+            // Get the original ExifInterface.
+            val inputStream: InputStream = ByteArrayInputStream(byteArray)
+            var exifInterface: ExifInterface? = null
+            try {
+                exifInterface = ExifInterface(inputStream)
+            } catch (ex: IOException) {
+                ex.printStackTrace()
+            } finally {
+                inputStream.close()
+            }
+            // Croped Bitmap.
+            val bitmap = byteArray.toBitmap()
+            val cropBitmap = bitmap?.centerCrop(
+                item.value.cropPercent.toTypedArray(),
+                exifInterface?.rotationDegrees
+            )
+
+            // Save Bitmap.
+            cropBitmap.save(
+                context, true, exifInterface = exifInterface, jpegQuality = croppedJpegQuality
+            ) { imagePath, imageUri ->
+                action.invoke(imagePath, imageUri)
+            }
+            bitmap?.recycle()
+            cropBitmap?.recycle()
+        } else {
+            // Save Bitmap.
+            byteArray.save(context, true) { imagePath, imageUri ->
+                action.invoke(imagePath, imageUri)
             }
         }
     }

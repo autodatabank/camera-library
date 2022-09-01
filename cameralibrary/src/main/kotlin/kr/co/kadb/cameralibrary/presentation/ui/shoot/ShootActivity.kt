@@ -42,21 +42,25 @@ internal class ShootActivity : BaseActivity() {
         val canMute = intent.getBooleanExtra(IntentKey.EXTRA_CAN_MUTE, false)
         val hasHorizon = intent.getBooleanExtra(IntentKey.EXTRA_HAS_HORIZON, false)
         val canUiRotation = intent.getBooleanExtra(IntentKey.EXTRA_CAN_UI_ROTATION, false)
+        val isSaveCroppedImage = intent.getBooleanExtra(IntentKey.EXTRA_IS_SAVE_CROPPED_IMAGE, false)
         val horizonColor = intent.getIntExtra(IntentKey.EXTRA_HORIZON_COLOR, defaultHhorizonColor)
         val unusedAreaBorderColor =
             intent.getIntExtra(IntentKey.EXTRA_CROP_BORDER_COLOR, defaultUnusedAreaBorderColor)
 
         @Suppress("UNCHECKED_CAST")
         val cropPercent = intent.getSerializableExtra(IntentKey.EXTRA_CROP_PERCENT) as? Array<Float>
+        val croppedJpegQuality = intent.getIntExtra(IntentKey.EXTRA_CROPPED_JPEG_QUALITY, 95)
         viewModel.initUiState(
             action,
             isDebug,
             canMute,
             hasHorizon,
             canUiRotation,
+            isSaveCroppedImage,
             cropPercent,
             horizonColor,
-            unusedAreaBorderColor
+            unusedAreaBorderColor,
+            croppedJpegQuality
         )
         if (savedInstanceState == null) {
             viewController.navigateToShooting()

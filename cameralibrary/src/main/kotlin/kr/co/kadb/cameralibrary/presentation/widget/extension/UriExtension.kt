@@ -1,5 +1,3 @@
-@file:Suppress("unused")
-
 package kr.co.kadb.cameralibrary.presentation.widget.extension
 
 import android.annotation.SuppressLint
@@ -9,9 +7,7 @@ import android.net.Uri
 import android.os.Build
 import android.provider.MediaStore
 import android.util.Size
-import androidx.camera.core.impl.utils.Exif
 import androidx.exifinterface.media.ExifInterface
-import timber.log.Timber
 import java.io.InputStream
 import kotlin.math.min
 
@@ -19,7 +15,7 @@ import kotlin.math.min
  * Created by oooobang on 2022. 7. 20..
  * Uri Extension.
  */
-// 이미지 Exif.
+/*// 이미지 Exif.
 fun Uri.exif(context: Context): Exif? {
     var exif: Exif? = null
     var inputStream: InputStream? = null
@@ -35,7 +31,7 @@ fun Uri.exif(context: Context): Exif? {
         inputStream?.close()
     }
     return exif
-}
+}*/
 
 // 이미지 ExifInterface.
 fun Uri.exifInterface(context: Context): ExifInterface? {
@@ -46,12 +42,6 @@ fun Uri.exifInterface(context: Context): ExifInterface? {
             inputStream = stream
             ExifInterface(stream)
         }
-
-        Timber.i(
-            ">>>>> ExifInterface Rotation : %s",
-            exifInterface?.getAttribute(ExifInterface.TAG_ORIENTATION)
-        )
-
 //        // Debug.
 //        if (BuildConfig.DEBUG) {
 //            ExifInterface::class.java.fields.forEach {
@@ -81,20 +71,17 @@ fun Uri.toThumbnail(
     @Suppress("DEPRECATION")
     return if ((Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q)) {
         val (width, height) = if (originSize == null) {
-            val exif = this.exif(context)
-            Pair(exif?.width ?: 0, exif?.height ?: 0)
+            val exifInterface = this.exifInterface(context)
+            Pair(
+                exifInterface?.getAttributeInt(ExifInterface.TAG_IMAGE_WIDTH, 0) ?: 0,
+                exifInterface?.getAttributeInt(ExifInterface.TAG_IMAGE_LENGTH, 0) ?: 0
+            )
         } else {
             Pair(originSize.width, originSize.height)
         }
         val sample = min(width / thumbnailSize, height / thumbnailSize).let {
             if (it == 0) 1 else it
         }
-
-        // Debug.
-        Timber.i(">>>>> toThumbnail Sample : $sample")
-        Timber.i(">>>>> toThumbnail origin size : ${originSize?.width} x ${originSize?.height}")
-        Timber.i(">>>>> toThumbnail thumbnail size : ${width / sample} x ${height / sample}")
-
         // Thumbnail.
         context.contentResolver.loadThumbnail(
             this, Size(width / sample, height / sample), null
@@ -105,7 +92,6 @@ fun Uri.toThumbnail(
             in 97..384 -> MediaStore.Images.Thumbnails.MINI_KIND
             else -> MediaStore.Images.Thumbnails.FULL_SCREEN_KIND
         }
-
         val cursor = context.contentResolver.query(
             MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
             arrayOf(MediaStore.MediaColumns._ID),
@@ -113,19 +99,9 @@ fun Uri.toThumbnail(
             arrayOf(this.toString()),
             null
         )
-//        val cursor = context.contentResolver.query(
-//            MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-//            arrayOf(MediaStore.MediaColumns._ID, MediaStore.MediaColumns.DATA),
-//            null,
-//            null,
-//            null
-//        )
         if (cursor?.moveToFirst() == true) {
-            //while (cursor?.moveToNext() == true) {
             @SuppressLint("Range")
             val imageId = cursor.getInt(cursor.getColumnIndex(MediaStore.MediaColumns._ID))
-            //val imageData = cursor.getString(cursor.getColumnIndex(MediaStore.MediaColumns.DATA))
-            //Timber.i(">>>>> IMAGE URI[2] : $imageData")
             cursor.close()
             return MediaStore.Images.Thumbnails.getThumbnail(
                 context.contentResolver,
@@ -162,7 +138,8 @@ fun Uri.rotateAndCrop(
     cropRect: Rect,
     rotationDegrees: Int? = null
 ): Bitmap? {
-    val rotation = rotationDegrees?.toFloat() ?: (exif(context)?.rotation?.toFloat() ?: return null)
+    val rotation = rotationDegrees?.toFloat() ?: (exifInterface(context)?.rotationDegrees?.toFloat()
+        ?: return null)
     val bitmap = toBitmap(context) ?: return null
     val matrix = Matrix()
     matrix.preRotate(rotation)
@@ -186,23 +163,25 @@ fun Uri.rotateAndCenterCrop(
 ): Bitmap? {
     val bitmap = toBitmap(context) ?: return null
     val (width, height, rotation) = if (originSize == null || rotationDegrees == null) {
-        exif(context)?.let {
-            Triple(it.width, it.height, it.rotation)
+        exifInterface(context)?.let {
+            Triple(
+                it.getAttributeInt(ExifInterface.TAG_IMAGE_WIDTH, 0),
+                it.getAttributeInt(ExifInterface.TAG_IMAGE_LENGTH, 0),
+                it.rotationDegrees
+            )
         } ?: return null
     } else {
         Triple(originSize.width, originSize.height, rotationDegrees)
     }
-    val matrix = Matrix().apply {
-        preRotate(rotation.toFloat())
+    val matrix = rotationDegrees?.let {
+        Matrix()
+    }?.also {
+        it.preRotate(rotation.toFloat())
     }
     if (cropSize.width < width && cropSize.height < height) {
         val (widthCrop, heightCrop) = when (rotation) {
-            90, 270 -> {
-                Pair(cropSize.width, cropSize.height)
-            }
-            else -> {
-                Pair(cropSize.height, cropSize.width)
-            }
+            90, 270 -> Pair(cropSize.height, cropSize.width)
+            else -> Pair(cropSize.width, cropSize.height)
         }
         return Bitmap.createBitmap(
             bitmap,
@@ -235,35 +214,50 @@ fun Uri.rotateAndCenterCrop(
 ): Bitmap? {
     val bitmap = toBitmap(context) ?: return null
     val (width, height, rotation) = if (originSize == null || rotationDegrees == null) {
-        exif(context)?.let {
-            Triple(it.width, it.height, it.rotation)
+        exifInterface(context)?.let {
+            Triple(
+                it.getAttributeInt(ExifInterface.TAG_IMAGE_WIDTH, 0),
+                it.getAttributeInt(ExifInterface.TAG_IMAGE_LENGTH, 0),
+                it.rotationDegrees
+            )
         } ?: return null
     } else {
         Triple(originSize.width, originSize.height, rotationDegrees)
     }
-    val matrix = Matrix().apply {
-        preRotate(rotation.toFloat())
+    val matrix = rotationDegrees?.let {
+        Matrix()
+    }?.also {
+        it.preRotate(rotation.toFloat())
     }
-    val (widthCrop, heightCrop) = when (rotation) {
+    val (cropRect, cropSize) = when (rotation) {
         90, 270 -> {
+            val widthCrop = (height * cropPercent[0]).toInt()
+            val heightCrop = (width * cropPercent[1]).toInt()
+            val x = (height / 2) - (widthCrop / 2)
+            val y = (width / 2) - (heightCrop / 2)
             Pair(
-                (width * cropPercent[1]).toInt(),
-                (height * cropPercent[0]).toInt()
+                Rect(x, y, x + widthCrop, y + heightCrop),
+                Size(widthCrop, heightCrop)
             )
         }
         else -> {
+            val widthCrop = (width * cropPercent[0]).toInt()
+            val heightCrop = (height * cropPercent[1]).toInt()
+            val x = (width / 2) - (widthCrop / 2)
+            val y = (height / 2) - (heightCrop / 2)
             Pair(
-                (width * cropPercent[0]).toInt(),
-                (height * cropPercent[1]).toInt()
+                Rect(x, y, x + widthCrop, y + heightCrop),
+                Size(widthCrop, heightCrop)
             )
         }
     }
+
     return Bitmap.createBitmap(
         bitmap,
-        (width / 2) - (widthCrop / 2),
-        (height / 2) - (heightCrop / 2),
-        widthCrop,
-        heightCrop,
+        cropRect.left,
+        cropRect.top,
+        cropSize.width,
+        cropSize.height,
         matrix,
         true
     )

@@ -2,6 +2,7 @@ package kr.co.kadb.cameralibrary.presentation.model
 
 import android.net.Uri
 import android.util.Size
+import androidx.annotation.IntRange
 import kr.co.kadb.cameralibrary.domain.model.ShootItem
 
 /**
@@ -16,12 +17,15 @@ internal data class ShootUiState(
     val canMute: Boolean,
     val hasHorizon: Boolean,
     val canUiRotation: Boolean,
+    val isSaveCroppedImage: Boolean,
     val cropPercent: List<Float>,
     val uris: ArrayList<Uri>,
     val sizes: ArrayList<Size>,
     val rotations: ArrayList<Int>,
     val horizonColor: Int,
-    val unusedAreaBorderColor: Int
+    val unusedAreaBorderColor: Int,
+    @IntRange(from = 1, to = 100)
+    val croppedJpegQuality: Int
 ) {
     /*class DiffCallback : DiffUtil.ItemCallback<NewsItemUiState>() {
         override fun areItemsTheSame(
@@ -43,12 +47,14 @@ internal data class ShootUiState(
             canMute = false,
             hasHorizon = false,
             canUiRotation = false,
+            isSaveCroppedImage = false,
             cropPercent = listOf(),
             uris = arrayListOf(),
             sizes = arrayListOf(),
             rotations = arrayListOf(),
             horizonColor = -1,
-            unusedAreaBorderColor = -1
+            unusedAreaBorderColor = -1,
+            croppedJpegQuality = 95
         )
     }
 }
@@ -63,10 +69,12 @@ internal fun ShootItem.toUiState(): ShootUiState = ShootUiState(
     canMute = canMute,
     hasHorizon = hasHorizon,
     canUiRotation = canUiRotation,
+    isSaveCroppedImage = isSaveCroppedImage,
     cropPercent = cropPercent,
     uris = uris,
     sizes = sizes,
     rotations = rotations,
     horizonColor = horizonColor,
-    unusedAreaBorderColor = unusedAreaBorderColor
+    unusedAreaBorderColor = unusedAreaBorderColor,
+    croppedJpegQuality = croppedJpegQuality
 )

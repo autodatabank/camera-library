@@ -37,6 +37,9 @@ object IntentKey {
 	// 촬영 시 수평선 표시 요청용.
 	const val EXTRA_HAS_HORIZON = "EXTRA_HAS_HORIZON"
 
+	// 촬영 후 크롭 이미지 저장(원본 이미지는 저장 안함) 요청용.
+	const val EXTRA_IS_SAVE_CROPPED_IMAGE = "EXTRA_IS_SAVE_CROPPED_IMAGE"
+
 	// 촬영 시 미리보기 화면에 표시 할 마스크(백분율) 크기 요청용.
 	const val EXTRA_CROP_PERCENT = "EXTRA_MASK_PERCENT"
 
@@ -48,6 +51,9 @@ object IntentKey {
 
 	// 촬영 시 미리보기 화면에 표시 할 마스크(백분율) Border Color 요청용.
 	const val EXTRA_CROP_BORDER_COLOR = "EXTRA_CROP_BORDER_COLOR"
+
+	// 촬영 후 이미지 저장 시 JPEG 품질(1~100) 요청용.
+	const val EXTRA_CROPPED_JPEG_QUALITY = "EXTRA_CROPPED_JPEG_QUALITY"
 
 	// 한 장 촬영 시 width 반환용.
 	const val EXTRA_WIDTH = "EXTRA_WIDTH"

@@ -2,6 +2,7 @@ package kr.co.kadb.cameralibrary.presentation
 
 import android.content.Context
 import android.content.Intent
+import androidx.annotation.IntRange
 import kr.co.kadb.cameralibrary.presentation.ui.shoot.ShootActivity
 import kr.co.kadb.cameralibrary.presentation.widget.util.IntentKey
 
@@ -16,9 +17,12 @@ class CameraIntent {
         canMute: Boolean? = null,
         hasHorizon: Boolean? = null,
         canUiRotation: Boolean? = null,
+        isSaveCroppedImage: Boolean? = null,
         cropPercent: Array<Float>? = null,
         horizonColor: Array<Float>? = null,
-        unusedAreaBorderColor: Array<Float>? = null
+        unusedAreaBorderColor: Array<Float>? = null,
+        @IntRange(from = 1, to = 100)
+        croppedJpegQuality: Int = 95
     ): Intent {
         return Intent(activityContext, ShootActivity::class.java).also { intent ->
             intent.action = IntentKey.ACTION_TAKE_PICTURE
@@ -31,6 +35,9 @@ class CameraIntent {
             canUiRotation?.let {
                 intent.putExtra(IntentKey.EXTRA_CAN_UI_ROTATION, it)
             }
+            isSaveCroppedImage?.let {
+                intent.putExtra(IntentKey.EXTRA_IS_SAVE_CROPPED_IMAGE, it)
+            }
             cropPercent?.let {
                 intent.putExtra(IntentKey.EXTRA_CROP_PERCENT, it)
             }
@@ -40,6 +47,7 @@ class CameraIntent {
             unusedAreaBorderColor?.let {
                 intent.putExtra(IntentKey.EXTRA_CROP_BORDER_COLOR, it)
             }
+            intent.putExtra(IntentKey.EXTRA_CROPPED_JPEG_QUALITY, croppedJpegQuality)
         }
     }
 
@@ -49,9 +57,12 @@ class CameraIntent {
         canMute: Boolean? = null,
         hasHorizon: Boolean? = null,
         canUiRotation: Boolean? = null,
+        isSaveCroppedImage: Boolean? = null,
         cropPercent: Array<Float>? = null,
         horizonColor: Array<Float>? = null,
-        unusedAreaBorderColor: Array<Float>? = null
+        unusedAreaBorderColor: Array<Float>? = null,
+        @IntRange(from = 1, to = 100)
+        croppedJpegQuality: Int = 95
     ): Intent {
         return Intent(activityContext, ShootActivity::class.java).also { intent ->
             intent.action = IntentKey.ACTION_TAKE_MULTIPLE_PICTURES
@@ -64,6 +75,9 @@ class CameraIntent {
             canUiRotation?.let {
                 intent.putExtra(IntentKey.EXTRA_CAN_UI_ROTATION, it)
             }
+            isSaveCroppedImage?.let {
+                intent.putExtra(IntentKey.EXTRA_IS_SAVE_CROPPED_IMAGE, it)
+            }
             cropPercent?.let {
                 intent.putExtra(IntentKey.EXTRA_CROP_PERCENT, it)
             }
@@ -73,6 +87,7 @@ class CameraIntent {
             unusedAreaBorderColor?.let {
                 intent.putExtra(IntentKey.EXTRA_CROP_BORDER_COLOR, it)
             }
+            intent.putExtra(IntentKey.EXTRA_CROPPED_JPEG_QUALITY, croppedJpegQuality)
         }
     }
 
@@ -81,57 +96,62 @@ class CameraIntent {
         private var action: String? = null
         private var canMute: Boolean? = null
         private var hasHorizon: Boolean? = null
+        private var isSaveCroppedImage: Boolean? = null
         private var cropPercent: Array<Float>? = null
         private var canUiRotation: Boolean? = null
         private var horizonColor: Int? = null
         private var unusedAreaBorderColor: Int? = null
 
+        @IntRange(from = 1, to = 100)
+        private var croppedJpegQuality: Int = 95
+
         fun setAction(action: String?): Build {
-            action?.let {
-                this.action = it
-            }
+            this.action = action
             return this
         }
 
         fun setCanMute(canMute: Boolean?): Build {
-            canMute?.let {
-                this.canMute = it
-            }
+            this.canMute = canMute ?: false
             return this
         }
 
         fun setHasHorizon(hasHorizon: Boolean?): Build {
-            hasHorizon?.let {
-                this.hasHorizon = it
-            }
+            this.hasHorizon = hasHorizon ?: false
+            return this
+        }
+
+        fun setSaveCropedImage(isSaveCroppedImage: Boolean?): Build {
+            this.isSaveCroppedImage = isSaveCroppedImage ?: false
             return this
         }
 
         fun setCropPercent(cropPercent: Array<Float>?): Build {
-            cropPercent?.let {
-                this.cropPercent = it
-            }
+            this.cropPercent = cropPercent
             return this
         }
 
         fun setCanUiRotation(canUiRotation: Boolean?): Build {
-            canUiRotation?.let {
-                this.canUiRotation = it
-            }
+            this.canUiRotation = canUiRotation
             return this
         }
 
         fun setHorizonColor(horizonColor: Int?): Build {
-            horizonColor?.let {
-                this.horizonColor = it
-            }
+            this.horizonColor = horizonColor
             return this
         }
 
         fun setUnusedAreaBorderColor(unusedAreaBorderColor: Int?): Build {
-            unusedAreaBorderColor?.let {
-                this.unusedAreaBorderColor = it
-            }
+            this.unusedAreaBorderColor = unusedAreaBorderColor
+            return this
+        }
+
+        fun setCroppedJpegQuality(
+            @IntRange(
+                from = 1,
+                to = 100
+            ) croppedJpegQuality: Int = 95
+        ): Build {
+            this.croppedJpegQuality = croppedJpegQuality
             return this
         }
 
@@ -142,8 +162,10 @@ class CameraIntent {
                 cameraIntent.putExtra(IntentKey.EXTRA_HAS_HORIZON, hasHorizon)
                 cameraIntent.putExtra(IntentKey.EXTRA_CROP_PERCENT, cropPercent)
                 cameraIntent.putExtra(IntentKey.EXTRA_CAN_UI_ROTATION, canUiRotation)
+                cameraIntent.putExtra(IntentKey.EXTRA_IS_SAVE_CROPPED_IMAGE, isSaveCroppedImage)
                 cameraIntent.putExtra(IntentKey.EXTRA_HORIZON_COLOR, horizonColor)
                 cameraIntent.putExtra(IntentKey.EXTRA_CROP_BORDER_COLOR, unusedAreaBorderColor)
+                cameraIntent.putExtra(IntentKey.EXTRA_CROPPED_JPEG_QUALITY, croppedJpegQuality)
             }
         }
     }
