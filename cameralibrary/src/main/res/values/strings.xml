@@ -90,4 +90,17 @@
     <string name="adb_cameralibrary_text_application_close">종료 하려면 이전 버튼을 한 번 더 누르세요.</string>
     <string name="adb_cameralibrary_text_call_error_string">전화번호(%s)가 올바르지 않습니다.</string>
     <string name="adb_cameralibrary_text_unknown_error">Unknown Error</string>
+
+
+    <!-- Strings for info preference. -->
+    <string name="adb_cameralibrary_pref_key_rear_camera_preview_size" translatable="false">rcpvs</string>
+    <string name="adb_cameralibrary_pref_key_rear_camera_picture_size" translatable="false">rcpts</string>
+    <string name="adb_cameralibrary_pref_key_front_camera_preview_size" translatable="false">fcpvs</string>
+    <string name="adb_cameralibrary_pref_key_front_camera_picture_size" translatable="false">fcpts</string>
+    <string name="adb_cameralibrary_pref_key_camera_live_viewport" translatable="false">clv</string>
+    <string name="adb_cameralibrary_pref_key_info_hide" translatable="false">ih</string>
+    <string name="adb_cameralibrary_pref_key_group_recognized_text_in_blocks" translatable="false">grtib</string>
+    <string name="adb_cameralibrary_pref_key_show_language_tag" translatable="false">slt</string>
+    <string name="adb_cameralibrary_pref_key_show_text_confidence" translatable="false">stc</string>
+    <string name="adb_cameralibrary_pref_key_pose_detector_prefer_gpu" translatable="false">pdpg</string>
 </resources>

@@ -24,6 +24,15 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             />
+        <kr.co.kadb.cameralibrary.presentation.widget.mlkit.GraphicOverlay
+            android:id="@+id/adb_cameralibrary_graphic_overlay"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            app:layout_constraintBottom_toBottomOf="@id/adb_cameralibrary_preview_view"
+            app:layout_constraintEnd_toEndOf="@id/adb_cameralibrary_preview_view"
+            app:layout_constraintStart_toStartOf="@id/adb_cameralibrary_preview_view"
+            app:layout_constraintTop_toTopOf="@id/adb_cameralibrary_preview_view"
+            />
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/adb_cameralibrary_layout_unused_area"
             android:layout_width="0dp"
@@ -211,14 +220,14 @@
                 app:layout_constraintTop_toBottomOf="@+id/adb_cameralibrary_button_finish"
                 />
         </androidx.constraintlayout.widget.ConstraintLayout>
-        <androidx.appcompat.widget.AppCompatImageView
-            android:id="@+id/adb_cameralibrary_imageview_thumbnail"
-            android:layout_width="160dp"
-            android:layout_height="wrap_content"
-            android:adjustViewBounds="true"
-            android:scaleType="fitCenter"
-            app:layout_constraintEnd_toEndOf="@+id/adb_cameralibrary_preview_view"
-            app:layout_constraintTop_toTopOf="@+id/adb_cameralibrary_preview_view"
-            />
+        <!--        <androidx.appcompat.widget.AppCompatImageView-->
+        <!--            android:id="@+id/adb_cameralibrary_imageview_thumbnail"-->
+        <!--            android:layout_width="160dp"-->
+        <!--            android:layout_height="wrap_content"-->
+        <!--            android:adjustViewBounds="true"-->
+        <!--            android:scaleType="fitCenter"-->
+        <!--            app:layout_constraintEnd_toEndOf="@+id/adb_cameralibrary_preview_view"-->
+        <!--            app:layout_constraintTop_toTopOf="@+id/adb_cameralibrary_preview_view"-->
+        <!--            />-->
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

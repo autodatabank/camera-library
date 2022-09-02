@@ -27,33 +27,32 @@ import android.view.animation.AccelerateDecelerateInterpolator
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.camera.core.*
-import androidx.camera.core.CameraState.Type
-import androidx.camera.core.impl.utils.Exif
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.lifecycleScope
 import androidx.transition.ChangeBounds
 import androidx.transition.TransitionManager
 import androidx.transition.addListener
-import kotlinx.coroutines.launch
+import com.google.mlkit.common.MlKitException
+import com.google.mlkit.vision.common.InputImage
+import com.google.mlkit.vision.text.TextRecognition
+import com.google.mlkit.vision.text.korean.KoreanTextRecognizerOptions
 import kr.co.kadb.cameralibrary.R
 import kr.co.kadb.cameralibrary.databinding.AdbCameralibraryFragmentShootBinding
 import kr.co.kadb.cameralibrary.presentation.base.BaseBindingFragment
 import kr.co.kadb.cameralibrary.presentation.ui.shoot.ShootSharedViewModel.Event
 import kr.co.kadb.cameralibrary.presentation.widget.extension.repeatOnStarted
-import kr.co.kadb.cameralibrary.presentation.widget.util.ImageAnalyzer
+import kr.co.kadb.cameralibrary.presentation.widget.mlkit.BitmapUtils
+import kr.co.kadb.cameralibrary.presentation.widget.mlkit.GraphicOverlay
+import kr.co.kadb.cameralibrary.presentation.widget.mlkit.TextRecognitionProcessor
+import kr.co.kadb.cameralibrary.presentation.widget.mlkit.VisionImageProcessor
 import kr.co.kadb.cameralibrary.presentation.widget.util.IntentKey
 import kr.co.kadb.cameralibrary.presentation.widget.util.MediaActionSound2
-import org.opencv.android.OpenCVLoader
 import timber.log.Timber
-import java.io.ByteArrayInputStream
 import java.io.IOException
-import java.io.InputStream
-import java.nio.ByteBuffer
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 
@@ -68,12 +67,6 @@ internal class ShootFragment :
     BaseBindingFragment<AdbCameralibraryFragmentShootBinding, ShootSharedViewModel>() {
     companion object {
         fun create() = ShootFragment()
-    }
-
-    init {
-        if (!OpenCVLoader.initDebug()) {
-            // Handle initialization error
-        }
     }
 
     // ViewController.
@@ -106,6 +99,11 @@ internal class ShootFragment :
 
     /** Blocking camera operations are performed using this executor */
     private lateinit var cameraExecutor: ExecutorService
+
+    //
+    private var graphicOverlay: GraphicOverlay? = null
+    private var imageProcessor: VisionImageProcessor? = null
+    private var needUpdateGraphicOverlayImageSourceInfo = false
 
     // OrientationEventListener
     private val orientationEventListener by lazy {
@@ -140,6 +138,15 @@ internal class ShootFragment :
         orientationEventListener.enable()
     }
 
+    override fun onResume() {
+        super.onResume()
+    }
+
+    override fun onPause() {
+        super.onPause()
+        imageProcessor?.stop()
+    }
+
     override fun onStop() {
         super.onStop()
         orientationEventListener.disable()
@@ -149,6 +156,11 @@ internal class ShootFragment :
         super.onDestroyView()
         cameraExecutor.shutdown()
         mediaActionSound.release()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        imageProcessor?.stop()
     }
 
     override fun onBackPressed(): Boolean {
@@ -168,11 +180,14 @@ internal class ShootFragment :
 
     // Init Layout.
     override fun initLayout(view: View) {
-        // 권한 확인 후 카메라 및 UI 초기화.
-        viewController.requestCameraPermission {
-            initCamera()
-            initUnusedAreaLayout()
-        }
+//        // 권한 확인 후 카메라 및 UI 초기화.
+//        viewController.requestCameraPermission {
+//            initCamera()
+//            initUnusedAreaLayout()
+//        }
+        initLayout()
+
+        graphicOverlay = binding.adbCameralibraryGraphicOverlay
 
         // 여러장 촬영 상태에서만 촬영완료 버튼 활성화.
         viewModel.item.value.isMultiplePicture.also {
@@ -323,6 +338,14 @@ internal class ShootFragment :
     override fun initCallback() {
     }
 
+    private fun initLayout() {
+        // 권한 확인 후 카메라 및 UI 초기화.
+        viewController.requestCameraPermission {
+            initCamera()
+            initUnusedAreaLayout()
+        }
+    }
+
     // Init Unused area layout.
     private fun initUnusedAreaLayout() {
         // 크롭 사용 시 Layout 및 Horizon 활성.
@@ -348,6 +371,7 @@ internal class ShootFragment :
         // 크롭크기로 영역 지정.
         binding.adbCameralibraryLayout.post {
             val targetRotation = imageCapture?.targetRotation ?: 0
+//            val previewView = binding.adbCameralibraryPreviewView
             val unusedAreaView = binding.adbCameralibraryLayoutUnusedArea
             val unusedAreaViewTop = binding.adbCameralibraryViewUnusedAreaTop
             val unusedAreaViewBottom = binding.adbCameralibraryViewUnusedAreaBottom
@@ -361,6 +385,25 @@ internal class ShootFragment :
                 binding.adbCameralibraryLayoutFinish.animate().rotation(it)
                 binding.adbCameralibraryButtonShooting.animate().rotation(it)
             }
+//
+//            binding.adbCameralibraryGraphicOverlay.apply {
+//                ConstraintSet().let {
+//                    it.clone(binding.adbCameralibraryLayout)
+//                    it.connect(
+//                        id, ConstraintSet.TOP, previewView.id, ConstraintSet.TOP
+//                    )
+//                    it.connect(
+//                        id, ConstraintSet.BOTTOM, previewView.id, ConstraintSet.BOTTOM
+//                    )
+//                    it.connect(
+//                        id, ConstraintSet.START, previewView.id, ConstraintSet.START
+//                    )
+//                    it.connect(
+//                        id, ConstraintSet.END, previewView.id, ConstraintSet.END
+//                    )
+//                    it.applyTo(binding.adbCameralibraryLayout)
+//                }
+//            }
 
             // 크롭 사용 시 Layout 설정.
             if (unusedAreaWidth > 0 && unusedAreaHeight > 0) {
@@ -512,21 +555,37 @@ internal class ShootFragment :
 
     /** Declare and bind preview, capture and analysis use cases */
     private fun bindCameraUseCases() {
+        // Must unbind the use-cases before rebinding them
+        cameraProvider?.unbindAll()
+
+        //
+        imageProcessor?.stop()
+
         // rotation
         val rotation = binding.adbCameralibraryPreviewView.display.rotation
-
-        // CameraProvider
-        val cameraProvider = cameraProvider
-            ?: throw IllegalStateException("Camera initialization failed.")
+//
+//        // CameraProvider
+//        val cameraProvider = cameraProvider
+//            ?: throw IllegalStateException("Camera initialization failed.")
 
         // CameraSelector
         val cameraSelector = CameraSelector.Builder().requireLensFacing(lensFacing).build()
+
+        imageProcessor = TextRecognitionProcessor(
+            requireContext(),
+            KoreanTextRecognizerOptions.Builder().build()
+        )
+
+
+        val recognizer = TextRecognition.getClient(KoreanTextRecognizerOptions.Builder().build())
 
         // Preview
         preview = Preview.Builder()
             .setTargetAspectRatio(AspectRatio.RATIO_4_3)
             .setTargetRotation(rotation)
             .build()
+        // Attach the viewfinder's surface provider to preview use case
+        preview?.setSurfaceProvider(binding.adbCameralibraryPreviewView.surfaceProvider)
 
 
         // ImageCapture
@@ -540,34 +599,76 @@ internal class ShootFragment :
 
         // ImageAnalysis
         imageAnalyzer = ImageAnalysis.Builder()
-            .setTargetAspectRatio(AspectRatio.RATIO_4_3)
-            .setTargetRotation(rotation)
+//            .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
+//            .setTargetAspectRatio(AspectRatio.RATIO_4_3)
+//            .setTargetRotation(rotation)
             .build()
-            .apply {
-                setAnalyzer(
-                    cameraExecutor,
-                    ImageAnalyzer(viewModel.item.value.cropPercent.toTypedArray()) {
-                        lifecycleScope.launch {
-                            binding.adbCameralibraryImageviewThumbnail.setImageBitmap(it)
+        imageAnalyzer?.setAnalyzer(
+            ContextCompat.getMainExecutor(requireContext())
+        ) { imageProxy: ImageProxy ->
+//            if (needUpdateGraphicOverlayImageSourceInfo) {
+//                val isImageFlipped = lensFacing == CameraSelector.LENS_FACING_FRONT
+//                val rotationDegrees = imageProxy.imageInfo.rotationDegrees
+//                if (rotationDegrees == 0 || rotationDegrees == 180) {
+//                    binding.adbCameralibraryGraphicOverlay.setImageSourceInfo(
+//                        imageProxy.width,
+//                        imageProxy.height,
+//                        isImageFlipped
+//                    )
+//                } else {
+//                    binding.adbCameralibraryGraphicOverlay.setImageSourceInfo(
+//                        imageProxy.height,
+//                        imageProxy.width,
+//                        isImageFlipped
+//                    )
+//                }
+//                needUpdateGraphicOverlayImageSourceInfo = false
+//            }
+
+            BitmapUtils.getBitmap(imageProxy)?.let { bitmap ->
+                val image = InputImage.fromBitmap(
+                    bitmap, imageProxy.imageInfo.rotationDegrees
+                )
+                recognizer.process(image).addOnSuccessListener { text ->
+                    text.textBlocks.forEach { textBlock ->
+                        textBlock.lines.forEach { textLine ->
+                            textLine.elements.forEach { element ->
+                                Timber.i(">>>>> recognizer addOnSuccessListener : ${element.text}")
+                            }
                         }
                     }
-                )
+                }.addOnFailureListener {
+                    Timber.i(">>>>> recognizer addOnFailureListener : $it")
+                }
             }
 
-        // Must unbind the use-cases before rebinding them
-        cameraProvider.unbindAll()
+            Timber.i(">>>>> imageProxy.width : ${imageProxy.width}")
+            Timber.i(">>>>> imageProxy.height : ${imageProxy.height}")
+            Timber.i(">>>>> adbCameralibraryPreviewView.width : ${binding.adbCameralibraryPreviewView.width}")
+            Timber.i(">>>>> adbCameralibraryPreviewView.height : ${binding.adbCameralibraryPreviewView.height}")
+            Timber.i(">>>>> adbCameralibraryGraphicOverlay.width : ${binding.adbCameralibraryGraphicOverlay.width}")
+            Timber.i(">>>>> adbCameralibraryGraphicOverlay.height : ${binding.adbCameralibraryGraphicOverlay.height}")
+
+            try {
+//                        imageProcessor?.processBitmap(bitmap, graphicOverlay)
+                imageProcessor?.processImageProxy(imageProxy, graphicOverlay)
+            } catch (ex: MlKitException) {
+                ex.printStackTrace()
+            }
+        }
+
+//        // Must unbind the use-cases before rebinding them
+//        cameraProvider.unbindAll()
 
         try {
             // A variable number of use-cases can be passed here -
             // camera provides access to CameraControl & CameraInfo
-            camera = cameraProvider.bindToLifecycle(
+            camera = cameraProvider?.bindToLifecycle(
                 this, cameraSelector, preview, imageCapture, imageAnalyzer
             )
 
-            // Attach the viewfinder's surface provider to preview use case
-            preview?.setSurfaceProvider(binding.adbCameralibraryPreviewView.surfaceProvider)
             //
-            observeCameraState(camera?.cameraInfo!!)
+            //observeCameraState(camera?.cameraInfo!!)
         } catch (ex: Exception) {
             ex.printStackTrace()
         }
@@ -583,42 +684,42 @@ internal class ShootFragment :
     private fun hasFrontCamera(): Boolean {
         return cameraProvider?.hasCamera(CameraSelector.DEFAULT_FRONT_CAMERA) ?: false
     }
-
-    // 카메라 상태 로깅.
-    private fun observeCameraState(cameraInfo: CameraInfo) {
-        cameraInfo.cameraState.observe(viewLifecycleOwner) { cameraState ->
-            when (cameraState.type) {
-                Type.PENDING_OPEN -> Timber.v(">>>>> CameraState : PENDING_OPEN")
-                Type.OPENING -> Timber.v(">>>>> CameraState : OPENING")
-                Type.OPEN -> Timber.v(">>>>> CameraState : OPEN")
-                Type.CLOSING -> Timber.v(">>>>> CameraState : CLOSING")
-                Type.CLOSED -> Timber.v(">>>>> CameraState : CLOSED")
-            }
-            when (cameraState.error ?: -1) {
-                CameraState.ERROR_STREAM_CONFIG -> {
-                    Timber.e(">>>>> CameraState : ERROR_STREAM_CONFIG")
-                }
-                CameraState.ERROR_CAMERA_IN_USE -> {
-                    Timber.e(">>>>> CameraState : ERROR_CAMERA_IN_USE")
-                }
-                CameraState.ERROR_MAX_CAMERAS_IN_USE -> {
-                    Timber.e(">>>>> CameraState : ERROR_MAX_CAMERAS_IN_USE")
-                }
-                CameraState.ERROR_OTHER_RECOVERABLE_ERROR -> {
-                    Timber.e(">>>>> CameraState : ERROR_OTHER_RECOVERABLE_ERROR")
-                }
-                CameraState.ERROR_CAMERA_DISABLED -> {
-                    Timber.e(">>>>> CameraState : ERROR_CAMERA_DISABLED")
-                }
-                CameraState.ERROR_CAMERA_FATAL_ERROR -> {
-                    Timber.e(">>>>> CameraState : ERROR_CAMERA_FATAL_ERROR")
-                }
-                CameraState.ERROR_DO_NOT_DISTURB_MODE_ENABLED -> {
-                    Timber.e(">>>>> CameraState : ERROR_DO_NOT_DISTURB_MODE_ENABLED")
-                }
-            }
-        }
-    }
+//
+//    // 카메라 상태 로깅.
+//    private fun observeCameraState(cameraInfo: CameraInfo) {
+//        cameraInfo.cameraState.observe(viewLifecycleOwner) { cameraState ->
+//            when (cameraState.type) {
+//                Type.PENDING_OPEN -> Timber.v(">>>>> CameraState : PENDING_OPEN")
+//                Type.OPENING -> Timber.v(">>>>> CameraState : OPENING")
+//                Type.OPEN -> Timber.v(">>>>> CameraState : OPEN")
+//                Type.CLOSING -> Timber.v(">>>>> CameraState : CLOSING")
+//                Type.CLOSED -> Timber.v(">>>>> CameraState : CLOSED")
+//            }
+//            when (cameraState.error ?: -1) {
+//                CameraState.ERROR_STREAM_CONFIG -> {
+//                    Timber.e(">>>>> CameraState : ERROR_STREAM_CONFIG")
+//                }
+//                CameraState.ERROR_CAMERA_IN_USE -> {
+//                    Timber.e(">>>>> CameraState : ERROR_CAMERA_IN_USE")
+//                }
+//                CameraState.ERROR_MAX_CAMERAS_IN_USE -> {
+//                    Timber.e(">>>>> CameraState : ERROR_MAX_CAMERAS_IN_USE")
+//                }
+//                CameraState.ERROR_OTHER_RECOVERABLE_ERROR -> {
+//                    Timber.e(">>>>> CameraState : ERROR_OTHER_RECOVERABLE_ERROR")
+//                }
+//                CameraState.ERROR_CAMERA_DISABLED -> {
+//                    Timber.e(">>>>> CameraState : ERROR_CAMERA_DISABLED")
+//                }
+//                CameraState.ERROR_CAMERA_FATAL_ERROR -> {
+//                    Timber.e(">>>>> CameraState : ERROR_CAMERA_FATAL_ERROR")
+//                }
+//                CameraState.ERROR_DO_NOT_DISTURB_MODE_ENABLED -> {
+//                    Timber.e(">>>>> CameraState : ERROR_DO_NOT_DISTURB_MODE_ENABLED")
+//                }
+//            }
+//        }
+//    }
 
     // 셔터음.
     private fun playShutterSound(canMute: Boolean) {

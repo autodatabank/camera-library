@@ -4,10 +4,15 @@ import android.annotation.SuppressLint
 import android.app.Application
 import android.graphics.Bitmap
 import android.net.Uri
+import android.util.Log
 import android.util.Size
 import androidx.annotation.IntRange
 import androidx.camera.core.ImageCapture
+import androidx.camera.lifecycle.ProcessCameraProvider
+import androidx.core.content.ContextCompat
 import androidx.exifinterface.media.ExifInterface
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -25,6 +30,7 @@ import java.io.ByteArrayInputStream
 import java.io.IOException
 import java.io.InputStream
 import java.nio.ByteBuffer
+import java.util.concurrent.ExecutionException
 
 /**
  * Created by oooobang on 2022. 7. 11..
@@ -206,7 +212,6 @@ constructor(
         byteBuffer.rewind()
 
         // Image Buffer
-        val context = getApplication<Application>().applicationContext
         val byteArray = ByteArray(byteBuffer.capacity()).also {
             byteBuffer.get(it)
         }
@@ -241,6 +246,7 @@ constructor(
                 // 촬영 완료.
                 if (!item.value.isMultiplePicture) {
                     // Thumbnail.
+                    val context = getApplication<Application>().applicationContext
                     val thumbnail = imageUri?.toThumbnail(context, size)
                     // 촬영완료 이벤트.
                     event(Event.TakePicture(imageUri ?: Uri.EMPTY, size, rotation, thumbnail))
@@ -290,5 +296,28 @@ constructor(
                 action.invoke(imagePath, imageUri)
             }
         }
+    }
+
+    private var cameraProviderLiveData: MutableLiveData<ProcessCameraProvider>? = null
+
+    fun processCameraProvider(): LiveData<ProcessCameraProvider>? {
+        if (cameraProviderLiveData == null) {
+            cameraProviderLiveData = MutableLiveData()
+            val cameraProviderFuture = ProcessCameraProvider.getInstance(getApplication())
+            cameraProviderFuture.addListener(
+                {
+                    try {
+                        cameraProviderLiveData!!.setValue(cameraProviderFuture.get())
+                    } catch (ex: ExecutionException) {
+                        // Handle any errors (including cancellation) here.
+                        ex.printStackTrace()
+                    } catch (ex: InterruptedException) {
+                        ex.printStackTrace()
+                    }
+                },
+                ContextCompat.getMainExecutor(getApplication())
+            )
+        }
+        return cameraProviderLiveData
     }
 }
