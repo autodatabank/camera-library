@@ -35,12 +35,9 @@ class MainActivity : AppCompatActivity() {
                     //val thumbnailBitmap = intent.extras?.get("data") as? Bitmap
 
                     // 이미지 중앙을 기준으로 원본 사이즈에서 가로:70% 세로:50% 크롭.
-                    /*val cropBitmap = UriHelper.rotateAndCenterCrop(
+                    val cropBitmap = UriHelper.rotateAndCenterCrop(
                         baseContext, imageUri, arrayOf(0.7f, 0.5f)
-                    )*/
-
-                    // Uri를 이미지로 변환.
-                    val cropBitmap = UriHelper.toBitmap(baseContext, imageUri)
+                    )
 
                     // Bitmap 저장.
                     //cropBitmap.save(baseContext, true)
@@ -95,7 +92,6 @@ class MainActivity : AppCompatActivity() {
                 takePictureIntent.putExtra(IntentKey.EXTRA_HAS_HORIZON, true)
                 takePictureIntent.putExtra(IntentKey.EXTRA_CROP_PERCENT, arrayOf(0.7f, 0.5f))
                 takePictureIntent.putExtra(IntentKey.EXTRA_CAN_UI_ROTATION, true)
-                takePictureIntent.putExtra(IntentKey.EXTRA_IS_SAVE_CROPPED_IMAGE, true)
                 takePictureIntent.putExtra(IntentKey.EXTRA_HORIZON_COLOR, Color.RED)
                 takePictureIntent.putExtra(IntentKey.EXTRA_CROP_BORDER_COLOR, Color.GREEN)
                 takePictureIntent.putExtra(IntentKey.EXTRA_CROPPED_JPEG_QUALITY, 95)
@@ -109,7 +105,6 @@ class MainActivity : AppCompatActivity() {
                 takePictureIntent.putExtra(IntentKey.EXTRA_HAS_HORIZON, true)
                 takePictureIntent.putExtra(IntentKey.EXTRA_CROP_PERCENT, arrayOf(0.7f, 0.5f))
                 takePictureIntent.putExtra(IntentKey.EXTRA_CAN_UI_ROTATION, true)
-                takePictureIntent.putExtra(IntentKey.EXTRA_IS_SAVE_CROPPED_IMAGE, true)
                 takePictureIntent.putExtra(IntentKey.EXTRA_HORIZON_COLOR, Color.RED)
                 takePictureIntent.putExtra(IntentKey.EXTRA_CROP_BORDER_COLOR, Color.GREEN)
                 takePictureIntent.putExtra(IntentKey.EXTRA_CROPPED_JPEG_QUALITY, 95)
@@ -124,7 +119,6 @@ class MainActivity : AppCompatActivity() {
                 setHasHorizon(true)
                 setCropPercent(arrayOf(0.7f, 0.5f))
                 setCanUiRotation(true)
-                setSaveCropedImage(true)
                 //setHorizonColor(Color.RED)
                 //setUnusedAreaBorderColor(Color.GREEN)
                 //setCroppedJpegQuality(95)
@@ -141,7 +135,6 @@ class MainActivity : AppCompatActivity() {
                 takePictureIntent.putExtra(IntentKey.EXTRA_HAS_HORIZON, true)
                 takePictureIntent.putExtra(IntentKey.EXTRA_CROP_PERCENT, arrayOf(0.7f, 0.5f))
                 takePictureIntent.putExtra(IntentKey.EXTRA_CAN_UI_ROTATION, true)
-                takePictureIntent.putExtra(IntentKey.EXTRA_IS_SAVE_CROPPED_IMAGE, true)
                 takePictureIntent.putExtra(IntentKey.EXTRA_HORIZON_COLOR, Color.RED)
                 takePictureIntent.putExtra(IntentKey.EXTRA_CROP_BORDER_COLOR, Color.GREEN)
                 takePictureIntent.putExtra(IntentKey.EXTRA_CROPPED_JPEG_QUALITY, 95)
@@ -155,7 +148,6 @@ class MainActivity : AppCompatActivity() {
                 takePictureIntent.putExtra(IntentKey.EXTRA_HAS_HORIZON, true)
                 takePictureIntent.putExtra(IntentKey.EXTRA_CROP_PERCENT, arrayOf(0.7f, 0.5f))
                 takePictureIntent.putExtra(IntentKey.EXTRA_CAN_UI_ROTATION, true)
-                takePictureIntent.putExtra(IntentKey.EXTRA_IS_SAVE_CROPPED_IMAGE, true)
                 takePictureIntent.putExtra(IntentKey.EXTRA_HORIZON_COLOR, Color.RED)
                 takePictureIntent.putExtra(IntentKey.EXTRA_CROP_BORDER_COLOR, Color.GREEN)
                 takePictureIntent.putExtra(IntentKey.EXTRA_CROPPED_JPEG_QUALITY, 95)
@@ -170,7 +162,6 @@ class MainActivity : AppCompatActivity() {
                 setHasHorizon(true)
                 setCropPercent(arrayOf(0.7f, 0.5f))
                 setCanUiRotation(true)
-                //setSaveCropedImage(true)
                 //setHorizonColor(Color.RED)
                 //setUnusedAreaBorderColor(Color.GREEN)
                 //setCroppedJpegQuality(95)
