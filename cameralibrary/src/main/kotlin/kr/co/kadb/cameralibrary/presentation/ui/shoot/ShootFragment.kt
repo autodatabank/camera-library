@@ -162,6 +162,11 @@ internal class ShootFragment :
             initUnusedAreaLayout()
         }
 
+        // 수평선 사용 시에만 활성화.
+        viewModel.item.value.hasHorizon.also {
+            binding.adbCameralibraryViewHorizon.isVisible = it
+        }
+
         // 여러장 촬영 상태에서만 촬영완료 버튼 활성화.
         viewModel.item.value.isMultiplePicture.also {
             binding.adbCameralibraryLayoutFinish.isVisible = it
