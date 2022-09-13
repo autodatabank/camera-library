@@ -28,7 +28,6 @@ import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.camera.core.*
 import androidx.camera.core.CameraState.Type
-import androidx.camera.core.impl.utils.Exif
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
@@ -46,10 +45,7 @@ import kr.co.kadb.cameralibrary.presentation.widget.extension.repeatOnStarted
 import kr.co.kadb.cameralibrary.presentation.widget.util.IntentKey
 import kr.co.kadb.cameralibrary.presentation.widget.util.MediaActionSound2
 import timber.log.Timber
-import java.io.ByteArrayInputStream
 import java.io.IOException
-import java.io.InputStream
-import java.nio.ByteBuffer
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 
