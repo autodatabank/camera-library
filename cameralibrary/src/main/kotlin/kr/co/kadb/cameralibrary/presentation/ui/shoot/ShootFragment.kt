@@ -183,7 +183,7 @@ internal class ShootFragment :
         // 권한 확인 후 카메라 및 UI 초기화.
         viewController.requestCameraPermission {
             initCamera()
-            initUnusedAreaLayout()
+            //initUnusedAreaLayout()
         }
 
         graphicOverlay = binding.adbCameralibraryGraphicOverlay
@@ -367,7 +367,6 @@ internal class ShootFragment :
         // 크롭크기로 영역 지정.
         binding.adbCameralibraryLayout.post {
             val targetRotation = imageCapture?.targetRotation ?: 0
-//            val previewView = binding.adbCameralibraryPreviewView
             val unusedAreaView = binding.adbCameralibraryLayoutUnusedArea
             val unusedAreaViewTop = binding.adbCameralibraryViewUnusedAreaTop
             val unusedAreaViewBottom = binding.adbCameralibraryViewUnusedAreaBottom
@@ -381,25 +380,6 @@ internal class ShootFragment :
                 binding.adbCameralibraryLayoutFinish.animate().rotation(it)
                 binding.adbCameralibraryButtonShooting.animate().rotation(it)
             }
-//
-//            binding.adbCameralibraryGraphicOverlay.apply {
-//                ConstraintSet().let {
-//                    it.clone(binding.adbCameralibraryLayout)
-//                    it.connect(
-//                        id, ConstraintSet.TOP, previewView.id, ConstraintSet.TOP
-//                    )
-//                    it.connect(
-//                        id, ConstraintSet.BOTTOM, previewView.id, ConstraintSet.BOTTOM
-//                    )
-//                    it.connect(
-//                        id, ConstraintSet.START, previewView.id, ConstraintSet.START
-//                    )
-//                    it.connect(
-//                        id, ConstraintSet.END, previewView.id, ConstraintSet.END
-//                    )
-//                    it.applyTo(binding.adbCameralibraryLayout)
-//                }
-//            }
 
             // 크롭 사용 시 Layout 설정.
             if (unusedAreaWidth > 0 && unusedAreaHeight > 0) {
@@ -602,41 +582,41 @@ internal class ShootFragment :
         imageAnalyzer?.setAnalyzer(
             ContextCompat.getMainExecutor(requireContext())
         ) { imageProxy: ImageProxy ->
-//            if (needUpdateGraphicOverlayImageSourceInfo) {
-//                val isImageFlipped = lensFacing == CameraSelector.LENS_FACING_FRONT
-//                val rotationDegrees = imageProxy.imageInfo.rotationDegrees
-//                if (rotationDegrees == 0 || rotationDegrees == 180) {
-//                    binding.adbCameralibraryGraphicOverlay.setImageSourceInfo(
-//                        imageProxy.width,
-//                        imageProxy.height,
-//                        isImageFlipped
-//                    )
-//                } else {
-//                    binding.adbCameralibraryGraphicOverlay.setImageSourceInfo(
-//                        imageProxy.height,
-//                        imageProxy.width,
-//                        isImageFlipped
-//                    )
-//                }
-//                needUpdateGraphicOverlayImageSourceInfo = false
-//            }
-
-            BitmapUtils.getBitmap(imageProxy)?.let { bitmap ->
-                val image = InputImage.fromBitmap(
-                    bitmap, imageProxy.imageInfo.rotationDegrees
-                )
-                recognizer.process(image).addOnSuccessListener { text ->
-                    text.textBlocks.forEach { textBlock ->
-                        textBlock.lines.forEach { textLine ->
-                            textLine.elements.forEach { element ->
-                                Timber.i(">>>>> recognizer addOnSuccessListener : ${element.text}")
-                            }
-                        }
-                    }
-                }.addOnFailureListener {
-                    Timber.i(">>>>> recognizer addOnFailureListener : $it")
+            if (needUpdateGraphicOverlayImageSourceInfo) {
+                val isImageFlipped = lensFacing == CameraSelector.LENS_FACING_FRONT
+                val rotationDegrees = imageProxy.imageInfo.rotationDegrees
+                if (rotationDegrees == 0 || rotationDegrees == 180) {
+                    binding.adbCameralibraryGraphicOverlay.setImageSourceInfo(
+                        imageProxy.width,
+                        imageProxy.height,
+                        isImageFlipped
+                    )
+                } else {
+                    binding.adbCameralibraryGraphicOverlay.setImageSourceInfo(
+                        imageProxy.height,
+                        imageProxy.width,
+                        isImageFlipped
+                    )
                 }
+                needUpdateGraphicOverlayImageSourceInfo = false
             }
+//
+//            BitmapUtils.getBitmap(imageProxy)?.let { bitmap ->
+//                val image = InputImage.fromBitmap(
+//                    bitmap, imageProxy.imageInfo.rotationDegrees
+//                )
+//                recognizer.process(image).addOnSuccessListener { text ->
+//                    text.textBlocks.forEach { textBlock ->
+//                        textBlock.lines.forEach { textLine ->
+//                            textLine.elements.forEach { element ->
+//                                Timber.i(">>>>> recognizer addOnSuccessListener : ${element.text}")
+//                            }
+//                        }
+//                    }
+//                }.addOnFailureListener {
+//                    Timber.i(">>>>> recognizer addOnFailureListener : $it")
+//                }
+//            }
 
             Timber.i(">>>>> imageProxy.width : ${imageProxy.width}")
             Timber.i(">>>>> imageProxy.height : ${imageProxy.height}")
@@ -646,7 +626,6 @@ internal class ShootFragment :
             Timber.i(">>>>> adbCameralibraryGraphicOverlay.height : ${binding.adbCameralibraryGraphicOverlay.height}")
 
             try {
-//                        imageProcessor?.processBitmap(bitmap, graphicOverlay)
                 imageProcessor?.processImageProxy(imageProxy, graphicOverlay)
             } catch (ex: MlKitException) {
                 ex.printStackTrace()
@@ -660,7 +639,7 @@ internal class ShootFragment :
             // A variable number of use-cases can be passed here -
             // camera provides access to CameraControl & CameraInfo
             camera = cameraProvider?.bindToLifecycle(
-                this, cameraSelector, preview, imageCapture, imageAnalyzer
+                this, cameraSelector/*, preview, imageCapture*/, imageAnalyzer
             )
 
             //

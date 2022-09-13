@@ -35,9 +35,9 @@ class CameraIntent {
             canUiRotation?.let {
                 intent.putExtra(IntentKey.EXTRA_CAN_UI_ROTATION, it)
             }
-            isSaveCroppedImage?.let {
+            /*isSaveCroppedImage?.let {
                 intent.putExtra(IntentKey.EXTRA_IS_SAVE_CROPPED_IMAGE, it)
-            }
+            }*/
             cropPercent?.let {
                 intent.putExtra(IntentKey.EXTRA_CROP_PERCENT, it)
             }
@@ -75,9 +75,9 @@ class CameraIntent {
             canUiRotation?.let {
                 intent.putExtra(IntentKey.EXTRA_CAN_UI_ROTATION, it)
             }
-            isSaveCroppedImage?.let {
+            /*isSaveCroppedImage?.let {
                 intent.putExtra(IntentKey.EXTRA_IS_SAVE_CROPPED_IMAGE, it)
-            }
+            }*/
             cropPercent?.let {
                 intent.putExtra(IntentKey.EXTRA_CROP_PERCENT, it)
             }
@@ -120,10 +120,10 @@ class CameraIntent {
             return this
         }
 
-        fun setSaveCropedImage(isSaveCroppedImage: Boolean?): Build {
+        /*fun setSaveCropedImage(isSaveCroppedImage: Boolean?): Build {
             this.isSaveCroppedImage = isSaveCroppedImage ?: false
             return this
-        }
+        }*/
 
         fun setCropPercent(cropPercent: Array<Float>?): Build {
             this.cropPercent = cropPercent
@@ -162,7 +162,7 @@ class CameraIntent {
                 cameraIntent.putExtra(IntentKey.EXTRA_HAS_HORIZON, hasHorizon)
                 cameraIntent.putExtra(IntentKey.EXTRA_CROP_PERCENT, cropPercent)
                 cameraIntent.putExtra(IntentKey.EXTRA_CAN_UI_ROTATION, canUiRotation)
-                cameraIntent.putExtra(IntentKey.EXTRA_IS_SAVE_CROPPED_IMAGE, isSaveCroppedImage)
+                //cameraIntent.putExtra(IntentKey.EXTRA_IS_SAVE_CROPPED_IMAGE, isSaveCroppedImage)
                 cameraIntent.putExtra(IntentKey.EXTRA_HORIZON_COLOR, horizonColor)
                 cameraIntent.putExtra(IntentKey.EXTRA_CROP_BORDER_COLOR, unusedAreaBorderColor)
                 cameraIntent.putExtra(IntentKey.EXTRA_CROPPED_JPEG_QUALITY, croppedJpegQuality)
