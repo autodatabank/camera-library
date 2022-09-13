@@ -180,14 +180,18 @@ internal class ShootFragment :
 
     // Init Layout.
     override fun initLayout(view: View) {
-//        // 권한 확인 후 카메라 및 UI 초기화.
-//        viewController.requestCameraPermission {
-//            initCamera()
-//            initUnusedAreaLayout()
-//        }
-        initLayout()
+        // 권한 확인 후 카메라 및 UI 초기화.
+        viewController.requestCameraPermission {
+            initCamera()
+            initUnusedAreaLayout()
+        }
 
         graphicOverlay = binding.adbCameralibraryGraphicOverlay
+
+        // 수평선 사용 시에만 활성화.
+        viewModel.item.value.hasHorizon.also {
+            binding.adbCameralibraryViewHorizon.isVisible = it
+        }
 
         // 여러장 촬영 상태에서만 촬영완료 버튼 활성화.
         viewModel.item.value.isMultiplePicture.also {
@@ -336,14 +340,6 @@ internal class ShootFragment :
 
     // Init Callback.
     override fun initCallback() {
-    }
-
-    private fun initLayout() {
-        // 권한 확인 후 카메라 및 UI 초기화.
-        viewController.requestCameraPermission {
-            initCamera()
-            initUnusedAreaLayout()
-        }
     }
 
     // Init Unused area layout.
