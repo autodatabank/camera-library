@@ -32,6 +32,7 @@ import com.google.android.odml.image.MediaMlImageBuilder
 import com.google.android.odml.image.MlImage
 import com.google.mlkit.common.MlKitException
 import com.google.mlkit.vision.common.InputImage
+import timber.log.Timber
 import java.lang.Math.max
 import java.lang.Math.min
 import java.nio.ByteBuffer
@@ -209,6 +210,9 @@ abstract class VisionProcessorBase<T>(context: Context) : VisionImageProcessor {
         if (isShutdown) {
             return
         }
+        Timber.i(">>>>> isCameraLiveViewportEnabled : %s", PreferenceUtils.isCameraLiveViewportEnabled(graphicOverlay.context))
+        Timber.i(">>>>> isMlImageEnabled : %s", isMlImageEnabled(graphicOverlay.context))
+
         var bitmap: Bitmap? = null
         if (!PreferenceUtils.isCameraLiveViewportEnabled(graphicOverlay.context)) {
             bitmap = BitmapUtils.getBitmap(image)

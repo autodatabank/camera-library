@@ -37,7 +37,6 @@ import androidx.transition.ChangeBounds
 import androidx.transition.TransitionManager
 import androidx.transition.addListener
 import com.google.mlkit.common.MlKitException
-import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.text.TextRecognition
 import com.google.mlkit.vision.text.korean.KoreanTextRecognizerOptions
 import kr.co.kadb.cameralibrary.R
@@ -136,10 +135,6 @@ internal class ShootFragment :
     override fun onStart() {
         super.onStart()
         orientationEventListener.enable()
-    }
-
-    override fun onResume() {
-        super.onResume()
     }
 
     override fun onPause() {
@@ -284,7 +279,6 @@ internal class ShootFragment :
                         Timber.i(">>>>> ImageCapture onCaptureSuccess")
 
                         try {
-
                             // 이미지 저장.
                             viewModel.saveImage(
                                 image.planes[0].buffer,
@@ -295,6 +289,7 @@ internal class ShootFragment :
                         } catch (ex: IOException) {
                             ex.printStackTrace()
                         }
+
                         // Close ImageProxy.
                         //image.close()
                     }
@@ -544,14 +539,13 @@ internal class ShootFragment :
 //        val cameraProvider = cameraProvider
 //            ?: throw IllegalStateException("Camera initialization failed.")
 
-        // CameraSelector
-        val cameraSelector = CameraSelector.Builder().requireLensFacing(lensFacing).build()
+
+        needUpdateGraphicOverlayImageSourceInfo = true
 
         imageProcessor = TextRecognitionProcessor(
             requireContext(),
             KoreanTextRecognizerOptions.Builder().build()
         )
-
 
         val recognizer = TextRecognition.getClient(KoreanTextRecognizerOptions.Builder().build())
 
@@ -560,13 +554,10 @@ internal class ShootFragment :
             .setTargetAspectRatio(AspectRatio.RATIO_4_3)
             .setTargetRotation(rotation)
             .build()
-        // Attach the viewfinder's surface provider to preview use case
         preview?.setSurfaceProvider(binding.adbCameralibraryPreviewView.surfaceProvider)
-
 
         // ImageCapture
         imageCapture = ImageCapture.Builder()
-            //.setJpegQuality(50)
             .setCaptureMode(ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY)
             .setTargetAspectRatio(AspectRatio.RATIO_4_3)
             .setTargetRotation(rotation)
@@ -575,9 +566,9 @@ internal class ShootFragment :
 
         // ImageAnalysis
         imageAnalyzer = ImageAnalysis.Builder()
-//            .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
-//            .setTargetAspectRatio(AspectRatio.RATIO_4_3)
-//            .setTargetRotation(rotation)
+            .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
+            .setTargetAspectRatio(AspectRatio.RATIO_4_3)
+            .setTargetRotation(rotation)
             .build()
         imageAnalyzer?.setAnalyzer(
             ContextCompat.getMainExecutor(requireContext())
@@ -593,8 +584,8 @@ internal class ShootFragment :
                     )
                 } else {
                     binding.adbCameralibraryGraphicOverlay.setImageSourceInfo(
-                        imageProxy.height,
                         imageProxy.width,
+                        imageProxy.height,
                         isImageFlipped
                     )
                 }
@@ -617,38 +608,32 @@ internal class ShootFragment :
 //                    Timber.i(">>>>> recognizer addOnFailureListener : $it")
 //                }
 //            }
-
-            Timber.i(">>>>> imageProxy.width : ${imageProxy.width}")
-            Timber.i(">>>>> imageProxy.height : ${imageProxy.height}")
-            Timber.i(">>>>> adbCameralibraryPreviewView.width : ${binding.adbCameralibraryPreviewView.width}")
-            Timber.i(">>>>> adbCameralibraryPreviewView.height : ${binding.adbCameralibraryPreviewView.height}")
-            Timber.i(">>>>> adbCameralibraryGraphicOverlay.width : ${binding.adbCameralibraryGraphicOverlay.width}")
-            Timber.i(">>>>> adbCameralibraryGraphicOverlay.height : ${binding.adbCameralibraryGraphicOverlay.height}")
-
+            //val bitmap = BitmapUtils.getBitmap(imageProxy)
             try {
+                //imageProcessor?.processBitmap(bitmap, graphicOverlay)
                 imageProcessor?.processImageProxy(imageProxy, graphicOverlay)
             } catch (ex: MlKitException) {
                 ex.printStackTrace()
+            } finally {
+                // close.
+                //bitmap?.recycle()
+                //imageProxy.close()
             }
         }
 
-//        // Must unbind the use-cases before rebinding them
-//        cameraProvider.unbindAll()
-
         try {
+            // CameraSelector
+            val cameraSelector = CameraSelector.Builder().requireLensFacing(lensFacing).build()
+
             // A variable number of use-cases can be passed here -
             // camera provides access to CameraControl & CameraInfo
             camera = cameraProvider?.bindToLifecycle(
                 this, cameraSelector/*, preview, imageCapture*/, imageAnalyzer
             )
-
-            //
-            //observeCameraState(camera?.cameraInfo!!)
         } catch (ex: Exception) {
             ex.printStackTrace()
         }
     }
-
 
     /** Returns true if the device has an available back camera. False otherwise */
     private fun hasBackCamera(): Boolean {
@@ -659,42 +644,6 @@ internal class ShootFragment :
     private fun hasFrontCamera(): Boolean {
         return cameraProvider?.hasCamera(CameraSelector.DEFAULT_FRONT_CAMERA) ?: false
     }
-//
-//    // 카메라 상태 로깅.
-//    private fun observeCameraState(cameraInfo: CameraInfo) {
-//        cameraInfo.cameraState.observe(viewLifecycleOwner) { cameraState ->
-//            when (cameraState.type) {
-//                Type.PENDING_OPEN -> Timber.v(">>>>> CameraState : PENDING_OPEN")
-//                Type.OPENING -> Timber.v(">>>>> CameraState : OPENING")
-//                Type.OPEN -> Timber.v(">>>>> CameraState : OPEN")
-//                Type.CLOSING -> Timber.v(">>>>> CameraState : CLOSING")
-//                Type.CLOSED -> Timber.v(">>>>> CameraState : CLOSED")
-//            }
-//            when (cameraState.error ?: -1) {
-//                CameraState.ERROR_STREAM_CONFIG -> {
-//                    Timber.e(">>>>> CameraState : ERROR_STREAM_CONFIG")
-//                }
-//                CameraState.ERROR_CAMERA_IN_USE -> {
-//                    Timber.e(">>>>> CameraState : ERROR_CAMERA_IN_USE")
-//                }
-//                CameraState.ERROR_MAX_CAMERAS_IN_USE -> {
-//                    Timber.e(">>>>> CameraState : ERROR_MAX_CAMERAS_IN_USE")
-//                }
-//                CameraState.ERROR_OTHER_RECOVERABLE_ERROR -> {
-//                    Timber.e(">>>>> CameraState : ERROR_OTHER_RECOVERABLE_ERROR")
-//                }
-//                CameraState.ERROR_CAMERA_DISABLED -> {
-//                    Timber.e(">>>>> CameraState : ERROR_CAMERA_DISABLED")
-//                }
-//                CameraState.ERROR_CAMERA_FATAL_ERROR -> {
-//                    Timber.e(">>>>> CameraState : ERROR_CAMERA_FATAL_ERROR")
-//                }
-//                CameraState.ERROR_DO_NOT_DISTURB_MODE_ENABLED -> {
-//                    Timber.e(">>>>> CameraState : ERROR_DO_NOT_DISTURB_MODE_ENABLED")
-//                }
-//            }
-//        }
-//    }
 
     // 셔터음.
     private fun playShutterSound(canMute: Boolean) {
