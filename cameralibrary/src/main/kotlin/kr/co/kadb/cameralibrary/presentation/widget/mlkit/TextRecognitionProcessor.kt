@@ -17,24 +17,31 @@
 package kr.co.kadb.cameralibrary.presentation.widget.mlkit
 
 import android.content.Context
-import android.util.Log
 import com.google.android.gms.tasks.Task
 import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.text.Text
 import com.google.mlkit.vision.text.TextRecognition
 import com.google.mlkit.vision.text.TextRecognizer
 import com.google.mlkit.vision.text.TextRecognizerOptionsInterface
+import timber.log.Timber
 
 /** Processor for the text detector demo. */
 class TextRecognitionProcessor(
     context: Context,
     textRecognizerOptions: TextRecognizerOptionsInterface
 ) : VisionProcessorBase<Text>(context) {
+    // Recognizer.
     private val textRecognizer: TextRecognizer = TextRecognition.getClient(textRecognizerOptions)
-    private val shouldGroupRecognizedTextInBlocks: Boolean =
+
+
+    // 블에서 인식 된 텍스트 그룹화.
+    /*private val shouldGroupRecognizedTextInBlocks: Boolean =
         PreferenceUtils.shouldGroupRecognizedTextInBlocks(context)
+    // 언어 표시.
     private val showLanguageTag: Boolean = PreferenceUtils.showLanguageTag(context)
-    private val showConfidence: Boolean = PreferenceUtils.shouldShowTextConfidence(context)
+    // 신뢰성 표시.
+    private val showConfidence: Boolean = PreferenceUtils.shouldShowTextConfidence(context)*/
+
 
     override fun stop() {
         super.stop()
@@ -45,25 +52,29 @@ class TextRecognitionProcessor(
         return textRecognizer.process(image)
     }
 
-    override fun onSuccess(text: Text, graphicOverlay: GraphicOverlay) {
-        Log.d(TAG, "On-device Text detection successful")
-        logExtrasForTesting(text)
+    override fun onSuccess(results: Text, graphicOverlay: GraphicOverlay) {
+        // Debug.
+        Timber.d(">>>>> ${javaClass.simpleName} > onSuccess")
+
+
+        //logExtrasForTesting(text)
         graphicOverlay.add(
             TextGraphic(
                 graphicOverlay,
-                text,
-                shouldGroupRecognizedTextInBlocks,
-                showLanguageTag,
-                showConfidence
+                results,
+                /*shouldGroupRecognizedTextInBlocks*/ shouldGroupTextInBlocks = false,
+                /*showLanguageTag*/ showLanguageTag = false,
+                /*showConfidence*/ showConfidence = false
             )
         )
     }
 
-    override fun onFailure(e: Exception) {
-        Log.w(TAG, "Text detection failed.$e")
+    override fun onFailure(ex: Exception) {
+        // Debug.
+        Timber.w(">>>>> ${javaClass.simpleName} > onFailure : $ex")
     }
 
-    companion object {
+    /*companion object {
         private const val TAG = "TextRecProcessor"
         private fun logExtrasForTesting(text: Text?) {
             if (text != null) {
@@ -117,5 +128,5 @@ class TextRecognitionProcessor(
                 }
             }
         }
-    }
+    }*/
 }

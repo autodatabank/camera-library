@@ -104,18 +104,19 @@ abstract class VisionProcessorBase<T>(context: Context) : VisionImageProcessor {
     override fun processBitmap(bitmap: Bitmap?, graphicOverlay: GraphicOverlay) {
         val frameStartMs = SystemClock.elapsedRealtime()
 
-        if (isMlImageEnabled(graphicOverlay.context)) {
+        // ML Image 사용하지 않음.
+        /*if (isMlImageEnabled(graphicOverlay.context)) {
             val mlImage = BitmapMlImageBuilder(bitmap!!).build()
             requestDetectInImage(
                 mlImage,
                 graphicOverlay,
-                /* originalCameraImage= */ null,
-                /* shouldShowFps= */ false,
+                *//**//* originalCameraImage= *//**//* null,
+                *//**//* shouldShowFps= *//**//* false,
                 frameStartMs
             )
             mlImage.close()
             return
-        }
+        }*/
 
         requestDetectInImage(
             InputImage.fromBitmap(bitmap!!, 0),
@@ -157,13 +158,18 @@ abstract class VisionProcessorBase<T>(context: Context) : VisionImageProcessor {
         graphicOverlay: GraphicOverlay
     ) {
         val frameStartMs = SystemClock.elapsedRealtime()
-        // If live viewport is on (that is the underneath surface view takes care of the camera preview
+
+        // Modify.
+        /*// If live viewport is on (that is the underneath surface view takes care of the camera preview
         // drawing), skip the unnecessary bitmap creation that used for the manual preview drawing.
         val bitmap =
             if (PreferenceUtils.isCameraLiveViewportEnabled(graphicOverlay.context)) null
-            else BitmapUtils.getBitmap(data, frameMetadata)
+            else BitmapUtils.getBitmap(data, frameMetadata)*/
+        // 대체.
+        val bitmap = BitmapUtils.getBitmap(data, frameMetadata)
 
-        if (isMlImageEnabled(graphicOverlay.context)) {
+        // ML Image 사용하지 않음.
+        /*if (isMlImageEnabled(graphicOverlay.context)) {
             val mlImage =
                 ByteBufferMlImageBuilder(
                     data,
@@ -176,7 +182,7 @@ abstract class VisionProcessorBase<T>(context: Context) : VisionImageProcessor {
             requestDetectInImage(
                 mlImage,
                 graphicOverlay,
-                bitmap, /* shouldShowFps= */
+                bitmap, *//* shouldShowFps= *//*
                 true,
                 frameStartMs
             )
@@ -185,7 +191,7 @@ abstract class VisionProcessorBase<T>(context: Context) : VisionImageProcessor {
             // This is optional. Java Garbage collection can also close it eventually.
             mlImage.close()
             return
-        }
+        }*/
 
         requestDetectInImage(
             InputImage.fromByteBuffer(
@@ -210,23 +216,27 @@ abstract class VisionProcessorBase<T>(context: Context) : VisionImageProcessor {
         if (isShutdown) {
             return
         }
-        Timber.i(">>>>> isCameraLiveViewportEnabled : %s", PreferenceUtils.isCameraLiveViewportEnabled(graphicOverlay.context))
-        Timber.i(">>>>> isMlImageEnabled : %s", isMlImageEnabled(graphicOverlay.context))
 
-        var bitmap: Bitmap? = null
+
+        // Modify.
+        /*var bitmap: Bitmap? = BitmapUtils.getBitmap(image)
         if (!PreferenceUtils.isCameraLiveViewportEnabled(graphicOverlay.context)) {
             bitmap = BitmapUtils.getBitmap(image)
-        }
+        }*/
+        // 대체.
+        val bitmap: Bitmap? = BitmapUtils.getBitmap(image)
 
-        if (isMlImageEnabled(graphicOverlay.context)) {
+
+        // ML Image 사용하지 않음.
+        /*if (isMlImageEnabled(graphicOverlay.context)) {
             val mlImage =
                 MediaMlImageBuilder(image.image!!).setRotation(image.imageInfo.rotationDegrees)
                     .build()
             requestDetectInImage(
                 mlImage,
                 graphicOverlay,
-                /* originalCameraImage= */ bitmap,
-                /* shouldShowFps= */ true,
+                *//* originalCameraImage= *//* bitmap,
+                *//* shouldShowFps= *//* true,
                 frameStartMs
             )
                 // When the image is from CameraX analysis use case, must call image.close() on received
@@ -237,7 +247,8 @@ abstract class VisionProcessorBase<T>(context: Context) : VisionImageProcessor {
                 .addOnCompleteListener { image.close() }
 
             return
-        }
+        }*/
+
 
         requestDetectInImage(
             InputImage.fromMediaImage(image.image!!, image.imageInfo.rotationDegrees),
@@ -245,11 +256,9 @@ abstract class VisionProcessorBase<T>(context: Context) : VisionImageProcessor {
             /* originalCameraImage= */ bitmap,
             /* shouldShowFps= */ true,
             frameStartMs
-        )
-            // When the image is from CameraX analysis use case, must call image.close() on received
-            // images when finished using them. Otherwise, new images may not be received or the camera
-            // may stall.
-            .addOnCompleteListener { image.close() }
+        ).addOnCompleteListener {
+            image.close()
+        }
     }
 
     // -----------------Common processing logic-------------------------------------------------------
@@ -269,7 +278,8 @@ abstract class VisionProcessorBase<T>(context: Context) : VisionImageProcessor {
         )
     }
 
-    private fun requestDetectInImage(
+    // ML Image 사용하지 않음.
+    /*private fun requestDetectInImage(
         image: MlImage,
         graphicOverlay: GraphicOverlay,
         originalCameraImage: Bitmap?,
@@ -283,7 +293,7 @@ abstract class VisionProcessorBase<T>(context: Context) : VisionImageProcessor {
             shouldShowFps,
             frameStartMs
         )
-    }
+    }*/
 
     private fun setUpListener(
         task: Task<T>,
@@ -293,85 +303,78 @@ abstract class VisionProcessorBase<T>(context: Context) : VisionImageProcessor {
         frameStartMs: Long
     ): Task<T> {
         val detectorStartMs = SystemClock.elapsedRealtime()
-        return task
-            .addOnSuccessListener(
-                executor,
-                OnSuccessListener { results: T ->
-                    val endMs = SystemClock.elapsedRealtime()
-                    val currentFrameLatencyMs = endMs - frameStartMs
-                    val currentDetectorLatencyMs = endMs - detectorStartMs
-                    if (numRuns >= 500) {
-                        resetLatencyStats()
-                    }
-                    numRuns++
-                    frameProcessedInOneSecondInterval++
-                    totalFrameMs += currentFrameLatencyMs
-                    maxFrameMs = max(currentFrameLatencyMs, maxFrameMs)
-                    minFrameMs = min(currentFrameLatencyMs, minFrameMs)
-                    totalDetectorMs += currentDetectorLatencyMs
-                    maxDetectorMs = max(currentDetectorLatencyMs, maxDetectorMs)
-                    minDetectorMs = min(currentDetectorLatencyMs, minDetectorMs)
+        return task.addOnSuccessListener(executor) { results: T ->
+            val endMs = SystemClock.elapsedRealtime()
+            val currentFrameLatencyMs = endMs - frameStartMs
+            val currentDetectorLatencyMs = endMs - detectorStartMs
+            if (numRuns >= 500) {
+                resetLatencyStats()
+            }
+            numRuns++
+            frameProcessedInOneSecondInterval++
+            totalFrameMs += currentFrameLatencyMs
+            maxFrameMs = max(currentFrameLatencyMs, maxFrameMs)
+            minFrameMs = min(currentFrameLatencyMs, minFrameMs)
+            totalDetectorMs += currentDetectorLatencyMs
+            maxDetectorMs = max(currentDetectorLatencyMs, maxDetectorMs)
+            minDetectorMs = min(currentDetectorLatencyMs, minDetectorMs)
 
-                    // Only log inference info once per second. When frameProcessedInOneSecondInterval is
-                    // equal to 1, it means this is the first frame processed during the current second.
-                    if (frameProcessedInOneSecondInterval == 1) {
-                        Log.d(TAG, "Num of Runs: $numRuns")
-                        Log.d(
-                            TAG,
-                            "Frame latency: max=" +
-                                    maxFrameMs +
-                                    ", min=" +
-                                    minFrameMs +
-                                    ", avg=" +
-                                    totalFrameMs / numRuns
-                        )
-                        Log.d(
-                            TAG,
-                            "Detector latency: max=" +
-                                    maxDetectorMs +
-                                    ", min=" +
-                                    minDetectorMs +
-                                    ", avg=" +
-                                    totalDetectorMs / numRuns
-                        )
-                        val mi = ActivityManager.MemoryInfo()
-                        activityManager.getMemoryInfo(mi)
-                        val availableMegs: Long = mi.availMem / 0x100000L
-                        Log.d(TAG, "Memory available in system: $availableMegs MB")
-                    }
-                    graphicOverlay.clear()
-                    if (originalCameraImage != null) {
-                        graphicOverlay.add(CameraImageGraphic(graphicOverlay, originalCameraImage))
-                    }
-                    this@VisionProcessorBase.onSuccess(results, graphicOverlay)
-                    if (!PreferenceUtils.shouldHideDetectionInfo(graphicOverlay.context)) {
-                        graphicOverlay.add(
-                            InferenceInfoGraphic(
-                                graphicOverlay,
-                                currentFrameLatencyMs,
-                                currentDetectorLatencyMs,
-                                if (shouldShowFps) framesPerSecond else null
-                            )
-                        )
-                    }
-                    graphicOverlay.postInvalidate()
-                }
-            )
-            .addOnFailureListener(
-                executor,
-                OnFailureListener { e: Exception ->
-                    graphicOverlay.clear()
-                    graphicOverlay.postInvalidate()
-                    val error = "Failed to process. Error: " + e.localizedMessage
-                    Toast.makeText(
-                        graphicOverlay.context,
-                        "$error Cause: ${e.cause}".trimIndent(),
-                        Toast.LENGTH_SHORT
-                    ).show()
-                    e.printStackTrace()
-                    this@VisionProcessorBase.onFailure(e)
-                }
-            )
+            // Only log inference info once per second. When frameProcessedInOneSecondInterval is
+            // equal to 1, it means this is the first frame processed during the current second.
+            if (frameProcessedInOneSecondInterval == 1) {
+                Timber.d("Num of Runs: $numRuns")
+                Timber.d(
+                    "Frame latency: max=" +
+                            maxFrameMs +
+                            ", min=" +
+                            minFrameMs +
+                            ", avg=" +
+                            totalFrameMs / numRuns
+                )
+                Timber.d(
+                    "Detector latency: max=" +
+                            maxDetectorMs +
+                            ", min=" +
+                            minDetectorMs +
+                            ", avg=" +
+                            totalDetectorMs / numRuns
+                )
+                val mi = ActivityManager.MemoryInfo()
+                activityManager.getMemoryInfo(mi)
+                val availableMegs: Long = mi.availMem / 0x100000L
+                Timber.d("Memory available in system: $availableMegs MB")
+            }
+            graphicOverlay.clear()
+            if (originalCameraImage != null) {
+                graphicOverlay.add(CameraImageGraphic(graphicOverlay, originalCameraImage))
+            }
+            this@VisionProcessorBase.onSuccess(results, graphicOverlay)
+
+
+            // Hide Detection Info.
+            if (/*!PreferenceUtils.shouldHideDetectionInfo(graphicOverlay.context)*/true) {
+                graphicOverlay.add(
+                    InferenceInfoGraphic(
+                        graphicOverlay,
+                        currentFrameLatencyMs,
+                        currentDetectorLatencyMs,
+                        if (shouldShowFps) framesPerSecond else null
+                    )
+                )
+            }
+            graphicOverlay.postInvalidate()
+        }.addOnFailureListener(executor) { ex: Exception ->
+            graphicOverlay.clear()
+            graphicOverlay.postInvalidate()
+            val error = "Failed to process. Error: " + ex.localizedMessage
+            Toast.makeText(
+                graphicOverlay.context,
+                "$error Cause: ${ex.cause}".trimIndent(),
+                Toast.LENGTH_SHORT
+            ).show()
+            ex.printStackTrace()
+            this@VisionProcessorBase.onFailure(ex)
+        }
     }
 
     override fun stop() {
@@ -393,20 +396,22 @@ abstract class VisionProcessorBase<T>(context: Context) : VisionImageProcessor {
 
     protected abstract fun detectInImage(image: InputImage): Task<T>
 
-    protected open fun detectInImage(image: MlImage): Task<T> {
+    // ML Image 사용하지 않음.
+    /*protected open fun detectInImage(image: MlImage): Task<T> {
         return Tasks.forException(
             MlKitException(
                 "MlImage is currently not demonstrated for this feature",
                 MlKitException.INVALID_ARGUMENT
             )
         )
-    }
+    }*/
 
     protected abstract fun onSuccess(results: T, graphicOverlay: GraphicOverlay)
 
-    protected abstract fun onFailure(e: Exception)
+    protected abstract fun onFailure(ex: Exception)
 
-    protected open fun isMlImageEnabled(context: Context?): Boolean {
+    // ML Image 사용하지 않음.
+    /*protected open fun isMlImageEnabled(context: Context?): Boolean {
         return false
-    }
+    }*/
 }

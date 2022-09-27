@@ -3,6 +3,7 @@ package kr.co.kadb.cameralibrary.domain.model
 import android.net.Uri
 import android.util.Size
 import androidx.annotation.IntRange
+import kr.co.kadb.cameralibrary.presentation.model.CropSize
 
 internal data class ShootItem(
     val action: String?,
@@ -13,7 +14,7 @@ internal data class ShootItem(
     val hasHorizon: Boolean,
     val canUiRotation: Boolean,
     val isSaveCroppedImage: Boolean,
-    val cropPercent: List<Float>,
+    val cropSize: CropSize,
     val uris: ArrayList<Uri>,
     val sizes: ArrayList<Size>,
     val rotations: ArrayList<Int>,

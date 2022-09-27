@@ -76,6 +76,7 @@ class TextGraphic constructor(
                 )
             } else {
                 for (line in textBlock.lines) {
+                    line.confidence
                     Log.d(TAG, "Line text is: " + line.text)
                     Log.d(TAG, "Line boundingbox is: " + line.boundingBox)
                     Log.d(TAG, "Line cornerpoint is: " + Arrays.toString(line.cornerPoints))
@@ -89,6 +90,7 @@ class TextGraphic constructor(
                         canvas
                     )
                     for (element in line.elements) {
+                        element.confidence
                         Log.d(TAG, "Element text is: " + element.text)
                         Log.d(TAG, "Element boundingbox is: " + element.boundingBox)
                         Log.d(

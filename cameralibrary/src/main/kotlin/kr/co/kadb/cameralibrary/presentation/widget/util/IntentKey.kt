@@ -41,7 +41,15 @@ object IntentKey {
 	const val EXTRA_IS_SAVE_CROPPED_IMAGE = "EXTRA_IS_SAVE_CROPPED_IMAGE"
 
 	// 촬영 시 미리보기 화면에 표시 할 마스크(백분율) 크기 요청용.
-	const val EXTRA_CROP_PERCENT = "EXTRA_MASK_PERCENT"
+	@Deprecated(
+		message = "직관성을 위하여 Deprecated." +
+				"따라서 EXTRA_CROP_SIZE 사용하세요.",
+		level = DeprecationLevel.WARNING
+	)
+	const val EXTRA_CROP_PERCENT = "EXTRA_CROP_PERCENT"
+
+	// 촬영 시 미리보기 화면에 표시 할 마스크(백분율) 크기 요청용.
+	const val EXTRA_CROP_SIZE = "EXTRA_CROP_SIZE"
 
 	// 촬영 시 UI 로테이션 금지(Image Exif값에는 영향 없음) 요청용.
 	const val EXTRA_CAN_UI_ROTATION = "EXTRA_CAN_UI_ROTATION"

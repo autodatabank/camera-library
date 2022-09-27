@@ -4,33 +4,25 @@ import android.annotation.SuppressLint
 import android.app.Application
 import android.graphics.Bitmap
 import android.net.Uri
-import android.util.Log
 import android.util.Size
 import androidx.annotation.IntRange
 import androidx.camera.core.ImageCapture
-import androidx.camera.lifecycle.ProcessCameraProvider
-import androidx.core.content.ContextCompat
 import androidx.exifinterface.media.ExifInterface
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import kr.co.kadb.cameralibrary.data.local.PreferenceManager
+import kr.co.kadb.cameralibrary.presentation.model.CropSize
 import kr.co.kadb.cameralibrary.presentation.model.ShootUiState
 import kr.co.kadb.cameralibrary.presentation.model.UiState
 import kr.co.kadb.cameralibrary.presentation.viewmodel.BaseAndroidViewModel
-import kr.co.kadb.cameralibrary.presentation.widget.extension.centerCrop
-import kr.co.kadb.cameralibrary.presentation.widget.extension.save
-import kr.co.kadb.cameralibrary.presentation.widget.extension.toBitmap
-import kr.co.kadb.cameralibrary.presentation.widget.extension.toThumbnail
+import kr.co.kadb.cameralibrary.presentation.widget.extension.*
 import kr.co.kadb.cameralibrary.presentation.widget.util.IntentKey.ACTION_TAKE_MULTIPLE_PICTURES
 import timber.log.Timber
 import java.io.ByteArrayInputStream
 import java.io.IOException
 import java.io.InputStream
 import java.nio.ByteBuffer
-import java.util.concurrent.ExecutionException
 
 /**
  * Created by oooobang on 2022. 7. 11..
@@ -108,7 +100,7 @@ constructor(
         hasHorizon: Boolean = false,
         canUiRotation: Boolean = false,
         isSaveCroppedImage: Boolean = false,
-        cropPercent: Array<Float>?,
+        cropSize: CropSize?,
         horizonColor: Int,
         unusedAreaBorderColor: Int,
         @IntRange(from = 1, to = 100)
@@ -124,7 +116,7 @@ constructor(
             hasHorizon = hasHorizon,
             canUiRotation = canUiRotation,
             isSaveCroppedImage = isSaveCroppedImage,
-            cropPercent = cropPercent?.toList() ?: listOf(),
+            cropSize = cropSize ?: CropSize.Uninitialized,
             uris = arrayListOf(),
             sizes = arrayListOf(),
             rotations = arrayListOf(),
@@ -140,7 +132,7 @@ constructor(
             hasHorizon = hasHorizon,
             canUiRotation = canUiRotation,
             isSaveCroppedImage = isSaveCroppedImage,
-            cropPercent = cropPercent?.toList() ?: listOf(),
+            cropSize = cropSize ?: CropSize.Uninitialized,
             uris = arrayListOf(),
             sizes = arrayListOf(),
             rotations = arrayListOf(),
@@ -148,6 +140,9 @@ constructor(
             unusedAreaBorderColor = unusedAreaBorderColor,
             croppedJpegQuality = croppedJpegQuality
         ).run {
+            // Debug.
+            Timber.d(">>>>> ShootUiState : ${this.toJsonPretty()}")
+            // Update.
             updateState(isLoading = false, value = this)
         }
     }
@@ -159,18 +154,18 @@ constructor(
 
     // 사용하지 않는 영역 크기.
     fun unusedAreaSize(rotation: Int, width: Int, height: Int): Pair<Float, Float> {
-        return if (item.value.cropPercent.size == 2) {
+        return if (item.value.cropSize.isNotEmpty) {
             when (rotation) {
                 0, 2 -> {
                     Pair(
-                        (width.toFloat() * (1.0f - item.value.cropPercent[0]) * 0.5f),
-                        (height.toFloat() * (1.0f - item.value.cropPercent[1]) * 0.5f)
+                        (width.toFloat() * (1.0f - item.value.cropSize.width) * 0.5f),
+                        (height.toFloat() * (1.0f - item.value.cropSize.height) * 0.5f)
                     )
                 }
                 else -> {
                     Pair(
-                        (width.toFloat() * (1.0f - item.value.cropPercent[1]) * 0.5f),
-                        (height.toFloat() * (1.0f - item.value.cropPercent[0]) * 0.5f)
+                        (width.toFloat() * (1.0f - item.value.cropSize.height) * 0.5f),
+                        (height.toFloat() * (1.0f - item.value.cropSize.width) * 0.5f)
                     )
                 }
             }
@@ -278,7 +273,8 @@ constructor(
             // Croped Bitmap.
             val bitmap = byteArray.toBitmap()
             val cropBitmap = bitmap?.centerCrop(
-                item.value.cropPercent.toTypedArray(),
+                item.value.cropSize.width,
+                item.value.cropSize.height,
                 exifInterface?.rotationDegrees
             )
 
@@ -296,28 +292,5 @@ constructor(
                 action.invoke(imagePath, imageUri)
             }
         }
-    }
-
-    private var cameraProviderLiveData: MutableLiveData<ProcessCameraProvider>? = null
-
-    fun processCameraProvider(): LiveData<ProcessCameraProvider>? {
-        if (cameraProviderLiveData == null) {
-            cameraProviderLiveData = MutableLiveData()
-            val cameraProviderFuture = ProcessCameraProvider.getInstance(getApplication())
-            cameraProviderFuture.addListener(
-                {
-                    try {
-                        cameraProviderLiveData!!.setValue(cameraProviderFuture.get())
-                    } catch (ex: ExecutionException) {
-                        // Handle any errors (including cancellation) here.
-                        ex.printStackTrace()
-                    } catch (ex: InterruptedException) {
-                        ex.printStackTrace()
-                    }
-                },
-                ContextCompat.getMainExecutor(getApplication())
-            )
-        }
-        return cameraProviderLiveData
     }
 }

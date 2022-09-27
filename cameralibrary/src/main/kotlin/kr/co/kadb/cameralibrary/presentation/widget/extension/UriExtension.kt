@@ -7,6 +7,7 @@ import android.net.Uri
 import android.os.Build
 import android.provider.MediaStore
 import android.util.Size
+import androidx.annotation.FloatRange
 import androidx.exifinterface.media.ExifInterface
 import java.io.InputStream
 import kotlin.math.min
@@ -208,7 +209,10 @@ fun Uri.rotateAndCenterCrop(
 // 이미지 Uri에서 회전후 중앙 기준 Crop한 Bitmap 반환.
 fun Uri.rotateAndCenterCrop(
     context: Context,
-    cropPercent: Array<Float>,
+    @FloatRange(from = 0.0, to = 1.0)
+    cropWidth: Float,
+    @FloatRange(from = 0.0, to = 1.0)
+    cropHeight: Float,
     originSize: Size? = null,
     rotationDegrees: Int? = null
 ): Bitmap? {
@@ -231,8 +235,8 @@ fun Uri.rotateAndCenterCrop(
     }
     val (cropRect, cropSize) = when (rotation) {
         90, 270 -> {
-            val widthCrop = (height * cropPercent[0]).toInt()
-            val heightCrop = (width * cropPercent[1]).toInt()
+            val widthCrop = (height * cropWidth).toInt()
+            val heightCrop = (width * cropHeight).toInt()
             val x = (height / 2) - (widthCrop / 2)
             val y = (width / 2) - (heightCrop / 2)
             Pair(
@@ -241,8 +245,8 @@ fun Uri.rotateAndCenterCrop(
             )
         }
         else -> {
-            val widthCrop = (width * cropPercent[0]).toInt()
-            val heightCrop = (height * cropPercent[1]).toInt()
+            val widthCrop = (width * cropWidth).toInt()
+            val heightCrop = (height * cropHeight).toInt()
             val x = (width / 2) - (widthCrop / 2)
             val y = (height / 2) - (heightCrop / 2)
             Pair(

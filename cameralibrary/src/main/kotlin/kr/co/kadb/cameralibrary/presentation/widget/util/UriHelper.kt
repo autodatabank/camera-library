@@ -4,6 +4,8 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.net.Uri
 import android.util.Size
+import androidx.annotation.FloatRange
+import kr.co.kadb.cameralibrary.presentation.model.CropSize
 import kr.co.kadb.cameralibrary.presentation.widget.extension.rotateAndCenterCrop
 import kr.co.kadb.cameralibrary.presentation.widget.extension.toBitmap
 import kr.co.kadb.cameralibrary.presentation.widget.extension.toThumbnail
@@ -48,15 +50,31 @@ class UriHelper {
             return uri?.toThumbnail(context, originSize)
         }
 
+        @Deprecated(
+            message = "직관성을 위하여 Deprecated.",
+            level = DeprecationLevel.WARNING,
+            replaceWith = ReplaceWith(
+                "rotateAndCenterCrop(Context, Uri, Array<Float>)",
+                "rotateAndCenterCrop(Context, Uri, Float, Float)"
+            )
+        )
         @JvmStatic
         fun rotateAndCenterCrop(
             context: Context,
             uri: Uri?,
             cropPercent: Array<Float>
         ): Bitmap? {
-            return uri?.rotateAndCenterCrop(context, cropPercent)
+            return uri?.rotateAndCenterCrop(context, cropPercent[0], cropPercent[1])
         }
 
+        @Deprecated(
+            message = "직관성을 위하여 Deprecated.",
+            level = DeprecationLevel.WARNING,
+            replaceWith = ReplaceWith(
+                "rotateAndCenterCrop(Context, Uri, Array<Float>, Int)",
+                "rotateAndCenterCrop(Context, Uri, Float, Float, Int)"
+            )
+        )
         @JvmStatic
         fun rotateAndCenterCrop(
             context: Context,
@@ -64,7 +82,42 @@ class UriHelper {
             cropPercent: Array<Float>,
             rotationDegrees: Int?
         ): Bitmap? {
-            return uri?.rotateAndCenterCrop(context, cropPercent, rotationDegrees = rotationDegrees)
+            return uri?.rotateAndCenterCrop(
+                context,
+                cropPercent[0],
+                cropPercent[1],
+                rotationDegrees = rotationDegrees
+            )
+        }
+
+        @JvmStatic
+        fun rotateAndCenterCrop(
+            context: Context,
+            uri: Uri?,
+            @FloatRange(from = 0.0, to = 1.0)
+            cropWidth: Float,
+            @FloatRange(from = 0.0, to = 1.0)
+            cropHeight: Float
+        ): Bitmap? {
+            return uri?.rotateAndCenterCrop(context, cropWidth, cropHeight)
+        }
+
+        @JvmStatic
+        fun rotateAndCenterCrop(
+            context: Context,
+            uri: Uri?,
+            @FloatRange(from = 0.0, to = 1.0)
+            cropWidth: Float,
+            @FloatRange(from = 0.0, to = 1.0)
+            cropHeight: Float,
+            rotationDegrees: Int?
+        ): Bitmap? {
+            return uri?.rotateAndCenterCrop(
+                context,
+                cropWidth,
+                cropHeight,
+                rotationDegrees = rotationDegrees
+            )
         }
     }
 }

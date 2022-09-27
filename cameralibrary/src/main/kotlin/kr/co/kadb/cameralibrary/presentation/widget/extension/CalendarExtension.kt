@@ -7,7 +7,7 @@ import java.util.*
 
 /**
  * Created by oooobang on 2018. 3. 29..
- * String Extension.
+ * Calendar Extension.
  */
 // Calendar to형식 반환.
 fun Calendar.toFormatter(format: SimpleDateFormat): String  {

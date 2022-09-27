@@ -13,6 +13,7 @@ import android.os.ParcelFileDescriptor
 import android.provider.MediaStore
 import android.util.Base64
 import android.util.Size
+import androidx.annotation.FloatRange
 import androidx.annotation.IntRange
 import androidx.core.net.toUri
 import androidx.exifinterface.media.ExifInterface
@@ -440,12 +441,15 @@ fun Bitmap.rotateAndCenterCrop(
 
 // 이미지 Uri에서 중앙 기준 Crop한 Bitmap 반환.
 fun Bitmap.centerCrop(
-    cropPercent: Array<Float>,
+    @FloatRange(from = 0.0, to = 1.0)
+    cropWidth: Float,
+    @FloatRange(from = 0.0, to = 1.0)
+    cropHeight: Float,
     rotationDegrees: Int? = null
 ): Bitmap? {
     val (widthRatio, heightRatio) = when (rotationDegrees) {
-        90, 270 -> Pair(cropPercent[1], cropPercent[0])
-        else -> Pair(cropPercent[0], cropPercent[1])
+        90, 270 -> Pair(cropHeight, cropWidth)
+        else -> Pair(cropWidth, cropHeight)
     }
     val widthCrop = (width * widthRatio).toInt()
     val heightCrop = (height * heightRatio).toInt()
@@ -464,15 +468,18 @@ fun Bitmap.centerCrop(
 
 // 이미지 Uri에서 회전후 중앙 기준 Crop한 Bitmap 반환.
 fun Bitmap.rotateAndCenterCrop(
-    cropPercent: Array<Float>,
+    @FloatRange(from = 0.0, to = 1.0)
+    cropWidth: Float,
+    @FloatRange(from = 0.0, to = 1.0)
+    cropHeight: Float,
     rotationDegrees: Int
 ): Bitmap? {
     val matrix = Matrix().apply {
         preRotate(rotationDegrees.toFloat())
     }
     val (widthRatio, heightRatio) = when (rotationDegrees) {
-        90, 270 -> Pair(cropPercent[1], cropPercent[0])
-        else -> Pair(cropPercent[0], cropPercent[1])
+        90, 270 -> Pair(cropHeight, cropWidth)
+        else -> Pair(cropWidth, cropHeight)
     }
     val widthCrop = (width * widthRatio).toInt()
     val heightCrop = (height * heightRatio).toInt()

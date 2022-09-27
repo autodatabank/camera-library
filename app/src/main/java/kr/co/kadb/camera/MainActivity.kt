@@ -8,12 +8,16 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import kr.co.kadb.cameralibrary.presentation.CameraIntent
+import kr.co.kadb.cameralibrary.presentation.model.CropSize
 import kr.co.kadb.cameralibrary.presentation.widget.util.BitmapHelper
 import kr.co.kadb.cameralibrary.presentation.widget.util.IntentKey
 import kr.co.kadb.cameralibrary.presentation.widget.util.UriHelper
 import timber.log.Timber
 
 class MainActivity : AppCompatActivity() {
+    // Crop Size.
+    private val cropSize = CropSize(0.7f, 0.5f)
+
     // Activity for result.
     // Example 2, 3.
     private var resultLauncher: ActivityResultLauncher<Intent> =
@@ -36,7 +40,7 @@ class MainActivity : AppCompatActivity() {
 
                     // 이미지 중앙을 기준으로 원본 사이즈에서 가로:70% 세로:50% 크롭.
                     /*val cropBitmap = UriHelper.rotateAndCenterCrop(
-                        baseContext, imageUri, arrayOf(0.7f, 0.5f)
+                        baseContext, imageUri, cropSize.width, cropSize.height
                     )*/
 
                     // Uri를 이미지로 변환.
@@ -93,7 +97,7 @@ class MainActivity : AppCompatActivity() {
             /*Intent(IntentKey.ACTION_TAKE_PICTURE).also { takePictureIntent ->
                 takePictureIntent.putExtra(IntentKey.EXTRA_CAN_MUTE, false)
                 takePictureIntent.putExtra(IntentKey.EXTRA_HAS_HORIZON, true)
-                takePictureIntent.putExtra(IntentKey.EXTRA_CROP_PERCENT, arrayOf(0.7f, 0.5f))
+                takePictureIntent.putExtra(IntentKey.EXTRA_CROP_SIZE, cropSize)
                 takePictureIntent.putExtra(IntentKey.EXTRA_CAN_UI_ROTATION, true)
                 takePictureIntent.putExtra(IntentKey.EXTRA_HORIZON_COLOR, Color.RED)
                 takePictureIntent.putExtra(IntentKey.EXTRA_CROP_BORDER_COLOR, Color.GREEN)
@@ -106,7 +110,7 @@ class MainActivity : AppCompatActivity() {
             /*Intent(IntentKey.ACTION_TAKE_PICTURE).also { takePictureIntent ->
                 takePictureIntent.putExtra(IntentKey.EXTRA_CAN_MUTE, false)
                 takePictureIntent.putExtra(IntentKey.EXTRA_HAS_HORIZON, true)
-                takePictureIntent.putExtra(IntentKey.EXTRA_CROP_PERCENT, arrayOf(0.7f, 0.5f))
+                takePictureIntent.putExtra(IntentKey.EXTRA_CROP_SIZE, cropSize)
                 takePictureIntent.putExtra(IntentKey.EXTRA_CAN_UI_ROTATION, true)
                 takePictureIntent.putExtra(IntentKey.EXTRA_HORIZON_COLOR, Color.RED)
                 takePictureIntent.putExtra(IntentKey.EXTRA_CROP_BORDER_COLOR, Color.GREEN)
@@ -120,7 +124,7 @@ class MainActivity : AppCompatActivity() {
                 setAction(IntentKey.ACTION_TAKE_PICTURE)
                 //setCanMute(false)
                 setHasHorizon(true)
-                setCropPercent(arrayOf(0.7f, 0.5f))
+                //setCropSize(cropSize)
                 setCanUiRotation(true)
                 //setHorizonColor(Color.RED)
                 //setUnusedAreaBorderColor(Color.GREEN)
@@ -136,7 +140,7 @@ class MainActivity : AppCompatActivity() {
             /*Intent(IntentKey.ACTION_TAKE_MULTIPLE_PICTURES).also { takePictureIntent ->
                 takePictureIntent.putExtra(IntentKey.EXTRA_CAN_MUTE, false)
                 takePictureIntent.putExtra(IntentKey.EXTRA_HAS_HORIZON, true)
-                takePictureIntent.putExtra(IntentKey.EXTRA_CROP_PERCENT, arrayOf(0.7f, 0.5f))
+                takePictureIntent.putExtra(IntentKey.EXTRA_CROP_SIZE, cropSize)
                 takePictureIntent.putExtra(IntentKey.EXTRA_CAN_UI_ROTATION, true)
                 takePictureIntent.putExtra(IntentKey.EXTRA_IS_SAVE_CROPPED_IMAGE, true)
                 takePictureIntent.putExtra(IntentKey.EXTRA_HORIZON_COLOR, Color.RED)
@@ -150,7 +154,7 @@ class MainActivity : AppCompatActivity() {
             /*Intent(IntentKey.ACTION_TAKE_MULTIPLE_PICTURES).also { takePictureIntent ->
                 takePictureIntent.putExtra(IntentKey.EXTRA_CAN_MUTE, false)
                 takePictureIntent.putExtra(IntentKey.EXTRA_HAS_HORIZON, true)
-                takePictureIntent.putExtra(IntentKey.EXTRA_CROP_PERCENT, arrayOf(0.7f, 0.5f))
+                takePictureIntent.putExtra(IntentKey.EXTRA_CROP_SIZE, cropSize)
                 takePictureIntent.putExtra(IntentKey.EXTRA_CAN_UI_ROTATION, true)
                 takePictureIntent.putExtra(IntentKey.EXTRA_IS_SAVE_CROPPED_IMAGE, true)
                 takePictureIntent.putExtra(IntentKey.EXTRA_HORIZON_COLOR, Color.RED)
@@ -165,7 +169,7 @@ class MainActivity : AppCompatActivity() {
                 setAction(IntentKey.ACTION_TAKE_MULTIPLE_PICTURES)
                 //setCanMute(false)
                 setHasHorizon(true)
-                setCropPercent(arrayOf(0.7f, 0.5f))
+                setCropSize(cropSize)
                 setCanUiRotation(true)
                 //setHorizonColor(Color.RED)
                 //setUnusedAreaBorderColor(Color.GREEN)

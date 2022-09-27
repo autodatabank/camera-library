@@ -6,7 +6,7 @@ import java.text.DecimalFormat
 
 /**
  * Created by oooobang on 2018. 8. 31..
- * String Extension.
+ * Int Extension.
  */
 // 콤마를 포함한 숫자형식.
 fun Int?.numberWithComma(): String {
