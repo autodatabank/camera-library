@@ -352,7 +352,7 @@ abstract class VisionProcessorBase<T>(context: Context) : VisionImageProcessor {
 
 
             // Hide Detection Info.
-            if (/*!PreferenceUtils.shouldHideDetectionInfo(graphicOverlay.context)*/true) {
+            if (/*!PreferenceUtils.shouldHideDetectionInfo(graphicOverlay.context)*/false) {
                 graphicOverlay.add(
                     InferenceInfoGraphic(
                         graphicOverlay,

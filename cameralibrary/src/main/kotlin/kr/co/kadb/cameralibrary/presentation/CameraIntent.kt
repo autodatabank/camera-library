@@ -43,8 +43,8 @@ class CameraIntent {
             /*isSaveCroppedImage?.let {
                 intent.putExtra(IntentKey.EXTRA_IS_SAVE_CROPPED_IMAGE, it)
             }*/
-            cropPercent?.let {
-                intent.putExtra(IntentKey.EXTRA_CROP_PERCENT, it)
+            if (cropPercent != null && cropPercent.size >= 2) {
+                intent.putExtra(IntentKey.EXTRA_CROP_SIZE, CropSize(cropPercent[0], cropPercent[1]))
             }
             horizonColor?.let {
                 intent.putExtra(IntentKey.EXTRA_HORIZON_COLOR, it)
@@ -87,8 +87,8 @@ class CameraIntent {
             /*isSaveCroppedImage?.let {
                 intent.putExtra(IntentKey.EXTRA_IS_SAVE_CROPPED_IMAGE, it)
             }*/
-            cropPercent?.let {
-                intent.putExtra(IntentKey.EXTRA_CROP_PERCENT, it)
+            if (cropPercent != null && cropPercent.size >= 2) {
+                intent.putExtra(IntentKey.EXTRA_CROP_SIZE, CropSize(cropPercent[0], cropPercent[1]))
             }
             horizonColor?.let {
                 intent.putExtra(IntentKey.EXTRA_HORIZON_COLOR, it)
@@ -260,8 +260,17 @@ class CameraIntent {
                 cameraIntent.action = action
                 cameraIntent.putExtra(IntentKey.EXTRA_CAN_MUTE, canMute)
                 cameraIntent.putExtra(IntentKey.EXTRA_HAS_HORIZON, hasHorizon)
-                cameraIntent.putExtra(IntentKey.EXTRA_CROP_PERCENT, cropPercent)
-                cameraIntent.putExtra(IntentKey.EXTRA_CROP_SIZE, cropSize)
+                if (cropPercent == null || (cropPercent?.size ?: 0) < 2) {
+                    cameraIntent.putExtra(IntentKey.EXTRA_CROP_SIZE, cropSize)
+                } else {
+                    cameraIntent.putExtra(
+                        IntentKey.EXTRA_CROP_SIZE,
+                        CropSize(
+                            cropPercent?.get(0) ?: 0.0f,
+                            cropPercent?.get(1) ?: 0.0f
+                        )
+                    )
+                }
                 cameraIntent.putExtra(IntentKey.EXTRA_CAN_UI_ROTATION, canUiRotation)
                 cameraIntent.putExtra(IntentKey.EXTRA_IS_SAVE_CROPPED_IMAGE, isSaveCroppedImage)
                 cameraIntent.putExtra(IntentKey.EXTRA_HORIZON_COLOR, horizonColor)

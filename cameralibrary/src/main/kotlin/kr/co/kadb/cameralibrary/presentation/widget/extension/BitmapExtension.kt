@@ -2,10 +2,7 @@ package kr.co.kadb.cameralibrary.presentation.widget.extension
 
 import android.content.ContentValues
 import android.content.Context
-import android.graphics.Bitmap
-import android.graphics.Color
-import android.graphics.Matrix
-import android.graphics.Rect
+import android.graphics.*
 import android.net.Uri
 import android.os.Build
 import android.os.Environment
@@ -532,16 +529,21 @@ fun Bitmap?.optimumResize(resize: Int): Bitmap? {
 //            var width = options.outWidth
 //            var height = options.outHeight
 //            var sampleSize = 1
+
+            var sampleWidth = width
+            var sampleHeight = height
             while (true) {
-                if (width / 2 < resize || height / 2 < resize) {
+                if (sampleWidth / 2 < resize || sampleHeight / 2 < resize) {
                     break
                 }
-                width /= 2
-                height /= 2
-//                sampleSize *= 2
+                //sampleSize *= 2
+                sampleWidth /= 2
+                sampleHeight /= 2
             }
-//            options.inSampleSize = sampleSize
-            Bitmap.createScaledBitmap(bitmap, width, height, true)
+            //options.inSampleSize = sampleSize
+            //BitmapFactory.decodeByteArray(byteArray, 0, byteArray?.size ?: 0, options)
+
+            Bitmap.createScaledBitmap(bitmap, sampleWidth, sampleHeight, true)
         }
     } catch (ex: Exception) {
         ex.printStackTrace()

@@ -7,14 +7,22 @@ import android.widget.ImageView
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.isVisible
+import com.google.mlkit.vision.text.korean.KoreanTextRecognizerOptions
 import kr.co.kadb.cameralibrary.presentation.CameraIntent
 import kr.co.kadb.cameralibrary.presentation.model.CropSize
+import kr.co.kadb.cameralibrary.presentation.widget.mlkit.GraphicOverlay
+import kr.co.kadb.cameralibrary.presentation.widget.mlkit.TextRecognitionProcessor
+import kr.co.kadb.cameralibrary.presentation.widget.mlkit.VisionImageProcessor
 import kr.co.kadb.cameralibrary.presentation.widget.util.BitmapHelper
 import kr.co.kadb.cameralibrary.presentation.widget.util.IntentKey
 import kr.co.kadb.cameralibrary.presentation.widget.util.UriHelper
 import timber.log.Timber
 
 class MainActivity : AppCompatActivity() {
+    //
+    private var imageProcessor: VisionImageProcessor? = null
+
     // Crop Size.
     private val cropSize = CropSize(0.7f, 0.5f)
 
@@ -39,30 +47,49 @@ class MainActivity : AppCompatActivity() {
                     //val thumbnailBitmap = intent.extras?.get("data") as? Bitmap
 
                     // 이미지 중앙을 기준으로 원본 사이즈에서 가로:70% 세로:50% 크롭.
-                    /*val cropBitmap = UriHelper.rotateAndCenterCrop(
+                    /*val bitmap = UriHelper.rotateAndCenterCrop(
                         baseContext, imageUri, cropSize.width, cropSize.height
                     )*/
 
                     // Uri를 이미지로 변환.
-                    val cropBitmap = UriHelper.toBitmap(baseContext, imageUri)
+                    val bitmap = UriHelper.toBitmap(baseContext, imageUri)
 
                     // Bitmap 저장.
                     //cropBitmap.save(baseContext, true)
 
                     // 가로, 세로 중 큰 길이를 640(pixel)에 맞춰 비율 축소.
-                    val resizeBitmap = BitmapHelper.resize(cropBitmap, 640)
-                    cropBitmap?.recycle()
-
+                    val resizeBitmap = BitmapHelper.resize(bitmap, 640)
                     // 가로, 세로 중 큰 길이를 640(pixel)에 가깝게(640이상 ~ 1280미만) 맞춰 비율 축소.
                     // 예) resizePixcel이 640인 경우 결과는 640이상 ~ 1280미만.
                     // 성능 및 좋은 샘플링으로 이미지를 추출.
-                    //val optimumResizeBitmap = BitmapHelper.optimumResize(cropBitmap, 640)
+                    //val resizeBitmap = BitmapHelper.optimumResize(bitmap, 640)
+                    bitmap?.recycle()
 
                     // Bitmap 저장.
                     //resizeBitmap.save(baseContext, true)
 
                     // Base64로 인코딩 된 문자열 반환.
                     //val base64 = BitmapHelper.toBase64(resizeBitmap)
+
+
+                    //
+                    findViewById<GraphicOverlay>(R.id.adb_cameralibrary_graphic_overlay)?.apply {
+                        setImageSourceInfo(
+                            resizeBitmap?.width ?: 0,
+                            resizeBitmap?.height ?: 0,
+                            false
+                        )
+                    }?.let { graphicOverlay ->
+                        //
+                        findViewById<ImageView>(R.id.imageview_thumbnail).isVisible = false
+                        //
+                        imageProcessor = TextRecognitionProcessor(
+                            context = baseContext,
+                            KoreanTextRecognizerOptions.Builder().build()
+                        )
+                        imageProcessor?.processBitmap(resizeBitmap, graphicOverlay)
+                    }
+
 
                     // 촬영 원본 이미지.
                     findViewById<ImageView>(R.id.imageview).setImageURI(imageUri)
@@ -93,38 +120,12 @@ class MainActivity : AppCompatActivity() {
 
         // 한장 촬영.
         findViewById<Button>(R.id.button_one_shoot).setOnClickListener {
-            // Example 1.
-            /*Intent(IntentKey.ACTION_TAKE_PICTURE).also { takePictureIntent ->
-                takePictureIntent.putExtra(IntentKey.EXTRA_CAN_MUTE, false)
-                takePictureIntent.putExtra(IntentKey.EXTRA_HAS_HORIZON, true)
-                takePictureIntent.putExtra(IntentKey.EXTRA_CROP_SIZE, cropSize)
-                takePictureIntent.putExtra(IntentKey.EXTRA_CAN_UI_ROTATION, true)
-                takePictureIntent.putExtra(IntentKey.EXTRA_HORIZON_COLOR, Color.RED)
-                takePictureIntent.putExtra(IntentKey.EXTRA_CROP_BORDER_COLOR, Color.GREEN)
-                takePictureIntent.putExtra(IntentKey.EXTRA_CROPPED_JPEG_QUALITY, 95)
-            }.run {
-                startActivityForResult(this)
-            }*/
-
-            // Example 2.
-            /*Intent(IntentKey.ACTION_TAKE_PICTURE).also { takePictureIntent ->
-                takePictureIntent.putExtra(IntentKey.EXTRA_CAN_MUTE, false)
-                takePictureIntent.putExtra(IntentKey.EXTRA_HAS_HORIZON, true)
-                takePictureIntent.putExtra(IntentKey.EXTRA_CROP_SIZE, cropSize)
-                takePictureIntent.putExtra(IntentKey.EXTRA_CAN_UI_ROTATION, true)
-                takePictureIntent.putExtra(IntentKey.EXTRA_HORIZON_COLOR, Color.RED)
-                takePictureIntent.putExtra(IntentKey.EXTRA_CROP_BORDER_COLOR, Color.GREEN)
-                takePictureIntent.putExtra(IntentKey.EXTRA_CROPPED_JPEG_QUALITY, 95)
-            }.run {
-                resultLauncher.launch(this)
-            }*/
-
             // Example 3.
             CameraIntent.Build(this).apply {
                 setAction(IntentKey.ACTION_TAKE_PICTURE)
                 //setCanMute(false)
                 setHasHorizon(true)
-                //setCropSize(cropSize)
+                setCropSize(cropSize)
                 setCanUiRotation(true)
                 //setHorizonColor(Color.RED)
                 //setUnusedAreaBorderColor(Color.GREEN)
@@ -136,35 +137,6 @@ class MainActivity : AppCompatActivity() {
 
         // 여러장 촬영.
         findViewById<Button>(R.id.button_multiple_shoot).setOnClickListener {
-            // Example 1.
-            /*Intent(IntentKey.ACTION_TAKE_MULTIPLE_PICTURES).also { takePictureIntent ->
-                takePictureIntent.putExtra(IntentKey.EXTRA_CAN_MUTE, false)
-                takePictureIntent.putExtra(IntentKey.EXTRA_HAS_HORIZON, true)
-                takePictureIntent.putExtra(IntentKey.EXTRA_CROP_SIZE, cropSize)
-                takePictureIntent.putExtra(IntentKey.EXTRA_CAN_UI_ROTATION, true)
-                takePictureIntent.putExtra(IntentKey.EXTRA_IS_SAVE_CROPPED_IMAGE, true)
-                takePictureIntent.putExtra(IntentKey.EXTRA_HORIZON_COLOR, Color.RED)
-                takePictureIntent.putExtra(IntentKey.EXTRA_CROP_BORDER_COLOR, Color.GREEN)
-                takePictureIntent.putExtra(IntentKey.EXTRA_CROPPED_JPEG_QUALITY, 95)
-            }.run {
-                startActivityForResult(this)
-            }*/
-
-            // Example 2.
-            /*Intent(IntentKey.ACTION_TAKE_MULTIPLE_PICTURES).also { takePictureIntent ->
-                takePictureIntent.putExtra(IntentKey.EXTRA_CAN_MUTE, false)
-                takePictureIntent.putExtra(IntentKey.EXTRA_HAS_HORIZON, true)
-                takePictureIntent.putExtra(IntentKey.EXTRA_CROP_SIZE, cropSize)
-                takePictureIntent.putExtra(IntentKey.EXTRA_CAN_UI_ROTATION, true)
-                takePictureIntent.putExtra(IntentKey.EXTRA_IS_SAVE_CROPPED_IMAGE, true)
-                takePictureIntent.putExtra(IntentKey.EXTRA_HORIZON_COLOR, Color.RED)
-                takePictureIntent.putExtra(IntentKey.EXTRA_CROP_BORDER_COLOR, Color.GREEN)
-                takePictureIntent.putExtra(IntentKey.EXTRA_CROPPED_JPEG_QUALITY, 95)
-            }.run {
-                resultLauncher.launch(this)
-            }*/
-
-            // Example 3.
             CameraIntent.Build(this).apply {
                 setAction(IntentKey.ACTION_TAKE_MULTIPLE_PICTURES)
                 //setCanMute(false)
@@ -178,5 +150,63 @@ class MainActivity : AppCompatActivity() {
                 resultLauncher.launch(this.build())
             }
         }
+
+        // 운행거리 촬영.
+        findViewById<Button>(R.id.button_vehicle_number_shoot).setOnClickListener {
+            CameraIntent.Build(this).apply {
+                setAction(IntentKey.ACTION_TAKE_VEHICLE_NUMBER_PICTURES)
+                //setCanMute(false)
+                setHasHorizon(true)
+                //setCropSize(cropSize)
+                setCanUiRotation(true)
+                //setHorizonColor(Color.RED)
+                //setUnusedAreaBorderColor(Color.GREEN)
+                //setCroppedJpegQuality(95)
+            }.run {
+                resultLauncher.launch(this.build())
+            }
+        }
+
+        // 운행거리 촬영.
+        findViewById<Button>(R.id.button_mileage_shoot).setOnClickListener {
+            CameraIntent.Build(this).apply {
+                setAction(IntentKey.ACTION_TAKE_MILEAGE_PICTURES)
+                //setCanMute(false)
+                setHasHorizon(true)
+                //setCropSize(cropSize)
+                setCanUiRotation(true)
+                //setHorizonColor(Color.RED)
+                //setUnusedAreaBorderColor(Color.GREEN)
+                //setCroppedJpegQuality(95)
+            }.run {
+                resultLauncher.launch(this.build())
+            }
+        }
+
+        // 차대번호 촬영.
+        findViewById<Button>(R.id.button_vin_number_shoot).setOnClickListener {
+            CameraIntent.Build(this).apply {
+                setAction(IntentKey.ACTION_TAKE_VIN_NUMBER_PICTURES)
+                //setCanMute(false)
+                setHasHorizon(true)
+                //setCropSize(cropSize)
+                setCanUiRotation(true)
+                //setHorizonColor(Color.RED)
+                //setUnusedAreaBorderColor(Color.GREEN)
+                //setCroppedJpegQuality(95)
+            }.run {
+                resultLauncher.launch(this.build())
+            }
+        }
+    }
+
+    override fun onPause() {
+        super.onPause()
+        imageProcessor?.run { this.stop() }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        imageProcessor?.run { this.stop() }
     }
 }

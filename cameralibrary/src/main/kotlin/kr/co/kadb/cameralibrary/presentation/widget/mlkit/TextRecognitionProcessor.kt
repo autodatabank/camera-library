@@ -59,7 +59,7 @@ class TextRecognitionProcessor(
 
         //logExtrasForTesting(text)
         graphicOverlay.add(
-            TextGraphic(
+            NumberGraphic(
                 graphicOverlay,
                 results,
                 /*shouldGroupRecognizedTextInBlocks*/ shouldGroupTextInBlocks = false,
@@ -67,6 +67,15 @@ class TextRecognitionProcessor(
                 /*showConfidence*/ showConfidence = false
             )
         )
+//        graphicOverlay.add(
+//            TextGraphic(
+//                graphicOverlay,
+//                results,
+//                /*shouldGroupRecognizedTextInBlocks*/ shouldGroupTextInBlocks = false,
+//                /*showLanguageTag*/ showLanguageTag = false,
+//                /*showConfidence*/ showConfidence = false
+//            )
+//        )
     }
 
     override fun onFailure(ex: Exception) {

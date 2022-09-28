@@ -76,6 +76,8 @@ internal class ShootActivity : BaseActivity() {
             unusedAreaBorderColor,
             croppedJpegQuality
         )
+
+        //
         if (savedInstanceState == null) {
             viewController.navigateToShooting()
         }

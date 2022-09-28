@@ -17,7 +17,10 @@ import kr.co.kadb.cameralibrary.presentation.model.ShootUiState
 import kr.co.kadb.cameralibrary.presentation.model.UiState
 import kr.co.kadb.cameralibrary.presentation.viewmodel.BaseAndroidViewModel
 import kr.co.kadb.cameralibrary.presentation.widget.extension.*
+import kr.co.kadb.cameralibrary.presentation.widget.util.IntentKey.ACTION_TAKE_MILEAGE_PICTURES
 import kr.co.kadb.cameralibrary.presentation.widget.util.IntentKey.ACTION_TAKE_MULTIPLE_PICTURES
+import kr.co.kadb.cameralibrary.presentation.widget.util.IntentKey.ACTION_TAKE_VEHICLE_NUMBER_PICTURES
+import kr.co.kadb.cameralibrary.presentation.widget.util.IntentKey.ACTION_TAKE_VIN_NUMBER_PICTURES
 import timber.log.Timber
 import java.io.ByteArrayInputStream
 import java.io.IOException
@@ -112,6 +115,10 @@ constructor(
             isDebug = isDebug,
             isShooted = false,
             isMultiplePicture = action == ACTION_TAKE_MULTIPLE_PICTURES,
+            isUsingMLKit = action == ACTION_TAKE_VEHICLE_NUMBER_PICTURES || action == ACTION_TAKE_MILEAGE_PICTURES || action == ACTION_TAKE_VIN_NUMBER_PICTURES,
+            isVehicleNumberPicture = action == ACTION_TAKE_VEHICLE_NUMBER_PICTURES,
+            isMileagePicture = action == ACTION_TAKE_MILEAGE_PICTURES,
+            isVinNumberPicture = action == ACTION_TAKE_VIN_NUMBER_PICTURES,
             canMute = canMute,
             hasHorizon = hasHorizon,
             canUiRotation = canUiRotation,
@@ -128,6 +135,10 @@ constructor(
             isDebug = isDebug,
             isShooted = false,
             isMultiplePicture = action == ACTION_TAKE_MULTIPLE_PICTURES,
+            isUsingMLKit = action == ACTION_TAKE_VEHICLE_NUMBER_PICTURES || action == ACTION_TAKE_MILEAGE_PICTURES || action == ACTION_TAKE_VIN_NUMBER_PICTURES,
+            isVehicleNumberPicture = action == ACTION_TAKE_VEHICLE_NUMBER_PICTURES,
+            isMileagePicture = action == ACTION_TAKE_MILEAGE_PICTURES,
+            isVinNumberPicture = action == ACTION_TAKE_VIN_NUMBER_PICTURES,
             canMute = canMute,
             hasHorizon = hasHorizon,
             canUiRotation = canUiRotation,

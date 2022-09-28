@@ -105,6 +105,7 @@ dependencies {
 
     implementation 'com.google.mlkit:text-recognition:16.0.0-beta6'
     implementation 'com.google.mlkit:text-recognition-korean:16.0.0-beta6'
+    implementation 'com.google.mlkit:entity-extraction:16.0.0-beta4'
 
     // On Device Machine Learnings
     implementation "com.google.android.odml:image:1.0.0-beta1"

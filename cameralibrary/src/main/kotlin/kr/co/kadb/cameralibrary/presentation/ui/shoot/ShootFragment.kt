@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.media.AudioManager
 import android.media.MediaActionSound
+import android.os.Bundle
 import android.view.OrientationEventListener
 import android.view.Surface
 import android.view.View
@@ -22,18 +23,13 @@ import androidx.transition.ChangeBounds
 import androidx.transition.TransitionManager
 import androidx.transition.addListener
 import com.google.mlkit.common.MlKitException
-import com.google.mlkit.vision.common.InputImage
-import com.google.mlkit.vision.text.TextRecognition
 import com.google.mlkit.vision.text.korean.KoreanTextRecognizerOptions
 import kr.co.kadb.cameralibrary.R
 import kr.co.kadb.cameralibrary.databinding.AdbCameralibraryFragmentShootBinding
 import kr.co.kadb.cameralibrary.presentation.base.BaseBindingFragment
 import kr.co.kadb.cameralibrary.presentation.ui.shoot.ShootSharedViewModel.Event
 import kr.co.kadb.cameralibrary.presentation.widget.extension.repeatOnStarted
-import kr.co.kadb.cameralibrary.presentation.widget.mlkit.BitmapUtils
-import kr.co.kadb.cameralibrary.presentation.widget.mlkit.GraphicOverlay
-import kr.co.kadb.cameralibrary.presentation.widget.mlkit.TextRecognitionProcessor
-import kr.co.kadb.cameralibrary.presentation.widget.mlkit.VisionImageProcessor
+import kr.co.kadb.cameralibrary.presentation.widget.mlkit.*
 import kr.co.kadb.cameralibrary.presentation.widget.util.IntentKey
 import kr.co.kadb.cameralibrary.presentation.widget.util.MediaActionSound2
 import timber.log.Timber
@@ -118,14 +114,26 @@ internal class ShootFragment :
         }
     }
 
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        binding.viewModel = viewModel
+    }
+
     override fun onStart() {
         super.onStart()
+        //
         orientationEventListener.enable()
+
+        // 권한 확인 후 카메라 및 UI 초기화.
+        viewController.requestCameraPermission {
+            initCamera()
+            initUnusedAreaLayout()
+        }
     }
 
     override fun onPause() {
         super.onPause()
-        imageProcessor?.stop()
+        imageProcessor?.run { this.stop() }
     }
 
     override fun onStop() {
@@ -141,7 +149,7 @@ internal class ShootFragment :
 
     override fun onDestroy() {
         super.onDestroy()
-        imageProcessor?.stop()
+        imageProcessor?.run { this.stop() }
     }
 
     override fun onBackPressed(): Boolean {
@@ -161,12 +169,7 @@ internal class ShootFragment :
 
     // Init Layout.
     override fun initLayout(view: View) {
-        // 권한 확인 후 카메라 및 UI 초기화.
-        viewController.requestCameraPermission {
-            initCamera()
-            //initUnusedAreaLayout()
-        }
-
+        //
         graphicOverlay = binding.adbCameralibraryGraphicOverlay
 
         // 수평선 사용 시에만 활성화.
@@ -275,6 +278,12 @@ internal class ShootFragment :
                         } catch (ex: IOException) {
                             ex.printStackTrace()
                         }
+//
+//                        try {
+//                            imageProcessor?.processImageProxy(image, graphicOverlay)
+//                        } catch (ex: MlKitException) {
+//                            ex.printStackTrace()
+//                        }
 
                         // Close ImageProxy.
                         //image.close()
@@ -526,12 +535,32 @@ internal class ShootFragment :
 
         needUpdateGraphicOverlayImageSourceInfo = true
 
-        imageProcessor = TextRecognitionProcessor(
-            requireContext(),
-            KoreanTextRecognizerOptions.Builder().build()
-        )
-
-//        val recognizer = TextRecognition.getClient(KoreanTextRecognizerOptions.Builder().build())
+        imageProcessor = when (viewModel.item.value.action) {
+            IntentKey.ACTION_TAKE_MILEAGE_PICTURES -> {
+                MileageRecognitionProcessor(
+                    requireContext(),
+                    KoreanTextRecognizerOptions.Builder().build()
+                )
+            }
+            IntentKey.ACTION_TAKE_VIN_NUMBER_PICTURES -> {
+                VinNumberRecognitionProcessor(
+                    requireContext(),
+                    KoreanTextRecognizerOptions.Builder().build()
+                )
+            }
+            IntentKey.ACTION_TAKE_VEHICLE_NUMBER_PICTURES -> {
+                VehicleNumberRecognitionProcessor(
+                    requireContext(),
+                    KoreanTextRecognizerOptions.Builder().build()
+                )
+            }
+            else -> {
+                TextRecognitionProcessor(
+                    requireContext(),
+                    KoreanTextRecognizerOptions.Builder().build()
+                )
+            }
+        }
 
         // Preview
         preview = Preview.Builder()
