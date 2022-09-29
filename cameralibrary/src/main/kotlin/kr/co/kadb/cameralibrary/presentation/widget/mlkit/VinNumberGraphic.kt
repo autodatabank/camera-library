@@ -68,47 +68,52 @@ class VinNumberGraphic constructor(
                                 "boundingBox : ${line.boundingBox}"
                         //", cornerPoints : ${line.cornerPoints.toJsonPretty()}"
                     )
+                    // 차대번호 정규식(A~Z, 0~9 혼합 17자리).
+                    val regex = Regex("[A-Z0-9]{17}")
+                    val matchResult = regex.matchEntire(line.text)
 
-                    /*// Draws the bounding box around the TextBlock.
-                    val rect = RectF(line.boundingBox)
-                    drawText(
-                        getFormattedText(line.text, line.recognizedLanguage, line.confidence),
-                        rect,
-                        TEXT_SIZE + 2 * STROKE_WIDTH,
-                        canvas
-                    )*/
-
-
-
-                    for (element in line.elements) {
-                          // 차대번호 정규식(A~Z, 0~9 혼합 17자리).
-                        val regex = Regex("[A-Z0-9]{17}")
-                        val matchResult = regex.matchEntire(element.text)
-
-                        // found.
-                        if (matchResult != null) {
-//                            regex.findAll(element.text).forEach { matchResult ->
-                            // Debug.
-                            Timber.d(">>>>> ${javaClass.simpleName} > matchResult > ${matchResult.value}")
-//                                Timber.d(
-//                                    ">>>>> ${javaClass.simpleName} > elements > " +
-//                                            "[${element.text}] : [${element.confidence}]" +
-//                                            " - language : ${element.recognizedLanguage}, " +
-//                                            "boundingBox : ${element.boundingBox}"
-//                                    //", cornerPoints : ${element.cornerPoints.toJsonPretty()}"
-//                                )
-
-
-                            // Draws the bounding box around the TextBlock.
-                            val rect = RectF(line.boundingBox)
-                            drawText(
-                                matchResult.value,
-                                rect,
-                                TEXT_SIZE + 2 * STROKE_WIDTH,
-                                canvas
-                            )
-                        }
+                    // found.
+                    if (matchResult != null) {
+                        // Draws the bounding box around the TextBlock.
+                        val rect = RectF(line.boundingBox)
+                        drawText(
+                            line.text,
+                            rect,
+                            TEXT_SIZE + 2 * STROKE_WIDTH,
+                            canvas
+                        )
                     }
+
+
+//                    for (element in line.elements) {
+//                          // 차대번호 정규식(A~Z, 0~9 혼합 17자리).
+//                        val regex = Regex("[A-Z0-9]{17}")
+//                        val matchResult = regex.matchEntire(element.text)
+//
+//                        // found.
+//                        if (matchResult != null) {
+////                            regex.findAll(element.text).forEach { matchResult ->
+//                            // Debug.
+//                            Timber.d(">>>>> ${javaClass.simpleName} > matchResult > ${matchResult.value}")
+////                                Timber.d(
+////                                    ">>>>> ${javaClass.simpleName} > elements > " +
+////                                            "[${element.text}] : [${element.confidence}]" +
+////                                            " - language : ${element.recognizedLanguage}, " +
+////                                            "boundingBox : ${element.boundingBox}"
+////                                    //", cornerPoints : ${element.cornerPoints.toJsonPretty()}"
+////                                )
+//
+//
+//                            // Draws the bounding box around the TextBlock.
+//                            val rect = RectF(line.boundingBox)
+//                            drawText(
+//                                matchResult.value,
+//                                rect,
+//                                TEXT_SIZE + 2 * STROKE_WIDTH,
+//                                canvas
+//                            )
+//                        }
+//                    }
                 }
             }
         }
@@ -136,7 +141,6 @@ class VinNumberGraphic constructor(
     }
 
     companion object {
-        private const val TEXT_WITH_LANGUAGE_TAG_FORMAT = "%s:%s"
         private const val TEXT_COLOR = Color.BLACK
         private const val MARKER_COLOR = Color.WHITE
         private const val TEXT_SIZE = 54.0f

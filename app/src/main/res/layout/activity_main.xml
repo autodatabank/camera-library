@@ -62,18 +62,18 @@
         android:id="@+id/button_vehicle_number_shoot"
         android:layout_width="0dp"
         android:layout_height="64dp"
-        android:text="차량번호"
+        android:text="TEST"
         android:textSize="18sp"
         app:layout_constraintBottom_toTopOf="@+id/button_one_shoot"
         app:layout_constraintEnd_toStartOf="@+id/button_mileage_shoot"
         app:layout_constraintStart_toStartOf="parent"
         />
-    <!-- 운행거리 촬영. -->
+    <!-- 주행거리 촬영. -->
     <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/button_mileage_shoot"
         android:layout_width="0dp"
         android:layout_height="64dp"
-        android:text="운행거리"
+        android:text="주행거리"
         android:textSize="18sp"
         app:layout_constraintBottom_toTopOf="@+id/button_one_shoot"
         app:layout_constraintEnd_toStartOf="@+id/button_vin_number_shoot"

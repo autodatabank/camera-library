@@ -151,7 +151,7 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        // 운행거리 촬영.
+        // 주행거리 촬영.
         findViewById<Button>(R.id.button_vehicle_number_shoot).setOnClickListener {
             CameraIntent.Build(this).apply {
                 setAction(IntentKey.ACTION_TAKE_VEHICLE_NUMBER_PICTURES)
@@ -167,7 +167,7 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        // 운행거리 촬영.
+        // 주행거리 촬영.
         findViewById<Button>(R.id.button_mileage_shoot).setOnClickListener {
             CameraIntent.Build(this).apply {
                 setAction(IntentKey.ACTION_TAKE_MILEAGE_PICTURES)

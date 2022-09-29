@@ -211,7 +211,9 @@ abstract class VisionProcessorBase<T>(context: Context) : VisionImageProcessor {
 
     // -----------------Code for processing live preview frame from CameraX API-----------------------
     @ExperimentalGetImage
-    override fun processImageProxy(image: ImageProxy, graphicOverlay: GraphicOverlay) {
+    override fun processImageProxy(
+        image: ImageProxy, graphicOverlay: GraphicOverlay, result: ((T) -> Unit)? = null
+    ) {
         val frameStartMs = SystemClock.elapsedRealtime()
         if (isShutdown) {
             return
@@ -345,14 +347,14 @@ abstract class VisionProcessorBase<T>(context: Context) : VisionImageProcessor {
                 Timber.d("Memory available in system: $availableMegs MB")
             }
             graphicOverlay.clear()
-            if (originalCameraImage != null) {
-                graphicOverlay.add(CameraImageGraphic(graphicOverlay, originalCameraImage))
-            }
+//            if (originalCameraImage != null) {
+//                graphicOverlay.add(CameraImageGraphic(graphicOverlay, originalCameraImage))
+//            }
             this@VisionProcessorBase.onSuccess(results, graphicOverlay)
 
 
             // Hide Detection Info.
-            if (/*!PreferenceUtils.shouldHideDetectionInfo(graphicOverlay.context)*/false) {
+            if (/*!PreferenceUtils.shouldHideDetectionInfo(graphicOverlay.context)*/true) {
                 graphicOverlay.add(
                     InferenceInfoGraphic(
                         graphicOverlay,

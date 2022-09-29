@@ -53,42 +53,19 @@ class MileageGraphic constructor(
 
     /** Draws the text block annotations for position, size, and raw value on the supplied canvas. */
     override fun draw(canvas: Canvas) {
-        // Debug.
-        //Timber.d(">>>>> ${javaClass.simpleName} > textBlocks : ${text.textBlocks}")
         for (textBlock in text.textBlocks) { // Renders the text at the bottom of the box.
-            // Debug.
-            //Timber.d(">>>>> ${javaClass.simpleName} > textBlock : $textBlock}")
             for (line in textBlock.lines) {
-                if (line.confidence >= 0.0f) {
-                    // Debug.
-                    Timber.d(
-                        ">>>>> ${javaClass.simpleName} > lines > " +
-                                "[${line.text}] : [${line.confidence}], " +
-                                "boundingBox : ${line.boundingBox}"
-                        //", cornerPoints : ${line.cornerPoints.toJsonPretty()}"
-                    )
+                for (element in line.elements) {
+                    // 주행거리 정규식(0~9 4자리에서 6자리).
+                    val regex = Regex("[0-9]{4,6}")
+                    val matchResult = regex.find(element.text)
+                    val mileage = matchResult?.value?.toIntOrNull() ?: 0
 
-                    /*// Draws the bounding box around the TextBlock.
-                    val rect = RectF(line.boundingBox)
-                    drawText(
-                        getFormattedText(line.text, line.recognizedLanguage, line.confidence),
-                        rect,
-                        TEXT_SIZE + 2 * STROKE_WIDTH,
-                        canvas
-                    )*/
-
-
-
-                    for (element in line.elements) {
-                        // 주행거리 정규식(0~9 4자리에서 6자리).
-                        val regex = Regex("[0-9]{4,6}")
-                        val matchResult = regex.find(element.text)
-
-                        // found.
-                        if (matchResult != null) {
+                    // found.
+                    if (matchResult != null && mileage >= 1001) {
 //                            regex.findAll(element.text).forEach { matchResult ->
-                            // Debug.
-                            Timber.d(">>>>> ${javaClass.simpleName} > matchResult > ${matchResult.value}")
+                        // Debug.
+                        Timber.d(">>>>> ${javaClass.simpleName} > matchResult > ${matchResult.value}")
 //                                Timber.d(
 //                                    ">>>>> ${javaClass.simpleName} > elements > " +
 //                                            "[${element.text}] : [${element.confidence}]" +
@@ -98,15 +75,14 @@ class MileageGraphic constructor(
 //                                )
 
 
-                            // Draws the bounding box around the TextBlock.
-                            val rect = RectF(line.boundingBox)
-                            drawText(
-                                matchResult.value,
-                                rect,
-                                TEXT_SIZE + 2 * STROKE_WIDTH,
-                                canvas
-                            )
-                        }
+                        // Draws the bounding box around the TextBlock.
+                        val rect = RectF(line.boundingBox)
+                        drawText(
+                            mileage.toString(),
+                            rect,
+                            TEXT_SIZE + 2 * STROKE_WIDTH,
+                            canvas
+                        )
                     }
                 }
             }
@@ -135,7 +111,6 @@ class MileageGraphic constructor(
     }
 
     companion object {
-        private const val TEXT_WITH_LANGUAGE_TAG_FORMAT = "%s:%s"
         private const val TEXT_COLOR = Color.BLACK
         private const val MARKER_COLOR = Color.WHITE
         private const val TEXT_SIZE = 54.0f

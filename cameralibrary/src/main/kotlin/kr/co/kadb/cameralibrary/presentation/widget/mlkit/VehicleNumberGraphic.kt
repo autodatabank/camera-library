@@ -60,56 +60,98 @@ class VehicleNumberGraphic constructor(
             // Debug.
             //Timber.d(">>>>> ${javaClass.simpleName} > textBlock : $textBlock}")
             for (line in textBlock.lines) {
-                if (line.confidence >= 0.0f) {
-                    // Debug.
-                    Timber.d(
-                        ">>>>> ${javaClass.simpleName} > lines > " +
-                                "[${line.text}] : [${line.confidence}], " +
-                                "boundingBox : ${line.boundingBox}"
-                        //", cornerPoints : ${line.cornerPoints.toJsonPretty()}"
-                    )
+                // Debug.
+                /*Timber.d(
+                    ">>>>> ${javaClass.simpleName} > lines > " +
+                            "[${line.text}] : [${line.confidence}], " +
+                            "boundingBox : ${line.boundingBox}"
+                    //", cornerPoints : ${line.cornerPoints.toJsonPretty()}"
+                )*/
 
-                    /*// Draws the bounding box around the TextBlock.
+                // 차량번호 정규식(테스트).
+                // 지역별: 서울 부산 대구 인천 광주 대전 울산 경기 강원 충북 충남 전북 전남 경북 경남 제주
+                // 자가용: 가나다라마 거너더러머버서어저 고노도로모보소오조 구누두루무부수우주
+                // 사업용: 바사아자
+                // 렌터카: 하허호
+                // 택배용: 배
+                // 외교용: 외교123-001 - 외교 준외 준영 국기 협정 대표
+                // 군사용: 23(육)1234 - 육공해국합
+                // 이륜차: 울산 남 가 1234 - 가나다라마바사아자차카타파
+                // (서울|부산|대구|인천|광주|대전|울산|경기|강원|충북|충남|전북|전남|경북|경남|제주)?
+                // [0-9]{2,3}
+                // (가|나|다|라|마|거|너|더|러|머|버|서|어|저|고|노|도|로|모|보|소|오|조|구|누|두|루|무|부|수|우|주|바|사|아|자|하|허|호|배)[0-9]{4}
+//                val regex = Regex(
+//                    "(서울|부산|대구|인천|광주|대전|울산|경기|강원|충북|충남|전북|전남|경북|경남|제주)?" +
+//                            "\\s?" +
+//                            "[0-9]{2,3}" +
+//                            "\\s?" +
+//                            "([가나다라마거너더러머버서어저고노도로모보소오조구누두루무부수우주바사아자하허호배])" +
+//                            "\\s?" +
+//                            "[0-9]{4}"
+//                )
+//                val matchResult = regex.matchEntire(line.text)
+//
+//                // found.
+//                if (matchResult != null) {
+                    // Draws the bounding box around the TextBlock.
                     val rect = RectF(line.boundingBox)
                     drawText(
-                        getFormattedText(line.text, line.recognizedLanguage, line.confidence),
+                        line.text,
                         rect,
                         TEXT_SIZE + 2 * STROKE_WIDTH,
                         canvas
-                    )*/
+                    )
+//                }
 
 
-
-                    for (element in line.elements) {
-                        // 차량번호 정규식(테스트).
-                        val regex = Regex("[0-9]{2,3}[가-힣a-zA-Z0-9][0-9]{4}")
-                        val matchResult = regex.matchEntire(element.text)
-
-                        // found.
-                        if (matchResult != null) {
-//                            regex.findAll(element.text).forEach { matchResult ->
-                            // Debug.
-                            Timber.d(">>>>> ${javaClass.simpleName} > matchResult > ${matchResult.value}")
-//                                Timber.d(
-//                                    ">>>>> ${javaClass.simpleName} > elements > " +
-//                                            "[${element.text}] : [${element.confidence}]" +
-//                                            " - language : ${element.recognizedLanguage}, " +
-//                                            "boundingBox : ${element.boundingBox}"
-//                                    //", cornerPoints : ${element.cornerPoints.toJsonPretty()}"
-//                                )
-
-
-                            // Draws the bounding box around the TextBlock.
-                            val rect = RectF(line.boundingBox)
-                            drawText(
-                                element.text/*matchResult.value*/,
-                                rect,
-                                TEXT_SIZE + 2 * STROKE_WIDTH,
-                                canvas
-                            )
-                        }
-                    }
-                }
+//                for (element in line.elements) {
+//                    // 차량번호 정규식(테스트).
+//                    // 지역별: 서울 부산 대구 인천 광주 대전 울산 경기 강원 충북 충남 전북 전남 경북 경남 제주
+//                    // 자가용: 가나다라마 거너더러머버서어저 고노도로모보소오조 구누두루무부수우주
+//                    // 사업용: 바사아자
+//                    // 렌터카: 하허호
+//                    // 택배용: 배
+//                    // 외교용: 외교123-001 - 외교 준외 준영 국기 협정 대표
+//                    // 군사용: 23(육)1234 - 육공해국합
+//                    // 이륜차: 울산 남 가 1234 - 가나다라마바사아자차카타파
+//                    // (서울|부산|대구|인천|광주|대전|울산|경기|강원|충북|충남|전북|전남|경북|경남|제주)?
+//                    // [0-9]{2,3}
+//                    // (가|나|다|라|마|거|너|더|러|머|버|서|어|저|고|노|도|로|모|보|소|오|조|구|누|두|루|무|부|수|우|주|바|사|아|자|하|허|호|배)[0-9]{4}
+//                    val regex = Regex(
+//                        "(서울|부산|대구|인천|광주|대전|울산|경기|강원|충북|충남|전북|전남|경북|경남|제주)?" +
+//                                "\\s?" +
+//                                "[0-9]{2,3}" +
+//                                "\\s?" +
+//                                "([가나다라마거너더러머버서어저고노도로모보소오조구누두루무부수우주바사아자하허호배])" +
+//                                "\\s?" +
+//                                "[0-9]{4}"
+//                    )
+//                    val matchResult = regex.matchEntire(element.text)
+//
+//                    // found.
+//                    if (matchResult != null) {
+////                            regex.findAll(element.text).forEach { matchResult ->
+//                        // Debug.
+//                        Timber.d(">>>>> ${javaClass.simpleName} > matchResult > ${matchResult.value}")
+////                                Timber.d(
+////                                    ">>>>> ${javaClass.simpleName} > elements > " +
+////                                            "[${element.text}] : [${element.confidence}]" +
+////                                            " - language : ${element.recognizedLanguage}, " +
+////                                            "boundingBox : ${element.boundingBox}"
+////                                    //", cornerPoints : ${element.cornerPoints.toJsonPretty()}"
+////                                )
+//
+//
+//                        // Draws the bounding box around the TextBlock.
+//                        val rect = RectF(line.boundingBox)
+//                        drawText(
+//                            element.text/*matchResult.value*/,
+//                            rect,
+//                            TEXT_SIZE + 2 * STROKE_WIDTH,
+//                            canvas
+//                        )
+//                    }
+//                }
             }
         }
     }

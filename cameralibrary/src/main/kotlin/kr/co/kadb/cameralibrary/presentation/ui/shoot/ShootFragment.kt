@@ -109,7 +109,8 @@ internal class ShootFragment :
 
                 // Rotation 갱신.
                 imageCapture?.targetRotation = rotation
-                imageAnalyzer?.targetRotation = rotation
+                //imageAnalyzer?.targetRotation = rotation
+                graphicOverlay?.rotation = rotation.toFloat()
             }
         }
     }

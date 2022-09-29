@@ -44,7 +44,7 @@ class VehicleNumberRecognitionProcessor(
 
     override fun onSuccess(results: Text, graphicOverlay: GraphicOverlay) {
         // Debug.
-        Timber.d(">>>>> ${javaClass.simpleName} > onSuccess")
+        //Timber.d(">>>>> ${javaClass.simpleName} > onSuccess")
 
         graphicOverlay.add(VehicleNumberGraphic(graphicOverlay, results))
     }

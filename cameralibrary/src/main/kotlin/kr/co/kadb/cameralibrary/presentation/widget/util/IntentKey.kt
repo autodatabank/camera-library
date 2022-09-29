@@ -10,7 +10,7 @@ object IntentKey {
 	// 차량번호 촬영.
 	const val ACTION_TAKE_VEHICLE_NUMBER_PICTURES = "kr.co.kadb.cameralibrary.ACTION_TAKE_VEHICLE_NUMBER_PICTURES"
 
-	// 운행거리 촬영.
+	// 주행거리 촬영.
 	const val ACTION_TAKE_MILEAGE_PICTURES = "kr.co.kadb.cameralibrary.ACTION_TAKE_MILEAGE_PICTURES"
 
 	// 차대번호 촬영.

@@ -54,7 +54,7 @@ class TextRecognitionProcessor(
 
     override fun onSuccess(results: Text, graphicOverlay: GraphicOverlay) {
         // Debug.
-        Timber.d(">>>>> ${javaClass.simpleName} > onSuccess")
+        //Timber.d(">>>>> ${javaClass.simpleName} > onSuccess")
 
 
         //logExtrasForTesting(text)
