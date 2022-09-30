@@ -28,8 +28,9 @@ import timber.log.Timber
 /** Processor for the text detector demo. */
 class MileageRecognitionProcessor(
     context: Context,
-    textRecognizerOptions: TextRecognizerOptionsInterface
-) : VisionProcessorBase<Text>(context) {
+    textRecognizerOptions: TextRecognizerOptionsInterface,
+    private val result: ((Any) -> Unit)? = null
+) : VisionProcessorBase<Text>(context, result) {
     // Recognizer.
     private val textRecognizer: TextRecognizer = TextRecognition.getClient(textRecognizerOptions)
 
@@ -43,10 +44,9 @@ class MileageRecognitionProcessor(
     }
 
     override fun onSuccess(results: Text, graphicOverlay: GraphicOverlay) {
-        // Debug.
-        //Timber.d(">>>>> ${javaClass.simpleName} > onSuccess")
-
-        graphicOverlay.add(MileageGraphic(graphicOverlay, results))
+        graphicOverlay.add(MileageGraphic(graphicOverlay, results) {
+            result?.invoke(it)
+        })
     }
 
     override fun onFailure(ex: Exception) {

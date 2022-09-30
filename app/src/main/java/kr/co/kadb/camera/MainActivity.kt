@@ -7,12 +7,8 @@ import android.widget.ImageView
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.isVisible
-import com.google.mlkit.vision.text.korean.KoreanTextRecognizerOptions
 import kr.co.kadb.cameralibrary.presentation.CameraIntent
 import kr.co.kadb.cameralibrary.presentation.model.CropSize
-import kr.co.kadb.cameralibrary.presentation.widget.mlkit.GraphicOverlay
-import kr.co.kadb.cameralibrary.presentation.widget.mlkit.TextRecognitionProcessor
 import kr.co.kadb.cameralibrary.presentation.widget.mlkit.VisionImageProcessor
 import kr.co.kadb.cameralibrary.presentation.widget.util.BitmapHelper
 import kr.co.kadb.cameralibrary.presentation.widget.util.IntentKey
@@ -71,26 +67,6 @@ class MainActivity : AppCompatActivity() {
                     // Base64로 인코딩 된 문자열 반환.
                     //val base64 = BitmapHelper.toBase64(resizeBitmap)
 
-
-                    //
-                    findViewById<GraphicOverlay>(R.id.adb_cameralibrary_graphic_overlay)?.apply {
-                        setImageSourceInfo(
-                            resizeBitmap?.width ?: 0,
-                            resizeBitmap?.height ?: 0,
-                            false
-                        )
-                    }?.let { graphicOverlay ->
-                        //
-                        findViewById<ImageView>(R.id.imageview_thumbnail).isVisible = false
-                        //
-                        imageProcessor = TextRecognitionProcessor(
-                            context = baseContext,
-                            KoreanTextRecognizerOptions.Builder().build()
-                        )
-                        imageProcessor?.processBitmap(resizeBitmap, graphicOverlay)
-                    }
-
-
                     // 촬영 원본 이미지.
                     findViewById<ImageView>(R.id.imageview).setImageURI(imageUri)
                     // 촬영 원본을 크롭 및 리사이즈한 이미지.
@@ -105,6 +81,10 @@ class MainActivity : AppCompatActivity() {
                     // Debug.
                     Timber.d(">>>>> imageUris : $imageUris")
                     Timber.d(">>>>> imageSizes : $imageSizes")
+                } else if (intent?.action == IntentKey.ACTION_TAKE_MILEAGE_PICTURES) {
+                    // 주행거리.
+                } else if (intent?.action == IntentKey.ACTION_TAKE_VIN_NUMBER_PICTURES) {
+                    // 차대번호.
                 }
             }
         }
@@ -151,7 +131,7 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        // 주행거리 촬영.
+        // 테스트 촬영.
         findViewById<Button>(R.id.button_vehicle_number_shoot).setOnClickListener {
             CameraIntent.Build(this).apply {
                 setAction(IntentKey.ACTION_TAKE_VEHICLE_NUMBER_PICTURES)
@@ -172,7 +152,7 @@ class MainActivity : AppCompatActivity() {
             CameraIntent.Build(this).apply {
                 setAction(IntentKey.ACTION_TAKE_MILEAGE_PICTURES)
                 //setCanMute(false)
-                setHasHorizon(true)
+                //setHasHorizon(true)
                 //setCropSize(cropSize)
                 setCanUiRotation(true)
                 //setHorizonColor(Color.RED)
@@ -188,7 +168,7 @@ class MainActivity : AppCompatActivity() {
             CameraIntent.Build(this).apply {
                 setAction(IntentKey.ACTION_TAKE_VIN_NUMBER_PICTURES)
                 //setCanMute(false)
-                setHasHorizon(true)
+                //setHasHorizon(true)
                 //setCropSize(cropSize)
                 setCanUiRotation(true)
                 //setHorizonColor(Color.RED)

@@ -123,17 +123,6 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-
-                />
-            <androidx.appcompat.widget.AppCompatTextView
-                android:id="@+id/adb_cameralibrary_textview_debug"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:padding="@dimen/adb_cameralibrary_dp4"
-                android:textColor="@color/adb_cameralibrary_red_A700"
-                android:textSize="@dimen/adb_cameralibrary_sp10"
-                app:layout_constraintBottom_toTopOf="@+id/adb_cameralibrary_view_unused_area_border_top"
-                app:layout_constraintEnd_toEndOf="@+id/adb_cameralibrary_view_unused_area_border_top"
                 />
         </androidx.constraintlayout.widget.ConstraintLayout>
         <!-- 플래쉬. -->
@@ -221,14 +210,5 @@
                 app:layout_constraintTop_toBottomOf="@+id/adb_cameralibrary_button_finish"
                 />
         </androidx.constraintlayout.widget.ConstraintLayout>
-        <!--        <androidx.appcompat.widget.AppCompatImageView-->
-        <!--            android:id="@+id/adb_cameralibrary_imageview_thumbnail"-->
-        <!--            android:layout_width="160dp"-->
-        <!--            android:layout_height="wrap_content"-->
-        <!--            android:adjustViewBounds="true"-->
-        <!--            android:scaleType="fitCenter"-->
-        <!--            app:layout_constraintEnd_toEndOf="@+id/adb_cameralibrary_preview_view"-->
-        <!--            app:layout_constraintTop_toTopOf="@+id/adb_cameralibrary_preview_view"-->
-        <!--            />-->
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

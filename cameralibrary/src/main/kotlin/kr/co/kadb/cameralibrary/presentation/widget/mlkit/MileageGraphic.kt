@@ -16,10 +16,7 @@
 
 package kr.co.kadb.cameralibrary.presentation.widget.mlkit
 
-import android.graphics.Canvas
-import android.graphics.Color
-import android.graphics.Paint
-import android.graphics.RectF
+import android.graphics.*
 import com.google.mlkit.vision.text.Text
 import timber.log.Timber
 import kotlin.math.max
@@ -30,21 +27,21 @@ import kotlin.math.min
  * overlay view.
  */
 class MileageGraphic constructor(
-    overlay: GraphicOverlay?, private val text: Text
+    overlay: GraphicOverlay?,
+    private val text: Text,
+    private val result: ((Any) -> Unit)? = null
 ) : GraphicOverlay.Graphic(overlay) {
 
-    private val rectPaint: Paint = Paint()
-    private val labelPaint: Paint
-    private val numberPaint: Paint
+    private val rectPaint = Paint()
+    private val labelPaint = Paint()
+    private val numberPaint = Paint()
 
     init {
         rectPaint.color = MARKER_COLOR
         rectPaint.style = Paint.Style.STROKE
         rectPaint.strokeWidth = STROKE_WIDTH
-        numberPaint = Paint()
         numberPaint.color = TEXT_COLOR
         numberPaint.textSize = TEXT_SIZE
-        labelPaint = Paint()
         labelPaint.color = MARKER_COLOR
         labelPaint.style = Paint.Style.FILL
         // Redraw the overlay, as this graphic has been added.
@@ -53,44 +50,44 @@ class MileageGraphic constructor(
 
     /** Draws the text block annotations for position, size, and raw value on the supplied canvas. */
     override fun draw(canvas: Canvas) {
-        for (textBlock in text.textBlocks) { // Renders the text at the bottom of the box.
+        var drawRectf: RectF? = null
+        var drawMileage = 0
+        for (textBlock in text.textBlocks) {
+            // Debug.
+            //Timber.i(">>>>> ${javaClass.simpleName} > TEXT_BLOCK > ${textBlock.text}")
             for (line in textBlock.lines) {
+                // Debug.
+                Timber.i(">>>>> ${javaClass.simpleName} > LINE > ${line.text}")
                 for (element in line.elements) {
                     // 주행거리 정규식(0~9 4자리에서 6자리).
-                    val regex = Regex("[0-9]{4,6}")
+                    val regex = Regex("[0-9]{3,6}")
                     val matchResult = regex.find(element.text)
                     val mileage = matchResult?.value?.toIntOrNull() ?: 0
 
                     // found.
-                    if (matchResult != null && mileage >= 1001) {
-//                            regex.findAll(element.text).forEach { matchResult ->
+                    if (/*element.confidence >= 0.7f && */mileage > 1000 && mileage > drawMileage) {
                         // Debug.
-                        Timber.d(">>>>> ${javaClass.simpleName} > matchResult > ${matchResult.value}")
-//                                Timber.d(
-//                                    ">>>>> ${javaClass.simpleName} > elements > " +
-//                                            "[${element.text}] : [${element.confidence}]" +
-//                                            " - language : ${element.recognizedLanguage}, " +
-//                                            "boundingBox : ${element.boundingBox}"
-//                                    //", cornerPoints : ${element.cornerPoints.toJsonPretty()}"
-//                                )
-
-
-                        // Draws the bounding box around the TextBlock.
-                        val rect = RectF(line.boundingBox)
-                        drawText(
-                            mileage.toString(),
-                            rect,
-                            TEXT_SIZE + 2 * STROKE_WIDTH,
-                            canvas
+                        Timber.d(
+                            ">>>>> ${javaClass.simpleName} > ELEMENT > " +
+                                    "[$mileage] => ${element.text} : ${element.confidence}"
                         )
+
+                        // 가장 큰 값 취합.
+                        drawMileage = mileage
+                        drawRectf = RectF(element.boundingBox)
                     }
                 }
             }
         }
+
+        // 감지영역 그리기.
+        if (drawRectf != null) {
+            drawText(drawMileage.toString(), drawRectf, canvas)
+            result?.invoke(drawMileage)
+        }
     }
 
-    private fun drawText(text: String, rect: RectF, textHeight: Float, canvas: Canvas) {
-        // If the image is flipped, the left will be translated to right, and the right to left.
+    private fun drawText(text: String, rect: RectF, canvas: Canvas) {
         val x0 = translateX(rect.left)
         val x1 = translateX(rect.right)
         rect.left = min(x0, x1)
@@ -101,7 +98,7 @@ class MileageGraphic constructor(
         val textWidth = numberPaint.measureText(text)
         canvas.drawRect(
             rect.left - STROKE_WIDTH,
-            rect.top - textHeight,
+            rect.top - TEXT_HEIGHT,
             rect.left + textWidth + 2 * STROKE_WIDTH,
             rect.top,
             labelPaint
@@ -113,7 +110,8 @@ class MileageGraphic constructor(
     companion object {
         private const val TEXT_COLOR = Color.BLACK
         private const val MARKER_COLOR = Color.WHITE
-        private const val TEXT_SIZE = 54.0f
         private const val STROKE_WIDTH = 4.0f
+        private const val TEXT_SIZE = 54.0f
+        private const val TEXT_HEIGHT = TEXT_SIZE + 2 * STROKE_WIDTH
     }
 }

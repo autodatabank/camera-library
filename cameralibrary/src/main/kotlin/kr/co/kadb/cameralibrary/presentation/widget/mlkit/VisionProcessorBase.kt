@@ -20,17 +20,12 @@ import android.app.ActivityManager
 import android.content.Context
 import android.graphics.Bitmap
 import android.os.SystemClock
-import android.util.Log
 import android.widget.Toast
 import androidx.annotation.GuardedBy
 import androidx.camera.core.ExperimentalGetImage
 import androidx.camera.core.ImageProxy
-import com.google.android.gms.tasks.*
-import com.google.android.odml.image.BitmapMlImageBuilder
-import com.google.android.odml.image.ByteBufferMlImageBuilder
-import com.google.android.odml.image.MediaMlImageBuilder
-import com.google.android.odml.image.MlImage
-import com.google.mlkit.common.MlKitException
+import com.google.android.gms.tasks.Task
+import com.google.android.gms.tasks.TaskExecutors
 import com.google.mlkit.vision.common.InputImage
 import timber.log.Timber
 import java.lang.Math.max
@@ -45,13 +40,10 @@ import java.util.*
  *
  * @param <T> The type of the detected feature.
  */
-abstract class VisionProcessorBase<T>(context: Context) : VisionImageProcessor {
-
-    companion object {
-        const val MANUAL_TESTING_LOG = "LogTagForTest"
-        private const val TAG = "VisionProcessorBase"
-    }
-
+abstract class VisionProcessorBase<T>(
+    context: Context,
+    private val result: ((Any) -> Unit)? = null
+) : VisionImageProcessor {
     private var activityManager: ActivityManager =
         context.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
     private val fpsTimer = Timer()
@@ -212,7 +204,9 @@ abstract class VisionProcessorBase<T>(context: Context) : VisionImageProcessor {
     // -----------------Code for processing live preview frame from CameraX API-----------------------
     @ExperimentalGetImage
     override fun processImageProxy(
-        image: ImageProxy, graphicOverlay: GraphicOverlay, result: ((T) -> Unit)? = null
+        image: ImageProxy,
+        graphicOverlay: GraphicOverlay,
+        result: ((Any) -> Unit)? = null
     ) {
         val frameStartMs = SystemClock.elapsedRealtime()
         if (isShutdown) {
@@ -354,7 +348,7 @@ abstract class VisionProcessorBase<T>(context: Context) : VisionImageProcessor {
 
 
             // Hide Detection Info.
-            if (/*!PreferenceUtils.shouldHideDetectionInfo(graphicOverlay.context)*/true) {
+            if (/*!PreferenceUtils.shouldHideDetectionInfo(graphicOverlay.context)*/false) {
                 graphicOverlay.add(
                     InferenceInfoGraphic(
                         graphicOverlay,

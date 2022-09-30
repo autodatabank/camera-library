@@ -58,8 +58,10 @@ class VinNumberGraphic constructor(
         //Timber.d(">>>>> ${javaClass.simpleName} > textBlocks : ${text.textBlocks}")
         for (textBlock in text.textBlocks) { // Renders the text at the bottom of the box.
             // Debug.
-            //Timber.d(">>>>> ${javaClass.simpleName} > textBlock : $textBlock}")
+            //Timber.i(">>>>> ${javaClass.simpleName} > TEXT_BLOCK > ${textBlock.text}")
             for (line in textBlock.lines) {
+                // Debug.
+                Timber.i(">>>>> ${javaClass.simpleName} > LINE > ${line.text}")
                 if (line.confidence >= 0.0f) {
                     // Debug.
                     Timber.d(
@@ -76,51 +78,14 @@ class VinNumberGraphic constructor(
                     if (matchResult != null) {
                         // Draws the bounding box around the TextBlock.
                         val rect = RectF(line.boundingBox)
-                        drawText(
-                            line.text,
-                            rect,
-                            TEXT_SIZE + 2 * STROKE_WIDTH,
-                            canvas
-                        )
+                        drawText(line.text, rect, canvas)
                     }
-
-
-//                    for (element in line.elements) {
-//                          // 차대번호 정규식(A~Z, 0~9 혼합 17자리).
-//                        val regex = Regex("[A-Z0-9]{17}")
-//                        val matchResult = regex.matchEntire(element.text)
-//
-//                        // found.
-//                        if (matchResult != null) {
-////                            regex.findAll(element.text).forEach { matchResult ->
-//                            // Debug.
-//                            Timber.d(">>>>> ${javaClass.simpleName} > matchResult > ${matchResult.value}")
-////                                Timber.d(
-////                                    ">>>>> ${javaClass.simpleName} > elements > " +
-////                                            "[${element.text}] : [${element.confidence}]" +
-////                                            " - language : ${element.recognizedLanguage}, " +
-////                                            "boundingBox : ${element.boundingBox}"
-////                                    //", cornerPoints : ${element.cornerPoints.toJsonPretty()}"
-////                                )
-//
-//
-//                            // Draws the bounding box around the TextBlock.
-//                            val rect = RectF(line.boundingBox)
-//                            drawText(
-//                                matchResult.value,
-//                                rect,
-//                                TEXT_SIZE + 2 * STROKE_WIDTH,
-//                                canvas
-//                            )
-//                        }
-//                    }
                 }
             }
         }
     }
 
-    private fun drawText(text: String, rect: RectF, textHeight: Float, canvas: Canvas) {
-        // If the image is flipped, the left will be translated to right, and the right to left.
+    private fun drawText(text: String, rect: RectF, canvas: Canvas) {
         val x0 = translateX(rect.left)
         val x1 = translateX(rect.right)
         rect.left = min(x0, x1)
@@ -131,7 +96,7 @@ class VinNumberGraphic constructor(
         val textWidth = numberPaint.measureText(text)
         canvas.drawRect(
             rect.left - STROKE_WIDTH,
-            rect.top - textHeight,
+            rect.top - TEXT_HEIGHT,
             rect.left + textWidth + 2 * STROKE_WIDTH,
             rect.top,
             labelPaint
@@ -143,7 +108,8 @@ class VinNumberGraphic constructor(
     companion object {
         private const val TEXT_COLOR = Color.BLACK
         private const val MARKER_COLOR = Color.WHITE
-        private const val TEXT_SIZE = 54.0f
         private const val STROKE_WIDTH = 4.0f
+        private const val TEXT_SIZE = 54.0f
+        private const val TEXT_HEIGHT = TEXT_SIZE + 2 * STROKE_WIDTH
     }
 }

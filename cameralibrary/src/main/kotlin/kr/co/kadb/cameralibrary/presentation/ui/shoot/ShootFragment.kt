@@ -279,15 +279,6 @@ internal class ShootFragment :
                         } catch (ex: IOException) {
                             ex.printStackTrace()
                         }
-//
-//                        try {
-//                            imageProcessor?.processImageProxy(image, graphicOverlay)
-//                        } catch (ex: MlKitException) {
-//                            ex.printStackTrace()
-//                        }
-
-                        // Close ImageProxy.
-                        //image.close()
                     }
 
                     override fun onError(exception: ImageCaptureException) {
@@ -424,73 +415,60 @@ internal class ShootFragment :
                         it.applyTo(unusedAreaView)
                     }
                 }
-                binding.adbCameralibraryViewHorizon.apply {
-                    layoutParams = ConstraintLayout.LayoutParams(1, 1)
-                    ConstraintSet().also {
-                        it.clone(unusedAreaView)
-                        it.connect(
-                            id, ConstraintSet.START, unusedAreaView.id, ConstraintSet.START
-                        )
-                        it.connect(
-                            id, ConstraintSet.END, unusedAreaView.id, ConstraintSet.END
-                        )
-                        it.connect(
-                            id, ConstraintSet.TOP, unusedAreaView.id, ConstraintSet.TOP
-                        )
-                        it.connect(
-                            id, ConstraintSet.BOTTOM, unusedAreaView.id, ConstraintSet.BOTTOM
-                        )
-                        it.applyTo(unusedAreaView)
-                    }
-                }.run {
-                    val transition = ChangeBounds()
-                    transition.interpolator = AccelerateDecelerateInterpolator()
-                    transition.addListener(onEnd = {
-                        val (width, height) = when (targetRotation) {
-                            1, 3 -> Pair(2, 0)
-                            else -> Pair(0, 2)
-                        }
-                        layoutParams = ConstraintLayout.LayoutParams(width, height)
-                        val constraintSet = ConstraintSet()
-                        constraintSet.clone(unusedAreaView)
-                        constraintSet.connect(
-                            id, ConstraintSet.START, unusedAreaView.id, ConstraintSet.START
-                        )
-                        constraintSet.connect(
-                            id, ConstraintSet.END, unusedAreaView.id, ConstraintSet.END
-                        )
-                        constraintSet.connect(
-                            id, ConstraintSet.TOP, unusedAreaView.id, ConstraintSet.TOP
-                        )
-                        constraintSet.connect(
-                            id, ConstraintSet.BOTTOM, unusedAreaView.id, ConstraintSet.BOTTOM
-                        )
-                        constraintSet.applyTo(unusedAreaView)
-                        val innerTransition = ChangeBounds()
-                        innerTransition.interpolator = AccelerateDecelerateInterpolator()
-                        TransitionManager.beginDelayedTransition(
-                            binding.adbCameralibraryLayout, innerTransition
-                        )
-                    })
-                    TransitionManager.beginDelayedTransition(
-                        binding.adbCameralibraryLayout, transition
+            }
+
+            // 수평선.
+            binding.adbCameralibraryViewHorizon.apply {
+                layoutParams = ConstraintLayout.LayoutParams(1, 1)
+                ConstraintSet().also {
+                    it.clone(unusedAreaView)
+                    it.connect(
+                        id, ConstraintSet.START, unusedAreaView.id, ConstraintSet.START
                     )
+                    it.connect(
+                        id, ConstraintSet.END, unusedAreaView.id, ConstraintSet.END
+                    )
+                    it.connect(
+                        id, ConstraintSet.TOP, unusedAreaView.id, ConstraintSet.TOP
+                    )
+                    it.connect(
+                        id, ConstraintSet.BOTTOM, unusedAreaView.id, ConstraintSet.BOTTOM
+                    )
+                    it.applyTo(unusedAreaView)
                 }
-//
-//                // Debug - 해상도 표시.
-//                val (cropWidth, cropHeight) = when (targetRotation) {
-//                    1, 3 -> Pair(
-//                        unusedAreaView.height.toFloat() - (unusedAreaHeight * 2.0f),
-//                        unusedAreaView.width.toFloat() - (unusedAreaWidth * 2.0f)
-//                    )
-//                    else -> Pair(
-//                        unusedAreaView.width.toFloat() - (unusedAreaWidth * 2.0f),
-//                        unusedAreaView.height.toFloat() - (unusedAreaHeight * 2.0f)
-//                    )
-//                }
-//                binding.adbCameralibraryTextviewDebug.text = resources.displayMetrics.density.let {
-//                    "${(cropWidth * it).toInt()}x${(cropHeight * it).toInt()}"
-//                }
+            }.run {
+                val transition = ChangeBounds()
+                transition.interpolator = AccelerateDecelerateInterpolator()
+                transition.addListener(onEnd = {
+                    val (width, height) = when (targetRotation) {
+                        1, 3 -> Pair(2, 0)
+                        else -> Pair(0, 2)
+                    }
+                    layoutParams = ConstraintLayout.LayoutParams(width, height)
+                    val constraintSet = ConstraintSet()
+                    constraintSet.clone(unusedAreaView)
+                    constraintSet.connect(
+                        id, ConstraintSet.START, unusedAreaView.id, ConstraintSet.START
+                    )
+                    constraintSet.connect(
+                        id, ConstraintSet.END, unusedAreaView.id, ConstraintSet.END
+                    )
+                    constraintSet.connect(
+                        id, ConstraintSet.TOP, unusedAreaView.id, ConstraintSet.TOP
+                    )
+                    constraintSet.connect(
+                        id, ConstraintSet.BOTTOM, unusedAreaView.id, ConstraintSet.BOTTOM
+                    )
+                    constraintSet.applyTo(unusedAreaView)
+                    val innerTransition = ChangeBounds()
+                    innerTransition.interpolator = AccelerateDecelerateInterpolator()
+                    TransitionManager.beginDelayedTransition(
+                        binding.adbCameralibraryLayout, innerTransition
+                    )
+                })
+                TransitionManager.beginDelayedTransition(
+                    binding.adbCameralibraryLayout, transition
+                )
             }
         }
     }
@@ -606,32 +584,10 @@ internal class ShootFragment :
                 needUpdateGraphicOverlayImageSourceInfo = false
             }
 
-//            BitmapUtils.getBitmap(imageProxy)?.let { bitmap ->
-//                val image = InputImage.fromBitmap(
-//                    bitmap, imageProxy.imageInfo.rotationDegrees
-//                )
-//                recognizer.process(image).addOnSuccessListener { text ->
-//                    text.textBlocks.forEach { textBlock ->
-//                        textBlock.lines.forEach { textLine ->
-//                            textLine.elements.forEach { element ->
-//                                Timber.i(">>>>> recognizer addOnSuccessListener : ${element.text}")
-//                            }
-//                        }
-//                    }
-//                }.addOnFailureListener {
-//                    Timber.i(">>>>> recognizer addOnFailureListener : $it")
-//                }
-//            }
-            //val bitmap = BitmapUtils.getBitmap(imageProxy)
             try {
-                //imageProcessor?.processBitmap(bitmap, graphicOverlay)
                 imageProcessor?.processImageProxy(imageProxy, graphicOverlay)
             } catch (ex: MlKitException) {
                 ex.printStackTrace()
-            } finally {
-                // close.
-                //bitmap?.recycle()
-                //imageProxy.close()
             }
         }
 
