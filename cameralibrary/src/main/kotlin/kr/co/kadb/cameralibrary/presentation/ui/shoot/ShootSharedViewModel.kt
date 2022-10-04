@@ -17,10 +17,10 @@ import kr.co.kadb.cameralibrary.presentation.model.ShootUiState
 import kr.co.kadb.cameralibrary.presentation.model.UiState
 import kr.co.kadb.cameralibrary.presentation.viewmodel.BaseAndroidViewModel
 import kr.co.kadb.cameralibrary.presentation.widget.extension.*
-import kr.co.kadb.cameralibrary.presentation.widget.util.IntentKey.ACTION_TAKE_MILEAGE_PICTURES
+import kr.co.kadb.cameralibrary.presentation.widget.util.IntentKey.ACTION_DETECT_MILEAGE_IN_PICTURES
 import kr.co.kadb.cameralibrary.presentation.widget.util.IntentKey.ACTION_TAKE_MULTIPLE_PICTURES
 import kr.co.kadb.cameralibrary.presentation.widget.util.IntentKey.ACTION_TAKE_VEHICLE_NUMBER_PICTURES
-import kr.co.kadb.cameralibrary.presentation.widget.util.IntentKey.ACTION_TAKE_VIN_NUMBER_PICTURES
+import kr.co.kadb.cameralibrary.presentation.widget.util.IntentKey.ACTION_DETECT_VIN_NUMBER_IN_PICTURES
 import timber.log.Timber
 import java.io.ByteArrayInputStream
 import java.io.IOException
@@ -42,10 +42,11 @@ constructor(
         data class TakePicture(
             val uri: Uri, val size: Size, val rotation: Int, val thumbnailBitmap: Bitmap?
         ) : Event()
-
         data class TakeMultiplePictures(
             val uris: ArrayList<Uri>, val sizes: ArrayList<Size>, val rotations: ArrayList<Int>
         ) : Event()
+        data class DetectMileageInImage(val mileage: Int) : Event()
+        data class DetectVinNumberInImage(val vinNumber: String) : Event()
     }
 
     // Event.
@@ -115,10 +116,10 @@ constructor(
             isDebug = isDebug,
             isShooted = false,
             isMultiplePicture = action == ACTION_TAKE_MULTIPLE_PICTURES,
-            isUsingMLKit = action == ACTION_TAKE_VEHICLE_NUMBER_PICTURES || action == ACTION_TAKE_MILEAGE_PICTURES || action == ACTION_TAKE_VIN_NUMBER_PICTURES,
+            isUsingMLKit = action == ACTION_TAKE_VEHICLE_NUMBER_PICTURES || action == ACTION_DETECT_MILEAGE_IN_PICTURES || action == ACTION_DETECT_VIN_NUMBER_IN_PICTURES,
             isVehicleNumberPicture = action == ACTION_TAKE_VEHICLE_NUMBER_PICTURES,
-            isMileagePicture = action == ACTION_TAKE_MILEAGE_PICTURES,
-            isVinNumberPicture = action == ACTION_TAKE_VIN_NUMBER_PICTURES,
+            isMileagePicture = action == ACTION_DETECT_MILEAGE_IN_PICTURES,
+            isVinNumberPicture = action == ACTION_DETECT_VIN_NUMBER_IN_PICTURES,
             canMute = canMute,
             hasHorizon = hasHorizon,
             canUiRotation = canUiRotation,
@@ -135,10 +136,10 @@ constructor(
             isDebug = isDebug,
             isShooted = false,
             isMultiplePicture = action == ACTION_TAKE_MULTIPLE_PICTURES,
-            isUsingMLKit = action == ACTION_TAKE_VEHICLE_NUMBER_PICTURES || action == ACTION_TAKE_MILEAGE_PICTURES || action == ACTION_TAKE_VIN_NUMBER_PICTURES,
+            isUsingMLKit = action == ACTION_TAKE_VEHICLE_NUMBER_PICTURES || action == ACTION_DETECT_MILEAGE_IN_PICTURES || action == ACTION_DETECT_VIN_NUMBER_IN_PICTURES,
             isVehicleNumberPicture = action == ACTION_TAKE_VEHICLE_NUMBER_PICTURES,
-            isMileagePicture = action == ACTION_TAKE_MILEAGE_PICTURES,
-            isVinNumberPicture = action == ACTION_TAKE_VIN_NUMBER_PICTURES,
+            isMileagePicture = action == ACTION_DETECT_MILEAGE_IN_PICTURES,
+            isVinNumberPicture = action == ACTION_DETECT_VIN_NUMBER_IN_PICTURES,
             canMute = canMute,
             hasHorizon = hasHorizon,
             canUiRotation = canUiRotation,
@@ -206,6 +207,17 @@ constructor(
                 item.value.uris, item.value.sizes, item.value.rotations
             )
         )
+    }
+
+    // 주행거리 감지.
+    fun detectInImage(mileage: Int) {
+        event(Event.DetectMileageInImage(mileage))
+    }
+
+    // 차대번호 감지.
+    fun detectInImage(vinNumber: String) {
+        // 촬영완료 이벤트.
+        event(Event.DetectVinNumberInImage(vinNumber))
     }
 
     // 이미지 저장.

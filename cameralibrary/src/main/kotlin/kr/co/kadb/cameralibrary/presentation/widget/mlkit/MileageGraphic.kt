@@ -16,9 +16,10 @@
 
 package kr.co.kadb.cameralibrary.presentation.widget.mlkit
 
-import android.graphics.*
-import com.google.mlkit.vision.text.Text
-import timber.log.Timber
+import android.graphics.Canvas
+import android.graphics.Color
+import android.graphics.Paint
+import android.graphics.RectF
 import kotlin.math.max
 import kotlin.math.min
 
@@ -28,8 +29,8 @@ import kotlin.math.min
  */
 class MileageGraphic constructor(
     overlay: GraphicOverlay?,
-    private val text: Text,
-    private val result: ((Any) -> Unit)? = null
+    private val drawText: List<String>,
+    private val drawRect: List<RectF>?
 ) : GraphicOverlay.Graphic(overlay) {
 
     private val rectPaint = Paint()
@@ -50,40 +51,8 @@ class MileageGraphic constructor(
 
     /** Draws the text block annotations for position, size, and raw value on the supplied canvas. */
     override fun draw(canvas: Canvas) {
-        var drawRectf: RectF? = null
-        var drawMileage = 0
-        for (textBlock in text.textBlocks) {
-            // Debug.
-            //Timber.i(">>>>> ${javaClass.simpleName} > TEXT_BLOCK > ${textBlock.text}")
-            for (line in textBlock.lines) {
-                // Debug.
-                Timber.i(">>>>> ${javaClass.simpleName} > LINE > ${line.text}")
-                for (element in line.elements) {
-                    // 주행거리 정규식(0~9 4자리에서 6자리).
-                    val regex = Regex("[0-9]{3,6}")
-                    val matchResult = regex.find(element.text)
-                    val mileage = matchResult?.value?.toIntOrNull() ?: 0
-
-                    // found.
-                    if (/*element.confidence >= 0.7f && */mileage > 1000 && mileage > drawMileage) {
-                        // Debug.
-                        Timber.d(
-                            ">>>>> ${javaClass.simpleName} > ELEMENT > " +
-                                    "[$mileage] => ${element.text} : ${element.confidence}"
-                        )
-
-                        // 가장 큰 값 취합.
-                        drawMileage = mileage
-                        drawRectf = RectF(element.boundingBox)
-                    }
-                }
-            }
-        }
-
-        // 감지영역 그리기.
-        if (drawRectf != null) {
-            drawText(drawMileage.toString(), drawRectf, canvas)
-            result?.invoke(drawMileage)
+        drawRect?.forEachIndexed { index, rectF ->
+            drawText(drawText[index], rectF, canvas)
         }
     }
 

@@ -29,7 +29,7 @@ import timber.log.Timber
 class TextRecognitionProcessor(
     context: Context,
     textRecognizerOptions: TextRecognizerOptionsInterface
-) : VisionProcessorBase<Text>(context) {
+) : VisionProcessorBase<Text, String>(context) {
     // Recognizer.
     private val textRecognizer: TextRecognizer = TextRecognition.getClient(textRecognizerOptions)
 
@@ -81,6 +81,10 @@ class TextRecognitionProcessor(
     override fun onFailure(ex: Exception) {
         // Debug.
         Timber.w(">>>>> ${javaClass.simpleName} > onFailure : $ex")
+    }
+
+    override fun onComplete(onFailure: ((Exception) -> Unit)?, onSuccess: ((String) -> Unit)?) {
+        TODO("Not yet implemented")
     }
 
     /*companion object {

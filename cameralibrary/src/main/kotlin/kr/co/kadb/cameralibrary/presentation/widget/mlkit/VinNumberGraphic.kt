@@ -20,8 +20,6 @@ import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.RectF
-import com.google.mlkit.vision.text.Text
-import timber.log.Timber
 import kotlin.math.max
 import kotlin.math.min
 
@@ -31,7 +29,8 @@ import kotlin.math.min
  */
 class VinNumberGraphic constructor(
     overlay: GraphicOverlay?,
-    private val text: Text
+    private val drawText: List<String>,
+    private val drawRect: List<RectF>?
 ) : GraphicOverlay.Graphic(overlay) {
 
     private val rectPaint: Paint = Paint()
@@ -54,34 +53,8 @@ class VinNumberGraphic constructor(
 
     /** Draws the text block annotations for position, size, and raw value on the supplied canvas. */
     override fun draw(canvas: Canvas) {
-        // Debug.
-        //Timber.d(">>>>> ${javaClass.simpleName} > textBlocks : ${text.textBlocks}")
-        for (textBlock in text.textBlocks) { // Renders the text at the bottom of the box.
-            // Debug.
-            //Timber.i(">>>>> ${javaClass.simpleName} > TEXT_BLOCK > ${textBlock.text}")
-            for (line in textBlock.lines) {
-                // Debug.
-                Timber.i(">>>>> ${javaClass.simpleName} > LINE > ${line.text}")
-                if (line.confidence >= 0.0f) {
-                    // Debug.
-                    Timber.d(
-                        ">>>>> ${javaClass.simpleName} > lines > " +
-                                "[${line.text}] : [${line.confidence}], " +
-                                "boundingBox : ${line.boundingBox}"
-                        //", cornerPoints : ${line.cornerPoints.toJsonPretty()}"
-                    )
-                    // 차대번호 정규식(A~Z, 0~9 혼합 17자리).
-                    val regex = Regex("[A-Z0-9]{17}")
-                    val matchResult = regex.matchEntire(line.text)
-
-                    // found.
-                    if (matchResult != null) {
-                        // Draws the bounding box around the TextBlock.
-                        val rect = RectF(line.boundingBox)
-                        drawText(line.text, rect, canvas)
-                    }
-                }
-            }
+        drawRect?.forEachIndexed { index, rectF ->
+            drawText(drawText[index], rectF, canvas)
         }
     }
 

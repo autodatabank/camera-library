@@ -83,7 +83,7 @@ internal class ShootFragment :
 
     //
     private var graphicOverlay: GraphicOverlay? = null
-    private var imageProcessor: VisionImageProcessor? = null
+    private var imageProcessor: VisionImageProcessor<*>? = null
     private var needUpdateGraphicOverlayImageSourceInfo = false
 
     // OrientationEventListener
@@ -239,6 +239,26 @@ internal class ShootFragment :
                             putExtra(IntentKey.EXTRA_URIS, event.uris)
                             putExtra(IntentKey.EXTRA_SIZES, event.sizes)
                             putExtra(IntentKey.EXTRA_ROTATIONS, event.rotations)
+                        }.also {
+                            requireActivity().setResult(Activity.RESULT_OK, it)
+                        }.run {
+                            activity?.finish()
+                        }
+                    }
+                    is Event.DetectMileageInImage -> {
+                        Intent().apply {
+                            action = IntentKey.ACTION_DETECT_MILEAGE_IN_PICTURES
+                            putExtra(IntentKey.EXTRA_MILEAGE, event.mileage)
+                        }.also {
+                            requireActivity().setResult(Activity.RESULT_OK, it)
+                        }.run {
+                            activity?.finish()
+                        }
+                    }
+                    is Event.DetectVinNumberInImage -> {
+                        Intent().apply {
+                            action = IntentKey.ACTION_DETECT_VIN_NUMBER_IN_PICTURES
+                            putExtra(IntentKey.EXTRA_VIN_NUMBER, event.vinNumber)
                         }.also {
                             requireActivity().setResult(Activity.RESULT_OK, it)
                         }.run {
@@ -515,13 +535,13 @@ internal class ShootFragment :
         needUpdateGraphicOverlayImageSourceInfo = true
 
         imageProcessor = when (viewModel.item.value.action) {
-            IntentKey.ACTION_TAKE_MILEAGE_PICTURES -> {
+            IntentKey.ACTION_DETECT_MILEAGE_IN_PICTURES -> {
                 MileageRecognitionProcessor(
                     requireContext(),
                     KoreanTextRecognizerOptions.Builder().build()
                 )
             }
-            IntentKey.ACTION_TAKE_VIN_NUMBER_PICTURES -> {
+            IntentKey.ACTION_DETECT_VIN_NUMBER_IN_PICTURES -> {
                 VinNumberRecognitionProcessor(
                     requireContext(),
                     KoreanTextRecognizerOptions.Builder().build()
@@ -585,7 +605,11 @@ internal class ShootFragment :
             }
 
             try {
-                imageProcessor?.processImageProxy(imageProxy, graphicOverlay)
+                graphicOverlay?.let {
+                    imageProcessor?.processImageProxy(imageProxy, it) {
+
+                    }
+                }
             } catch (ex: MlKitException) {
                 ex.printStackTrace()
             }
@@ -602,6 +626,22 @@ internal class ShootFragment :
             )
         } catch (ex: Exception) {
             ex.printStackTrace()
+        }
+
+        imageProcessor?.onComplete {
+            imageProcessor?.run { this.stop() }
+            when (imageProcessor) {
+                is MileageRecognitionProcessor -> {
+                    viewModel.detectInImage(it as Int)
+                }
+                is VinNumberRecognitionProcessor -> {
+                    viewModel.detectInImage(it as String)
+                }
+                is VehicleNumberRecognitionProcessor -> {
+                }
+                else -> {
+                }
+            }
         }
     }
 

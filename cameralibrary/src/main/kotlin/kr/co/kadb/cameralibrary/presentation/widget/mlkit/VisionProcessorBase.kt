@@ -40,10 +40,9 @@ import java.util.*
  *
  * @param <T> The type of the detected feature.
  */
-abstract class VisionProcessorBase<T>(
-    context: Context,
-    private val result: ((Any) -> Unit)? = null
-) : VisionImageProcessor {
+abstract class VisionProcessorBase<T, R>(
+    context: Context
+) : VisionImageProcessor<R> {
     private var activityManager: ActivityManager =
         context.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
     private val fpsTimer = Timer()
@@ -206,7 +205,8 @@ abstract class VisionProcessorBase<T>(
     override fun processImageProxy(
         image: ImageProxy,
         graphicOverlay: GraphicOverlay,
-        result: ((Any) -> Unit)? = null
+        onFailure: ((Exception) -> Unit)?,
+        onSuccess: ((String) -> Unit)?
     ) {
         val frameStartMs = SystemClock.elapsedRealtime()
         if (isShutdown) {

@@ -11,10 +11,10 @@ object IntentKey {
 	const val ACTION_TAKE_VEHICLE_NUMBER_PICTURES = "kr.co.kadb.cameralibrary.ACTION_TAKE_VEHICLE_NUMBER_PICTURES"
 
 	// 주행거리 촬영.
-	const val ACTION_TAKE_MILEAGE_PICTURES = "kr.co.kadb.cameralibrary.ACTION_TAKE_MILEAGE_PICTURES"
+	const val ACTION_DETECT_MILEAGE_IN_PICTURES = "kr.co.kadb.cameralibrary.ACTION_DETECT_MILEAGE_IN_PICTURES"
 
 	// 차대번호 촬영.
-	const val ACTION_TAKE_VIN_NUMBER_PICTURES = "kr.co.kadb.cameralibrary.ACTION_TAKE_VIN_NUMBER_PICTURES"
+	const val ACTION_DETECT_VIN_NUMBER_IN_PICTURES = "kr.co.kadb.cameralibrary.ACTION_DETECT_VIN_NUMBER_IN_PICTURES"
 
 	// 종료.
 	internal const val BROADCAST_FINISH = "kr.co.kadb.cameralibrary.finish"
@@ -89,4 +89,10 @@ object IntentKey {
 
 	// 여러 장 촬영 시 rotation 반환용.
 	const val EXTRA_ROTATIONS = "EXTRA_ROTATIONS"
+
+	// 주행거리 반환용.
+	const val EXTRA_MILEAGE = "EXTRA_MILEAGE"
+
+	// 차대번호 반환용.
+	const val EXTRA_VIN_NUMBER = "EXTRA_VIN_NUMBER"
 }

@@ -17,20 +17,30 @@
 package kr.co.kadb.cameralibrary.presentation.widget.mlkit
 
 import android.content.Context
+import android.graphics.RectF
 import com.google.android.gms.tasks.Task
 import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.text.Text
 import com.google.mlkit.vision.text.TextRecognition
 import com.google.mlkit.vision.text.TextRecognizer
 import com.google.mlkit.vision.text.TextRecognizerOptionsInterface
+import kr.co.kadb.cameralibrary.presentation.widget.extension.toJsonPretty
 import timber.log.Timber
 
 /** Processor for the text detector demo. */
 class MileageRecognitionProcessor(
     context: Context,
-    textRecognizerOptions: TextRecognizerOptionsInterface,
-    private val result: ((Any) -> Unit)? = null
-) : VisionProcessorBase<Text>(context, result) {
+    textRecognizerOptions: TextRecognizerOptionsInterface
+) : VisionProcessorBase<Text, Int>(context) {
+    // Data.
+    private val mileages = mutableListOf<Int>()
+
+    // Success.
+    private var onSuccess: ((Int) -> Unit)? = null
+
+    // Failure.
+    private var onFailure: ((Exception) -> Unit)? = null
+
     // Recognizer.
     private val textRecognizer: TextRecognizer = TextRecognition.getClient(textRecognizerOptions)
 
@@ -44,13 +54,72 @@ class MileageRecognitionProcessor(
     }
 
     override fun onSuccess(results: Text, graphicOverlay: GraphicOverlay) {
-        graphicOverlay.add(MileageGraphic(graphicOverlay, results) {
-            result?.invoke(it)
-        })
+        var drawMileage = 0
+        var drawRectf: RectF? = null
+        for (textBlock in results.textBlocks) {
+            // Debug.
+            //Timber.i(">>>>> ${javaClass.simpleName} > TEXT_BLOCK > ${textBlock.text}")
+            for (line in textBlock.lines) {
+                // Debug.
+                Timber.i(">>>>> ${javaClass.simpleName} > LINE > ${line.text}")
+                for (element in line.elements) {
+                    // 주행거리 정규식(0~9 4자리에서 6자리).
+                    val regex = Regex("[0-9]{3,6}")
+                    val matchResult = regex.find(element.text)
+                    val mileage = matchResult?.value?.toIntOrNull() ?: 0
+
+                    // found.
+                    if (/*element.confidence >= 0.7f && */mileage > 1000 && mileage > drawMileage) {
+                        // Debug.
+                        Timber.d(
+                            ">>>>> ${javaClass.simpleName} > ELEMENT > " +
+                                    "[$mileage] => ${element.text} : ${element.confidence}"
+                        )
+
+                        // 가장 큰 값 취합.
+                        drawMileage = mileage
+                        drawRectf = RectF(element.boundingBox)
+                    }
+                }
+            }
+        }
+
+        // Draw & Result invoke.
+        if (drawMileage > 0 && drawRectf != null) {
+            // Draw.
+            graphicOverlay.add(
+                MileageGraphic(
+                    graphicOverlay,
+                    listOf(drawMileage.toString()),
+                    listOf(drawRectf)
+                )
+            )
+            mileages.add(drawMileage)
+
+            // Group Counting.
+            mileages.groupingBy {
+                it
+            }.eachCount().also { map ->
+                val max = map.maxBy {
+                    it.value
+                }
+                if (max.value >= 10) {
+                    onSuccess?.invoke(max.key)
+                }
+
+                Timber.i(">>>>> MILEAGES GROUP ${map.size} : ${max.value} => ${map.toJsonPretty()}")
+            }
+        }
     }
 
     override fun onFailure(ex: Exception) {
         // Debug.
         Timber.w(">>>>> ${javaClass.simpleName} > onFailure : $ex")
+        onFailure?.invoke(ex)
+    }
+
+    override fun onComplete(onFailure: ((Exception) -> Unit)?, onSuccess: ((Int) -> Unit)?) {
+        this.onSuccess = onSuccess
+        this.onFailure = onFailure
     }
 }

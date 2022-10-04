@@ -4,21 +4,18 @@ import android.content.Intent
 import android.os.Bundle
 import android.widget.Button
 import android.widget.ImageView
+import android.widget.TextView
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import kr.co.kadb.cameralibrary.presentation.CameraIntent
 import kr.co.kadb.cameralibrary.presentation.model.CropSize
-import kr.co.kadb.cameralibrary.presentation.widget.mlkit.VisionImageProcessor
 import kr.co.kadb.cameralibrary.presentation.widget.util.BitmapHelper
 import kr.co.kadb.cameralibrary.presentation.widget.util.IntentKey
 import kr.co.kadb.cameralibrary.presentation.widget.util.UriHelper
 import timber.log.Timber
 
 class MainActivity : AppCompatActivity() {
-    //
-    private var imageProcessor: VisionImageProcessor? = null
-
     // Crop Size.
     private val cropSize = CropSize(0.7f, 0.5f)
 
@@ -81,10 +78,14 @@ class MainActivity : AppCompatActivity() {
                     // Debug.
                     Timber.d(">>>>> imageUris : $imageUris")
                     Timber.d(">>>>> imageSizes : $imageSizes")
-                } else if (intent?.action == IntentKey.ACTION_TAKE_MILEAGE_PICTURES) {
+                } else if (intent?.action == IntentKey.ACTION_DETECT_MILEAGE_IN_PICTURES) {
                     // 주행거리.
-                } else if (intent?.action == IntentKey.ACTION_TAKE_VIN_NUMBER_PICTURES) {
+                    val mileage = intent.getIntExtra(IntentKey.EXTRA_MILEAGE, 0).toString()
+                    findViewById<TextView>(R.id.textview).text = mileage
+                } else if (intent?.action == IntentKey.ACTION_DETECT_VIN_NUMBER_IN_PICTURES) {
                     // 차대번호.
+                    val vinNumber = intent.getStringExtra(IntentKey.EXTRA_VIN_NUMBER)
+                    findViewById<TextView>(R.id.textview).text = vinNumber
                 }
             }
         }
@@ -150,7 +151,7 @@ class MainActivity : AppCompatActivity() {
         // 주행거리 촬영.
         findViewById<Button>(R.id.button_mileage_shoot).setOnClickListener {
             CameraIntent.Build(this).apply {
-                setAction(IntentKey.ACTION_TAKE_MILEAGE_PICTURES)
+                setAction(IntentKey.ACTION_DETECT_MILEAGE_IN_PICTURES)
                 //setCanMute(false)
                 //setHasHorizon(true)
                 //setCropSize(cropSize)
@@ -166,7 +167,7 @@ class MainActivity : AppCompatActivity() {
         // 차대번호 촬영.
         findViewById<Button>(R.id.button_vin_number_shoot).setOnClickListener {
             CameraIntent.Build(this).apply {
-                setAction(IntentKey.ACTION_TAKE_VIN_NUMBER_PICTURES)
+                setAction(IntentKey.ACTION_DETECT_VIN_NUMBER_IN_PICTURES)
                 //setCanMute(false)
                 //setHasHorizon(true)
                 //setCropSize(cropSize)
@@ -178,15 +179,5 @@ class MainActivity : AppCompatActivity() {
                 resultLauncher.launch(this.build())
             }
         }
-    }
-
-    override fun onPause() {
-        super.onPause()
-        imageProcessor?.run { this.stop() }
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        imageProcessor?.run { this.stop() }
     }
 }
