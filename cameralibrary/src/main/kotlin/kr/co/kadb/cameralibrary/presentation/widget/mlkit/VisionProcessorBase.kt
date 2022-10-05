@@ -204,9 +204,7 @@ abstract class VisionProcessorBase<T, R>(
     @ExperimentalGetImage
     override fun processImageProxy(
         image: ImageProxy,
-        graphicOverlay: GraphicOverlay,
-        onFailure: ((Exception) -> Unit)?,
-        onSuccess: ((String) -> Unit)?
+        graphicOverlay: GraphicOverlay
     ) {
         val frameStartMs = SystemClock.elapsedRealtime()
         if (isShutdown) {

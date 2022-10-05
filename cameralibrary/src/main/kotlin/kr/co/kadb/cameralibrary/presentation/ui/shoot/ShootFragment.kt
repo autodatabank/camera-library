@@ -6,6 +6,7 @@ import android.content.Intent
 import android.media.AudioManager
 import android.media.MediaActionSound
 import android.os.Bundle
+import android.util.Size
 import android.view.OrientationEventListener
 import android.view.Surface
 import android.view.View
@@ -183,6 +184,12 @@ internal class ShootFragment :
             binding.adbCameralibraryLayoutFinish.isVisible = it
         }
 
+        // 주행거리, 차대번호 감지 상태에서는 플래쉬, 촬영버튼 비활성화.
+        if (viewModel.item.value.isMileagePicture || viewModel.item.value.isVinNumberPicture) {
+            binding.adbCameralibraryLayoutFlash.isVisible = false
+            binding.adbCameralibraryButtonShooting.isVisible = false
+        }
+
         // 플래쉬 초기 아이콘 상태.
         val (@StringRes stringId, @DrawableRes drawableId) = when (viewModel.flashMode) {
             ImageCapture.FLASH_MODE_ON -> Pair(
@@ -205,8 +212,7 @@ internal class ShootFragment :
     // Init Observer.
     override fun initObserver() {
         repeatOnStarted {
-            viewModel.item.collect { item ->
-
+            viewModel.item.collect {
             }
         }
         repeatOnStarted {
@@ -220,7 +226,7 @@ internal class ShootFragment :
                     is Event.TakePicture -> {
                         // 결과 전달.
                         Intent().apply {
-                            action = IntentKey.ACTION_TAKE_PICTURE
+                            action = viewModel.item.value.action
                             putExtra("data", event.thumbnailBitmap)
                             putExtra(IntentKey.EXTRA_WIDTH, event.size.width)
                             putExtra(IntentKey.EXTRA_HEIGHT, event.size.height)
@@ -235,7 +241,7 @@ internal class ShootFragment :
                     }
                     is Event.TakeMultiplePictures -> {
                         Intent().apply {
-                            action = IntentKey.ACTION_TAKE_MULTIPLE_PICTURES
+                            action = viewModel.item.value.action
                             putExtra(IntentKey.EXTRA_URIS, event.uris)
                             putExtra(IntentKey.EXTRA_SIZES, event.sizes)
                             putExtra(IntentKey.EXTRA_ROTATIONS, event.rotations)
@@ -245,20 +251,16 @@ internal class ShootFragment :
                             activity?.finish()
                         }
                     }
-                    is Event.DetectMileageInImage -> {
+                    is Event.DetectInImage -> {
                         Intent().apply {
-                            action = IntentKey.ACTION_DETECT_MILEAGE_IN_PICTURES
-                            putExtra(IntentKey.EXTRA_MILEAGE, event.mileage)
-                        }.also {
-                            requireActivity().setResult(Activity.RESULT_OK, it)
-                        }.run {
-                            activity?.finish()
-                        }
-                    }
-                    is Event.DetectVinNumberInImage -> {
-                        Intent().apply {
-                            action = IntentKey.ACTION_DETECT_VIN_NUMBER_IN_PICTURES
-                            putExtra(IntentKey.EXTRA_VIN_NUMBER, event.vinNumber)
+                            action = viewModel.item.value.action
+                            putExtra(IntentKey.EXTRA_DETECT_TEXT, event.text)
+                            putExtra(IntentKey.EXTRA_DETECT_RECT, event.rect)
+                            putExtra("data", event.thumbnailBitmap)
+                            putExtra(IntentKey.EXTRA_WIDTH, event.size?.width)
+                            putExtra(IntentKey.EXTRA_HEIGHT, event.size?.height)
+                            putExtra(IntentKey.EXTRA_ROTATION, event.rotation)
+                            setDataAndType(event?.uri, "image/jpeg")
                         }.also {
                             requireActivity().setResult(Activity.RESULT_OK, it)
                         }.run {
@@ -280,33 +282,7 @@ internal class ShootFragment :
             }
 
             // 이미지 가져오기.
-            imageCapture?.takePicture(
-                cameraExecutor,
-                object : ImageCapture.OnImageCapturedCallback() {
-                    override fun onCaptureSuccess(image: ImageProxy) {
-                        super.onCaptureSuccess(image)
-                        // Debug.
-                        Timber.i(">>>>> ImageCapture onCaptureSuccess")
-
-                        try {
-                            // 이미지 저장.
-                            viewModel.saveImage(
-                                image.planes[0].buffer,
-                                image.width,
-                                image.height,
-                                image.imageInfo.rotationDegrees
-                            )
-                        } catch (ex: IOException) {
-                            ex.printStackTrace()
-                        }
-                    }
-
-                    override fun onError(exception: ImageCaptureException) {
-                        super.onError(exception)
-                        // Debug.
-                        Timber.e(">>>>> OnImageSavedCallback onError: ${exception.message}")
-                    }
-                })
+            takePicture()
         }
 
         // 플래쉬.
@@ -531,6 +507,29 @@ internal class ShootFragment :
 //        val cameraProvider = cameraProvider
 //            ?: throw IllegalStateException("Camera initialization failed.")
 
+        // Preview
+        preview = Preview.Builder()
+            .setTargetAspectRatio(AspectRatio.RATIO_4_3)
+            .setTargetRotation(rotation)
+            .build()
+        preview?.setSurfaceProvider(binding.adbCameralibraryPreviewView.surfaceProvider)
+
+        // ImageCapture
+        imageCapture = ImageCapture.Builder()
+            .setCaptureMode(ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY)
+            .setTargetAspectRatio(AspectRatio.RATIO_4_3)
+            .setTargetRotation(rotation)
+            .setFlashMode(viewModel.flashMode)
+            .build()
+
+        // ImageAnalysis
+        imageAnalyzer = ImageAnalysis.Builder()
+            .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
+            .setTargetAspectRatio(AspectRatio.RATIO_4_3)
+            .setTargetRotation(rotation)
+            .build()
+
+
 
         needUpdateGraphicOverlayImageSourceInfo = true
 
@@ -553,65 +552,50 @@ internal class ShootFragment :
                     KoreanTextRecognizerOptions.Builder().build()
                 )
             }
-            else -> {
-                TextRecognitionProcessor(
-                    requireContext(),
-                    KoreanTextRecognizerOptions.Builder().build()
-                )
-            }
+            else -> null
         }
 
-        // Preview
-        preview = Preview.Builder()
-            .setTargetAspectRatio(AspectRatio.RATIO_4_3)
-            .setTargetRotation(rotation)
-            .build()
-        preview?.setSurfaceProvider(binding.adbCameralibraryPreviewView.surfaceProvider)
-
-        // ImageCapture
-        imageCapture = ImageCapture.Builder()
-            .setCaptureMode(ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY)
-            .setTargetAspectRatio(AspectRatio.RATIO_4_3)
-            .setTargetRotation(rotation)
-            .setFlashMode(viewModel.flashMode)
-            .build()
-
-        // ImageAnalysis
-        imageAnalyzer = ImageAnalysis.Builder()
-            .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
-            .setTargetAspectRatio(AspectRatio.RATIO_4_3)
-            .setTargetRotation(rotation)
-            .build()
-        imageAnalyzer?.setAnalyzer(
-            ContextCompat.getMainExecutor(requireContext())
-        ) { imageProxy: ImageProxy ->
-            if (needUpdateGraphicOverlayImageSourceInfo) {
-                val isImageFlipped = lensFacing == CameraSelector.LENS_FACING_FRONT
-                val rotationDegrees = imageProxy.imageInfo.rotationDegrees
-                if (rotationDegrees == 0 || rotationDegrees == 180) {
-                    binding.adbCameralibraryGraphicOverlay.setImageSourceInfo(
-                        imageProxy.width,
-                        imageProxy.height,
-                        isImageFlipped
-                    )
-                } else {
-                    binding.adbCameralibraryGraphicOverlay.setImageSourceInfo(
-                        imageProxy.height,
-                        imageProxy.width,
-                        isImageFlipped
-                    )
+        if (imageProcessor != null) {
+            imageAnalyzer?.setAnalyzer(
+                ContextCompat.getMainExecutor(requireContext())
+            ) { imageProxy: ImageProxy ->
+                if (needUpdateGraphicOverlayImageSourceInfo) {
+                    val isImageFlipped = lensFacing == CameraSelector.LENS_FACING_FRONT
+                    val rotationDegrees = imageProxy.imageInfo.rotationDegrees
+                    if (rotationDegrees == 0 || rotationDegrees == 180) {
+                        binding.adbCameralibraryGraphicOverlay.setImageSourceInfo(
+                            imageProxy.width,
+                            imageProxy.height,
+                            isImageFlipped
+                        )
+                    } else {
+                        binding.adbCameralibraryGraphicOverlay.setImageSourceInfo(
+                            imageProxy.height,
+                            imageProxy.width,
+                            isImageFlipped
+                        )
+                    }
+                    needUpdateGraphicOverlayImageSourceInfo = false
                 }
-                needUpdateGraphicOverlayImageSourceInfo = false
+
+                try {
+                    graphicOverlay?.let {
+                        imageProcessor?.processImageProxy(imageProxy, it)
+                    }
+                } catch (ex: MlKitException) {
+                    ex.printStackTrace()
+                }
             }
 
-            try {
-                graphicOverlay?.let {
-                    imageProcessor?.processImageProxy(imageProxy, it) {
-
-                    }
-                }
-            } catch (ex: MlKitException) {
-                ex.printStackTrace()
+            // onComplete.
+            imageProcessor?.onComplete { text, rect ->
+                imageProcessor?.run { this.stop() }
+                viewModel.detectInImage(text as String, rect)
+//                viewModel.detectInImage(
+//                    text as String,
+//                    rect,
+//                    Size(graphicOverlay?.imageWidth ?: 0, graphicOverlay?.imageHeight ?: 0)
+//                )
             }
         }
 
@@ -626,22 +610,6 @@ internal class ShootFragment :
             )
         } catch (ex: Exception) {
             ex.printStackTrace()
-        }
-
-        imageProcessor?.onComplete {
-            imageProcessor?.run { this.stop() }
-            when (imageProcessor) {
-                is MileageRecognitionProcessor -> {
-                    viewModel.detectInImage(it as Int)
-                }
-                is VinNumberRecognitionProcessor -> {
-                    viewModel.detectInImage(it as String)
-                }
-                is VehicleNumberRecognitionProcessor -> {
-                }
-                else -> {
-                }
-            }
         }
     }
 
@@ -669,5 +637,36 @@ internal class ShootFragment :
                 MediaActionSound.SHUTTER_CLICK
             )
         }
+    }
+
+    // 이미지 가져오기.
+    private fun takePicture() {
+        imageCapture?.takePicture(
+            cameraExecutor,
+            object : ImageCapture.OnImageCapturedCallback() {
+                override fun onCaptureSuccess(image: ImageProxy) {
+                    super.onCaptureSuccess(image)
+                    // Debug.
+                    Timber.i(">>>>> ImageCapture onCaptureSuccess")
+
+                    try {
+                        // 이미지 저장.
+                        viewModel.saveImage(
+                            image.planes[0].buffer,
+                            image.width,
+                            image.height,
+                            image.imageInfo.rotationDegrees
+                        )
+                    } catch (ex: IOException) {
+                        ex.printStackTrace()
+                    }
+                }
+
+                override fun onError(exception: ImageCaptureException) {
+                    super.onError(exception)
+                    // Debug.
+                    Timber.e(">>>>> OnImageSavedCallback onError: ${exception.message}")
+                }
+            })
     }
 }

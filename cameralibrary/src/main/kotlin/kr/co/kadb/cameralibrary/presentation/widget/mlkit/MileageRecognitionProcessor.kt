@@ -24,19 +24,18 @@ import com.google.mlkit.vision.text.Text
 import com.google.mlkit.vision.text.TextRecognition
 import com.google.mlkit.vision.text.TextRecognizer
 import com.google.mlkit.vision.text.TextRecognizerOptionsInterface
-import kr.co.kadb.cameralibrary.presentation.widget.extension.toJsonPretty
 import timber.log.Timber
 
 /** Processor for the text detector demo. */
 class MileageRecognitionProcessor(
     context: Context,
     textRecognizerOptions: TextRecognizerOptionsInterface
-) : VisionProcessorBase<Text, Int>(context) {
-    // Data.
-    private val mileages = mutableListOf<Int>()
+) : VisionProcessorBase<Text, String>(context) {
+    // Detected Items.
+    private val detectedItems = mutableListOf<DetectedItem>()
 
     // Success.
-    private var onSuccess: ((Int) -> Unit)? = null
+    private var onSuccess: ((String, RectF) -> Unit)? = null
 
     // Failure.
     private var onFailure: ((Exception) -> Unit)? = null
@@ -54,14 +53,16 @@ class MileageRecognitionProcessor(
     }
 
     override fun onSuccess(results: Text, graphicOverlay: GraphicOverlay) {
+        // Detected Items.
         var drawMileage = 0
         var drawRectf: RectF? = null
+        // 정규화.
         for (textBlock in results.textBlocks) {
             // Debug.
             //Timber.i(">>>>> ${javaClass.simpleName} > TEXT_BLOCK > ${textBlock.text}")
             for (line in textBlock.lines) {
                 // Debug.
-                Timber.i(">>>>> ${javaClass.simpleName} > LINE > ${line.text}")
+                //Timber.i(">>>>> ${javaClass.simpleName} > LINE > ${line.text}")
                 for (element in line.elements) {
                     // 주행거리 정규식(0~9 4자리에서 6자리).
                     val regex = Regex("[0-9]{3,6}")
@@ -86,28 +87,31 @@ class MileageRecognitionProcessor(
 
         // Draw & Result invoke.
         if (drawMileage > 0 && drawRectf != null) {
-            // Draw.
-            graphicOverlay.add(
-                MileageGraphic(
-                    graphicOverlay,
-                    listOf(drawMileage.toString()),
-                    listOf(drawRectf)
-                )
-            )
-            mileages.add(drawMileage)
+            // Debug.
+            Timber.i(">>>>> ${javaClass.simpleName} > DRAW > $drawMileage : $drawRectf")
 
-            // Group Counting.
-            mileages.groupingBy {
-                it
-            }.eachCount().also { map ->
-                val max = map.maxBy {
-                    it.value
-                }
-                if (max.value >= 10) {
-                    onSuccess?.invoke(max.key)
-                }
+            // Add & Draw.
+            DetectedItem(drawMileage.toString(), drawRectf).also {
+                // Add.
+                detectedItems.add(it)
+                // Draw.
+                graphicOverlay.add(MileageGraphic(graphicOverlay, listOf(it)))
+            }
 
-                Timber.i(">>>>> MILEAGES GROUP ${map.size} : ${max.value} => ${map.toJsonPretty()}")
+            // Grouping & Result.
+            detectedItems.groupingBy { it.text }.eachCount().also { map ->
+                /*val max = map.maxBy { it.value }
+                if (max.value > 10) {
+                    onSuccess?.invoke(drawMileage.toString(), drawRectf)
+                }*/
+                val sortedItems = map.toList().sortedByDescending { (_, value) -> value }
+                if (sortedItems.size == 1 && sortedItems[0].second > 5) {
+                    onSuccess?.invoke(drawMileage.toString(), drawRectf)
+                } else if (sortedItems.size > 1 &&
+                    sortedItems[0].second > 5 &&
+                    (sortedItems[0].second * 0.5f) > sortedItems[1].second) {
+                    onSuccess?.invoke(drawMileage.toString(), drawRectf)
+                }
             }
         }
     }
@@ -118,7 +122,10 @@ class MileageRecognitionProcessor(
         onFailure?.invoke(ex)
     }
 
-    override fun onComplete(onFailure: ((Exception) -> Unit)?, onSuccess: ((Int) -> Unit)?) {
+    override fun onComplete(
+        onFailure: ((Exception) -> Unit)?,
+        onSuccess: ((String, RectF) -> Unit)?
+    ) {
         this.onSuccess = onSuccess
         this.onFailure = onFailure
     }

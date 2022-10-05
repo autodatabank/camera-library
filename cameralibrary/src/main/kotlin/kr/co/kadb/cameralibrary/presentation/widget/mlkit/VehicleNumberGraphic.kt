@@ -20,8 +20,6 @@ import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.RectF
-import com.google.mlkit.vision.text.Text
-import timber.log.Timber
 import kotlin.math.max
 import kotlin.math.min
 
@@ -31,7 +29,7 @@ import kotlin.math.min
  */
 class VehicleNumberGraphic constructor(
     overlay: GraphicOverlay?,
-    private val text: Text
+    private val drawItems: List<DetectedItem>?
 ) : GraphicOverlay.Graphic(overlay) {
 
     private val rectPaint: Paint = Paint()
@@ -54,121 +52,12 @@ class VehicleNumberGraphic constructor(
 
     /** Draws the text block annotations for position, size, and raw value on the supplied canvas. */
     override fun draw(canvas: Canvas) {
-        // Debug.
-        //Timber.d(">>>>> ${javaClass.simpleName} > textBlocks : ${text.textBlocks}")
-        for (textBlock in text.textBlocks) { // Renders the text at the bottom of the box.
-            // Debug.
-            //Timber.d(">>>>> ${javaClass.simpleName} > textBlock : $textBlock}")
-            for (line in textBlock.lines) {
-                // Debug.
-                /*Timber.d(
-                    ">>>>> ${javaClass.simpleName} > lines > " +
-                            "[${line.text}] : [${line.confidence}], " +
-                            "boundingBox : ${line.boundingBox}"
-                    //", cornerPoints : ${line.cornerPoints.toJsonPretty()}"
-                )*/
-
-                // 차량번호 정규식(테스트).
-                // 지역별: 서울 부산 대구 인천 광주 대전 울산 세종 경기 강원 충북 충남 전북 전남 경북 경남 제주
-                // 자가용: 가나다라마 거너더러머버서어저 고노도로모보소오조 구누두루무부수우주
-                // 사업용: 바사아자
-                // 렌터카: 하허호
-                // 택배용: 배
-                // 외교용: 외교123-001 - 외교 준외 준영 국기 협정 대표
-                // 군사용: 23(육)1234 - 육공해국합
-                // 이륜차: 울산 남 가 1234 - 가나다라마바사아자차카타파
-                // (서울|부산|대구|인천|광주|대전|울산|경기|강원|충북|충남|전북|전남|경북|경남|제주)?
-                // [0-9]{2,3}
-                // (가|나|다|라|마|거|너|더|러|머|버|서|어|저|고|노|도|로|모|보|소|오|조|구|누|두|루|무|부|수|우|주|바|사|아|자|하|허|호|배)[0-9]{4}
-//                val regex = Regex(
-//                    "(서울|부산|대구|인천|광주|대전|울산|경기|강원|충북|충남|전북|전남|경북|경남|제주)?" +
-//                            "\\s?" +
-//                            "[0-9]{2,3}" +
-//                            "\\s?" +
-//                            "([가나다라마거너더러머버서어저고노도로모보소오조구누두루무부수우주바사아자하허호배])" +
-//                            "\\s?" +
-//                            "[0-9]{4}"
-//                )
-                val regex = Regex(
-                    "((서울|부산|대구|인천|광주|대전|울산|세종|경기|강원|충북|충남|전북|전남|경북|경남|제주)?" +
-                            "\\s?" +
-                            "[0-9]{2,3}" +
-                            "\\s?" +
-                            "([가나다라마거너더러머버서어저고노도로모보소오조구누두루무부수우주바사아자하허호배])" +
-                            "\\s?" +
-                            "[0-9]{4})|" + // 자가용, 사업용, 렌터카, 택배용.
-                            "(외교[0-9]{3}-[0-9]{3})|" + // 외교용.
-                            "([0-9]{2}\\(([육공해국합])\\)[0-9]{4})" // 군사용.
-                )
-//                val matchResult = regex.matchEntire(line.text)
-//
-//                // found.
-//                if (matchResult != null) {
-                    // Draws the bounding box around the TextBlock.
-                    val rect = RectF(line.boundingBox)
-                    drawText(
-                        line.text,
-                        rect,
-                        TEXT_SIZE + 2 * STROKE_WIDTH,
-                        canvas
-                    )
-//                }
-
-
-//                for (element in line.elements) {
-//                    // 차량번호 정규식(테스트).
-//                    // 지역별: 서울 부산 대구 인천 광주 대전 울산 경기 강원 충북 충남 전북 전남 경북 경남 제주
-//                    // 자가용: 가나다라마 거너더러머버서어저 고노도로모보소오조 구누두루무부수우주
-//                    // 사업용: 바사아자
-//                    // 렌터카: 하허호
-//                    // 택배용: 배
-//                    // 외교용: 외교123-001 - 외교 준외 준영 국기 협정 대표
-//                    // 군사용: 23(육)1234 - 육공해국합
-//                    // 이륜차: 울산 남 가 1234 - 가나다라마바사아자차카타파
-//                    // (서울|부산|대구|인천|광주|대전|울산|경기|강원|충북|충남|전북|전남|경북|경남|제주)?
-//                    // [0-9]{2,3}
-//                    // (가|나|다|라|마|거|너|더|러|머|버|서|어|저|고|노|도|로|모|보|소|오|조|구|누|두|루|무|부|수|우|주|바|사|아|자|하|허|호|배)[0-9]{4}
-//                    val regex = Regex(
-//                        "(서울|부산|대구|인천|광주|대전|울산|경기|강원|충북|충남|전북|전남|경북|경남|제주)?" +
-//                                "\\s?" +
-//                                "[0-9]{2,3}" +
-//                                "\\s?" +
-//                                "([가나다라마거너더러머버서어저고노도로모보소오조구누두루무부수우주바사아자하허호배])" +
-//                                "\\s?" +
-//                                "[0-9]{4}"
-//                    )
-//                    val matchResult = regex.matchEntire(element.text)
-//
-//                    // found.
-//                    if (matchResult != null) {
-////                            regex.findAll(element.text).forEach { matchResult ->
-//                        // Debug.
-//                        Timber.d(">>>>> ${javaClass.simpleName} > matchResult > ${matchResult.value}")
-////                                Timber.d(
-////                                    ">>>>> ${javaClass.simpleName} > elements > " +
-////                                            "[${element.text}] : [${element.confidence}]" +
-////                                            " - language : ${element.recognizedLanguage}, " +
-////                                            "boundingBox : ${element.boundingBox}"
-////                                    //", cornerPoints : ${element.cornerPoints.toJsonPretty()}"
-////                                )
-//
-//
-//                        // Draws the bounding box around the TextBlock.
-//                        val rect = RectF(line.boundingBox)
-//                        drawText(
-//                            element.text/*matchResult.value*/,
-//                            rect,
-//                            TEXT_SIZE + 2 * STROKE_WIDTH,
-//                            canvas
-//                        )
-//                    }
-//                }
-            }
+        drawItems?.forEach { item ->
+            drawText(/*item.text, */item.rect, canvas)
         }
     }
 
-    private fun drawText(text: String, rect: RectF, textHeight: Float, canvas: Canvas) {
-        // If the image is flipped, the left will be translated to right, and the right to left.
+    private fun drawText(/*text: String, */rect: RectF, canvas: Canvas) {
         val x0 = translateX(rect.left)
         val x1 = translateX(rect.right)
         rect.left = min(x0, x1)
@@ -176,23 +65,23 @@ class VehicleNumberGraphic constructor(
         rect.top = translateY(rect.top)
         rect.bottom = translateY(rect.bottom)
         canvas.drawRect(rect, rectPaint)
-        val textWidth = numberPaint.measureText(text)
+        /*val textWidth = numberPaint.measureText(text)
         canvas.drawRect(
             rect.left - STROKE_WIDTH,
-            rect.top - textHeight,
+            rect.top - TEXT_HEIGHT,
             rect.left + textWidth + 2 * STROKE_WIDTH,
             rect.top,
             labelPaint
-        )
+        )*/
         // Renders the text at the bottom of the box.
-        canvas.drawText(text, rect.left, rect.top - STROKE_WIDTH, numberPaint)
+        //canvas.drawText(text, rect.left, rect.top - STROKE_WIDTH, numberPaint)
     }
 
     companion object {
-        private const val TEXT_WITH_LANGUAGE_TAG_FORMAT = "%s:%s"
         private const val TEXT_COLOR = Color.BLACK
-        private const val MARKER_COLOR = Color.WHITE
-        private const val TEXT_SIZE = 54.0f
+        private const val MARKER_COLOR = Color.YELLOW
         private const val STROKE_WIDTH = 4.0f
+        private const val TEXT_SIZE = 54.0f
+        //private const val TEXT_HEIGHT = TEXT_SIZE + 2 * STROKE_WIDTH
     }
 }

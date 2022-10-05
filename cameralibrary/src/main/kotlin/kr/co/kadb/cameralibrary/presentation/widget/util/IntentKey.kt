@@ -90,9 +90,9 @@ object IntentKey {
 	// 여러 장 촬영 시 rotation 반환용.
 	const val EXTRA_ROTATIONS = "EXTRA_ROTATIONS"
 
-	// 주행거리 반환용.
-	const val EXTRA_MILEAGE = "EXTRA_MILEAGE"
+	// 감지 텍스트 반환용.
+	const val EXTRA_DETECT_TEXT = "EXTRA_DETECT_TEXT"
 
-	// 차대번호 반환용.
-	const val EXTRA_VIN_NUMBER = "EXTRA_VIN_NUMBER"
+	// 감지 Rect 반환용.
+	const val EXTRA_DETECT_RECT = "EXTRA_DETECT_RECT"
 }

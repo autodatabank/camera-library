@@ -16,6 +16,7 @@
 package kr.co.kadb.cameralibrary.presentation.widget.mlkit
 
 import android.graphics.Bitmap
+import android.graphics.RectF
 import androidx.camera.core.ImageProxy
 import com.google.mlkit.common.MlKitException
 import java.nio.ByteBuffer
@@ -43,9 +44,7 @@ interface VisionImageProcessor<R> {
     @Throws(MlKitException::class)
     fun processImageProxy(
         image: ImageProxy,
-        graphicOverlay: GraphicOverlay,
-        onFailure: ((Exception) -> Unit)? = null,
-        onSuccess: ((String) -> Unit)? = null
+        graphicOverlay: GraphicOverlay
     )
 
     /**
@@ -56,5 +55,5 @@ interface VisionImageProcessor<R> {
     /**
      *
      */
-    fun onComplete(onFailure: ((Exception) -> Unit)? = null, onSuccess: ((R) -> Unit)?)
+    fun onComplete(onFailure: ((Exception) -> Unit)? = null, onSuccess: ((R, RectF) -> Unit)?)
 }

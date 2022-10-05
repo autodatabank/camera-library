@@ -29,8 +29,7 @@ import kotlin.math.min
  */
 class MileageGraphic constructor(
     overlay: GraphicOverlay?,
-    private val drawText: List<String>,
-    private val drawRect: List<RectF>?
+    private val drawItems: List<DetectedItem>?
 ) : GraphicOverlay.Graphic(overlay) {
 
     private val rectPaint = Paint()
@@ -51,8 +50,8 @@ class MileageGraphic constructor(
 
     /** Draws the text block annotations for position, size, and raw value on the supplied canvas. */
     override fun draw(canvas: Canvas) {
-        drawRect?.forEachIndexed { index, rectF ->
-            drawText(drawText[index], rectF, canvas)
+        drawItems?.forEach { item ->
+            drawText(item.text, item.rect, canvas)
         }
     }
 
@@ -78,7 +77,7 @@ class MileageGraphic constructor(
 
     companion object {
         private const val TEXT_COLOR = Color.BLACK
-        private const val MARKER_COLOR = Color.WHITE
+        private const val MARKER_COLOR = Color.YELLOW
         private const val STROKE_WIDTH = 4.0f
         private const val TEXT_SIZE = 54.0f
         private const val TEXT_HEIGHT = TEXT_SIZE + 2 * STROKE_WIDTH

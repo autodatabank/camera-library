@@ -3,6 +3,7 @@ package kr.co.kadb.cameralibrary.presentation.ui.shoot
 import android.annotation.SuppressLint
 import android.app.Application
 import android.graphics.Bitmap
+import android.graphics.RectF
 import android.net.Uri
 import android.util.Size
 import androidx.annotation.IntRange
@@ -42,11 +43,19 @@ constructor(
         data class TakePicture(
             val uri: Uri, val size: Size, val rotation: Int, val thumbnailBitmap: Bitmap?
         ) : Event()
+
         data class TakeMultiplePictures(
             val uris: ArrayList<Uri>, val sizes: ArrayList<Size>, val rotations: ArrayList<Int>
         ) : Event()
-        data class DetectMileageInImage(val mileage: Int) : Event()
-        data class DetectVinNumberInImage(val vinNumber: String) : Event()
+
+        data class DetectInImage(
+            val text: String,
+            val rect: RectF,
+            val uri: Uri?,
+            val size: Size?,
+            val rotation: Int?,
+            val thumbnailBitmap: Bitmap?
+        ) : Event()
     }
 
     // Event.
@@ -209,15 +218,9 @@ constructor(
         )
     }
 
-    // 주행거리 감지.
-    fun detectInImage(mileage: Int) {
-        event(Event.DetectMileageInImage(mileage))
-    }
-
-    // 차대번호 감지.
-    fun detectInImage(vinNumber: String) {
-        // 촬영완료 이벤트.
-        event(Event.DetectVinNumberInImage(vinNumber))
+    // 이미지에서 텍스트 감지.
+    fun detectInImage(text: String, rect: RectF) {
+        event(Event.DetectInImage(text, rect, null, null, null, null))
     }
 
     // 이미지 저장.
@@ -240,9 +243,13 @@ constructor(
                 byteArray,
                 item.value.isSaveCroppedImage,
                 item.value.croppedJpegQuality
-            ) { imagePath, imageUri ->
+            ) { imagePath, imageUri, imageSize ->
                 // 이미지 사이즈.
-                val size = Size(width, height)
+                val size = if (imageSize == null) {
+                    Size(width, height)
+                } else {
+                    Size(imageSize.width, imageSize.height)
+                }
 
                 // 상태 업데이트.
                 updateState { value ->
@@ -279,7 +286,7 @@ constructor(
         isSaveCroppedImage: Boolean,
         @IntRange(from = 1, to = 100)
         croppedJpegQuality: Int,
-        action: (path: String?, uri: Uri?) -> Unit
+        action: (path: String?, uri: Uri?, size: Size?) -> Unit
     ) {
         val context = getApplication<Application>().applicationContext
         if (isSaveCroppedImage) {
@@ -305,14 +312,18 @@ constructor(
             cropBitmap.save(
                 context, true, exifInterface = exifInterface, jpegQuality = croppedJpegQuality
             ) { imagePath, imageUri ->
-                action.invoke(imagePath, imageUri)
+                action.invoke(
+                    imagePath,
+                    imageUri,
+                    Size(cropBitmap?.width ?: 0, cropBitmap?.height ?: 0)
+                )
             }
             bitmap?.recycle()
             cropBitmap?.recycle()
         } else {
             // Save Bitmap.
             byteArray.save(context, true) { imagePath, imageUri ->
-                action.invoke(imagePath, imageUri)
+                action.invoke(imagePath, imageUri, null)
             }
         }
     }

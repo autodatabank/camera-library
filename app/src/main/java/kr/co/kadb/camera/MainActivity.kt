@@ -78,14 +78,21 @@ class MainActivity : AppCompatActivity() {
                     // Debug.
                     Timber.d(">>>>> imageUris : $imageUris")
                     Timber.d(">>>>> imageSizes : $imageSizes")
-                } else if (intent?.action == IntentKey.ACTION_DETECT_MILEAGE_IN_PICTURES) {
-                    // 주행거리.
-                    val mileage = intent.getIntExtra(IntentKey.EXTRA_MILEAGE, 0).toString()
-                    findViewById<TextView>(R.id.textview).text = mileage
-                } else if (intent?.action == IntentKey.ACTION_DETECT_VIN_NUMBER_IN_PICTURES) {
-                    // 차대번호.
-                    val vinNumber = intent.getStringExtra(IntentKey.EXTRA_VIN_NUMBER)
-                    findViewById<TextView>(R.id.textview).text = vinNumber
+                } else if (intent?.action == IntentKey.ACTION_DETECT_MILEAGE_IN_PICTURES
+                    || intent?.action == IntentKey.ACTION_DETECT_VIN_NUMBER_IN_PICTURES
+                    || intent?.action == IntentKey.ACTION_TAKE_VEHICLE_NUMBER_PICTURES
+                ) {
+                    // 이미지 가로.
+                    val imageWidth = intent.getIntExtra(IntentKey.EXTRA_WIDTH, 0)
+                    // 이미지 세로.
+                    val imageHeight = intent.getIntExtra(IntentKey.EXTRA_HEIGHT, 0)
+                    // 이미지에서 텍스트 감지.
+                    intent.getStringExtra(IntentKey.EXTRA_DETECT_TEXT)?.let {
+                        findViewById<TextView>(R.id.textview).text = it
+                    }
+
+                    // Debug.
+                    Timber.i(">>>>> ACTION_DETECT_IN_PICTURES : $imageWidth x $imageHeight")
                 }
             }
         }
@@ -132,13 +139,13 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        // 테스트 촬영.
+        // 차량번호 촬영.
         findViewById<Button>(R.id.button_vehicle_number_shoot).setOnClickListener {
             CameraIntent.Build(this).apply {
                 setAction(IntentKey.ACTION_TAKE_VEHICLE_NUMBER_PICTURES)
                 //setCanMute(false)
                 setHasHorizon(true)
-                //setCropSize(cropSize)
+                setCropSize(cropSize)
                 setCanUiRotation(true)
                 //setHorizonColor(Color.RED)
                 //setUnusedAreaBorderColor(Color.GREEN)

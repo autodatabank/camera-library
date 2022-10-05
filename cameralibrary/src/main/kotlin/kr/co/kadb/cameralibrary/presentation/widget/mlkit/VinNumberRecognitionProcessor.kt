@@ -24,7 +24,6 @@ import com.google.mlkit.vision.text.Text
 import com.google.mlkit.vision.text.TextRecognition
 import com.google.mlkit.vision.text.TextRecognizer
 import com.google.mlkit.vision.text.TextRecognizerOptionsInterface
-import kr.co.kadb.cameralibrary.presentation.widget.extension.toJsonPretty
 import timber.log.Timber
 
 /** Processor for the text detector demo. */
@@ -32,12 +31,11 @@ class VinNumberRecognitionProcessor(
     context: Context,
     textRecognizerOptions: TextRecognizerOptionsInterface
 ) : VisionProcessorBase<Text, String>(context) {
-    // Data.
-    private val drawTexts = mutableListOf<String>()
-    private val drawRects = mutableListOf<RectF>()
+    // Detected Items.
+    private val detectedItems = mutableListOf<DetectedItem>()
 
     // Success.
-    private var onSuccess: ((String) -> Unit)? = null
+    private var onSuccess: ((String, RectF) -> Unit)? = null
 
     // Failure
     private var onFailure: ((Exception) -> Unit)? = null
@@ -55,48 +53,52 @@ class VinNumberRecognitionProcessor(
     }
 
     override fun onSuccess(results: Text, graphicOverlay: GraphicOverlay) {
+        // Detected Items.
+        val drawItems = mutableListOf<DetectedItem>()
+        // 정규화.
         for (textBlock in results.textBlocks) {
             // Debug.
             //Timber.i(">>>>> ${javaClass.simpleName} > TEXT_BLOCK > ${textBlock.text}")
             for (line in textBlock.lines) {
                 // Debug.
                 Timber.i(">>>>> ${javaClass.simpleName} > LINE > ${line.text}")
-                if (line.confidence >= 0.0f) {
-                    // Debug.
-                    Timber.d(
-                        ">>>>> ${javaClass.simpleName} > lines > " +
-                                "[${line.text}] : [${line.confidence}], " +
-                                "boundingBox : ${line.boundingBox}"
-                        //", cornerPoints : ${line.cornerPoints.toJsonPretty()}"
-                    )
-                    // 차대번호 정규식(A~Z, 0~9 혼합 17자리).
-                    val regex = Regex("[A-Z0-9]{17}")
-                    val matchResult = regex.matchEntire(line.text)
 
-                    // found.
-                    if (matchResult != null) {
-                        drawTexts.add(line.text)
-                        drawRects.add(RectF(line.boundingBox))
-                    }
+                // Find & Add
+                // 차대번호 정규식(A~Z, 0~9 혼합 17자리).
+                val regex = Regex("[A-Z0-9]{17}")
+                if (regex.matchEntire(line.text) != null) {
+                    drawItems.add(DetectedItem(line.text, RectF(line.boundingBox)))
+
                 }
             }
         }
 
-        if (drawTexts.isNotEmpty()) {
-            graphicOverlay.add(VinNumberGraphic(graphicOverlay, drawTexts, drawRects))
+        // Draw & Result invoke.
+        if (drawItems.isNotEmpty()) {
+            // Add.
+            detectedItems.addAll(drawItems)
+            // Draw.
+            graphicOverlay.add(VinNumberGraphic(graphicOverlay, drawItems))
 
-            // Group Counting.
-            drawTexts.groupingBy {
-                it
-            }.eachCount().also { map ->
-                val max = map.maxBy {
-                    it.value
+            // Grouping & Result.
+            detectedItems.groupingBy { it.text }.eachCount().also { map ->
+                /*val max = map.maxBy { it.value }
+                if (max.value > 10) {
+                    onSuccess?.invoke(drawMileage.toString(), drawRectf)
+                }*/
+                val sortedItems = map.toList().sortedByDescending { (_, value) -> value }
+                if (sortedItems.size == 1 && sortedItems[0].second > 5) {
+                    drawItems.find { it.text == sortedItems[0].first }?.also {
+                        onSuccess?.invoke(it.text, it.rect)
+                    }
+                } else if (sortedItems.size > 1 &&
+                    sortedItems[0].second > 5 &&
+                    (sortedItems[0].second * 0.5f) > sortedItems[1].second
+                ) {
+                    drawItems.find { it.text == sortedItems[0].first }?.also {
+                        onSuccess?.invoke(it.text, it.rect)
+                    }
                 }
-                if (max.value >= 10) {
-                    onSuccess?.invoke(max.key)
-                }
-
-                Timber.i(">>>>> VINNUMBER GROUP ${map.size} : ${max.value} => ${map.toJsonPretty()}")
             }
         }
     }
@@ -106,7 +108,10 @@ class VinNumberRecognitionProcessor(
         Timber.w(">>>>> ${javaClass.simpleName} > onFailure : $ex")
     }
 
-    override fun onComplete(onFailure: ((Exception) -> Unit)?, onSuccess: ((String) -> Unit)?) {
+    override fun onComplete(
+        onFailure: ((Exception) -> Unit)?,
+        onSuccess: ((String, RectF) -> Unit)?
+    ) {
         this.onSuccess = onSuccess
         this.onFailure = onFailure
     }

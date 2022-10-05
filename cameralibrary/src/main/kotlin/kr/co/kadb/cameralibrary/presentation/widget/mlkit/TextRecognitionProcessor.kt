@@ -17,6 +17,7 @@
 package kr.co.kadb.cameralibrary.presentation.widget.mlkit
 
 import android.content.Context
+import android.graphics.RectF
 import com.google.android.gms.tasks.Task
 import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.text.Text
@@ -83,7 +84,7 @@ class TextRecognitionProcessor(
         Timber.w(">>>>> ${javaClass.simpleName} > onFailure : $ex")
     }
 
-    override fun onComplete(onFailure: ((Exception) -> Unit)?, onSuccess: ((String) -> Unit)?) {
+    override fun onComplete(onFailure: ((Exception) -> Unit)?, onSuccess: ((String, RectF) -> Unit)?) {
         TODO("Not yet implemented")
     }
 

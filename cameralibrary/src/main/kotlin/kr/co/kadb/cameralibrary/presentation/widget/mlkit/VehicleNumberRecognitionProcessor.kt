@@ -17,6 +17,7 @@
 package kr.co.kadb.cameralibrary.presentation.widget.mlkit
 
 import android.content.Context
+import android.graphics.RectF
 import com.google.android.gms.tasks.Task
 import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.text.Text
@@ -30,6 +31,15 @@ class VehicleNumberRecognitionProcessor(
     context: Context,
     textRecognizerOptions: TextRecognizerOptionsInterface
 ) : VisionProcessorBase<Text, String>(context) {
+    // Detected Items.
+    private val detectedItems = mutableListOf<DetectedItem>()
+
+    // Success.
+    private var onSuccess: ((String, RectF) -> Unit)? = null
+
+    // Failure
+    private var onFailure: ((Exception) -> Unit)? = null
+
     // Recognizer.
     private val textRecognizer: TextRecognizer = TextRecognition.getClient(textRecognizerOptions)
 
@@ -43,10 +53,79 @@ class VehicleNumberRecognitionProcessor(
     }
 
     override fun onSuccess(results: Text, graphicOverlay: GraphicOverlay) {
-        // Debug.
-        //Timber.d(">>>>> ${javaClass.simpleName} > onSuccess")
+        // Detected Items.
+        val drawItems = mutableListOf<DetectedItem>()
+        // 정규화.
+        for (textBlock in results.textBlocks) {
+            for (line in textBlock.lines) {
+                // 차량번호 정규식(테스트).
+                // 지역별: 서울 부산 대구 인천 광주 대전 울산 세종 경기 강원 충북 충남 전북 전남 경북 경남 제주
+                // 자가용: 가나다라마 거너더러머버서어저 고노도로모보소오조 구누두루무부수우주
+                // 사업용: 바사아자
+                // 렌터카: 하허호
+                // 택배용: 배
+                // 외교용: 외교123-001 - 외교 준외 준영 국기 협정 대표
+                // 군사용: 23(육)1234 - 육공해국합
+                // 이륜차: 울산 남 가 1234 - 가나다라마바사아자차카타파
+                // (서울|부산|대구|인천|광주|대전|울산|경기|강원|충북|충남|전북|전남|경북|경남|제주)?
+                // [0-9]{2,3}
+                // (가|나|다|라|마|거|너|더|러|머|버|서|어|저|고|노|도|로|모|보|소|오|조|구|누|두|루|무|부|수|우|주|바|사|아|자|하|허|호|배)[0-9]{4}
+                /*val regex = Regex(
+                    "((서울|부산|대구|인천|광주|대전|울산|세종|경기|강원|충북|충남|전북|전남|경북|경남|제주)?" +
+                            "\\s?" +
+                            "[0-9]{2,3}" +
+                            "\\s?" +
+                            "([가나다라마거너더러머버서어저고노도로모보소오조구누두루무부수우주바사아자하허호배])" +
+                            "\\s?" +
+                            "[0-9]{4})|" + // 자가용, 사업용, 렌터카, 택배용.
+                            "(외교[0-9]{3}-[0-9]{3})|" + // 외교용.
+                            "([0-9]{2}\\(([육공해국합])\\)[0-9]{4})" // 군사용.
+                )*/
 
-        graphicOverlay.add(VehicleNumberGraphic(graphicOverlay, results))
+                // Find & Add
+                // 인식률이 떨어져 간단한 정규식으로 처리.
+                val regex = Regex(
+                    "([0-9]{2,3}\\s?" +
+                            //"([가나다라마거너더러머버서어저고노도로모보소오조구누두루무부수우주바사아자하허호배])\\s?" +
+                            "[^0-9\\s]\\s?" +
+                            "[0-9]{4})|" + // 자가용, 사업용, 렌터카, 택배용.
+                            "(외교[0-9]{3}-[0-9]{3})|" + // 외교용.
+                            "([0-9]{2}\\(([육공해국합])\\)[0-9]{4})" // 군사용.
+                )
+                if (regex.matchEntire(line.text) != null) {
+                    drawItems.add(DetectedItem(line.text, RectF(line.boundingBox)))
+                }
+            }
+        }
+
+        // Draw & Result invoke.
+        if (drawItems.isNotEmpty()) {
+            // Add.
+            detectedItems.addAll(drawItems)
+            // Draw.
+            graphicOverlay.add(VehicleNumberGraphic(graphicOverlay, drawItems))
+
+            // Grouping & Result.
+            detectedItems.groupingBy { it.text }.eachCount().also { map ->
+                /*val max = map.maxBy { it.value }
+                if (max.value > 10) {
+                    onSuccess?.invoke(drawMileage.toString(), drawRectf)
+                }*/
+                val sortedItems = map.toList().sortedByDescending { (_, value) -> value }
+                if (/*sortedItems.size == 1 && */sortedItems[0].second > 5) {
+                    drawItems.find { it.text == sortedItems[0].first }?.also {
+                        onSuccess?.invoke(it.text, it.rect)
+                    }
+                }/* else if (sortedItems.size > 1 &&
+                    sortedItems[0].second > 5 &&
+                    (sortedItems[0].second * 0.5f) > sortedItems[1].second
+                ) {
+                    drawItems.find { it.text == sortedItems[0].first }?.also {
+                        onSuccess?.invoke(it.text, it.rect)
+                    }
+                }*/
+            }
+        }
     }
 
     override fun onFailure(ex: Exception) {
@@ -54,7 +133,8 @@ class VehicleNumberRecognitionProcessor(
         Timber.w(">>>>> ${javaClass.simpleName} > onFailure : $ex")
     }
 
-    override fun onComplete(onFailure: ((Exception) -> Unit)?, onSuccess: ((String) -> Unit)?) {
-        TODO("Not yet implemented")
+    override fun onComplete(onFailure: ((Exception) -> Unit)?, onSuccess: ((String, RectF) -> Unit)?) {
+        this.onSuccess = onSuccess
+        this.onFailure = onFailure
     }
 }
