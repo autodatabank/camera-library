@@ -68,17 +68,16 @@ class VehicleNumberRecognitionProcessor(
         results.textBlocks.forEach { textBlock ->
             // Debug.
             //Timber.i(">>>>> ${javaClass.simpleName} > TEXT_BLOCK[$index] > ${textBlock.text}")
-
-            textBlock.lines.forEach { line ->
-                // Debug.
-                //Timber.i(">>>>> ${javaClass.simpleName} > TEXT_BLOCK > ${line.text} : $lineText")
-
+            textBlock.lines.forEachIndexed { index, line ->
                 //
                 val lineText = if (latelyText != line.text) {
                     latelyText + line.text
                 } else {
                     line.text
                 }
+
+                // Debug.
+                Timber.i(">>>>> ${javaClass.simpleName} > TEXT_LINE[$index] > ${line.text} : $lineText")
 
                 // 차량번호 정규식(테스트).
                 // 지역별: 서울 부산 대구 인천 광주 대전 울산 세종 경기 강원 충북 충남 전북 전남 경북 경남 제주
@@ -115,12 +114,21 @@ class VehicleNumberRecognitionProcessor(
                             "([0-9]{2}\\(([육공해국합])\\)[0-9]{4})" // 군사용.
                 ).find(lineText)?.let { matchResult ->
                     // Add.
-                    var matchRect = Rect(
-                        min(latelyRect?.left ?: 0, line.boundingBox?.left ?: 0),
-                        min(latelyRect?.top ?: 0, line.boundingBox?.top ?: 0),
-                        max(latelyRect?.right ?: 0, line.boundingBox?.right ?: 0),
-                        max(latelyRect?.bottom ?: 0, line.boundingBox?.bottom ?: 0)
-                    )
+                    var matchRect = if (latelyRect != null) {
+                        Rect(
+                            min(latelyRect?.left ?: 0, line.boundingBox?.left ?: 0),
+                            min(latelyRect?.top ?: 0, line.boundingBox?.top ?: 0),
+                            max(latelyRect?.right ?: 0, line.boundingBox?.right ?: 0),
+                            max(latelyRect?.bottom ?: 0, line.boundingBox?.bottom ?: 0)
+                        )
+                    } else {
+                        Rect(
+                            line.boundingBox?.left ?: 0,
+                            line.boundingBox?.top ?: 0,
+                            line.boundingBox?.right ?: 0,
+                            line.boundingBox?.bottom ?: 0
+                        )
+                    }
                     val imageSize = Size(graphicOverlay.imageWidth, graphicOverlay.imageHeight)
                     val left = if (matchRect.left < 0) 0 else matchRect.left
                     val top = if (matchRect.top < 0) 0 else matchRect.top
