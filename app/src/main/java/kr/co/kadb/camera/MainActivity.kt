@@ -80,7 +80,7 @@ class MainActivity : AppCompatActivity() {
                     Timber.d(">>>>> imageSizes : $imageSizes")
                 } else if (intent?.action == IntentKey.ACTION_DETECT_MILEAGE_IN_PICTURES
                     || intent?.action == IntentKey.ACTION_DETECT_VIN_NUMBER_IN_PICTURES
-                    || intent?.action == IntentKey.ACTION_TAKE_VEHICLE_NUMBER_PICTURES
+                    || intent?.action == IntentKey.ACTION_DETECT_VEHICLE_NUMBER_IN_PICTURES
                 ) {
                     // 이미지 가로.
                     val imageWidth = intent.getIntExtra(IntentKey.EXTRA_WIDTH, 0)
@@ -142,7 +142,7 @@ class MainActivity : AppCompatActivity() {
         // 차량번호 촬영.
         findViewById<Button>(R.id.button_vehicle_number_shoot).setOnClickListener {
             CameraIntent.Build(this).apply {
-                setAction(IntentKey.ACTION_TAKE_VEHICLE_NUMBER_PICTURES)
+                setAction(IntentKey.ACTION_DETECT_VEHICLE_NUMBER_IN_PICTURES)
                 //setCanMute(false)
                 setHasHorizon(true)
                 setCropSize(cropSize)
