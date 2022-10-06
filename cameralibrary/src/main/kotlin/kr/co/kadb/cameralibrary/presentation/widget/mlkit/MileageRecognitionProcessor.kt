@@ -55,15 +55,15 @@ class MileageRecognitionProcessor(
     override fun onSuccess(results: Text, graphicOverlay: GraphicOverlay) {
         // Detected Items.
         var drawMileage = 0
-        var drawRectf: RectF? = null
+        var drawRectf = RectF()
         // 정규화.
-        for (textBlock in results.textBlocks) {
+        results.textBlocks.forEach { textBlock ->
             // Debug.
             //Timber.i(">>>>> ${javaClass.simpleName} > TEXT_BLOCK > ${textBlock.text}")
-            for (line in textBlock.lines) {
+            textBlock.lines.forEach { line ->
                 // Debug.
                 //Timber.i(">>>>> ${javaClass.simpleName} > LINE > ${line.text}")
-                for (element in line.elements) {
+                line.elements.forEach { element ->
                     // 주행거리 정규식(0~9 4자리에서 6자리).
                     val regex = Regex("[0-9]{3,6}")
                     val matchResult = regex.find(element.text)
@@ -86,7 +86,7 @@ class MileageRecognitionProcessor(
         }
 
         // Draw & Result invoke.
-        if (drawMileage > 0 && drawRectf != null) {
+        if (drawMileage > 0) {
             // Debug.
             Timber.i(">>>>> ${javaClass.simpleName} > DRAW > $drawMileage : $drawRectf")
 
