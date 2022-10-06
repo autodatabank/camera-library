@@ -16,7 +16,6 @@ import kr.co.kadb.cameralibrary.presentation.model.CropSize
 import kr.co.kadb.cameralibrary.presentation.widget.extension.exifInterface
 import kr.co.kadb.cameralibrary.presentation.widget.extension.getParcelable
 import kr.co.kadb.cameralibrary.presentation.widget.extension.getSerializable
-import kr.co.kadb.cameralibrary.presentation.widget.extension.toThumbnail
 import kr.co.kadb.cameralibrary.presentation.widget.util.BitmapHelper
 import kr.co.kadb.cameralibrary.presentation.widget.util.IntentKey
 import kr.co.kadb.cameralibrary.presentation.widget.util.UriHelper
