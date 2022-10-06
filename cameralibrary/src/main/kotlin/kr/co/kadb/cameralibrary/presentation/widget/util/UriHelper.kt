@@ -2,11 +2,12 @@ package kr.co.kadb.cameralibrary.presentation.widget.util
 
 import android.content.Context
 import android.graphics.Bitmap
+import android.graphics.Rect
 import android.net.Uri
 import android.util.Size
 import androidx.annotation.FloatRange
-import kr.co.kadb.cameralibrary.presentation.model.CropSize
 import kr.co.kadb.cameralibrary.presentation.widget.extension.rotateAndCenterCrop
+import kr.co.kadb.cameralibrary.presentation.widget.extension.rotateAndCrop
 import kr.co.kadb.cameralibrary.presentation.widget.extension.toBitmap
 import kr.co.kadb.cameralibrary.presentation.widget.extension.toThumbnail
 
@@ -16,27 +17,17 @@ import kr.co.kadb.cameralibrary.presentation.widget.extension.toThumbnail
 class UriHelper {
     companion object {
         @JvmStatic
-        fun toBitmap(
-            context: Context,
-            uri: Uri?
-        ): Bitmap? {
+        fun toBitmap(context: Context, uri: Uri?): Bitmap? {
             return uri?.toBitmap(context)
         }
 
         @JvmStatic
-        fun toThumbnail(
-            context: Context,
-            uri: Uri?
-        ): Bitmap? {
+        fun toThumbnail(context: Context, uri: Uri?): Bitmap? {
             return uri?.toThumbnail(context)
         }
 
         @JvmStatic
-        fun toThumbnail(
-            context: Context,
-            uri: Uri?,
-            originSize: Size?
-        ): Bitmap? {
+        fun toThumbnail(context: Context, uri: Uri?, originSize: Size?): Bitmap? {
             return uri?.toThumbnail(context, originSize)
         }
 
@@ -47,7 +38,22 @@ class UriHelper {
             originSize: Size?,
             thumbnailSize: Int = 96
         ): Bitmap? {
-            return uri?.toThumbnail(context, originSize)
+            return uri?.toThumbnail(context, originSize, thumbnailSize)
+        }
+
+        @JvmStatic
+        fun rotateAndCrop(context: Context, uri: Uri?, cropRect: Rect): Bitmap? {
+            return uri?.rotateAndCrop(context, cropRect)
+        }
+
+        @JvmStatic
+        fun rotateAndCrop(
+            context: Context,
+            uri: Uri?,
+            cropRect: Rect,
+            rotationDegrees: Int?
+        ): Bitmap? {
+            return uri?.rotateAndCrop(context, cropRect, rotationDegrees)
         }
 
         @Deprecated(
@@ -113,9 +119,9 @@ class UriHelper {
             rotationDegrees: Int?
         ): Bitmap? {
             return uri?.rotateAndCenterCrop(
-                context,
-                cropWidth,
-                cropHeight,
+                context = context,
+                cropWidth = cropWidth,
+                cropHeight = cropHeight,
                 rotationDegrees = rotationDegrees
             )
         }
