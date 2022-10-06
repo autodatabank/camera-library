@@ -27,6 +27,7 @@ import java.io.ByteArrayInputStream
 import java.io.IOException
 import java.io.InputStream
 import java.nio.ByteBuffer
+import kotlin.math.max
 
 /**
  * Created by oooobang on 2022. 7. 11..
@@ -49,8 +50,8 @@ constructor(
         ) : Event()
 
         data class DetectInImage(
-            val text: String,
-            val rect: RectF,
+            val text: String? = null,
+            val rect: RectF? = null,
             val uri: Uri? = null,
             val size: Size? = null,
             val rotation: Int? = null,
@@ -225,7 +226,14 @@ constructor(
 
     // 이미지 저장.
     @SuppressLint("RestrictedApi")
-    fun saveImage(byteBuffer: ByteBuffer, width: Int, height: Int, rotation: Int) {
+    fun saveImage(
+        byteBuffer: ByteBuffer,
+        width: Int,
+        height: Int,
+        rotation: Int,
+        detectText: String? = null,
+        detectRect: RectF? = null
+    ) {
         // 셔터음 이벤트.
         event(Event.PlayShutterSound(item.value.canMute))
 
@@ -269,11 +277,26 @@ constructor(
                 }
 
                 // 촬영 완료.
-                if (!item.value.isMultiplePicture) {
+                if (item.value.isVehicleNumberPicture) {
                     // Thumbnail.
                     val context = getApplication<Application>().applicationContext
                     val thumbnail = imageUri?.toThumbnail(context, size)
-                    // 촬영완료 이벤트.
+                    // 감지 완료 이벤트.
+                    event(
+                        Event.DetectInImage(
+                            detectText,
+                            detectRect,
+                            imageUri ?: Uri.EMPTY,
+                            size,
+                            rotation,
+                            thumbnail
+                        )
+                    )
+                } else if (!item.value.isMultiplePicture) {
+                    // Thumbnail.
+                    val context = getApplication<Application>().applicationContext
+                    val thumbnail = imageUri?.toThumbnail(context, size)
+                    // 촬영 완료 이벤트.
                     event(Event.TakePicture(imageUri ?: Uri.EMPTY, size, rotation, thumbnail))
                 }
             }
@@ -325,6 +348,42 @@ constructor(
             byteArray.save(context, true) { imagePath, imageUri ->
                 action.invoke(imagePath, imageUri, null)
             }
+        }
+    }
+
+    fun scaleRect(detectRect: RectF, analysisImageSize: Size, imageSize: Size): RectF {
+        val maxImageWidth = max(imageSize.width, imageSize.height).toFloat()
+        val maxAnalysisImageWidth = max(analysisImageSize.width, analysisImageSize.height).toFloat()
+        val ratio = maxImageWidth.div(maxAnalysisImageWidth)
+
+        // Debug.
+        Timber.i(">>>>> ${javaClass.simpleName} > detectRect : $detectRect")
+        Timber.i(">>>>> ${javaClass.simpleName} > imageSize : $imageSize")
+        Timber.i(">>>>> ${javaClass.simpleName} > analysisImageSize : $analysisImageSize")
+        Timber.i(">>>>> ${javaClass.simpleName} > maxImageWidth : $maxImageWidth, maxAnalysisImageWidth : $maxAnalysisImageWidth")
+        Timber.i(">>>>> ${javaClass.simpleName} > ratio : $ratio")
+
+        return detectRect.let { rect ->
+            val addition = 250.0f
+            val scaleRect = RectF(
+                rect.left * ratio - addition,
+                rect.top * ratio - addition,
+                rect.right * ratio + addition,
+                rect.bottom * ratio + addition
+            )
+            val left = if (scaleRect.left < 0) 0.0f else scaleRect.left
+            val top = if (scaleRect.top < 0) 0.0f else scaleRect.top
+            val right = if (left + scaleRect.width() > imageSize.width) {
+                imageSize.width.toFloat()
+            } else {
+                scaleRect.right
+            }
+            val bottom = if (top + scaleRect.height() > imageSize.height) {
+                imageSize.height.toFloat()
+            } else {
+                scaleRect.bottom
+            }
+            RectF(left, top, right, bottom)
         }
     }
 }
