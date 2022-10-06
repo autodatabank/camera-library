@@ -139,20 +139,27 @@ fun Uri.rotateAndCrop(
     cropRect: Rect,
     rotationDegrees: Int? = null
 ): Bitmap? {
-    val rotation = rotationDegrees?.toFloat() ?: (exifInterface(context)?.rotationDegrees?.toFloat()
-        ?: return null)
+    val rotation = rotationDegrees ?: (exifInterface(context)?.rotationDegrees ?: return null)
     val bitmap = toBitmap(context) ?: return null
-    val matrix = Matrix()
-    matrix.preRotate(rotation)
-    return Bitmap.createBitmap(
-        bitmap,
-        cropRect.left,
-        cropRect.top,
-        cropRect.width(),
-        cropRect.height(),
-        matrix,
-        true
-    )
+    val matrix = rotationDegrees?.let {
+        Matrix()
+    }?.also {
+        it.preRotate(rotation.toFloat())
+    }
+    return try {
+        Bitmap.createBitmap(
+            bitmap,
+            cropRect.left,
+            cropRect.top,
+            cropRect.width(),
+            cropRect.height(),
+            matrix,
+            true
+        )
+    } catch (ex: IllegalArgumentException) {
+        ex.printStackTrace()
+        null
+    }
 }
 
 // 이미지 Uri에서 회전후 중앙 기준 Crop한 Bitmap 반환.
