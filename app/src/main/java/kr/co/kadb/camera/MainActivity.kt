@@ -184,7 +184,7 @@ class MainActivity : AppCompatActivity() {
                 setAction(IntentKey.ACTION_DETECT_VEHICLE_NUMBER_IN_PICTURES)
                 //setCanMute(false)
                 setHasHorizon(true)
-                setCropSize(cropSize)
+                //setCropSize(cropSize)
                 setCanUiRotation(true)
                 //setHorizonColor(Color.RED)
                 //setUnusedAreaBorderColor(Color.GREEN)
