@@ -3,9 +3,11 @@ package kr.co.kadb.cameralibrary.presentation.ui.shoot
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
+import android.graphics.RectF
 import android.media.AudioManager
 import android.media.MediaActionSound
 import android.os.Bundle
+import android.util.Size
 import android.view.OrientationEventListener
 import android.view.Surface
 import android.view.View
@@ -36,6 +38,7 @@ import timber.log.Timber
 import java.io.IOException
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
+import kotlin.math.max
 
 /**
  * Modified by oooobang on 2022. 7. 16..
@@ -478,7 +481,7 @@ internal class ShootFragment :
         }
     }
 
-    /** Initialize CameraX, and prepare to bind the camera use cases  */
+    // Initialize CameraX, and prepare to bind the camera use cases.
     private fun initCamera() {
         // Wait for the views to be properly laid out
         binding.adbCameralibraryPreviewView.post {
@@ -487,7 +490,6 @@ internal class ShootFragment :
             cameraProviderFuture.addListener({
                 // CameraProvider
                 cameraProvider = cameraProviderFuture.get()
-
                 // Select lensFacing depending on the available cameras
                 lensFacing = when {
                     hasBackCamera() -> CameraSelector.LENS_FACING_BACK
@@ -509,13 +511,10 @@ internal class ShootFragment :
         //
         imageProcessor?.stop()
 
-        // rotation
-        val rotation = binding.adbCameralibraryPreviewView.display.rotation
-
         // Preview
         preview = Preview.Builder()
             .setTargetAspectRatio(AspectRatio.RATIO_4_3)
-            .setTargetRotation(rotation)
+            .setTargetRotation(binding.adbCameralibraryPreviewView.display.rotation)
             .build()
         preview?.setSurfaceProvider(binding.adbCameralibraryPreviewView.surfaceProvider)
 
@@ -523,7 +522,7 @@ internal class ShootFragment :
         imageCapture = ImageCapture.Builder()
             .setCaptureMode(ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY)
             .setTargetAspectRatio(AspectRatio.RATIO_4_3)
-            .setTargetRotation(rotation)
+            .setTargetRotation(binding.adbCameralibraryPreviewView.display.rotation)
             .setFlashMode(viewModel.flashMode)
             .build()
 
@@ -531,7 +530,7 @@ internal class ShootFragment :
         imageAnalyzer = ImageAnalysis.Builder()
             .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
             .setTargetAspectRatio(AspectRatio.RATIO_4_3)
-            .setTargetRotation(rotation)
+            .setTargetRotation(binding.adbCameralibraryPreviewView.display.rotation)
             .build()
 
         // Processor for detector.
@@ -586,27 +585,37 @@ internal class ShootFragment :
                 }
             }
 
-            // onComplete.
-            processor.onComplete { text, rect ->
+            // 분석 완료.
+            processor.onComplete { detectText, detectRect ->
                 imageProcessor?.run { this.stop() }
-                viewModel.detectInImage(text as String, rect)
-//                viewModel.detectInImage(
-//                    text as String,
-//                    rect,
-//                    Size(graphicOverlay?.imageWidth ?: 0, graphicOverlay?.imageHeight ?: 0)
-//                )
+                when (viewModel.item.value.action) {
+                    // 차량번호.
+                    IntentKey.ACTION_DETECT_VEHICLE_NUMBER_IN_PICTURES -> {
+                        val analysisImageSize = graphicOverlay?.let {
+                            Size(it.imageWidth, it.imageHeight)
+                        } ?: Size(0, 0)
+                        val scaleRect = viewModel.scaleRect(
+                            detectRect,
+                            analysisImageSize,
+                            imageCapture?.resolutionInfo?.resolution ?: Size(0, 0)
+                        )
+                        takePicture(detectText as String, scaleRect)
+                    }
+                    // 그 외.
+                    else -> {
+                        viewModel.detectInImage(detectText as String, detectRect)
+                    }
+                }
             }
         }
 
         try {
-            // CameraSelector
-            val cameraSelector = CameraSelector.Builder().requireLensFacing(lensFacing).build()
-
-            // A variable number of use-cases can be passed here -
-            // camera provides access to CameraControl & CameraInfo
-            camera = cameraProvider?.bindToLifecycle(
-                this, cameraSelector, preview, imageCapture, imageAnalyzer
-            )
+            // Bind UseCase to Lifecycle.
+            camera = CameraSelector.Builder().requireLensFacing(lensFacing).build().let {
+                cameraProvider?.bindToLifecycle(
+                    this, it, preview, imageCapture, imageAnalyzer
+                )
+            }
         } catch (ex: Exception) {
             ex.printStackTrace()
         }
@@ -639,7 +648,7 @@ internal class ShootFragment :
     }
 
     // 이미지 가져오기.
-    private fun takePicture() {
+    private fun takePicture(detectText: String? = null, detectRect: RectF? = null) {
         imageCapture?.takePicture(
             cameraExecutor,
             object : ImageCapture.OnImageCapturedCallback() {
@@ -654,7 +663,9 @@ internal class ShootFragment :
                             image.planes[0].buffer,
                             image.width,
                             image.height,
-                            image.imageInfo.rotationDegrees
+                            image.imageInfo.rotationDegrees,
+                            detectText,
+                            detectRect
                         )
                     } catch (ex: IOException) {
                         ex.printStackTrace()
