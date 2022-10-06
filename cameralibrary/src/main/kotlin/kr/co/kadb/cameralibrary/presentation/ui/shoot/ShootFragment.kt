@@ -38,7 +38,6 @@ import timber.log.Timber
 import java.io.IOException
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
-import kotlin.math.max
 
 /**
  * Modified by oooobang on 2022. 7. 16..
