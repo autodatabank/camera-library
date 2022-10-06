@@ -56,19 +56,20 @@ class VinNumberRecognitionProcessor(
         // Detected Items.
         val drawItems = mutableListOf<DetectedItem>()
         // 정규화.
-        for (textBlock in results.textBlocks) {
+        results.textBlocks.forEach { textBlock ->
             // Debug.
             //Timber.i(">>>>> ${javaClass.simpleName} > TEXT_BLOCK > ${textBlock.text}")
-            for (line in textBlock.lines) {
+            textBlock.lines.forEach { line ->
                 // Debug.
-                Timber.i(">>>>> ${javaClass.simpleName} > LINE > ${line.text}")
+                //Timber.i(">>>>> ${javaClass.simpleName} > LINE > ${line.text}")
 
                 // Find & Add
                 // 차대번호 정규식(A~Z, 0~9 혼합 17자리).
-                val regex = Regex("[A-Z0-9]{17}")
-                if (regex.matchEntire(line.text) != null) {
-                    drawItems.add(DetectedItem(line.text, RectF(line.boundingBox)))
+                Regex("[A-Z0-9]{17}").find(line.text)?.let { matchResult ->
+                    drawItems.add(DetectedItem(matchResult.value, RectF(line.boundingBox)))
 
+                    // Debug.
+                    Timber.i(">>>>> ${javaClass.simpleName} > REGEX > ${matchResult.value}")
                 }
             }
         }
@@ -93,7 +94,7 @@ class VinNumberRecognitionProcessor(
                     }
                 } else if (sortedItems.size > 1 &&
                     sortedItems[0].second > 5 &&
-                    (sortedItems[0].second * 0.5f) > sortedItems[1].second
+                    (sortedItems[0].second * 0.75f) > sortedItems[1].second
                 ) {
                     drawItems.find { it.text == sortedItems[0].first }?.also {
                         onSuccess?.invoke(it.text, it.rect)
