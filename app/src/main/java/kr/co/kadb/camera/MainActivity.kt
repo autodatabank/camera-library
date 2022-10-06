@@ -1,6 +1,7 @@
 package kr.co.kadb.camera
 
 import android.content.Intent
+import android.graphics.RectF
 import android.os.Bundle
 import android.widget.Button
 import android.widget.ImageView
@@ -8,8 +9,14 @@ import android.widget.TextView
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.graphics.toRect
+import androidx.exifinterface.media.ExifInterface
 import kr.co.kadb.cameralibrary.presentation.CameraIntent
 import kr.co.kadb.cameralibrary.presentation.model.CropSize
+import kr.co.kadb.cameralibrary.presentation.widget.extension.exifInterface
+import kr.co.kadb.cameralibrary.presentation.widget.extension.getParcelable
+import kr.co.kadb.cameralibrary.presentation.widget.extension.getSerializable
+import kr.co.kadb.cameralibrary.presentation.widget.extension.toThumbnail
 import kr.co.kadb.cameralibrary.presentation.widget.util.BitmapHelper
 import kr.co.kadb.cameralibrary.presentation.widget.util.IntentKey
 import kr.co.kadb.cameralibrary.presentation.widget.util.UriHelper
@@ -66,14 +73,16 @@ class MainActivity : AppCompatActivity() {
 
                     // 촬영 원본 이미지.
                     findViewById<ImageView>(R.id.imageview).setImageURI(imageUri)
-                    // 촬영 원본을 크롭 및 리사이즈한 이미지.
+                    // 촬영 원본을 크롭 또는 리사이즈한 이미지.
                     findViewById<ImageView>(R.id.imageview_thumbnail).setImageBitmap(resizeBitmap)
                 } else if (intent?.action == IntentKey.ACTION_TAKE_MULTIPLE_PICTURES) {
                     // 여러장.
                     // 이미지 URI.
-                    val imageUris = intent.getSerializableExtra(IntentKey.EXTRA_URIS)
+                    val imageUris =
+                        intent.getSerializable(IntentKey.EXTRA_URIS, ArrayList::class.java)
                     // 이미지 사이즈.
-                    val imageSizes = intent.getSerializableExtra(IntentKey.EXTRA_SIZES)
+                    val imageSizes =
+                        intent.getSerializable(IntentKey.EXTRA_SIZES, ArrayList::class.java)
 
                     // Debug.
                     Timber.d(">>>>> imageUris : $imageUris")
@@ -86,13 +95,44 @@ class MainActivity : AppCompatActivity() {
                     val imageWidth = intent.getIntExtra(IntentKey.EXTRA_WIDTH, 0)
                     // 이미지 세로.
                     val imageHeight = intent.getIntExtra(IntentKey.EXTRA_HEIGHT, 0)
+                    // 감지한 텍스트.
+                    val detectText = intent.getStringExtra(IntentKey.EXTRA_DETECT_TEXT)
+                    // 감지한 Rect.
+                    val detectRect =
+                        intent.getParcelable(IntentKey.EXTRA_DETECT_RECT, RectF::class.java)
+
+                    // Debug.
+                    Timber.i(">>>>> ACTION_DETECT_IN_PICTURES : $detectText")
+                    Timber.i(">>>>> ACTION_DETECT_IN_PICTURES > $detectRect")
+                    Timber.i(">>>>> ACTION_DETECT_IN_PICTURES > $imageWidth x $imageHeight")
+
                     // 이미지에서 텍스트 감지.
-                    intent.getStringExtra(IntentKey.EXTRA_DETECT_TEXT)?.let {
-                        findViewById<TextView>(R.id.textview).text = it
+                    findViewById<TextView>(R.id.textview).text = detectText
+
+                    // 이미지 URI.
+                    val imageUri = intent.data ?: return@registerForActivityResult
+                    val exifInterface = imageUri.exifInterface(baseContext)
+                    val (width, height) = Pair(
+                        exifInterface?.getAttributeInt(ExifInterface.TAG_IMAGE_WIDTH, 0) ?: 0,
+                        exifInterface?.getAttributeInt(ExifInterface.TAG_IMAGE_LENGTH, 0) ?: 0
+                    )
+
+                    // Debug.
+                    Timber.i(">>>>> ACTION_DETECT_IN_PICTURES > $width x $height")
+
+                    // 촬영 원본 이미지.
+                    findViewById<ImageView>(R.id.imageview).setImageURI(imageUri)
+
+                    // 이미지 중앙을 기준으로 원본 사이즈에서 가로:70% 세로:50% 크롭.
+                    val cropBitmap = detectRect?.let {
+                        UriHelper.rotateAndCrop(baseContext, imageUri, it.toRect())
                     }
 
                     // Debug.
-                    Timber.i(">>>>> ACTION_DETECT_IN_PICTURES : $imageWidth x $imageHeight")
+                    Timber.i(">>>>> ACTION_DETECT_IN_PICTURES > cropBitmap : ${cropBitmap?.width} x ${cropBitmap?.height}")
+
+                    // 촬영 원본을 크롭 또는 리사이즈한 이미지.
+                    findViewById<ImageView>(R.id.imageview_thumbnail).setImageBitmap(cropBitmap)
                 }
             }
         }
