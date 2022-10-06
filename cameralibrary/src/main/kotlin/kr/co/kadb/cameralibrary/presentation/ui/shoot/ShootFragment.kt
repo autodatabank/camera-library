@@ -6,7 +6,6 @@ import android.content.Intent
 import android.media.AudioManager
 import android.media.MediaActionSound
 import android.os.Bundle
-import android.util.Size
 import android.view.OrientationEventListener
 import android.view.Surface
 import android.view.View
@@ -82,16 +81,19 @@ internal class ShootFragment :
     /** Blocking camera operations are performed using this executor */
     private lateinit var cameraExecutor: ExecutorService
 
-    //
+    // 이미지 분석 Overlay.
     private var graphicOverlay: GraphicOverlay? = null
-    private var imageProcessor: VisionImageProcessor<*>? = null
+
+    // Update overlay information.
     private var needUpdateGraphicOverlayImageSourceInfo = false
 
-    // OrientationEventListener
+    // Images vision detectors.
+    private var imageProcessor: VisionImageProcessor<*>? = null
+
+    // Orientation EventListener.
     private val orientationEventListener by lazy {
         object : OrientationEventListener(requireContext()) {
             override fun onOrientationChanged(orientation: Int) {
-
                 if (orientation == ORIENTATION_UNKNOWN) {
                     return
                 }
@@ -123,7 +125,7 @@ internal class ShootFragment :
 
     override fun onStart() {
         super.onStart()
-        //
+        // Enable orientation listener.
         orientationEventListener.enable()
 
         // 권한 확인 후 카메라 및 UI 초기화.
@@ -140,6 +142,8 @@ internal class ShootFragment :
 
     override fun onStop() {
         super.onStop()
+
+        // Disable orientation listener.
         orientationEventListener.disable()
     }
 
@@ -171,7 +175,7 @@ internal class ShootFragment :
 
     // Init Layout.
     override fun initLayout(view: View) {
-        //
+        // 분석 Overlay.
         graphicOverlay = binding.adbCameralibraryGraphicOverlay
 
         // 수평선 사용 시에만 활성화.
@@ -211,20 +215,24 @@ internal class ShootFragment :
 
     // Init Observer.
     override fun initObserver() {
+        // Item collect.
         repeatOnStarted {
             viewModel.item.collect {
             }
         }
+
+        // Event collect.
         repeatOnStarted {
             viewModel.eventFlow.collect { event ->
                 // Debug.
                 Timber.i(">>>>> ShootFragment event collect : $event")
                 when (event) {
+                    // 셔터음.
                     is Event.PlayShutterSound -> {
                         playShutterSound(event.canMute)
                     }
+                    // 한 장 촬영 결과 전달.
                     is Event.TakePicture -> {
-                        // 결과 전달.
                         Intent().apply {
                             action = viewModel.item.value.action
                             putExtra("data", event.thumbnailBitmap)
@@ -239,6 +247,7 @@ internal class ShootFragment :
                             event.thumbnailBitmap?.recycle()
                         }
                     }
+                    // 여러 장 촬영 결과 전달.
                     is Event.TakeMultiplePictures -> {
                         Intent().apply {
                             action = viewModel.item.value.action
@@ -251,6 +260,7 @@ internal class ShootFragment :
                             activity?.finish()
                         }
                     }
+                    // 이미지 감지 결과 전달.
                     is Event.DetectInImage -> {
                         Intent().apply {
                             action = viewModel.item.value.action
@@ -260,7 +270,7 @@ internal class ShootFragment :
                             putExtra(IntentKey.EXTRA_WIDTH, event.size?.width)
                             putExtra(IntentKey.EXTRA_HEIGHT, event.size?.height)
                             putExtra(IntentKey.EXTRA_ROTATION, event.rotation)
-                            setDataAndType(event?.uri, "image/jpeg")
+                            setDataAndType(event.uri, "image/jpeg")
                         }.also {
                             requireActivity().setResult(Activity.RESULT_OK, it)
                         }.run {
@@ -280,7 +290,6 @@ internal class ShootFragment :
             if (!viewModel.canTakePicture()) {
                 return@setOnClickListener
             }
-
             // 이미지 가져오기.
             takePicture()
         }
@@ -320,7 +329,7 @@ internal class ShootFragment :
     override fun initCallback() {
     }
 
-    // Init Unused area layout.
+    // Init unused area layout.
     private fun initUnusedAreaLayout() {
         // 크롭 사용 시 Layout 및 Horizon 활성.
         viewModel.item.value.cropSize.isNotEmpty.also {
@@ -502,10 +511,6 @@ internal class ShootFragment :
 
         // rotation
         val rotation = binding.adbCameralibraryPreviewView.display.rotation
-//
-//        // CameraProvider
-//        val cameraProvider = cameraProvider
-//            ?: throw IllegalStateException("Camera initialization failed.")
 
         // Preview
         preview = Preview.Builder()
@@ -529,33 +534,27 @@ internal class ShootFragment :
             .setTargetRotation(rotation)
             .build()
 
-
-
-        needUpdateGraphicOverlayImageSourceInfo = true
-
-        imageProcessor = when (viewModel.item.value.action) {
-            IntentKey.ACTION_DETECT_MILEAGE_IN_PICTURES -> {
-                MileageRecognitionProcessor(
-                    requireContext(),
-                    KoreanTextRecognizerOptions.Builder().build()
-                )
+        // Processor for detector.
+        imageProcessor = KoreanTextRecognizerOptions.Builder().build().let { processor ->
+            when (viewModel.item.value.action) {
+                IntentKey.ACTION_DETECT_MILEAGE_IN_PICTURES -> {
+                    MileageRecognitionProcessor(requireContext(), processor)
+                }
+                IntentKey.ACTION_DETECT_VIN_NUMBER_IN_PICTURES -> {
+                    VinNumberRecognitionProcessor(requireContext(), processor)
+                }
+                IntentKey.ACTION_DETECT_VEHICLE_NUMBER_IN_PICTURES -> {
+                    VehicleNumberRecognitionProcessor(requireContext(), processor)
+                }
+                else -> null
             }
-            IntentKey.ACTION_DETECT_VIN_NUMBER_IN_PICTURES -> {
-                VinNumberRecognitionProcessor(
-                    requireContext(),
-                    KoreanTextRecognizerOptions.Builder().build()
-                )
-            }
-            IntentKey.ACTION_TAKE_VEHICLE_NUMBER_PICTURES -> {
-                VehicleNumberRecognitionProcessor(
-                    requireContext(),
-                    KoreanTextRecognizerOptions.Builder().build()
-                )
-            }
-            else -> null
         }
 
-        if (imageProcessor != null) {
+        // 이미지 분석.
+        imageProcessor?.let { processor ->
+            // Update overlay information.
+            needUpdateGraphicOverlayImageSourceInfo = true
+            // Image analysis.
             imageAnalyzer?.setAnalyzer(
                 ContextCompat.getMainExecutor(requireContext())
             ) { imageProxy: ImageProxy ->
@@ -588,7 +587,7 @@ internal class ShootFragment :
             }
 
             // onComplete.
-            imageProcessor?.onComplete { text, rect ->
+            processor.onComplete { text, rect ->
                 imageProcessor?.run { this.stop() }
                 viewModel.detectInImage(text as String, rect)
 //                viewModel.detectInImage(
@@ -613,12 +612,12 @@ internal class ShootFragment :
         }
     }
 
-    /** Returns true if the device has an available back camera. False otherwise */
+    // 후면 카메라 사용 가능.
     private fun hasBackCamera(): Boolean {
         return cameraProvider?.hasCamera(CameraSelector.DEFAULT_BACK_CAMERA) ?: false
     }
 
-    /** Returns true if the device has an available front camera. False otherwise */
+    // 전면 카메라 사용 가능.
     private fun hasFrontCamera(): Boolean {
         return cameraProvider?.hasCamera(CameraSelector.DEFAULT_FRONT_CAMERA) ?: false
     }
