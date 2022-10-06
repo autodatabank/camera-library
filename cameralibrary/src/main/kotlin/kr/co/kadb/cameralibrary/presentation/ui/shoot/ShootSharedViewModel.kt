@@ -20,7 +20,7 @@ import kr.co.kadb.cameralibrary.presentation.viewmodel.BaseAndroidViewModel
 import kr.co.kadb.cameralibrary.presentation.widget.extension.*
 import kr.co.kadb.cameralibrary.presentation.widget.util.IntentKey.ACTION_DETECT_MILEAGE_IN_PICTURES
 import kr.co.kadb.cameralibrary.presentation.widget.util.IntentKey.ACTION_TAKE_MULTIPLE_PICTURES
-import kr.co.kadb.cameralibrary.presentation.widget.util.IntentKey.ACTION_TAKE_VEHICLE_NUMBER_PICTURES
+import kr.co.kadb.cameralibrary.presentation.widget.util.IntentKey.ACTION_DETECT_VEHICLE_NUMBER_IN_PICTURES
 import kr.co.kadb.cameralibrary.presentation.widget.util.IntentKey.ACTION_DETECT_VIN_NUMBER_IN_PICTURES
 import timber.log.Timber
 import java.io.ByteArrayInputStream
@@ -51,10 +51,10 @@ constructor(
         data class DetectInImage(
             val text: String,
             val rect: RectF,
-            val uri: Uri?,
-            val size: Size?,
-            val rotation: Int?,
-            val thumbnailBitmap: Bitmap?
+            val uri: Uri? = null,
+            val size: Size? = null,
+            val rotation: Int? = null,
+            val thumbnailBitmap: Bitmap? = null
         ) : Event()
     }
 
@@ -125,8 +125,8 @@ constructor(
             isDebug = isDebug,
             isShooted = false,
             isMultiplePicture = action == ACTION_TAKE_MULTIPLE_PICTURES,
-            isUsingMLKit = action == ACTION_TAKE_VEHICLE_NUMBER_PICTURES || action == ACTION_DETECT_MILEAGE_IN_PICTURES || action == ACTION_DETECT_VIN_NUMBER_IN_PICTURES,
-            isVehicleNumberPicture = action == ACTION_TAKE_VEHICLE_NUMBER_PICTURES,
+            isUsingMLKit = action == ACTION_DETECT_VEHICLE_NUMBER_IN_PICTURES || action == ACTION_DETECT_MILEAGE_IN_PICTURES || action == ACTION_DETECT_VIN_NUMBER_IN_PICTURES,
+            isVehicleNumberPicture = action == ACTION_DETECT_VEHICLE_NUMBER_IN_PICTURES,
             isMileagePicture = action == ACTION_DETECT_MILEAGE_IN_PICTURES,
             isVinNumberPicture = action == ACTION_DETECT_VIN_NUMBER_IN_PICTURES,
             canMute = canMute,
@@ -145,8 +145,8 @@ constructor(
             isDebug = isDebug,
             isShooted = false,
             isMultiplePicture = action == ACTION_TAKE_MULTIPLE_PICTURES,
-            isUsingMLKit = action == ACTION_TAKE_VEHICLE_NUMBER_PICTURES || action == ACTION_DETECT_MILEAGE_IN_PICTURES || action == ACTION_DETECT_VIN_NUMBER_IN_PICTURES,
-            isVehicleNumberPicture = action == ACTION_TAKE_VEHICLE_NUMBER_PICTURES,
+            isUsingMLKit = action == ACTION_DETECT_VEHICLE_NUMBER_IN_PICTURES || action == ACTION_DETECT_MILEAGE_IN_PICTURES || action == ACTION_DETECT_VIN_NUMBER_IN_PICTURES,
+            isVehicleNumberPicture = action == ACTION_DETECT_VEHICLE_NUMBER_IN_PICTURES,
             isMileagePicture = action == ACTION_DETECT_MILEAGE_IN_PICTURES,
             isVinNumberPicture = action == ACTION_DETECT_VIN_NUMBER_IN_PICTURES,
             canMute = canMute,
@@ -220,7 +220,7 @@ constructor(
 
     // 이미지에서 텍스트 감지.
     fun detectInImage(text: String, rect: RectF) {
-        event(Event.DetectInImage(text, rect, null, null, null, null))
+        event(Event.DetectInImage(text, rect))
     }
 
     // 이미지 저장.
