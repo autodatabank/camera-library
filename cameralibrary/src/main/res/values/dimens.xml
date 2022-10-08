@@ -1,647 +1,647 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
 	<!-- FontSize. -->
-	<dimen name="adb_cameralibrary_defaultFontSize">@dimen/adb_cameralibrary_sp16</dimen>
+	<dimen name="adb_cameralibrary_defaultFontSize" tools:ignore="UnusedResources">@dimen/adb_cameralibrary_sp16</dimen>
 
 	<!-- px. -->
-	<dimen name="adb_cameralibrary_px0">0px</dimen>
-	<dimen name="adb_cameralibrary_px1">1px</dimen>
+	<dimen name="adb_cameralibrary_px0" tools:ignore="UnusedResources">0px</dimen>
+	<dimen name="adb_cameralibrary_px1" tools:ignore="UnusedResources">1px</dimen>
 
 	<!-- sp. x1.0 -->
-	<dimen name="adb_cameralibrary_sp8">8sp</dimen>
-	<dimen name="adb_cameralibrary_sp9">9sp</dimen>
-	<dimen name="adb_cameralibrary_sp10">10sp</dimen>
-	<dimen name="adb_cameralibrary_sp11">11sp</dimen>
-	<dimen name="adb_cameralibrary_sp12">12sp</dimen>
-	<dimen name="adb_cameralibrary_sp13">13sp</dimen>
-	<dimen name="adb_cameralibrary_sp14">14sp</dimen>
-	<dimen name="adb_cameralibrary_sp15">15sp</dimen>
-	<dimen name="adb_cameralibrary_sp16">16sp</dimen>
-	<dimen name="adb_cameralibrary_sp17">17sp</dimen>
-	<dimen name="adb_cameralibrary_sp18">18sp</dimen>
-	<dimen name="adb_cameralibrary_sp19">19sp</dimen>
-	<dimen name="adb_cameralibrary_sp20">20sp</dimen>
-	<dimen name="adb_cameralibrary_sp21">21sp</dimen>
-	<dimen name="adb_cameralibrary_sp22">22sp</dimen>
-	<dimen name="adb_cameralibrary_sp23">23sp</dimen>
-	<dimen name="adb_cameralibrary_sp24">24sp</dimen>
-	<dimen name="adb_cameralibrary_sp25">25sp</dimen>
-	<dimen name="adb_cameralibrary_sp26">26sp</dimen>
-	<dimen name="adb_cameralibrary_sp27">27sp</dimen>
-	<dimen name="adb_cameralibrary_sp28">28sp</dimen>
-	<dimen name="adb_cameralibrary_sp29">29sp</dimen>
-	<dimen name="adb_cameralibrary_sp30">30sp</dimen>
-	<dimen name="adb_cameralibrary_sp31">31sp</dimen>
+	<dimen name="adb_cameralibrary_sp8" tools:ignore="UnusedResources">8sp</dimen>
+	<dimen name="adb_cameralibrary_sp9" tools:ignore="UnusedResources">9sp</dimen>
+	<dimen name="adb_cameralibrary_sp10" tools:ignore="UnusedResources">10sp</dimen>
+	<dimen name="adb_cameralibrary_sp11" tools:ignore="UnusedResources">11sp</dimen>
+	<dimen name="adb_cameralibrary_sp12" tools:ignore="UnusedResources">12sp</dimen>
+	<dimen name="adb_cameralibrary_sp13" tools:ignore="UnusedResources">13sp</dimen>
+	<dimen name="adb_cameralibrary_sp14" tools:ignore="UnusedResources">14sp</dimen>
+	<dimen name="adb_cameralibrary_sp15" tools:ignore="UnusedResources">15sp</dimen>
+	<dimen name="adb_cameralibrary_sp16" tools:ignore="UnusedResources">16sp</dimen>
+	<dimen name="adb_cameralibrary_sp17" tools:ignore="UnusedResources">17sp</dimen>
+	<dimen name="adb_cameralibrary_sp18" tools:ignore="UnusedResources">18sp</dimen>
+	<dimen name="adb_cameralibrary_sp19" tools:ignore="UnusedResources">19sp</dimen>
+	<dimen name="adb_cameralibrary_sp20" tools:ignore="UnusedResources">20sp</dimen>
+	<dimen name="adb_cameralibrary_sp21" tools:ignore="UnusedResources">21sp</dimen>
+	<dimen name="adb_cameralibrary_sp22" tools:ignore="UnusedResources">22sp</dimen>
+	<dimen name="adb_cameralibrary_sp23" tools:ignore="UnusedResources">23sp</dimen>
+	<dimen name="adb_cameralibrary_sp24" tools:ignore="UnusedResources">24sp</dimen>
+	<dimen name="adb_cameralibrary_sp25" tools:ignore="UnusedResources">25sp</dimen>
+	<dimen name="adb_cameralibrary_sp26" tools:ignore="UnusedResources">26sp</dimen>
+	<dimen name="adb_cameralibrary_sp27" tools:ignore="UnusedResources">27sp</dimen>
+	<dimen name="adb_cameralibrary_sp28" tools:ignore="UnusedResources">28sp</dimen>
+	<dimen name="adb_cameralibrary_sp29" tools:ignore="UnusedResources">29sp</dimen>
+	<dimen name="adb_cameralibrary_sp30" tools:ignore="UnusedResources">30sp</dimen>
+	<dimen name="adb_cameralibrary_sp31" tools:ignore="UnusedResources">31sp</dimen>
 	<dimen name="adb_cameralibrary_sp32">32sp</dimen>
-	<dimen name="adb_cameralibrary_sp33">33sp</dimen>
-	<dimen name="adb_cameralibrary_sp34">34sp</dimen>
-	<dimen name="adb_cameralibrary_sp35">35sp</dimen>
-	<dimen name="adb_cameralibrary_sp36">36sp</dimen>
-	<dimen name="adb_cameralibrary_sp37">37sp</dimen>
-	<dimen name="adb_cameralibrary_sp38">38sp</dimen>
-	<dimen name="adb_cameralibrary_sp39">39sp</dimen>
-	<dimen name="adb_cameralibrary_sp40">40sp</dimen>
-	<dimen name="adb_cameralibrary_sp41">41sp</dimen>
-	<dimen name="adb_cameralibrary_sp42">42sp</dimen>
-	<dimen name="adb_cameralibrary_sp43">43sp</dimen>
-	<dimen name="adb_cameralibrary_sp44">44sp</dimen>
-	<dimen name="adb_cameralibrary_sp45">45sp</dimen>
-	<dimen name="adb_cameralibrary_sp46">46sp</dimen>
-	<dimen name="adb_cameralibrary_sp47">47sp</dimen>
-	<dimen name="adb_cameralibrary_sp48">48sp</dimen>
-	<dimen name="adb_cameralibrary_sp49">49sp</dimen>
-	<dimen name="adb_cameralibrary_sp50">50sp</dimen>
-	<dimen name="adb_cameralibrary_sp51">51sp</dimen>
-	<dimen name="adb_cameralibrary_sp52">52sp</dimen>
-	<dimen name="adb_cameralibrary_sp53">53sp</dimen>
-	<dimen name="adb_cameralibrary_sp54">54sp</dimen>
-	<dimen name="adb_cameralibrary_sp55">55sp</dimen>
-	<dimen name="adb_cameralibrary_sp56">56sp</dimen>
-	<dimen name="adb_cameralibrary_sp57">57sp</dimen>
-	<dimen name="adb_cameralibrary_sp58">58sp</dimen>
-	<dimen name="adb_cameralibrary_sp59">59sp</dimen>
-	<dimen name="adb_cameralibrary_sp60">60sp</dimen>
-	<dimen name="adb_cameralibrary_sp61">61sp</dimen>
-	<dimen name="adb_cameralibrary_sp62">62sp</dimen>
-	<dimen name="adb_cameralibrary_sp63">63sp</dimen>
-	<dimen name="adb_cameralibrary_sp64">64sp</dimen>
-	<dimen name="adb_cameralibrary_sp65">65sp</dimen>
-	<dimen name="adb_cameralibrary_sp66">66sp</dimen>
-	<dimen name="adb_cameralibrary_sp67">67sp</dimen>
-	<dimen name="adb_cameralibrary_sp68">68sp</dimen>
-	<dimen name="adb_cameralibrary_sp69">69sp</dimen>
-	<dimen name="adb_cameralibrary_sp70">70sp</dimen>
-	<dimen name="adb_cameralibrary_sp71">71sp</dimen>
-	<dimen name="adb_cameralibrary_sp72">72sp</dimen>
-	<dimen name="adb_cameralibrary_sp73">73sp</dimen>
-	<dimen name="adb_cameralibrary_sp74">74sp</dimen>
-	<dimen name="adb_cameralibrary_sp75">75sp</dimen>
-	<dimen name="adb_cameralibrary_sp76">76sp</dimen>
-	<dimen name="adb_cameralibrary_sp77">77sp</dimen>
-	<dimen name="adb_cameralibrary_sp78">78sp</dimen>
-	<dimen name="adb_cameralibrary_sp79">79sp</dimen>
-	<dimen name="adb_cameralibrary_sp80">80sp</dimen>
-	<dimen name="adb_cameralibrary_sp81">81sp</dimen>
-	<dimen name="adb_cameralibrary_sp82">82sp</dimen>
-	<dimen name="adb_cameralibrary_sp83">83sp</dimen>
-	<dimen name="adb_cameralibrary_sp84">84sp</dimen>
-	<dimen name="adb_cameralibrary_sp85">85sp</dimen>
-	<dimen name="adb_cameralibrary_sp86">86sp</dimen>
-	<dimen name="adb_cameralibrary_sp87">87sp</dimen>
-	<dimen name="adb_cameralibrary_sp88">88sp</dimen>
-	<dimen name="adb_cameralibrary_sp89">89sp</dimen>
-	<dimen name="adb_cameralibrary_sp90">90sp</dimen>
-	<dimen name="adb_cameralibrary_sp91">91sp</dimen>
-	<dimen name="adb_cameralibrary_sp92">92sp</dimen>
-	<dimen name="adb_cameralibrary_sp93">93sp</dimen>
-	<dimen name="adb_cameralibrary_sp94">94sp</dimen>
-	<dimen name="adb_cameralibrary_sp95">95sp</dimen>
-	<dimen name="adb_cameralibrary_sp96">96sp</dimen>
-	<dimen name="adb_cameralibrary_sp97">97sp</dimen>
-	<dimen name="adb_cameralibrary_sp98">98sp</dimen>
-	<dimen name="adb_cameralibrary_sp99">99sp</dimen>
-	<dimen name="adb_cameralibrary_sp100">100sp</dimen>
-	<dimen name="adb_cameralibrary_sp101">101sp</dimen>
-	<dimen name="adb_cameralibrary_sp102">102sp</dimen>
-	<dimen name="adb_cameralibrary_sp103">103sp</dimen>
-	<dimen name="adb_cameralibrary_sp104">104sp</dimen>
-	<dimen name="adb_cameralibrary_sp105">105sp</dimen>
-	<dimen name="adb_cameralibrary_sp106">106sp</dimen>
-	<dimen name="adb_cameralibrary_sp107">107sp</dimen>
-	<dimen name="adb_cameralibrary_sp108">108sp</dimen>
-	<dimen name="adb_cameralibrary_sp109">109sp</dimen>
-	<dimen name="adb_cameralibrary_sp110">110sp</dimen>
-	<dimen name="adb_cameralibrary_sp111">111sp</dimen>
-	<dimen name="adb_cameralibrary_sp112">112sp</dimen>
-	<dimen name="adb_cameralibrary_sp113">113sp</dimen>
-	<dimen name="adb_cameralibrary_sp114">114sp</dimen>
-	<dimen name="adb_cameralibrary_sp115">115sp</dimen>
-	<dimen name="adb_cameralibrary_sp116">116sp</dimen>
-	<dimen name="adb_cameralibrary_sp117">117sp</dimen>
-	<dimen name="adb_cameralibrary_sp118">118sp</dimen>
-	<dimen name="adb_cameralibrary_sp119">119sp</dimen>
-	<dimen name="adb_cameralibrary_sp120">120sp</dimen>
+	<dimen name="adb_cameralibrary_sp33" tools:ignore="UnusedResources">33sp</dimen>
+	<dimen name="adb_cameralibrary_sp34" tools:ignore="UnusedResources">34sp</dimen>
+	<dimen name="adb_cameralibrary_sp35" tools:ignore="UnusedResources">35sp</dimen>
+	<dimen name="adb_cameralibrary_sp36" tools:ignore="UnusedResources">36sp</dimen>
+	<dimen name="adb_cameralibrary_sp37" tools:ignore="UnusedResources">37sp</dimen>
+	<dimen name="adb_cameralibrary_sp38" tools:ignore="UnusedResources">38sp</dimen>
+	<dimen name="adb_cameralibrary_sp39" tools:ignore="UnusedResources">39sp</dimen>
+	<dimen name="adb_cameralibrary_sp40" tools:ignore="UnusedResources">40sp</dimen>
+	<dimen name="adb_cameralibrary_sp41" tools:ignore="UnusedResources">41sp</dimen>
+	<dimen name="adb_cameralibrary_sp42" tools:ignore="UnusedResources">42sp</dimen>
+	<dimen name="adb_cameralibrary_sp43" tools:ignore="UnusedResources">43sp</dimen>
+	<dimen name="adb_cameralibrary_sp44" tools:ignore="UnusedResources">44sp</dimen>
+	<dimen name="adb_cameralibrary_sp45" tools:ignore="UnusedResources">45sp</dimen>
+	<dimen name="adb_cameralibrary_sp46" tools:ignore="UnusedResources">46sp</dimen>
+	<dimen name="adb_cameralibrary_sp47" tools:ignore="UnusedResources">47sp</dimen>
+	<dimen name="adb_cameralibrary_sp48" tools:ignore="UnusedResources">48sp</dimen>
+	<dimen name="adb_cameralibrary_sp49" tools:ignore="UnusedResources">49sp</dimen>
+	<dimen name="adb_cameralibrary_sp50" tools:ignore="UnusedResources">50sp</dimen>
+	<dimen name="adb_cameralibrary_sp51" tools:ignore="UnusedResources">51sp</dimen>
+	<dimen name="adb_cameralibrary_sp52" tools:ignore="UnusedResources">52sp</dimen>
+	<dimen name="adb_cameralibrary_sp53" tools:ignore="UnusedResources">53sp</dimen>
+	<dimen name="adb_cameralibrary_sp54" tools:ignore="UnusedResources">54sp</dimen>
+	<dimen name="adb_cameralibrary_sp55" tools:ignore="UnusedResources">55sp</dimen>
+	<dimen name="adb_cameralibrary_sp56" tools:ignore="UnusedResources">56sp</dimen>
+	<dimen name="adb_cameralibrary_sp57" tools:ignore="UnusedResources">57sp</dimen>
+	<dimen name="adb_cameralibrary_sp58" tools:ignore="UnusedResources">58sp</dimen>
+	<dimen name="adb_cameralibrary_sp59" tools:ignore="UnusedResources">59sp</dimen>
+	<dimen name="adb_cameralibrary_sp60" tools:ignore="UnusedResources">60sp</dimen>
+	<dimen name="adb_cameralibrary_sp61" tools:ignore="UnusedResources">61sp</dimen>
+	<dimen name="adb_cameralibrary_sp62" tools:ignore="UnusedResources">62sp</dimen>
+	<dimen name="adb_cameralibrary_sp63" tools:ignore="UnusedResources">63sp</dimen>
+	<dimen name="adb_cameralibrary_sp64" tools:ignore="UnusedResources">64sp</dimen>
+	<dimen name="adb_cameralibrary_sp65" tools:ignore="UnusedResources">65sp</dimen>
+	<dimen name="adb_cameralibrary_sp66" tools:ignore="UnusedResources">66sp</dimen>
+	<dimen name="adb_cameralibrary_sp67" tools:ignore="UnusedResources">67sp</dimen>
+	<dimen name="adb_cameralibrary_sp68" tools:ignore="UnusedResources">68sp</dimen>
+	<dimen name="adb_cameralibrary_sp69" tools:ignore="UnusedResources">69sp</dimen>
+	<dimen name="adb_cameralibrary_sp70" tools:ignore="UnusedResources">70sp</dimen>
+	<dimen name="adb_cameralibrary_sp71" tools:ignore="UnusedResources">71sp</dimen>
+	<dimen name="adb_cameralibrary_sp72" tools:ignore="UnusedResources">72sp</dimen>
+	<dimen name="adb_cameralibrary_sp73" tools:ignore="UnusedResources">73sp</dimen>
+	<dimen name="adb_cameralibrary_sp74" tools:ignore="UnusedResources">74sp</dimen>
+	<dimen name="adb_cameralibrary_sp75" tools:ignore="UnusedResources">75sp</dimen>
+	<dimen name="adb_cameralibrary_sp76" tools:ignore="UnusedResources">76sp</dimen>
+	<dimen name="adb_cameralibrary_sp77" tools:ignore="UnusedResources">77sp</dimen>
+	<dimen name="adb_cameralibrary_sp78" tools:ignore="UnusedResources">78sp</dimen>
+	<dimen name="adb_cameralibrary_sp79" tools:ignore="UnusedResources">79sp</dimen>
+	<dimen name="adb_cameralibrary_sp80" tools:ignore="UnusedResources">80sp</dimen>
+	<dimen name="adb_cameralibrary_sp81" tools:ignore="UnusedResources">81sp</dimen>
+	<dimen name="adb_cameralibrary_sp82" tools:ignore="UnusedResources">82sp</dimen>
+	<dimen name="adb_cameralibrary_sp83" tools:ignore="UnusedResources">83sp</dimen>
+	<dimen name="adb_cameralibrary_sp84" tools:ignore="UnusedResources">84sp</dimen>
+	<dimen name="adb_cameralibrary_sp85" tools:ignore="UnusedResources">85sp</dimen>
+	<dimen name="adb_cameralibrary_sp86" tools:ignore="UnusedResources">86sp</dimen>
+	<dimen name="adb_cameralibrary_sp87" tools:ignore="UnusedResources">87sp</dimen>
+	<dimen name="adb_cameralibrary_sp88" tools:ignore="UnusedResources">88sp</dimen>
+	<dimen name="adb_cameralibrary_sp89" tools:ignore="UnusedResources">89sp</dimen>
+	<dimen name="adb_cameralibrary_sp90" tools:ignore="UnusedResources">90sp</dimen>
+	<dimen name="adb_cameralibrary_sp91" tools:ignore="UnusedResources">91sp</dimen>
+	<dimen name="adb_cameralibrary_sp92" tools:ignore="UnusedResources">92sp</dimen>
+	<dimen name="adb_cameralibrary_sp93" tools:ignore="UnusedResources">93sp</dimen>
+	<dimen name="adb_cameralibrary_sp94" tools:ignore="UnusedResources">94sp</dimen>
+	<dimen name="adb_cameralibrary_sp95" tools:ignore="UnusedResources">95sp</dimen>
+	<dimen name="adb_cameralibrary_sp96" tools:ignore="UnusedResources">96sp</dimen>
+	<dimen name="adb_cameralibrary_sp97" tools:ignore="UnusedResources">97sp</dimen>
+	<dimen name="adb_cameralibrary_sp98" tools:ignore="UnusedResources">98sp</dimen>
+	<dimen name="adb_cameralibrary_sp99" tools:ignore="UnusedResources">99sp</dimen>
+	<dimen name="adb_cameralibrary_sp100" tools:ignore="UnusedResources">100sp</dimen>
+	<dimen name="adb_cameralibrary_sp101" tools:ignore="UnusedResources">101sp</dimen>
+	<dimen name="adb_cameralibrary_sp102" tools:ignore="UnusedResources">102sp</dimen>
+	<dimen name="adb_cameralibrary_sp103" tools:ignore="UnusedResources">103sp</dimen>
+	<dimen name="adb_cameralibrary_sp104" tools:ignore="UnusedResources">104sp</dimen>
+	<dimen name="adb_cameralibrary_sp105" tools:ignore="UnusedResources">105sp</dimen>
+	<dimen name="adb_cameralibrary_sp106" tools:ignore="UnusedResources">106sp</dimen>
+	<dimen name="adb_cameralibrary_sp107" tools:ignore="UnusedResources">107sp</dimen>
+	<dimen name="adb_cameralibrary_sp108" tools:ignore="UnusedResources">108sp</dimen>
+	<dimen name="adb_cameralibrary_sp109" tools:ignore="UnusedResources">109sp</dimen>
+	<dimen name="adb_cameralibrary_sp110" tools:ignore="UnusedResources">110sp</dimen>
+	<dimen name="adb_cameralibrary_sp111" tools:ignore="UnusedResources">111sp</dimen>
+	<dimen name="adb_cameralibrary_sp112" tools:ignore="UnusedResources">112sp</dimen>
+	<dimen name="adb_cameralibrary_sp113" tools:ignore="UnusedResources">113sp</dimen>
+	<dimen name="adb_cameralibrary_sp114" tools:ignore="UnusedResources">114sp</dimen>
+	<dimen name="adb_cameralibrary_sp115" tools:ignore="UnusedResources">115sp</dimen>
+	<dimen name="adb_cameralibrary_sp116" tools:ignore="UnusedResources">116sp</dimen>
+	<dimen name="adb_cameralibrary_sp117" tools:ignore="UnusedResources">117sp</dimen>
+	<dimen name="adb_cameralibrary_sp118" tools:ignore="UnusedResources">118sp</dimen>
+	<dimen name="adb_cameralibrary_sp119" tools:ignore="UnusedResources">119sp</dimen>
+	<dimen name="adb_cameralibrary_sp120" tools:ignore="UnusedResources">120sp</dimen>
 
 	<!-- dp. x1.0 -->
-	<dimen name="adb_cameralibrary_dp0">0dp</dimen>
-	<dimen name="adb_cameralibrary_dp1">1dp</dimen>
-	<dimen name="adb_cameralibrary_dp2">2dp</dimen>
-	<dimen name="adb_cameralibrary_dp3">3dp</dimen>
-	<dimen name="adb_cameralibrary_dp4">4dp</dimen>
-	<dimen name="adb_cameralibrary_dp5">5dp</dimen>
-	<dimen name="adb_cameralibrary_dp6">6dp</dimen>
-	<dimen name="adb_cameralibrary_dp7">7dp</dimen>
-	<dimen name="adb_cameralibrary_dp8">8dp</dimen>
-	<dimen name="adb_cameralibrary_dp9">9dp</dimen>
-	<dimen name="adb_cameralibrary_dp10">10dp</dimen>
-	<dimen name="adb_cameralibrary_dp11">11dp</dimen>
-	<dimen name="adb_cameralibrary_dp12">12dp</dimen>
-	<dimen name="adb_cameralibrary_dp13">13dp</dimen>
-	<dimen name="adb_cameralibrary_dp14">14dp</dimen>
-	<dimen name="adb_cameralibrary_dp15">15dp</dimen>
+	<dimen name="adb_cameralibrary_dp0" tools:ignore="UnusedResources">0dp</dimen>
+	<dimen name="adb_cameralibrary_dp1" tools:ignore="UnusedResources">1dp</dimen>
+	<dimen name="adb_cameralibrary_dp2" tools:ignore="UnusedResources">2dp</dimen>
+	<dimen name="adb_cameralibrary_dp3" tools:ignore="UnusedResources">3dp</dimen>
+	<dimen name="adb_cameralibrary_dp4" tools:ignore="UnusedResources">4dp</dimen>
+	<dimen name="adb_cameralibrary_dp5" tools:ignore="UnusedResources">5dp</dimen>
+	<dimen name="adb_cameralibrary_dp6" tools:ignore="UnusedResources">6dp</dimen>
+	<dimen name="adb_cameralibrary_dp7" tools:ignore="UnusedResources">7dp</dimen>
+	<dimen name="adb_cameralibrary_dp8" tools:ignore="UnusedResources">8dp</dimen>
+	<dimen name="adb_cameralibrary_dp9" tools:ignore="UnusedResources">9dp</dimen>
+	<dimen name="adb_cameralibrary_dp10" tools:ignore="UnusedResources">10dp</dimen>
+	<dimen name="adb_cameralibrary_dp11" tools:ignore="UnusedResources">11dp</dimen>
+	<dimen name="adb_cameralibrary_dp12" tools:ignore="UnusedResources">12dp</dimen>
+	<dimen name="adb_cameralibrary_dp13" tools:ignore="UnusedResources">13dp</dimen>
+	<dimen name="adb_cameralibrary_dp14" tools:ignore="UnusedResources">14dp</dimen>
+	<dimen name="adb_cameralibrary_dp15" tools:ignore="UnusedResources">15dp</dimen>
 	<dimen name="adb_cameralibrary_dp16">16dp</dimen>
-	<dimen name="adb_cameralibrary_dp17">17dp</dimen>
-	<dimen name="adb_cameralibrary_dp18">18dp</dimen>
-	<dimen name="adb_cameralibrary_dp19">19dp</dimen>
-	<dimen name="adb_cameralibrary_dp20">20dp</dimen>
-	<dimen name="adb_cameralibrary_dp21">21dp</dimen>
-	<dimen name="adb_cameralibrary_dp22">22dp</dimen>
-	<dimen name="adb_cameralibrary_dp23">23dp</dimen>
+	<dimen name="adb_cameralibrary_dp17" tools:ignore="UnusedResources">17dp</dimen>
+	<dimen name="adb_cameralibrary_dp18" tools:ignore="UnusedResources">18dp</dimen>
+	<dimen name="adb_cameralibrary_dp19" tools:ignore="UnusedResources">19dp</dimen>
+	<dimen name="adb_cameralibrary_dp20" tools:ignore="UnusedResources">20dp</dimen>
+	<dimen name="adb_cameralibrary_dp21" tools:ignore="UnusedResources">21dp</dimen>
+	<dimen name="adb_cameralibrary_dp22" tools:ignore="UnusedResources">22dp</dimen>
+	<dimen name="adb_cameralibrary_dp23" tools:ignore="UnusedResources">23dp</dimen>
 	<dimen name="adb_cameralibrary_dp24">24dp</dimen>
-	<dimen name="adb_cameralibrary_dp25">25dp</dimen>
+	<dimen name="adb_cameralibrary_dp25" tools:ignore="UnusedResources">25dp</dimen>
 	<dimen name="adb_cameralibrary_dp26">26dp</dimen>
-	<dimen name="adb_cameralibrary_dp27">27dp</dimen>
-	<dimen name="adb_cameralibrary_dp28">28dp</dimen>
-	<dimen name="adb_cameralibrary_dp29">29dp</dimen>
-	<dimen name="adb_cameralibrary_dp30">30dp</dimen>
-	<dimen name="adb_cameralibrary_dp31">31dp</dimen>
+	<dimen name="adb_cameralibrary_dp27" tools:ignore="UnusedResources">27dp</dimen>
+	<dimen name="adb_cameralibrary_dp28" tools:ignore="UnusedResources">28dp</dimen>
+	<dimen name="adb_cameralibrary_dp29" tools:ignore="UnusedResources">29dp</dimen>
+	<dimen name="adb_cameralibrary_dp30" tools:ignore="UnusedResources">30dp</dimen>
+	<dimen name="adb_cameralibrary_dp31" tools:ignore="UnusedResources">31dp</dimen>
 	<dimen name="adb_cameralibrary_dp32">32dp</dimen>
-	<dimen name="adb_cameralibrary_dp33">33dp</dimen>
-	<dimen name="adb_cameralibrary_dp34">34dp</dimen>
-	<dimen name="adb_cameralibrary_dp35">35dp</dimen>
-	<dimen name="adb_cameralibrary_dp36">36dp</dimen>
-	<dimen name="adb_cameralibrary_dp37">37dp</dimen>
-	<dimen name="adb_cameralibrary_dp38">38dp</dimen>
-	<dimen name="adb_cameralibrary_dp39">39dp</dimen>
+	<dimen name="adb_cameralibrary_dp33" tools:ignore="UnusedResources">33dp</dimen>
+	<dimen name="adb_cameralibrary_dp34" tools:ignore="UnusedResources">34dp</dimen>
+	<dimen name="adb_cameralibrary_dp35" tools:ignore="UnusedResources">35dp</dimen>
+	<dimen name="adb_cameralibrary_dp36" tools:ignore="UnusedResources">36dp</dimen>
+	<dimen name="adb_cameralibrary_dp37" tools:ignore="UnusedResources">37dp</dimen>
+	<dimen name="adb_cameralibrary_dp38" tools:ignore="UnusedResources">38dp</dimen>
+	<dimen name="adb_cameralibrary_dp39" tools:ignore="UnusedResources">39dp</dimen>
 	<dimen name="adb_cameralibrary_dp40">40dp</dimen>
-	<dimen name="adb_cameralibrary_dp41">41dp</dimen>
-	<dimen name="adb_cameralibrary_dp42">42dp</dimen>
-	<dimen name="adb_cameralibrary_dp43">43dp</dimen>
-	<dimen name="adb_cameralibrary_dp44">44dp</dimen>
-	<dimen name="adb_cameralibrary_dp45">45dp</dimen>
-	<dimen name="adb_cameralibrary_dp46">46dp</dimen>
-	<dimen name="adb_cameralibrary_dp47">47dp</dimen>
-	<dimen name="adb_cameralibrary_dp48">48dp</dimen>
-	<dimen name="adb_cameralibrary_dp49">49dp</dimen>
-	<dimen name="adb_cameralibrary_dp50">50dp</dimen>
-	<dimen name="adb_cameralibrary_dp51">51dp</dimen>
-	<dimen name="adb_cameralibrary_dp52">52dp</dimen>
-	<dimen name="adb_cameralibrary_dp53">53dp</dimen>
-	<dimen name="adb_cameralibrary_dp54">54dp</dimen>
-	<dimen name="adb_cameralibrary_dp55">55dp</dimen>
+	<dimen name="adb_cameralibrary_dp41" tools:ignore="UnusedResources">41dp</dimen>
+	<dimen name="adb_cameralibrary_dp42" tools:ignore="UnusedResources">42dp</dimen>
+	<dimen name="adb_cameralibrary_dp43" tools:ignore="UnusedResources">43dp</dimen>
+	<dimen name="adb_cameralibrary_dp44" tools:ignore="UnusedResources">44dp</dimen>
+	<dimen name="adb_cameralibrary_dp45" tools:ignore="UnusedResources">45dp</dimen>
+	<dimen name="adb_cameralibrary_dp46" tools:ignore="UnusedResources">46dp</dimen>
+	<dimen name="adb_cameralibrary_dp47" tools:ignore="UnusedResources">47dp</dimen>
+	<dimen name="adb_cameralibrary_dp48" tools:ignore="UnusedResources">48dp</dimen>
+	<dimen name="adb_cameralibrary_dp49" tools:ignore="UnusedResources">49dp</dimen>
+	<dimen name="adb_cameralibrary_dp50" tools:ignore="UnusedResources">50dp</dimen>
+	<dimen name="adb_cameralibrary_dp51" tools:ignore="UnusedResources">51dp</dimen>
+	<dimen name="adb_cameralibrary_dp52" tools:ignore="UnusedResources">52dp</dimen>
+	<dimen name="adb_cameralibrary_dp53" tools:ignore="UnusedResources">53dp</dimen>
+	<dimen name="adb_cameralibrary_dp54" tools:ignore="UnusedResources">54dp</dimen>
+	<dimen name="adb_cameralibrary_dp55" tools:ignore="UnusedResources">55dp</dimen>
 	<dimen name="adb_cameralibrary_dp56">56dp</dimen>
-	<dimen name="adb_cameralibrary_dp57">57dp</dimen>
-	<dimen name="adb_cameralibrary_dp58">58dp</dimen>
-	<dimen name="adb_cameralibrary_dp59">59dp</dimen>
-	<dimen name="adb_cameralibrary_dp60">60dp</dimen>
-	<dimen name="adb_cameralibrary_dp61">61dp</dimen>
-	<dimen name="adb_cameralibrary_dp62">62dp</dimen>
-	<dimen name="adb_cameralibrary_dp63">63dp</dimen>
+	<dimen name="adb_cameralibrary_dp57" tools:ignore="UnusedResources">57dp</dimen>
+	<dimen name="adb_cameralibrary_dp58" tools:ignore="UnusedResources">58dp</dimen>
+	<dimen name="adb_cameralibrary_dp59" tools:ignore="UnusedResources">59dp</dimen>
+	<dimen name="adb_cameralibrary_dp60" tools:ignore="UnusedResources">60dp</dimen>
+	<dimen name="adb_cameralibrary_dp61" tools:ignore="UnusedResources">61dp</dimen>
+	<dimen name="adb_cameralibrary_dp62" tools:ignore="UnusedResources">62dp</dimen>
+	<dimen name="adb_cameralibrary_dp63" tools:ignore="UnusedResources">63dp</dimen>
 	<dimen name="adb_cameralibrary_dp64">64dp</dimen>
-	<dimen name="adb_cameralibrary_dp65">65dp</dimen>
-	<dimen name="adb_cameralibrary_dp66">66dp</dimen>
-	<dimen name="adb_cameralibrary_dp67">67dp</dimen>
-	<dimen name="adb_cameralibrary_dp68">68dp</dimen>
-	<dimen name="adb_cameralibrary_dp69">69dp</dimen>
-	<dimen name="adb_cameralibrary_dp70">70dp</dimen>
-	<dimen name="adb_cameralibrary_dp71">71dp</dimen>
-	<dimen name="adb_cameralibrary_dp72">72dp</dimen>
-	<dimen name="adb_cameralibrary_dp73">73dp</dimen>
-	<dimen name="adb_cameralibrary_dp74">74dp</dimen>
-	<dimen name="adb_cameralibrary_dp75">75dp</dimen>
-	<dimen name="adb_cameralibrary_dp76">76dp</dimen>
-	<dimen name="adb_cameralibrary_dp77">77dp</dimen>
-	<dimen name="adb_cameralibrary_dp78">78dp</dimen>
-	<dimen name="adb_cameralibrary_dp79">79dp</dimen>
-	<dimen name="adb_cameralibrary_dp80">80dp</dimen>
-	<dimen name="adb_cameralibrary_dp81">81dp</dimen>
-	<dimen name="adb_cameralibrary_dp82">82dp</dimen>
-	<dimen name="adb_cameralibrary_dp83">83dp</dimen>
-	<dimen name="adb_cameralibrary_dp84">84dp</dimen>
-	<dimen name="adb_cameralibrary_dp85">85dp</dimen>
-	<dimen name="adb_cameralibrary_dp86">86dp</dimen>
-	<dimen name="adb_cameralibrary_dp87">87dp</dimen>
-	<dimen name="adb_cameralibrary_dp88">88dp</dimen>
-	<dimen name="adb_cameralibrary_dp89">89dp</dimen>
-	<dimen name="adb_cameralibrary_dp90">90dp</dimen>
-	<dimen name="adb_cameralibrary_dp91">91dp</dimen>
-	<dimen name="adb_cameralibrary_dp92">92dp</dimen>
-	<dimen name="adb_cameralibrary_dp93">93dp</dimen>
-	<dimen name="adb_cameralibrary_dp94">94dp</dimen>
-	<dimen name="adb_cameralibrary_dp95">95dp</dimen>
-	<dimen name="adb_cameralibrary_dp96">96dp</dimen>
-	<dimen name="adb_cameralibrary_dp97">97dp</dimen>
-	<dimen name="adb_cameralibrary_dp98">98dp</dimen>
-	<dimen name="adb_cameralibrary_dp99">99dp</dimen>
-	<dimen name="adb_cameralibrary_dp100">100dp</dimen>
-	<dimen name="adb_cameralibrary_dp101">101dp</dimen>
-	<dimen name="adb_cameralibrary_dp102">102dp</dimen>
-	<dimen name="adb_cameralibrary_dp103">103dp</dimen>
-	<dimen name="adb_cameralibrary_dp104">104dp</dimen>
-	<dimen name="adb_cameralibrary_dp105">105dp</dimen>
-	<dimen name="adb_cameralibrary_dp106">106dp</dimen>
-	<dimen name="adb_cameralibrary_dp107">107dp</dimen>
-	<dimen name="adb_cameralibrary_dp108">108dp</dimen>
-	<dimen name="adb_cameralibrary_dp109">109dp</dimen>
-	<dimen name="adb_cameralibrary_dp110">110dp</dimen>
-	<dimen name="adb_cameralibrary_dp111">111dp</dimen>
-	<dimen name="adb_cameralibrary_dp112">112dp</dimen>
-	<dimen name="adb_cameralibrary_dp113">113dp</dimen>
-	<dimen name="adb_cameralibrary_dp114">114dp</dimen>
-	<dimen name="adb_cameralibrary_dp115">115dp</dimen>
-	<dimen name="adb_cameralibrary_dp116">116dp</dimen>
-	<dimen name="adb_cameralibrary_dp117">117dp</dimen>
-	<dimen name="adb_cameralibrary_dp118">118dp</dimen>
-	<dimen name="adb_cameralibrary_dp119">119dp</dimen>
-	<dimen name="adb_cameralibrary_dp120">120dp</dimen>
-	<dimen name="adb_cameralibrary_dp121">121dp</dimen>
-	<dimen name="adb_cameralibrary_dp122">122dp</dimen>
-	<dimen name="adb_cameralibrary_dp123">123dp</dimen>
-	<dimen name="adb_cameralibrary_dp124">124dp</dimen>
-	<dimen name="adb_cameralibrary_dp125">125dp</dimen>
-	<dimen name="adb_cameralibrary_dp126">126dp</dimen>
-	<dimen name="adb_cameralibrary_dp127">127dp</dimen>
-	<dimen name="adb_cameralibrary_dp128">128dp</dimen>
-	<dimen name="adb_cameralibrary_dp129">129dp</dimen>
-	<dimen name="adb_cameralibrary_dp130">130dp</dimen>
-	<dimen name="adb_cameralibrary_dp131">131dp</dimen>
-	<dimen name="adb_cameralibrary_dp132">132dp</dimen>
-	<dimen name="adb_cameralibrary_dp133">133dp</dimen>
-	<dimen name="adb_cameralibrary_dp134">134dp</dimen>
-	<dimen name="adb_cameralibrary_dp135">135dp</dimen>
-	<dimen name="adb_cameralibrary_dp136">136dp</dimen>
-	<dimen name="adb_cameralibrary_dp137">137dp</dimen>
-	<dimen name="adb_cameralibrary_dp138">138dp</dimen>
-	<dimen name="adb_cameralibrary_dp139">139dp</dimen>
-	<dimen name="adb_cameralibrary_dp140">140dp</dimen>
-	<dimen name="adb_cameralibrary_dp141">141dp</dimen>
-	<dimen name="adb_cameralibrary_dp142">142dp</dimen>
-	<dimen name="adb_cameralibrary_dp143">143dp</dimen>
-	<dimen name="adb_cameralibrary_dp144">144dp</dimen>
-	<dimen name="adb_cameralibrary_dp145">145dp</dimen>
-	<dimen name="adb_cameralibrary_dp146">146dp</dimen>
-	<dimen name="adb_cameralibrary_dp147">147dp</dimen>
-	<dimen name="adb_cameralibrary_dp148">148dp</dimen>
-	<dimen name="adb_cameralibrary_dp149">149dp</dimen>
-	<dimen name="adb_cameralibrary_dp150">150dp</dimen>
-	<dimen name="adb_cameralibrary_dp151">151dp</dimen>
-	<dimen name="adb_cameralibrary_dp152">152dp</dimen>
-	<dimen name="adb_cameralibrary_dp153">153dp</dimen>
-	<dimen name="adb_cameralibrary_dp154">154dp</dimen>
-	<dimen name="adb_cameralibrary_dp155">155dp</dimen>
-	<dimen name="adb_cameralibrary_dp156">156dp</dimen>
-	<dimen name="adb_cameralibrary_dp157">157dp</dimen>
-	<dimen name="adb_cameralibrary_dp158">158dp</dimen>
-	<dimen name="adb_cameralibrary_dp159">159dp</dimen>
-	<dimen name="adb_cameralibrary_dp160">160dp</dimen>
-	<dimen name="adb_cameralibrary_dp161">161dp</dimen>
-	<dimen name="adb_cameralibrary_dp162">162dp</dimen>
-	<dimen name="adb_cameralibrary_dp163">163dp</dimen>
-	<dimen name="adb_cameralibrary_dp164">164dp</dimen>
-	<dimen name="adb_cameralibrary_dp165">165dp</dimen>
-	<dimen name="adb_cameralibrary_dp166">166dp</dimen>
-	<dimen name="adb_cameralibrary_dp167">167dp</dimen>
-	<dimen name="adb_cameralibrary_dp168">168dp</dimen>
-	<dimen name="adb_cameralibrary_dp169">169dp</dimen>
-	<dimen name="adb_cameralibrary_dp170">170dp</dimen>
-	<dimen name="adb_cameralibrary_dp171">171dp</dimen>
-	<dimen name="adb_cameralibrary_dp172">172dp</dimen>
-	<dimen name="adb_cameralibrary_dp173">173dp</dimen>
-	<dimen name="adb_cameralibrary_dp174">174dp</dimen>
-	<dimen name="adb_cameralibrary_dp175">175dp</dimen>
-	<dimen name="adb_cameralibrary_dp176">176dp</dimen>
-	<dimen name="adb_cameralibrary_dp177">177dp</dimen>
-	<dimen name="adb_cameralibrary_dp178">178dp</dimen>
-	<dimen name="adb_cameralibrary_dp179">179dp</dimen>
-	<dimen name="adb_cameralibrary_dp180">180dp</dimen>
-	<dimen name="adb_cameralibrary_dp181">181dp</dimen>
-	<dimen name="adb_cameralibrary_dp182">182dp</dimen>
-	<dimen name="adb_cameralibrary_dp183">183dp</dimen>
-	<dimen name="adb_cameralibrary_dp184">184dp</dimen>
-	<dimen name="adb_cameralibrary_dp185">185dp</dimen>
-	<dimen name="adb_cameralibrary_dp186">186dp</dimen>
-	<dimen name="adb_cameralibrary_dp187">187dp</dimen>
-	<dimen name="adb_cameralibrary_dp188">188dp</dimen>
-	<dimen name="adb_cameralibrary_dp189">189dp</dimen>
-	<dimen name="adb_cameralibrary_dp190">190dp</dimen>
-	<dimen name="adb_cameralibrary_dp191">191dp</dimen>
-	<dimen name="adb_cameralibrary_dp192">192dp</dimen>
-	<dimen name="adb_cameralibrary_dp193">193dp</dimen>
-	<dimen name="adb_cameralibrary_dp194">194dp</dimen>
-	<dimen name="adb_cameralibrary_dp195">195dp</dimen>
-	<dimen name="adb_cameralibrary_dp196">196dp</dimen>
-	<dimen name="adb_cameralibrary_dp197">197dp</dimen>
-	<dimen name="adb_cameralibrary_dp198">198dp</dimen>
-	<dimen name="adb_cameralibrary_dp199">199dp</dimen>
-	<dimen name="adb_cameralibrary_dp200">200dp</dimen>
-	<dimen name="adb_cameralibrary_dp201">201dp</dimen>
-	<dimen name="adb_cameralibrary_dp202">202dp</dimen>
-	<dimen name="adb_cameralibrary_dp203">203dp</dimen>
-	<dimen name="adb_cameralibrary_dp204">204dp</dimen>
-	<dimen name="adb_cameralibrary_dp205">205dp</dimen>
-	<dimen name="adb_cameralibrary_dp206">206dp</dimen>
-	<dimen name="adb_cameralibrary_dp207">207dp</dimen>
-	<dimen name="adb_cameralibrary_dp208">208dp</dimen>
-	<dimen name="adb_cameralibrary_dp209">209dp</dimen>
-	<dimen name="adb_cameralibrary_dp210">210dp</dimen>
-	<dimen name="adb_cameralibrary_dp211">211dp</dimen>
-	<dimen name="adb_cameralibrary_dp212">212dp</dimen>
-	<dimen name="adb_cameralibrary_dp213">213dp</dimen>
-	<dimen name="adb_cameralibrary_dp214">214dp</dimen>
-	<dimen name="adb_cameralibrary_dp215">215dp</dimen>
-	<dimen name="adb_cameralibrary_dp216">216dp</dimen>
-	<dimen name="adb_cameralibrary_dp217">217dp</dimen>
-	<dimen name="adb_cameralibrary_dp218">218dp</dimen>
-	<dimen name="adb_cameralibrary_dp219">219dp</dimen>
-	<dimen name="adb_cameralibrary_dp220">220dp</dimen>
-	<dimen name="adb_cameralibrary_dp221">221dp</dimen>
-	<dimen name="adb_cameralibrary_dp222">222dp</dimen>
-	<dimen name="adb_cameralibrary_dp223">223dp</dimen>
-	<dimen name="adb_cameralibrary_dp224">224dp</dimen>
-	<dimen name="adb_cameralibrary_dp225">225dp</dimen>
-	<dimen name="adb_cameralibrary_dp226">226dp</dimen>
-	<dimen name="adb_cameralibrary_dp227">227dp</dimen>
-	<dimen name="adb_cameralibrary_dp228">228dp</dimen>
-	<dimen name="adb_cameralibrary_dp229">229dp</dimen>
-	<dimen name="adb_cameralibrary_dp230">230dp</dimen>
-	<dimen name="adb_cameralibrary_dp231">231dp</dimen>
-	<dimen name="adb_cameralibrary_dp232">232dp</dimen>
-	<dimen name="adb_cameralibrary_dp233">233dp</dimen>
-	<dimen name="adb_cameralibrary_dp234">234dp</dimen>
-	<dimen name="adb_cameralibrary_dp235">235dp</dimen>
-	<dimen name="adb_cameralibrary_dp236">236dp</dimen>
-	<dimen name="adb_cameralibrary_dp237">237dp</dimen>
-	<dimen name="adb_cameralibrary_dp238">238dp</dimen>
-	<dimen name="adb_cameralibrary_dp239">239dp</dimen>
-	<dimen name="adb_cameralibrary_dp240">240dp</dimen>
-	<dimen name="adb_cameralibrary_dp241">241dp</dimen>
-	<dimen name="adb_cameralibrary_dp242">242dp</dimen>
-	<dimen name="adb_cameralibrary_dp243">243dp</dimen>
-	<dimen name="adb_cameralibrary_dp244">244dp</dimen>
-	<dimen name="adb_cameralibrary_dp245">245dp</dimen>
-	<dimen name="adb_cameralibrary_dp246">246dp</dimen>
-	<dimen name="adb_cameralibrary_dp247">247dp</dimen>
-	<dimen name="adb_cameralibrary_dp248">248dp</dimen>
-	<dimen name="adb_cameralibrary_dp249">249dp</dimen>
-	<dimen name="adb_cameralibrary_dp250">250dp</dimen>
-	<dimen name="adb_cameralibrary_dp251">251dp</dimen>
-	<dimen name="adb_cameralibrary_dp252">252dp</dimen>
-	<dimen name="adb_cameralibrary_dp253">253dp</dimen>
-	<dimen name="adb_cameralibrary_dp254">254dp</dimen>
-	<dimen name="adb_cameralibrary_dp255">255dp</dimen>
-	<dimen name="adb_cameralibrary_dp256">256dp</dimen>
-	<dimen name="adb_cameralibrary_dp257">257dp</dimen>
-	<dimen name="adb_cameralibrary_dp258">258dp</dimen>
-	<dimen name="adb_cameralibrary_dp259">259dp</dimen>
-	<dimen name="adb_cameralibrary_dp260">260dp</dimen>
-	<dimen name="adb_cameralibrary_dp261">261dp</dimen>
-	<dimen name="adb_cameralibrary_dp262">262dp</dimen>
-	<dimen name="adb_cameralibrary_dp263">263dp</dimen>
-	<dimen name="adb_cameralibrary_dp264">264dp</dimen>
-	<dimen name="adb_cameralibrary_dp265">265dp</dimen>
-	<dimen name="adb_cameralibrary_dp266">266dp</dimen>
-	<dimen name="adb_cameralibrary_dp267">267dp</dimen>
-	<dimen name="adb_cameralibrary_dp268">268dp</dimen>
-	<dimen name="adb_cameralibrary_dp269">269dp</dimen>
-	<dimen name="adb_cameralibrary_dp270">270dp</dimen>
-	<dimen name="adb_cameralibrary_dp271">271dp</dimen>
-	<dimen name="adb_cameralibrary_dp272">272dp</dimen>
-	<dimen name="adb_cameralibrary_dp273">273dp</dimen>
-	<dimen name="adb_cameralibrary_dp274">274dp</dimen>
-	<dimen name="adb_cameralibrary_dp275">275dp</dimen>
-	<dimen name="adb_cameralibrary_dp276">276dp</dimen>
-	<dimen name="adb_cameralibrary_dp277">277dp</dimen>
-	<dimen name="adb_cameralibrary_dp278">278dp</dimen>
-	<dimen name="adb_cameralibrary_dp279">279dp</dimen>
-	<dimen name="adb_cameralibrary_dp280">280dp</dimen>
-	<dimen name="adb_cameralibrary_dp281">281dp</dimen>
-	<dimen name="adb_cameralibrary_dp282">282dp</dimen>
-	<dimen name="adb_cameralibrary_dp283">283dp</dimen>
-	<dimen name="adb_cameralibrary_dp284">284dp</dimen>
-	<dimen name="adb_cameralibrary_dp285">285dp</dimen>
-	<dimen name="adb_cameralibrary_dp286">286dp</dimen>
-	<dimen name="adb_cameralibrary_dp287">287dp</dimen>
-	<dimen name="adb_cameralibrary_dp288">288dp</dimen>
-	<dimen name="adb_cameralibrary_dp289">289dp</dimen>
-	<dimen name="adb_cameralibrary_dp290">290dp</dimen>
-	<dimen name="adb_cameralibrary_dp291">291dp</dimen>
-	<dimen name="adb_cameralibrary_dp292">292dp</dimen>
-	<dimen name="adb_cameralibrary_dp293">293dp</dimen>
-	<dimen name="adb_cameralibrary_dp294">294dp</dimen>
-	<dimen name="adb_cameralibrary_dp295">295dp</dimen>
-	<dimen name="adb_cameralibrary_dp296">296dp</dimen>
-	<dimen name="adb_cameralibrary_dp297">297dp</dimen>
-	<dimen name="adb_cameralibrary_dp298">298dp</dimen>
-	<dimen name="adb_cameralibrary_dp299">299dp</dimen>
-	<dimen name="adb_cameralibrary_dp300">300dp</dimen>
-	<dimen name="adb_cameralibrary_dp301">301dp</dimen>
-	<dimen name="adb_cameralibrary_dp302">302dp</dimen>
-	<dimen name="adb_cameralibrary_dp303">303dp</dimen>
-	<dimen name="adb_cameralibrary_dp304">304dp</dimen>
-	<dimen name="adb_cameralibrary_dp305">305dp</dimen>
-	<dimen name="adb_cameralibrary_dp306">306dp</dimen>
-	<dimen name="adb_cameralibrary_dp307">307dp</dimen>
-	<dimen name="adb_cameralibrary_dp308">308dp</dimen>
-	<dimen name="adb_cameralibrary_dp309">309dp</dimen>
-	<dimen name="adb_cameralibrary_dp310">310dp</dimen>
-	<dimen name="adb_cameralibrary_dp311">311dp</dimen>
-	<dimen name="adb_cameralibrary_dp312">312dp</dimen>
-	<dimen name="adb_cameralibrary_dp313">313dp</dimen>
-	<dimen name="adb_cameralibrary_dp314">314dp</dimen>
-	<dimen name="adb_cameralibrary_dp315">315dp</dimen>
-	<dimen name="adb_cameralibrary_dp316">316dp</dimen>
-	<dimen name="adb_cameralibrary_dp317">317dp</dimen>
-	<dimen name="adb_cameralibrary_dp318">318dp</dimen>
-	<dimen name="adb_cameralibrary_dp319">319dp</dimen>
-	<dimen name="adb_cameralibrary_dp320">320dp</dimen>
-	<dimen name="adb_cameralibrary_dp321">321dp</dimen>
-	<dimen name="adb_cameralibrary_dp322">322dp</dimen>
-	<dimen name="adb_cameralibrary_dp323">323dp</dimen>
-	<dimen name="adb_cameralibrary_dp324">324dp</dimen>
-	<dimen name="adb_cameralibrary_dp325">325dp</dimen>
-	<dimen name="adb_cameralibrary_dp326">326dp</dimen>
-	<dimen name="adb_cameralibrary_dp327">327dp</dimen>
-	<dimen name="adb_cameralibrary_dp328">328dp</dimen>
-	<dimen name="adb_cameralibrary_dp329">329dp</dimen>
-	<dimen name="adb_cameralibrary_dp330">330dp</dimen>
-	<dimen name="adb_cameralibrary_dp331">331dp</dimen>
-	<dimen name="adb_cameralibrary_dp332">332dp</dimen>
-	<dimen name="adb_cameralibrary_dp333">333dp</dimen>
-	<dimen name="adb_cameralibrary_dp334">334dp</dimen>
-	<dimen name="adb_cameralibrary_dp335">335dp</dimen>
-	<dimen name="adb_cameralibrary_dp336">336dp</dimen>
-	<dimen name="adb_cameralibrary_dp337">337dp</dimen>
-	<dimen name="adb_cameralibrary_dp338">338dp</dimen>
-	<dimen name="adb_cameralibrary_dp339">339dp</dimen>
-	<dimen name="adb_cameralibrary_dp340">340dp</dimen>
-	<dimen name="adb_cameralibrary_dp341">341dp</dimen>
-	<dimen name="adb_cameralibrary_dp342">342dp</dimen>
-	<dimen name="adb_cameralibrary_dp343">343dp</dimen>
-	<dimen name="adb_cameralibrary_dp344">344dp</dimen>
-	<dimen name="adb_cameralibrary_dp345">345dp</dimen>
-	<dimen name="adb_cameralibrary_dp346">346dp</dimen>
-	<dimen name="adb_cameralibrary_dp347">347dp</dimen>
-	<dimen name="adb_cameralibrary_dp348">348dp</dimen>
-	<dimen name="adb_cameralibrary_dp349">349dp</dimen>
-	<dimen name="adb_cameralibrary_dp350">350dp</dimen>
-	<dimen name="adb_cameralibrary_dp351">351dp</dimen>
-	<dimen name="adb_cameralibrary_dp352">352dp</dimen>
-	<dimen name="adb_cameralibrary_dp353">353dp</dimen>
-	<dimen name="adb_cameralibrary_dp354">354dp</dimen>
-	<dimen name="adb_cameralibrary_dp355">355dp</dimen>
-	<dimen name="adb_cameralibrary_dp356">356dp</dimen>
-	<dimen name="adb_cameralibrary_dp357">357dp</dimen>
-	<dimen name="adb_cameralibrary_dp358">358dp</dimen>
-	<dimen name="adb_cameralibrary_dp359">359dp</dimen>
-	<dimen name="adb_cameralibrary_dp360">360dp</dimen>
-	<dimen name="adb_cameralibrary_dp361">361dp</dimen>
-	<dimen name="adb_cameralibrary_dp362">362dp</dimen>
-	<dimen name="adb_cameralibrary_dp363">363dp</dimen>
-	<dimen name="adb_cameralibrary_dp364">364dp</dimen>
-	<dimen name="adb_cameralibrary_dp365">365dp</dimen>
-	<dimen name="adb_cameralibrary_dp366">366dp</dimen>
-	<dimen name="adb_cameralibrary_dp367">367dp</dimen>
-	<dimen name="adb_cameralibrary_dp368">368dp</dimen>
-	<dimen name="adb_cameralibrary_dp369">369dp</dimen>
-	<dimen name="adb_cameralibrary_dp370">370dp</dimen>
-	<dimen name="adb_cameralibrary_dp371">371dp</dimen>
-	<dimen name="adb_cameralibrary_dp372">372dp</dimen>
-	<dimen name="adb_cameralibrary_dp373">373dp</dimen>
-	<dimen name="adb_cameralibrary_dp374">374dp</dimen>
-	<dimen name="adb_cameralibrary_dp375">375dp</dimen>
-	<dimen name="adb_cameralibrary_dp376">376dp</dimen>
-	<dimen name="adb_cameralibrary_dp377">377dp</dimen>
-	<dimen name="adb_cameralibrary_dp378">378dp</dimen>
-	<dimen name="adb_cameralibrary_dp379">379dp</dimen>
-	<dimen name="adb_cameralibrary_dp380">380dp</dimen>
-	<dimen name="adb_cameralibrary_dp381">381dp</dimen>
-	<dimen name="adb_cameralibrary_dp382">382dp</dimen>
-	<dimen name="adb_cameralibrary_dp383">383dp</dimen>
-	<dimen name="adb_cameralibrary_dp384">384dp</dimen>
-	<dimen name="adb_cameralibrary_dp385">385dp</dimen>
-	<dimen name="adb_cameralibrary_dp386">386dp</dimen>
-	<dimen name="adb_cameralibrary_dp387">387dp</dimen>
-	<dimen name="adb_cameralibrary_dp388">388dp</dimen>
-	<dimen name="adb_cameralibrary_dp389">389dp</dimen>
-	<dimen name="adb_cameralibrary_dp390">390dp</dimen>
-	<dimen name="adb_cameralibrary_dp391">391dp</dimen>
-	<dimen name="adb_cameralibrary_dp392">392dp</dimen>
-	<dimen name="adb_cameralibrary_dp393">393dp</dimen>
-	<dimen name="adb_cameralibrary_dp394">394dp</dimen>
-	<dimen name="adb_cameralibrary_dp395">395dp</dimen>
-	<dimen name="adb_cameralibrary_dp396">396dp</dimen>
-	<dimen name="adb_cameralibrary_dp397">397dp</dimen>
-	<dimen name="adb_cameralibrary_dp398">398dp</dimen>
-	<dimen name="adb_cameralibrary_dp399">399dp</dimen>
-	<dimen name="adb_cameralibrary_dp400">400dp</dimen>
-	<dimen name="adb_cameralibrary_dp401">401dp</dimen>
-	<dimen name="adb_cameralibrary_dp402">402dp</dimen>
-	<dimen name="adb_cameralibrary_dp403">403dp</dimen>
-	<dimen name="adb_cameralibrary_dp404">404dp</dimen>
-	<dimen name="adb_cameralibrary_dp405">405dp</dimen>
-	<dimen name="adb_cameralibrary_dp406">406dp</dimen>
-	<dimen name="adb_cameralibrary_dp407">407dp</dimen>
-	<dimen name="adb_cameralibrary_dp408">408dp</dimen>
-	<dimen name="adb_cameralibrary_dp409">409dp</dimen>
-	<dimen name="adb_cameralibrary_dp410">410dp</dimen>
-	<dimen name="adb_cameralibrary_dp411">411dp</dimen>
-	<dimen name="adb_cameralibrary_dp412">412dp</dimen>
-	<dimen name="adb_cameralibrary_dp413">413dp</dimen>
-	<dimen name="adb_cameralibrary_dp414">414dp</dimen>
-	<dimen name="adb_cameralibrary_dp415">415dp</dimen>
-	<dimen name="adb_cameralibrary_dp416">416dp</dimen>
-	<dimen name="adb_cameralibrary_dp417">417dp</dimen>
-	<dimen name="adb_cameralibrary_dp418">418dp</dimen>
-	<dimen name="adb_cameralibrary_dp419">419dp</dimen>
-	<dimen name="adb_cameralibrary_dp420">420dp</dimen>
-	<dimen name="adb_cameralibrary_dp421">421dp</dimen>
-	<dimen name="adb_cameralibrary_dp422">422dp</dimen>
-	<dimen name="adb_cameralibrary_dp423">423dp</dimen>
-	<dimen name="adb_cameralibrary_dp424">424dp</dimen>
-	<dimen name="adb_cameralibrary_dp425">425dp</dimen>
-	<dimen name="adb_cameralibrary_dp426">426dp</dimen>
-	<dimen name="adb_cameralibrary_dp427">427dp</dimen>
-	<dimen name="adb_cameralibrary_dp428">428dp</dimen>
-	<dimen name="adb_cameralibrary_dp429">429dp</dimen>
-	<dimen name="adb_cameralibrary_dp430">430dp</dimen>
-	<dimen name="adb_cameralibrary_dp431">431dp</dimen>
-	<dimen name="adb_cameralibrary_dp432">432dp</dimen>
-	<dimen name="adb_cameralibrary_dp433">433dp</dimen>
-	<dimen name="adb_cameralibrary_dp434">434dp</dimen>
-	<dimen name="adb_cameralibrary_dp435">435dp</dimen>
-	<dimen name="adb_cameralibrary_dp436">436dp</dimen>
-	<dimen name="adb_cameralibrary_dp437">437dp</dimen>
-	<dimen name="adb_cameralibrary_dp438">438dp</dimen>
-	<dimen name="adb_cameralibrary_dp439">439dp</dimen>
-	<dimen name="adb_cameralibrary_dp440">440dp</dimen>
-	<dimen name="adb_cameralibrary_dp441">441dp</dimen>
-	<dimen name="adb_cameralibrary_dp442">442dp</dimen>
-	<dimen name="adb_cameralibrary_dp443">443dp</dimen>
-	<dimen name="adb_cameralibrary_dp444">444dp</dimen>
-	<dimen name="adb_cameralibrary_dp445">445dp</dimen>
-	<dimen name="adb_cameralibrary_dp446">446dp</dimen>
-	<dimen name="adb_cameralibrary_dp447">447dp</dimen>
-	<dimen name="adb_cameralibrary_dp448">448dp</dimen>
-	<dimen name="adb_cameralibrary_dp449">449dp</dimen>
-	<dimen name="adb_cameralibrary_dp450">450dp</dimen>
-	<dimen name="adb_cameralibrary_dp451">451dp</dimen>
-	<dimen name="adb_cameralibrary_dp452">452dp</dimen>
-	<dimen name="adb_cameralibrary_dp453">453dp</dimen>
-	<dimen name="adb_cameralibrary_dp454">454dp</dimen>
-	<dimen name="adb_cameralibrary_dp455">455dp</dimen>
-	<dimen name="adb_cameralibrary_dp456">456dp</dimen>
-	<dimen name="adb_cameralibrary_dp457">457dp</dimen>
-	<dimen name="adb_cameralibrary_dp458">458dp</dimen>
-	<dimen name="adb_cameralibrary_dp459">459dp</dimen>
-	<dimen name="adb_cameralibrary_dp460">460dp</dimen>
-	<dimen name="adb_cameralibrary_dp461">461dp</dimen>
-	<dimen name="adb_cameralibrary_dp462">462dp</dimen>
-	<dimen name="adb_cameralibrary_dp463">463dp</dimen>
-	<dimen name="adb_cameralibrary_dp464">464dp</dimen>
-	<dimen name="adb_cameralibrary_dp465">465dp</dimen>
-	<dimen name="adb_cameralibrary_dp466">466dp</dimen>
-	<dimen name="adb_cameralibrary_dp467">467dp</dimen>
-	<dimen name="adb_cameralibrary_dp468">468dp</dimen>
-	<dimen name="adb_cameralibrary_dp469">469dp</dimen>
-	<dimen name="adb_cameralibrary_dp470">470dp</dimen>
-	<dimen name="adb_cameralibrary_dp471">471dp</dimen>
-	<dimen name="adb_cameralibrary_dp472">472dp</dimen>
-	<dimen name="adb_cameralibrary_dp473">473dp</dimen>
-	<dimen name="adb_cameralibrary_dp474">474dp</dimen>
-	<dimen name="adb_cameralibrary_dp475">475dp</dimen>
-	<dimen name="adb_cameralibrary_dp476">476dp</dimen>
-	<dimen name="adb_cameralibrary_dp477">477dp</dimen>
-	<dimen name="adb_cameralibrary_dp478">478dp</dimen>
-	<dimen name="adb_cameralibrary_dp479">479dp</dimen>
-	<dimen name="adb_cameralibrary_dp480">480dp</dimen>
-	<dimen name="adb_cameralibrary_dp481">481dp</dimen>
-	<dimen name="adb_cameralibrary_dp482">482dp</dimen>
-	<dimen name="adb_cameralibrary_dp483">483dp</dimen>
-	<dimen name="adb_cameralibrary_dp484">484dp</dimen>
-	<dimen name="adb_cameralibrary_dp485">485dp</dimen>
-	<dimen name="adb_cameralibrary_dp486">486dp</dimen>
-	<dimen name="adb_cameralibrary_dp487">487dp</dimen>
-	<dimen name="adb_cameralibrary_dp488">488dp</dimen>
-	<dimen name="adb_cameralibrary_dp489">489dp</dimen>
-	<dimen name="adb_cameralibrary_dp490">490dp</dimen>
-	<dimen name="adb_cameralibrary_dp491">491dp</dimen>
-	<dimen name="adb_cameralibrary_dp492">492dp</dimen>
-	<dimen name="adb_cameralibrary_dp493">493dp</dimen>
-	<dimen name="adb_cameralibrary_dp494">494dp</dimen>
-	<dimen name="adb_cameralibrary_dp495">495dp</dimen>
-	<dimen name="adb_cameralibrary_dp496">496dp</dimen>
-	<dimen name="adb_cameralibrary_dp497">497dp</dimen>
-	<dimen name="adb_cameralibrary_dp498">498dp</dimen>
-	<dimen name="adb_cameralibrary_dp499">499dp</dimen>
-	<dimen name="adb_cameralibrary_dp500">500dp</dimen>
-	<dimen name="adb_cameralibrary_dp501">501dp</dimen>
-	<dimen name="adb_cameralibrary_dp502">502dp</dimen>
-	<dimen name="adb_cameralibrary_dp503">503dp</dimen>
-	<dimen name="adb_cameralibrary_dp504">504dp</dimen>
-	<dimen name="adb_cameralibrary_dp505">505dp</dimen>
-	<dimen name="adb_cameralibrary_dp506">506dp</dimen>
-	<dimen name="adb_cameralibrary_dp507">507dp</dimen>
-	<dimen name="adb_cameralibrary_dp508">508dp</dimen>
-	<dimen name="adb_cameralibrary_dp509">509dp</dimen>
-	<dimen name="adb_cameralibrary_dp510">510dp</dimen>
-	<dimen name="adb_cameralibrary_dp511">511dp</dimen>
-	<dimen name="adb_cameralibrary_dp512">512dp</dimen>
-	<dimen name="adb_cameralibrary_dp513">513dp</dimen>
-	<dimen name="adb_cameralibrary_dp514">514dp</dimen>
-	<dimen name="adb_cameralibrary_dp515">515dp</dimen>
-	<dimen name="adb_cameralibrary_dp516">516dp</dimen>
-	<dimen name="adb_cameralibrary_dp517">517dp</dimen>
-	<dimen name="adb_cameralibrary_dp518">518dp</dimen>
-	<dimen name="adb_cameralibrary_dp519">519dp</dimen>
-	<dimen name="adb_cameralibrary_dp520">520dp</dimen>
+	<dimen name="adb_cameralibrary_dp65" tools:ignore="UnusedResources">65dp</dimen>
+	<dimen name="adb_cameralibrary_dp66" tools:ignore="UnusedResources">66dp</dimen>
+	<dimen name="adb_cameralibrary_dp67" tools:ignore="UnusedResources">67dp</dimen>
+	<dimen name="adb_cameralibrary_dp68" tools:ignore="UnusedResources">68dp</dimen>
+	<dimen name="adb_cameralibrary_dp69" tools:ignore="UnusedResources">69dp</dimen>
+	<dimen name="adb_cameralibrary_dp70" tools:ignore="UnusedResources">70dp</dimen>
+	<dimen name="adb_cameralibrary_dp71" tools:ignore="UnusedResources">71dp</dimen>
+	<dimen name="adb_cameralibrary_dp72" tools:ignore="UnusedResources">72dp</dimen>
+	<dimen name="adb_cameralibrary_dp73" tools:ignore="UnusedResources">73dp</dimen>
+	<dimen name="adb_cameralibrary_dp74" tools:ignore="UnusedResources">74dp</dimen>
+	<dimen name="adb_cameralibrary_dp75" tools:ignore="UnusedResources">75dp</dimen>
+	<dimen name="adb_cameralibrary_dp76" tools:ignore="UnusedResources">76dp</dimen>
+	<dimen name="adb_cameralibrary_dp77" tools:ignore="UnusedResources">77dp</dimen>
+	<dimen name="adb_cameralibrary_dp78" tools:ignore="UnusedResources">78dp</dimen>
+	<dimen name="adb_cameralibrary_dp79" tools:ignore="UnusedResources">79dp</dimen>
+	<dimen name="adb_cameralibrary_dp80" tools:ignore="UnusedResources">80dp</dimen>
+	<dimen name="adb_cameralibrary_dp81" tools:ignore="UnusedResources">81dp</dimen>
+	<dimen name="adb_cameralibrary_dp82" tools:ignore="UnusedResources">82dp</dimen>
+	<dimen name="adb_cameralibrary_dp83" tools:ignore="UnusedResources">83dp</dimen>
+	<dimen name="adb_cameralibrary_dp84" tools:ignore="UnusedResources">84dp</dimen>
+	<dimen name="adb_cameralibrary_dp85" tools:ignore="UnusedResources">85dp</dimen>
+	<dimen name="adb_cameralibrary_dp86" tools:ignore="UnusedResources">86dp</dimen>
+	<dimen name="adb_cameralibrary_dp87" tools:ignore="UnusedResources">87dp</dimen>
+	<dimen name="adb_cameralibrary_dp88" tools:ignore="UnusedResources">88dp</dimen>
+	<dimen name="adb_cameralibrary_dp89" tools:ignore="UnusedResources">89dp</dimen>
+	<dimen name="adb_cameralibrary_dp90" tools:ignore="UnusedResources">90dp</dimen>
+	<dimen name="adb_cameralibrary_dp91" tools:ignore="UnusedResources">91dp</dimen>
+	<dimen name="adb_cameralibrary_dp92" tools:ignore="UnusedResources">92dp</dimen>
+	<dimen name="adb_cameralibrary_dp93" tools:ignore="UnusedResources">93dp</dimen>
+	<dimen name="adb_cameralibrary_dp94" tools:ignore="UnusedResources">94dp</dimen>
+	<dimen name="adb_cameralibrary_dp95" tools:ignore="UnusedResources">95dp</dimen>
+	<dimen name="adb_cameralibrary_dp96" tools:ignore="UnusedResources">96dp</dimen>
+	<dimen name="adb_cameralibrary_dp97" tools:ignore="UnusedResources">97dp</dimen>
+	<dimen name="adb_cameralibrary_dp98" tools:ignore="UnusedResources">98dp</dimen>
+	<dimen name="adb_cameralibrary_dp99" tools:ignore="UnusedResources">99dp</dimen>
+	<dimen name="adb_cameralibrary_dp100" tools:ignore="UnusedResources">100dp</dimen>
+	<dimen name="adb_cameralibrary_dp101" tools:ignore="UnusedResources">101dp</dimen>
+	<dimen name="adb_cameralibrary_dp102" tools:ignore="UnusedResources">102dp</dimen>
+	<dimen name="adb_cameralibrary_dp103" tools:ignore="UnusedResources">103dp</dimen>
+	<dimen name="adb_cameralibrary_dp104" tools:ignore="UnusedResources">104dp</dimen>
+	<dimen name="adb_cameralibrary_dp105" tools:ignore="UnusedResources">105dp</dimen>
+	<dimen name="adb_cameralibrary_dp106" tools:ignore="UnusedResources">106dp</dimen>
+	<dimen name="adb_cameralibrary_dp107" tools:ignore="UnusedResources">107dp</dimen>
+	<dimen name="adb_cameralibrary_dp108" tools:ignore="UnusedResources">108dp</dimen>
+	<dimen name="adb_cameralibrary_dp109" tools:ignore="UnusedResources">109dp</dimen>
+	<dimen name="adb_cameralibrary_dp110" tools:ignore="UnusedResources">110dp</dimen>
+	<dimen name="adb_cameralibrary_dp111" tools:ignore="UnusedResources">111dp</dimen>
+	<dimen name="adb_cameralibrary_dp112" tools:ignore="UnusedResources">112dp</dimen>
+	<dimen name="adb_cameralibrary_dp113" tools:ignore="UnusedResources">113dp</dimen>
+	<dimen name="adb_cameralibrary_dp114" tools:ignore="UnusedResources">114dp</dimen>
+	<dimen name="adb_cameralibrary_dp115" tools:ignore="UnusedResources">115dp</dimen>
+	<dimen name="adb_cameralibrary_dp116" tools:ignore="UnusedResources">116dp</dimen>
+	<dimen name="adb_cameralibrary_dp117" tools:ignore="UnusedResources">117dp</dimen>
+	<dimen name="adb_cameralibrary_dp118" tools:ignore="UnusedResources">118dp</dimen>
+	<dimen name="adb_cameralibrary_dp119" tools:ignore="UnusedResources">119dp</dimen>
+	<dimen name="adb_cameralibrary_dp120" tools:ignore="UnusedResources">120dp</dimen>
+	<dimen name="adb_cameralibrary_dp121" tools:ignore="UnusedResources">121dp</dimen>
+	<dimen name="adb_cameralibrary_dp122" tools:ignore="UnusedResources">122dp</dimen>
+	<dimen name="adb_cameralibrary_dp123" tools:ignore="UnusedResources">123dp</dimen>
+	<dimen name="adb_cameralibrary_dp124" tools:ignore="UnusedResources">124dp</dimen>
+	<dimen name="adb_cameralibrary_dp125" tools:ignore="UnusedResources">125dp</dimen>
+	<dimen name="adb_cameralibrary_dp126" tools:ignore="UnusedResources">126dp</dimen>
+	<dimen name="adb_cameralibrary_dp127" tools:ignore="UnusedResources">127dp</dimen>
+	<dimen name="adb_cameralibrary_dp128" tools:ignore="UnusedResources">128dp</dimen>
+	<dimen name="adb_cameralibrary_dp129" tools:ignore="UnusedResources">129dp</dimen>
+	<dimen name="adb_cameralibrary_dp130" tools:ignore="UnusedResources">130dp</dimen>
+	<dimen name="adb_cameralibrary_dp131" tools:ignore="UnusedResources">131dp</dimen>
+	<dimen name="adb_cameralibrary_dp132" tools:ignore="UnusedResources">132dp</dimen>
+	<dimen name="adb_cameralibrary_dp133" tools:ignore="UnusedResources">133dp</dimen>
+	<dimen name="adb_cameralibrary_dp134" tools:ignore="UnusedResources">134dp</dimen>
+	<dimen name="adb_cameralibrary_dp135" tools:ignore="UnusedResources">135dp</dimen>
+	<dimen name="adb_cameralibrary_dp136" tools:ignore="UnusedResources">136dp</dimen>
+	<dimen name="adb_cameralibrary_dp137" tools:ignore="UnusedResources">137dp</dimen>
+	<dimen name="adb_cameralibrary_dp138" tools:ignore="UnusedResources">138dp</dimen>
+	<dimen name="adb_cameralibrary_dp139" tools:ignore="UnusedResources">139dp</dimen>
+	<dimen name="adb_cameralibrary_dp140" tools:ignore="UnusedResources">140dp</dimen>
+	<dimen name="adb_cameralibrary_dp141" tools:ignore="UnusedResources">141dp</dimen>
+	<dimen name="adb_cameralibrary_dp142" tools:ignore="UnusedResources">142dp</dimen>
+	<dimen name="adb_cameralibrary_dp143" tools:ignore="UnusedResources">143dp</dimen>
+	<dimen name="adb_cameralibrary_dp144" tools:ignore="UnusedResources">144dp</dimen>
+	<dimen name="adb_cameralibrary_dp145" tools:ignore="UnusedResources">145dp</dimen>
+	<dimen name="adb_cameralibrary_dp146" tools:ignore="UnusedResources">146dp</dimen>
+	<dimen name="adb_cameralibrary_dp147" tools:ignore="UnusedResources">147dp</dimen>
+	<dimen name="adb_cameralibrary_dp148" tools:ignore="UnusedResources">148dp</dimen>
+	<dimen name="adb_cameralibrary_dp149" tools:ignore="UnusedResources">149dp</dimen>
+	<dimen name="adb_cameralibrary_dp150" tools:ignore="UnusedResources">150dp</dimen>
+	<dimen name="adb_cameralibrary_dp151" tools:ignore="UnusedResources">151dp</dimen>
+	<dimen name="adb_cameralibrary_dp152" tools:ignore="UnusedResources">152dp</dimen>
+	<dimen name="adb_cameralibrary_dp153" tools:ignore="UnusedResources">153dp</dimen>
+	<dimen name="adb_cameralibrary_dp154" tools:ignore="UnusedResources">154dp</dimen>
+	<dimen name="adb_cameralibrary_dp155" tools:ignore="UnusedResources">155dp</dimen>
+	<dimen name="adb_cameralibrary_dp156" tools:ignore="UnusedResources">156dp</dimen>
+	<dimen name="adb_cameralibrary_dp157" tools:ignore="UnusedResources">157dp</dimen>
+	<dimen name="adb_cameralibrary_dp158" tools:ignore="UnusedResources">158dp</dimen>
+	<dimen name="adb_cameralibrary_dp159" tools:ignore="UnusedResources">159dp</dimen>
+	<dimen name="adb_cameralibrary_dp160" tools:ignore="UnusedResources">160dp</dimen>
+	<dimen name="adb_cameralibrary_dp161" tools:ignore="UnusedResources">161dp</dimen>
+	<dimen name="adb_cameralibrary_dp162" tools:ignore="UnusedResources">162dp</dimen>
+	<dimen name="adb_cameralibrary_dp163" tools:ignore="UnusedResources">163dp</dimen>
+	<dimen name="adb_cameralibrary_dp164" tools:ignore="UnusedResources">164dp</dimen>
+	<dimen name="adb_cameralibrary_dp165" tools:ignore="UnusedResources">165dp</dimen>
+	<dimen name="adb_cameralibrary_dp166" tools:ignore="UnusedResources">166dp</dimen>
+	<dimen name="adb_cameralibrary_dp167" tools:ignore="UnusedResources">167dp</dimen>
+	<dimen name="adb_cameralibrary_dp168" tools:ignore="UnusedResources">168dp</dimen>
+	<dimen name="adb_cameralibrary_dp169" tools:ignore="UnusedResources">169dp</dimen>
+	<dimen name="adb_cameralibrary_dp170" tools:ignore="UnusedResources">170dp</dimen>
+	<dimen name="adb_cameralibrary_dp171" tools:ignore="UnusedResources">171dp</dimen>
+	<dimen name="adb_cameralibrary_dp172" tools:ignore="UnusedResources">172dp</dimen>
+	<dimen name="adb_cameralibrary_dp173" tools:ignore="UnusedResources">173dp</dimen>
+	<dimen name="adb_cameralibrary_dp174" tools:ignore="UnusedResources">174dp</dimen>
+	<dimen name="adb_cameralibrary_dp175" tools:ignore="UnusedResources">175dp</dimen>
+	<dimen name="adb_cameralibrary_dp176" tools:ignore="UnusedResources">176dp</dimen>
+	<dimen name="adb_cameralibrary_dp177" tools:ignore="UnusedResources">177dp</dimen>
+	<dimen name="adb_cameralibrary_dp178" tools:ignore="UnusedResources">178dp</dimen>
+	<dimen name="adb_cameralibrary_dp179" tools:ignore="UnusedResources">179dp</dimen>
+	<dimen name="adb_cameralibrary_dp180" tools:ignore="UnusedResources">180dp</dimen>
+	<dimen name="adb_cameralibrary_dp181" tools:ignore="UnusedResources">181dp</dimen>
+	<dimen name="adb_cameralibrary_dp182" tools:ignore="UnusedResources">182dp</dimen>
+	<dimen name="adb_cameralibrary_dp183" tools:ignore="UnusedResources">183dp</dimen>
+	<dimen name="adb_cameralibrary_dp184" tools:ignore="UnusedResources">184dp</dimen>
+	<dimen name="adb_cameralibrary_dp185" tools:ignore="UnusedResources">185dp</dimen>
+	<dimen name="adb_cameralibrary_dp186" tools:ignore="UnusedResources">186dp</dimen>
+	<dimen name="adb_cameralibrary_dp187" tools:ignore="UnusedResources">187dp</dimen>
+	<dimen name="adb_cameralibrary_dp188" tools:ignore="UnusedResources">188dp</dimen>
+	<dimen name="adb_cameralibrary_dp189" tools:ignore="UnusedResources">189dp</dimen>
+	<dimen name="adb_cameralibrary_dp190" tools:ignore="UnusedResources">190dp</dimen>
+	<dimen name="adb_cameralibrary_dp191" tools:ignore="UnusedResources">191dp</dimen>
+	<dimen name="adb_cameralibrary_dp192" tools:ignore="UnusedResources">192dp</dimen>
+	<dimen name="adb_cameralibrary_dp193" tools:ignore="UnusedResources">193dp</dimen>
+	<dimen name="adb_cameralibrary_dp194" tools:ignore="UnusedResources">194dp</dimen>
+	<dimen name="adb_cameralibrary_dp195" tools:ignore="UnusedResources">195dp</dimen>
+	<dimen name="adb_cameralibrary_dp196" tools:ignore="UnusedResources">196dp</dimen>
+	<dimen name="adb_cameralibrary_dp197" tools:ignore="UnusedResources">197dp</dimen>
+	<dimen name="adb_cameralibrary_dp198" tools:ignore="UnusedResources">198dp</dimen>
+	<dimen name="adb_cameralibrary_dp199" tools:ignore="UnusedResources">199dp</dimen>
+	<dimen name="adb_cameralibrary_dp200" tools:ignore="UnusedResources">200dp</dimen>
+	<dimen name="adb_cameralibrary_dp201" tools:ignore="UnusedResources">201dp</dimen>
+	<dimen name="adb_cameralibrary_dp202" tools:ignore="UnusedResources">202dp</dimen>
+	<dimen name="adb_cameralibrary_dp203" tools:ignore="UnusedResources">203dp</dimen>
+	<dimen name="adb_cameralibrary_dp204" tools:ignore="UnusedResources">204dp</dimen>
+	<dimen name="adb_cameralibrary_dp205" tools:ignore="UnusedResources">205dp</dimen>
+	<dimen name="adb_cameralibrary_dp206" tools:ignore="UnusedResources">206dp</dimen>
+	<dimen name="adb_cameralibrary_dp207" tools:ignore="UnusedResources">207dp</dimen>
+	<dimen name="adb_cameralibrary_dp208" tools:ignore="UnusedResources">208dp</dimen>
+	<dimen name="adb_cameralibrary_dp209" tools:ignore="UnusedResources">209dp</dimen>
+	<dimen name="adb_cameralibrary_dp210" tools:ignore="UnusedResources">210dp</dimen>
+	<dimen name="adb_cameralibrary_dp211" tools:ignore="UnusedResources">211dp</dimen>
+	<dimen name="adb_cameralibrary_dp212" tools:ignore="UnusedResources">212dp</dimen>
+	<dimen name="adb_cameralibrary_dp213" tools:ignore="UnusedResources">213dp</dimen>
+	<dimen name="adb_cameralibrary_dp214" tools:ignore="UnusedResources">214dp</dimen>
+	<dimen name="adb_cameralibrary_dp215" tools:ignore="UnusedResources">215dp</dimen>
+	<dimen name="adb_cameralibrary_dp216" tools:ignore="UnusedResources">216dp</dimen>
+	<dimen name="adb_cameralibrary_dp217" tools:ignore="UnusedResources">217dp</dimen>
+	<dimen name="adb_cameralibrary_dp218" tools:ignore="UnusedResources">218dp</dimen>
+	<dimen name="adb_cameralibrary_dp219" tools:ignore="UnusedResources">219dp</dimen>
+	<dimen name="adb_cameralibrary_dp220" tools:ignore="UnusedResources">220dp</dimen>
+	<dimen name="adb_cameralibrary_dp221" tools:ignore="UnusedResources">221dp</dimen>
+	<dimen name="adb_cameralibrary_dp222" tools:ignore="UnusedResources">222dp</dimen>
+	<dimen name="adb_cameralibrary_dp223" tools:ignore="UnusedResources">223dp</dimen>
+	<dimen name="adb_cameralibrary_dp224" tools:ignore="UnusedResources">224dp</dimen>
+	<dimen name="adb_cameralibrary_dp225" tools:ignore="UnusedResources">225dp</dimen>
+	<dimen name="adb_cameralibrary_dp226" tools:ignore="UnusedResources">226dp</dimen>
+	<dimen name="adb_cameralibrary_dp227" tools:ignore="UnusedResources">227dp</dimen>
+	<dimen name="adb_cameralibrary_dp228" tools:ignore="UnusedResources">228dp</dimen>
+	<dimen name="adb_cameralibrary_dp229" tools:ignore="UnusedResources">229dp</dimen>
+	<dimen name="adb_cameralibrary_dp230" tools:ignore="UnusedResources">230dp</dimen>
+	<dimen name="adb_cameralibrary_dp231" tools:ignore="UnusedResources">231dp</dimen>
+	<dimen name="adb_cameralibrary_dp232" tools:ignore="UnusedResources">232dp</dimen>
+	<dimen name="adb_cameralibrary_dp233" tools:ignore="UnusedResources">233dp</dimen>
+	<dimen name="adb_cameralibrary_dp234" tools:ignore="UnusedResources">234dp</dimen>
+	<dimen name="adb_cameralibrary_dp235" tools:ignore="UnusedResources">235dp</dimen>
+	<dimen name="adb_cameralibrary_dp236" tools:ignore="UnusedResources">236dp</dimen>
+	<dimen name="adb_cameralibrary_dp237" tools:ignore="UnusedResources">237dp</dimen>
+	<dimen name="adb_cameralibrary_dp238" tools:ignore="UnusedResources">238dp</dimen>
+	<dimen name="adb_cameralibrary_dp239" tools:ignore="UnusedResources">239dp</dimen>
+	<dimen name="adb_cameralibrary_dp240" tools:ignore="UnusedResources">240dp</dimen>
+	<dimen name="adb_cameralibrary_dp241" tools:ignore="UnusedResources">241dp</dimen>
+	<dimen name="adb_cameralibrary_dp242" tools:ignore="UnusedResources">242dp</dimen>
+	<dimen name="adb_cameralibrary_dp243" tools:ignore="UnusedResources">243dp</dimen>
+	<dimen name="adb_cameralibrary_dp244" tools:ignore="UnusedResources">244dp</dimen>
+	<dimen name="adb_cameralibrary_dp245" tools:ignore="UnusedResources">245dp</dimen>
+	<dimen name="adb_cameralibrary_dp246" tools:ignore="UnusedResources">246dp</dimen>
+	<dimen name="adb_cameralibrary_dp247" tools:ignore="UnusedResources">247dp</dimen>
+	<dimen name="adb_cameralibrary_dp248" tools:ignore="UnusedResources">248dp</dimen>
+	<dimen name="adb_cameralibrary_dp249" tools:ignore="UnusedResources">249dp</dimen>
+	<dimen name="adb_cameralibrary_dp250" tools:ignore="UnusedResources">250dp</dimen>
+	<dimen name="adb_cameralibrary_dp251" tools:ignore="UnusedResources">251dp</dimen>
+	<dimen name="adb_cameralibrary_dp252" tools:ignore="UnusedResources">252dp</dimen>
+	<dimen name="adb_cameralibrary_dp253" tools:ignore="UnusedResources">253dp</dimen>
+	<dimen name="adb_cameralibrary_dp254" tools:ignore="UnusedResources">254dp</dimen>
+	<dimen name="adb_cameralibrary_dp255" tools:ignore="UnusedResources">255dp</dimen>
+	<dimen name="adb_cameralibrary_dp256" tools:ignore="UnusedResources">256dp</dimen>
+	<dimen name="adb_cameralibrary_dp257" tools:ignore="UnusedResources">257dp</dimen>
+	<dimen name="adb_cameralibrary_dp258" tools:ignore="UnusedResources">258dp</dimen>
+	<dimen name="adb_cameralibrary_dp259" tools:ignore="UnusedResources">259dp</dimen>
+	<dimen name="adb_cameralibrary_dp260" tools:ignore="UnusedResources">260dp</dimen>
+	<dimen name="adb_cameralibrary_dp261" tools:ignore="UnusedResources">261dp</dimen>
+	<dimen name="adb_cameralibrary_dp262" tools:ignore="UnusedResources">262dp</dimen>
+	<dimen name="adb_cameralibrary_dp263" tools:ignore="UnusedResources">263dp</dimen>
+	<dimen name="adb_cameralibrary_dp264" tools:ignore="UnusedResources">264dp</dimen>
+	<dimen name="adb_cameralibrary_dp265" tools:ignore="UnusedResources">265dp</dimen>
+	<dimen name="adb_cameralibrary_dp266" tools:ignore="UnusedResources">266dp</dimen>
+	<dimen name="adb_cameralibrary_dp267" tools:ignore="UnusedResources">267dp</dimen>
+	<dimen name="adb_cameralibrary_dp268" tools:ignore="UnusedResources">268dp</dimen>
+	<dimen name="adb_cameralibrary_dp269" tools:ignore="UnusedResources">269dp</dimen>
+	<dimen name="adb_cameralibrary_dp270" tools:ignore="UnusedResources">270dp</dimen>
+	<dimen name="adb_cameralibrary_dp271" tools:ignore="UnusedResources">271dp</dimen>
+	<dimen name="adb_cameralibrary_dp272" tools:ignore="UnusedResources">272dp</dimen>
+	<dimen name="adb_cameralibrary_dp273" tools:ignore="UnusedResources">273dp</dimen>
+	<dimen name="adb_cameralibrary_dp274" tools:ignore="UnusedResources">274dp</dimen>
+	<dimen name="adb_cameralibrary_dp275" tools:ignore="UnusedResources">275dp</dimen>
+	<dimen name="adb_cameralibrary_dp276" tools:ignore="UnusedResources">276dp</dimen>
+	<dimen name="adb_cameralibrary_dp277" tools:ignore="UnusedResources">277dp</dimen>
+	<dimen name="adb_cameralibrary_dp278" tools:ignore="UnusedResources">278dp</dimen>
+	<dimen name="adb_cameralibrary_dp279" tools:ignore="UnusedResources">279dp</dimen>
+	<dimen name="adb_cameralibrary_dp280" tools:ignore="UnusedResources">280dp</dimen>
+	<dimen name="adb_cameralibrary_dp281" tools:ignore="UnusedResources">281dp</dimen>
+	<dimen name="adb_cameralibrary_dp282" tools:ignore="UnusedResources">282dp</dimen>
+	<dimen name="adb_cameralibrary_dp283" tools:ignore="UnusedResources">283dp</dimen>
+	<dimen name="adb_cameralibrary_dp284" tools:ignore="UnusedResources">284dp</dimen>
+	<dimen name="adb_cameralibrary_dp285" tools:ignore="UnusedResources">285dp</dimen>
+	<dimen name="adb_cameralibrary_dp286" tools:ignore="UnusedResources">286dp</dimen>
+	<dimen name="adb_cameralibrary_dp287" tools:ignore="UnusedResources">287dp</dimen>
+	<dimen name="adb_cameralibrary_dp288" tools:ignore="UnusedResources">288dp</dimen>
+	<dimen name="adb_cameralibrary_dp289" tools:ignore="UnusedResources">289dp</dimen>
+	<dimen name="adb_cameralibrary_dp290" tools:ignore="UnusedResources">290dp</dimen>
+	<dimen name="adb_cameralibrary_dp291" tools:ignore="UnusedResources">291dp</dimen>
+	<dimen name="adb_cameralibrary_dp292" tools:ignore="UnusedResources">292dp</dimen>
+	<dimen name="adb_cameralibrary_dp293" tools:ignore="UnusedResources">293dp</dimen>
+	<dimen name="adb_cameralibrary_dp294" tools:ignore="UnusedResources">294dp</dimen>
+	<dimen name="adb_cameralibrary_dp295" tools:ignore="UnusedResources">295dp</dimen>
+	<dimen name="adb_cameralibrary_dp296" tools:ignore="UnusedResources">296dp</dimen>
+	<dimen name="adb_cameralibrary_dp297" tools:ignore="UnusedResources">297dp</dimen>
+	<dimen name="adb_cameralibrary_dp298" tools:ignore="UnusedResources">298dp</dimen>
+	<dimen name="adb_cameralibrary_dp299" tools:ignore="UnusedResources">299dp</dimen>
+	<dimen name="adb_cameralibrary_dp300" tools:ignore="UnusedResources">300dp</dimen>
+	<dimen name="adb_cameralibrary_dp301" tools:ignore="UnusedResources">301dp</dimen>
+	<dimen name="adb_cameralibrary_dp302" tools:ignore="UnusedResources">302dp</dimen>
+	<dimen name="adb_cameralibrary_dp303" tools:ignore="UnusedResources">303dp</dimen>
+	<dimen name="adb_cameralibrary_dp304" tools:ignore="UnusedResources">304dp</dimen>
+	<dimen name="adb_cameralibrary_dp305" tools:ignore="UnusedResources">305dp</dimen>
+	<dimen name="adb_cameralibrary_dp306" tools:ignore="UnusedResources">306dp</dimen>
+	<dimen name="adb_cameralibrary_dp307" tools:ignore="UnusedResources">307dp</dimen>
+	<dimen name="adb_cameralibrary_dp308" tools:ignore="UnusedResources">308dp</dimen>
+	<dimen name="adb_cameralibrary_dp309" tools:ignore="UnusedResources">309dp</dimen>
+	<dimen name="adb_cameralibrary_dp310" tools:ignore="UnusedResources">310dp</dimen>
+	<dimen name="adb_cameralibrary_dp311" tools:ignore="UnusedResources">311dp</dimen>
+	<dimen name="adb_cameralibrary_dp312" tools:ignore="UnusedResources">312dp</dimen>
+	<dimen name="adb_cameralibrary_dp313" tools:ignore="UnusedResources">313dp</dimen>
+	<dimen name="adb_cameralibrary_dp314" tools:ignore="UnusedResources">314dp</dimen>
+	<dimen name="adb_cameralibrary_dp315" tools:ignore="UnusedResources">315dp</dimen>
+	<dimen name="adb_cameralibrary_dp316" tools:ignore="UnusedResources">316dp</dimen>
+	<dimen name="adb_cameralibrary_dp317" tools:ignore="UnusedResources">317dp</dimen>
+	<dimen name="adb_cameralibrary_dp318" tools:ignore="UnusedResources">318dp</dimen>
+	<dimen name="adb_cameralibrary_dp319" tools:ignore="UnusedResources">319dp</dimen>
+	<dimen name="adb_cameralibrary_dp320" tools:ignore="UnusedResources">320dp</dimen>
+	<dimen name="adb_cameralibrary_dp321" tools:ignore="UnusedResources">321dp</dimen>
+	<dimen name="adb_cameralibrary_dp322" tools:ignore="UnusedResources">322dp</dimen>
+	<dimen name="adb_cameralibrary_dp323" tools:ignore="UnusedResources">323dp</dimen>
+	<dimen name="adb_cameralibrary_dp324" tools:ignore="UnusedResources">324dp</dimen>
+	<dimen name="adb_cameralibrary_dp325" tools:ignore="UnusedResources">325dp</dimen>
+	<dimen name="adb_cameralibrary_dp326" tools:ignore="UnusedResources">326dp</dimen>
+	<dimen name="adb_cameralibrary_dp327" tools:ignore="UnusedResources">327dp</dimen>
+	<dimen name="adb_cameralibrary_dp328" tools:ignore="UnusedResources">328dp</dimen>
+	<dimen name="adb_cameralibrary_dp329" tools:ignore="UnusedResources">329dp</dimen>
+	<dimen name="adb_cameralibrary_dp330" tools:ignore="UnusedResources">330dp</dimen>
+	<dimen name="adb_cameralibrary_dp331" tools:ignore="UnusedResources">331dp</dimen>
+	<dimen name="adb_cameralibrary_dp332" tools:ignore="UnusedResources">332dp</dimen>
+	<dimen name="adb_cameralibrary_dp333" tools:ignore="UnusedResources">333dp</dimen>
+	<dimen name="adb_cameralibrary_dp334" tools:ignore="UnusedResources">334dp</dimen>
+	<dimen name="adb_cameralibrary_dp335" tools:ignore="UnusedResources">335dp</dimen>
+	<dimen name="adb_cameralibrary_dp336" tools:ignore="UnusedResources">336dp</dimen>
+	<dimen name="adb_cameralibrary_dp337" tools:ignore="UnusedResources">337dp</dimen>
+	<dimen name="adb_cameralibrary_dp338" tools:ignore="UnusedResources">338dp</dimen>
+	<dimen name="adb_cameralibrary_dp339" tools:ignore="UnusedResources">339dp</dimen>
+	<dimen name="adb_cameralibrary_dp340" tools:ignore="UnusedResources">340dp</dimen>
+	<dimen name="adb_cameralibrary_dp341" tools:ignore="UnusedResources">341dp</dimen>
+	<dimen name="adb_cameralibrary_dp342" tools:ignore="UnusedResources">342dp</dimen>
+	<dimen name="adb_cameralibrary_dp343" tools:ignore="UnusedResources">343dp</dimen>
+	<dimen name="adb_cameralibrary_dp344" tools:ignore="UnusedResources">344dp</dimen>
+	<dimen name="adb_cameralibrary_dp345" tools:ignore="UnusedResources">345dp</dimen>
+	<dimen name="adb_cameralibrary_dp346" tools:ignore="UnusedResources">346dp</dimen>
+	<dimen name="adb_cameralibrary_dp347" tools:ignore="UnusedResources">347dp</dimen>
+	<dimen name="adb_cameralibrary_dp348" tools:ignore="UnusedResources">348dp</dimen>
+	<dimen name="adb_cameralibrary_dp349" tools:ignore="UnusedResources">349dp</dimen>
+	<dimen name="adb_cameralibrary_dp350" tools:ignore="UnusedResources">350dp</dimen>
+	<dimen name="adb_cameralibrary_dp351" tools:ignore="UnusedResources">351dp</dimen>
+	<dimen name="adb_cameralibrary_dp352" tools:ignore="UnusedResources">352dp</dimen>
+	<dimen name="adb_cameralibrary_dp353" tools:ignore="UnusedResources">353dp</dimen>
+	<dimen name="adb_cameralibrary_dp354" tools:ignore="UnusedResources">354dp</dimen>
+	<dimen name="adb_cameralibrary_dp355" tools:ignore="UnusedResources">355dp</dimen>
+	<dimen name="adb_cameralibrary_dp356" tools:ignore="UnusedResources">356dp</dimen>
+	<dimen name="adb_cameralibrary_dp357" tools:ignore="UnusedResources">357dp</dimen>
+	<dimen name="adb_cameralibrary_dp358" tools:ignore="UnusedResources">358dp</dimen>
+	<dimen name="adb_cameralibrary_dp359" tools:ignore="UnusedResources">359dp</dimen>
+	<dimen name="adb_cameralibrary_dp360" tools:ignore="UnusedResources">360dp</dimen>
+	<dimen name="adb_cameralibrary_dp361" tools:ignore="UnusedResources">361dp</dimen>
+	<dimen name="adb_cameralibrary_dp362" tools:ignore="UnusedResources">362dp</dimen>
+	<dimen name="adb_cameralibrary_dp363" tools:ignore="UnusedResources">363dp</dimen>
+	<dimen name="adb_cameralibrary_dp364" tools:ignore="UnusedResources">364dp</dimen>
+	<dimen name="adb_cameralibrary_dp365" tools:ignore="UnusedResources">365dp</dimen>
+	<dimen name="adb_cameralibrary_dp366" tools:ignore="UnusedResources">366dp</dimen>
+	<dimen name="adb_cameralibrary_dp367" tools:ignore="UnusedResources">367dp</dimen>
+	<dimen name="adb_cameralibrary_dp368" tools:ignore="UnusedResources">368dp</dimen>
+	<dimen name="adb_cameralibrary_dp369" tools:ignore="UnusedResources">369dp</dimen>
+	<dimen name="adb_cameralibrary_dp370" tools:ignore="UnusedResources">370dp</dimen>
+	<dimen name="adb_cameralibrary_dp371" tools:ignore="UnusedResources">371dp</dimen>
+	<dimen name="adb_cameralibrary_dp372" tools:ignore="UnusedResources">372dp</dimen>
+	<dimen name="adb_cameralibrary_dp373" tools:ignore="UnusedResources">373dp</dimen>
+	<dimen name="adb_cameralibrary_dp374" tools:ignore="UnusedResources">374dp</dimen>
+	<dimen name="adb_cameralibrary_dp375" tools:ignore="UnusedResources">375dp</dimen>
+	<dimen name="adb_cameralibrary_dp376" tools:ignore="UnusedResources">376dp</dimen>
+	<dimen name="adb_cameralibrary_dp377" tools:ignore="UnusedResources">377dp</dimen>
+	<dimen name="adb_cameralibrary_dp378" tools:ignore="UnusedResources">378dp</dimen>
+	<dimen name="adb_cameralibrary_dp379" tools:ignore="UnusedResources">379dp</dimen>
+	<dimen name="adb_cameralibrary_dp380" tools:ignore="UnusedResources">380dp</dimen>
+	<dimen name="adb_cameralibrary_dp381" tools:ignore="UnusedResources">381dp</dimen>
+	<dimen name="adb_cameralibrary_dp382" tools:ignore="UnusedResources">382dp</dimen>
+	<dimen name="adb_cameralibrary_dp383" tools:ignore="UnusedResources">383dp</dimen>
+	<dimen name="adb_cameralibrary_dp384" tools:ignore="UnusedResources">384dp</dimen>
+	<dimen name="adb_cameralibrary_dp385" tools:ignore="UnusedResources">385dp</dimen>
+	<dimen name="adb_cameralibrary_dp386" tools:ignore="UnusedResources">386dp</dimen>
+	<dimen name="adb_cameralibrary_dp387" tools:ignore="UnusedResources">387dp</dimen>
+	<dimen name="adb_cameralibrary_dp388" tools:ignore="UnusedResources">388dp</dimen>
+	<dimen name="adb_cameralibrary_dp389" tools:ignore="UnusedResources">389dp</dimen>
+	<dimen name="adb_cameralibrary_dp390" tools:ignore="UnusedResources">390dp</dimen>
+	<dimen name="adb_cameralibrary_dp391" tools:ignore="UnusedResources">391dp</dimen>
+	<dimen name="adb_cameralibrary_dp392" tools:ignore="UnusedResources">392dp</dimen>
+	<dimen name="adb_cameralibrary_dp393" tools:ignore="UnusedResources">393dp</dimen>
+	<dimen name="adb_cameralibrary_dp394" tools:ignore="UnusedResources">394dp</dimen>
+	<dimen name="adb_cameralibrary_dp395" tools:ignore="UnusedResources">395dp</dimen>
+	<dimen name="adb_cameralibrary_dp396" tools:ignore="UnusedResources">396dp</dimen>
+	<dimen name="adb_cameralibrary_dp397" tools:ignore="UnusedResources">397dp</dimen>
+	<dimen name="adb_cameralibrary_dp398" tools:ignore="UnusedResources">398dp</dimen>
+	<dimen name="adb_cameralibrary_dp399" tools:ignore="UnusedResources">399dp</dimen>
+	<dimen name="adb_cameralibrary_dp400" tools:ignore="UnusedResources">400dp</dimen>
+	<dimen name="adb_cameralibrary_dp401" tools:ignore="UnusedResources">401dp</dimen>
+	<dimen name="adb_cameralibrary_dp402" tools:ignore="UnusedResources">402dp</dimen>
+	<dimen name="adb_cameralibrary_dp403" tools:ignore="UnusedResources">403dp</dimen>
+	<dimen name="adb_cameralibrary_dp404" tools:ignore="UnusedResources">404dp</dimen>
+	<dimen name="adb_cameralibrary_dp405" tools:ignore="UnusedResources">405dp</dimen>
+	<dimen name="adb_cameralibrary_dp406" tools:ignore="UnusedResources">406dp</dimen>
+	<dimen name="adb_cameralibrary_dp407" tools:ignore="UnusedResources">407dp</dimen>
+	<dimen name="adb_cameralibrary_dp408" tools:ignore="UnusedResources">408dp</dimen>
+	<dimen name="adb_cameralibrary_dp409" tools:ignore="UnusedResources">409dp</dimen>
+	<dimen name="adb_cameralibrary_dp410" tools:ignore="UnusedResources">410dp</dimen>
+	<dimen name="adb_cameralibrary_dp411" tools:ignore="UnusedResources">411dp</dimen>
+	<dimen name="adb_cameralibrary_dp412" tools:ignore="UnusedResources">412dp</dimen>
+	<dimen name="adb_cameralibrary_dp413" tools:ignore="UnusedResources">413dp</dimen>
+	<dimen name="adb_cameralibrary_dp414" tools:ignore="UnusedResources">414dp</dimen>
+	<dimen name="adb_cameralibrary_dp415" tools:ignore="UnusedResources">415dp</dimen>
+	<dimen name="adb_cameralibrary_dp416" tools:ignore="UnusedResources">416dp</dimen>
+	<dimen name="adb_cameralibrary_dp417" tools:ignore="UnusedResources">417dp</dimen>
+	<dimen name="adb_cameralibrary_dp418" tools:ignore="UnusedResources">418dp</dimen>
+	<dimen name="adb_cameralibrary_dp419" tools:ignore="UnusedResources">419dp</dimen>
+	<dimen name="adb_cameralibrary_dp420" tools:ignore="UnusedResources">420dp</dimen>
+	<dimen name="adb_cameralibrary_dp421" tools:ignore="UnusedResources">421dp</dimen>
+	<dimen name="adb_cameralibrary_dp422" tools:ignore="UnusedResources">422dp</dimen>
+	<dimen name="adb_cameralibrary_dp423" tools:ignore="UnusedResources">423dp</dimen>
+	<dimen name="adb_cameralibrary_dp424" tools:ignore="UnusedResources">424dp</dimen>
+	<dimen name="adb_cameralibrary_dp425" tools:ignore="UnusedResources">425dp</dimen>
+	<dimen name="adb_cameralibrary_dp426" tools:ignore="UnusedResources">426dp</dimen>
+	<dimen name="adb_cameralibrary_dp427" tools:ignore="UnusedResources">427dp</dimen>
+	<dimen name="adb_cameralibrary_dp428" tools:ignore="UnusedResources">428dp</dimen>
+	<dimen name="adb_cameralibrary_dp429" tools:ignore="UnusedResources">429dp</dimen>
+	<dimen name="adb_cameralibrary_dp430" tools:ignore="UnusedResources">430dp</dimen>
+	<dimen name="adb_cameralibrary_dp431" tools:ignore="UnusedResources">431dp</dimen>
+	<dimen name="adb_cameralibrary_dp432" tools:ignore="UnusedResources">432dp</dimen>
+	<dimen name="adb_cameralibrary_dp433" tools:ignore="UnusedResources">433dp</dimen>
+	<dimen name="adb_cameralibrary_dp434" tools:ignore="UnusedResources">434dp</dimen>
+	<dimen name="adb_cameralibrary_dp435" tools:ignore="UnusedResources">435dp</dimen>
+	<dimen name="adb_cameralibrary_dp436" tools:ignore="UnusedResources">436dp</dimen>
+	<dimen name="adb_cameralibrary_dp437" tools:ignore="UnusedResources">437dp</dimen>
+	<dimen name="adb_cameralibrary_dp438" tools:ignore="UnusedResources">438dp</dimen>
+	<dimen name="adb_cameralibrary_dp439" tools:ignore="UnusedResources">439dp</dimen>
+	<dimen name="adb_cameralibrary_dp440" tools:ignore="UnusedResources">440dp</dimen>
+	<dimen name="adb_cameralibrary_dp441" tools:ignore="UnusedResources">441dp</dimen>
+	<dimen name="adb_cameralibrary_dp442" tools:ignore="UnusedResources">442dp</dimen>
+	<dimen name="adb_cameralibrary_dp443" tools:ignore="UnusedResources">443dp</dimen>
+	<dimen name="adb_cameralibrary_dp444" tools:ignore="UnusedResources">444dp</dimen>
+	<dimen name="adb_cameralibrary_dp445" tools:ignore="UnusedResources">445dp</dimen>
+	<dimen name="adb_cameralibrary_dp446" tools:ignore="UnusedResources">446dp</dimen>
+	<dimen name="adb_cameralibrary_dp447" tools:ignore="UnusedResources">447dp</dimen>
+	<dimen name="adb_cameralibrary_dp448" tools:ignore="UnusedResources">448dp</dimen>
+	<dimen name="adb_cameralibrary_dp449" tools:ignore="UnusedResources">449dp</dimen>
+	<dimen name="adb_cameralibrary_dp450" tools:ignore="UnusedResources">450dp</dimen>
+	<dimen name="adb_cameralibrary_dp451" tools:ignore="UnusedResources">451dp</dimen>
+	<dimen name="adb_cameralibrary_dp452" tools:ignore="UnusedResources">452dp</dimen>
+	<dimen name="adb_cameralibrary_dp453" tools:ignore="UnusedResources">453dp</dimen>
+	<dimen name="adb_cameralibrary_dp454" tools:ignore="UnusedResources">454dp</dimen>
+	<dimen name="adb_cameralibrary_dp455" tools:ignore="UnusedResources">455dp</dimen>
+	<dimen name="adb_cameralibrary_dp456" tools:ignore="UnusedResources">456dp</dimen>
+	<dimen name="adb_cameralibrary_dp457" tools:ignore="UnusedResources">457dp</dimen>
+	<dimen name="adb_cameralibrary_dp458" tools:ignore="UnusedResources">458dp</dimen>
+	<dimen name="adb_cameralibrary_dp459" tools:ignore="UnusedResources">459dp</dimen>
+	<dimen name="adb_cameralibrary_dp460" tools:ignore="UnusedResources">460dp</dimen>
+	<dimen name="adb_cameralibrary_dp461" tools:ignore="UnusedResources">461dp</dimen>
+	<dimen name="adb_cameralibrary_dp462" tools:ignore="UnusedResources">462dp</dimen>
+	<dimen name="adb_cameralibrary_dp463" tools:ignore="UnusedResources">463dp</dimen>
+	<dimen name="adb_cameralibrary_dp464" tools:ignore="UnusedResources">464dp</dimen>
+	<dimen name="adb_cameralibrary_dp465" tools:ignore="UnusedResources">465dp</dimen>
+	<dimen name="adb_cameralibrary_dp466" tools:ignore="UnusedResources">466dp</dimen>
+	<dimen name="adb_cameralibrary_dp467" tools:ignore="UnusedResources">467dp</dimen>
+	<dimen name="adb_cameralibrary_dp468" tools:ignore="UnusedResources">468dp</dimen>
+	<dimen name="adb_cameralibrary_dp469" tools:ignore="UnusedResources">469dp</dimen>
+	<dimen name="adb_cameralibrary_dp470" tools:ignore="UnusedResources">470dp</dimen>
+	<dimen name="adb_cameralibrary_dp471" tools:ignore="UnusedResources">471dp</dimen>
+	<dimen name="adb_cameralibrary_dp472" tools:ignore="UnusedResources">472dp</dimen>
+	<dimen name="adb_cameralibrary_dp473" tools:ignore="UnusedResources">473dp</dimen>
+	<dimen name="adb_cameralibrary_dp474" tools:ignore="UnusedResources">474dp</dimen>
+	<dimen name="adb_cameralibrary_dp475" tools:ignore="UnusedResources">475dp</dimen>
+	<dimen name="adb_cameralibrary_dp476" tools:ignore="UnusedResources">476dp</dimen>
+	<dimen name="adb_cameralibrary_dp477" tools:ignore="UnusedResources">477dp</dimen>
+	<dimen name="adb_cameralibrary_dp478" tools:ignore="UnusedResources">478dp</dimen>
+	<dimen name="adb_cameralibrary_dp479" tools:ignore="UnusedResources">479dp</dimen>
+	<dimen name="adb_cameralibrary_dp480" tools:ignore="UnusedResources">480dp</dimen>
+	<dimen name="adb_cameralibrary_dp481" tools:ignore="UnusedResources">481dp</dimen>
+	<dimen name="adb_cameralibrary_dp482" tools:ignore="UnusedResources">482dp</dimen>
+	<dimen name="adb_cameralibrary_dp483" tools:ignore="UnusedResources">483dp</dimen>
+	<dimen name="adb_cameralibrary_dp484" tools:ignore="UnusedResources">484dp</dimen>
+	<dimen name="adb_cameralibrary_dp485" tools:ignore="UnusedResources">485dp</dimen>
+	<dimen name="adb_cameralibrary_dp486" tools:ignore="UnusedResources">486dp</dimen>
+	<dimen name="adb_cameralibrary_dp487" tools:ignore="UnusedResources">487dp</dimen>
+	<dimen name="adb_cameralibrary_dp488" tools:ignore="UnusedResources">488dp</dimen>
+	<dimen name="adb_cameralibrary_dp489" tools:ignore="UnusedResources">489dp</dimen>
+	<dimen name="adb_cameralibrary_dp490" tools:ignore="UnusedResources">490dp</dimen>
+	<dimen name="adb_cameralibrary_dp491" tools:ignore="UnusedResources">491dp</dimen>
+	<dimen name="adb_cameralibrary_dp492" tools:ignore="UnusedResources">492dp</dimen>
+	<dimen name="adb_cameralibrary_dp493" tools:ignore="UnusedResources">493dp</dimen>
+	<dimen name="adb_cameralibrary_dp494" tools:ignore="UnusedResources">494dp</dimen>
+	<dimen name="adb_cameralibrary_dp495" tools:ignore="UnusedResources">495dp</dimen>
+	<dimen name="adb_cameralibrary_dp496" tools:ignore="UnusedResources">496dp</dimen>
+	<dimen name="adb_cameralibrary_dp497" tools:ignore="UnusedResources">497dp</dimen>
+	<dimen name="adb_cameralibrary_dp498" tools:ignore="UnusedResources">498dp</dimen>
+	<dimen name="adb_cameralibrary_dp499" tools:ignore="UnusedResources">499dp</dimen>
+	<dimen name="adb_cameralibrary_dp500" tools:ignore="UnusedResources">500dp</dimen>
+	<dimen name="adb_cameralibrary_dp501" tools:ignore="UnusedResources">501dp</dimen>
+	<dimen name="adb_cameralibrary_dp502" tools:ignore="UnusedResources">502dp</dimen>
+	<dimen name="adb_cameralibrary_dp503" tools:ignore="UnusedResources">503dp</dimen>
+	<dimen name="adb_cameralibrary_dp504" tools:ignore="UnusedResources">504dp</dimen>
+	<dimen name="adb_cameralibrary_dp505" tools:ignore="UnusedResources">505dp</dimen>
+	<dimen name="adb_cameralibrary_dp506" tools:ignore="UnusedResources">506dp</dimen>
+	<dimen name="adb_cameralibrary_dp507" tools:ignore="UnusedResources">507dp</dimen>
+	<dimen name="adb_cameralibrary_dp508" tools:ignore="UnusedResources">508dp</dimen>
+	<dimen name="adb_cameralibrary_dp509" tools:ignore="UnusedResources">509dp</dimen>
+	<dimen name="adb_cameralibrary_dp510" tools:ignore="UnusedResources">510dp</dimen>
+	<dimen name="adb_cameralibrary_dp511" tools:ignore="UnusedResources">511dp</dimen>
+	<dimen name="adb_cameralibrary_dp512" tools:ignore="UnusedResources">512dp</dimen>
+	<dimen name="adb_cameralibrary_dp513" tools:ignore="UnusedResources">513dp</dimen>
+	<dimen name="adb_cameralibrary_dp514" tools:ignore="UnusedResources">514dp</dimen>
+	<dimen name="adb_cameralibrary_dp515" tools:ignore="UnusedResources">515dp</dimen>
+	<dimen name="adb_cameralibrary_dp516" tools:ignore="UnusedResources">516dp</dimen>
+	<dimen name="adb_cameralibrary_dp517" tools:ignore="UnusedResources">517dp</dimen>
+	<dimen name="adb_cameralibrary_dp518" tools:ignore="UnusedResources">518dp</dimen>
+	<dimen name="adb_cameralibrary_dp519" tools:ignore="UnusedResources">519dp</dimen>
+	<dimen name="adb_cameralibrary_dp520" tools:ignore="UnusedResources">520dp</dimen>
 </resources>
