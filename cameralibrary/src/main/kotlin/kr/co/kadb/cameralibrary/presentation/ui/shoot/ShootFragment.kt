@@ -535,6 +535,7 @@ internal class ShootFragment :
 
             // 분석 완료.
             processor.onComplete { detectText, detectRect ->
+                imageAnalyzer?.clearAnalyzer()
                 imageProcessor?.run { this.stop() }
                 when (viewModel.item.value.action) {
                     // 차량번호.
