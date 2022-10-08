@@ -500,6 +500,8 @@ internal class ShootFragment :
                 else -> null
             }
         }?.also { processor ->
+            // Clear.
+            imageAnalyzer?.clearAnalyzer()
             // Update overlay information.
             var needUpdateGraphicOverlayImageSourceInfo = true
             // ImageAnalysis UseCase.

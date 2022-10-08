@@ -47,6 +47,41 @@ class VehicleNumberRecognitionProcessor(
     // Recognizer.
     private val textRecognizer: TextRecognizer = TextRecognition.getClient(textRecognizerOptions)
 
+    // 차량번호 정규식(테스트).
+    // 지역별: 서울 부산 대구 인천 광주 대전 울산 세종 경기 강원 충북 충남 전북 전남 경북 경남 제주
+    // 자가용: 가나다라마 거너더러머버서어저 고노도로모보소오조 구누두루무부수우주
+    // 사업용: 바사아자
+    // 렌터카: 하허호
+    // 택배용: 배
+    // 외교용: 외교123-001 - 외교 준외 준영 국기 협정 대표
+    // 군사용: 23(육)1234 - 육공해국합
+    // 이륜차: 울산 남 가 1234 - 가나다라마바사아자차카타파
+    // (서울|부산|대구|인천|광주|대전|울산|경기|강원|충북|충남|전북|전남|경북|경남|제주)?
+    // [0-9]{2,3}
+    // (가|나|다|라|마|거|너|더|러|머|버|서|어|저|고|노|도|로|모|보|소|오|조|구|누|두|루|무|부|수|우|주|바|사|아|자|하|허|호|배)[0-9]{4}
+    /*val regex = Regex(
+        "((서울|부산|대구|인천|광주|대전|울산|세종|경기|강원|충북|충남|전북|전남|경북|경남|제주)?" +
+                "\\s?" +
+                "[0-9]{2,3}" +
+                "\\s?" +
+                "([가나다라마거너더러머버서어저고노도로모보소오조구누두루무부수우주바사아자하허호배])" +
+                "\\s?" +
+                "[0-9]{4})|" + // 자가용, 사업용, 렌터카, 택배용.
+                "(외교\s?[0-9]{3}-[0-9]{3})|" + // 외교용.
+                "([0-9]{2}\\(([육공해국합])\\)[0-9]{4})" // 군사용.
+    )*/
+
+    // Find & Add
+    // 인식률이 떨어져 간단한 정규식으로 처리.
+    private val regex = Regex(
+        //"([0-9]{2,3}\\s?" +
+        //"([가나다라마거너더러머버서어저고노도로모보소오조구누두루무부수우주바사아자하허호배])\\s?" +
+        //"[0-9]{4})|" + // 자가용, 사업용, 렌터카, 택배용.
+        "([^0-9]{0,2}\\s?[0-9]{2,3}\\s?[^0-9\\s]{1,2}\\s?[0-9]{4})|" + // 자가용, 사업용, 렌터카, 택배용.
+                "(외교\\s?[0-9]{3}-[0-9]{3})|" + // 외교용.
+                "([0-9]{2}\\(([육공해국합])\\)[0-9]{4})" // 군사용.
+    )
+
     override fun stop() {
         super.stop()
         textRecognizer.close()
@@ -64,89 +99,29 @@ class VehicleNumberRecognitionProcessor(
         var latelyText = ""
         var latelyRect: Rect? = null
 
+        // 이미지 크기.
+        val imageSize = Size(graphicOverlay.imageWidth, graphicOverlay.imageHeight)
+
         // 정규화.
         results.textBlocks.forEach { textBlock ->
             // Debug.
             //Timber.i(">>>>> ${javaClass.simpleName} > TEXT_BLOCK[$index] > ${textBlock.text}")
             textBlock.lines.forEachIndexed { index, line ->
-                //
-                val lineText = if (latelyText != line.text) {
-                    latelyText + line.text
-                } else {
-                    line.text
-                }
-
                 // Debug.
-                Timber.i(">>>>> ${javaClass.simpleName} > TEXT_LINE[$index] > ${line.text} : $lineText")
+                //Timber.i(">>>>> ${javaClass.simpleName} > TEXT_LINE[$index] > $latelyText + ${line.text}")
 
-                // 차량번호 정규식(테스트).
-                // 지역별: 서울 부산 대구 인천 광주 대전 울산 세종 경기 강원 충북 충남 전북 전남 경북 경남 제주
-                // 자가용: 가나다라마 거너더러머버서어저 고노도로모보소오조 구누두루무부수우주
-                // 사업용: 바사아자
-                // 렌터카: 하허호
-                // 택배용: 배
-                // 외교용: 외교123-001 - 외교 준외 준영 국기 협정 대표
-                // 군사용: 23(육)1234 - 육공해국합
-                // 이륜차: 울산 남 가 1234 - 가나다라마바사아자차카타파
-                // (서울|부산|대구|인천|광주|대전|울산|경기|강원|충북|충남|전북|전남|경북|경남|제주)?
-                // [0-9]{2,3}
-                // (가|나|다|라|마|거|너|더|러|머|버|서|어|저|고|노|도|로|모|보|소|오|조|구|누|두|루|무|부|수|우|주|바|사|아|자|하|허|호|배)[0-9]{4}
-                /*val regex = Regex(
-                    "((서울|부산|대구|인천|광주|대전|울산|세종|경기|강원|충북|충남|전북|전남|경북|경남|제주)?" +
-                            "\\s?" +
-                            "[0-9]{2,3}" +
-                            "\\s?" +
-                            "([가나다라마거너더러머버서어저고노도로모보소오조구누두루무부수우주바사아자하허호배])" +
-                            "\\s?" +
-                            "[0-9]{4})|" + // 자가용, 사업용, 렌터카, 택배용.
-                            "(외교\s?[0-9]{3}-[0-9]{3})|" + // 외교용.
-                            "([0-9]{2}\\(([육공해국합])\\)[0-9]{4})" // 군사용.
-                )*/
-
-                // Find & Add
-                // 인식률이 떨어져 간단한 정규식으로 처리.
-                Regex(
-                    //"([0-9]{2,3}\\s?" +
-                    //"([가나다라마거너더러머버서어저고노도로모보소오조구누두루무부수우주바사아자하허호배])\\s?" +
-                    //"[0-9]{4})|" + // 자가용, 사업용, 렌터카, 택배용.
-                    "([^0-9]{0,2}\\s?[0-9]{2,3}\\s?[^0-9]{1,2}\\s?[0-9]{4})|" + // 자가용, 사업용, 렌터카, 택배용.
-                            "(외교\\s?[0-9]{3}-[0-9]{3})|" + // 외교용.
-                            "([0-9]{2}\\(([육공해국합])\\)[0-9]{4})" // 군사용.
-                ).find(lineText)?.let { matchResult ->
-                    // Add.
-                    var matchRect = if (latelyRect != null) {
-                        Rect(
-                            min(latelyRect?.left ?: 0, line.boundingBox?.left ?: 0),
-                            min(latelyRect?.top ?: 0, line.boundingBox?.top ?: 0),
-                            max(latelyRect?.right ?: 0, line.boundingBox?.right ?: 0),
-                            max(latelyRect?.bottom ?: 0, line.boundingBox?.bottom ?: 0)
-                        )
-                    } else {
-                        Rect(
-                            line.boundingBox?.left ?: 0,
-                            line.boundingBox?.top ?: 0,
-                            line.boundingBox?.right ?: 0,
-                            line.boundingBox?.bottom ?: 0
-                        )
+                // Find & Add.
+                regex.find(latelyText + line.text)?.let { matchResult ->
+                    createDrawItems(matchResult, latelyRect, line.boundingBox, imageSize).also {
+                        drawItems.addAll(it)
                     }
-                    val imageSize = Size(graphicOverlay.imageWidth, graphicOverlay.imageHeight)
-                    val left = if (matchRect.left < 0) 0 else matchRect.left
-                    val top = if (matchRect.top < 0) 0 else matchRect.top
-                    val right = if (left + matchRect.width() > imageSize.width) {
-                        imageSize.width
-                    } else {
-                        matchRect.right
+                }
+                if (latelyText.isNotEmpty() && line.text.isNotEmpty()) {
+                    regex.find(line.text + latelyText)?.let { matchResult ->
+                        createDrawItems(matchResult, latelyRect, line.boundingBox, imageSize).also {
+                            drawItems.addAll(it)
+                        }
                     }
-                    val bottom = if (top + matchRect.height() > imageSize.height) {
-                        imageSize.height
-                    } else {
-                        matchRect.bottom
-                    }
-                    matchRect = Rect(left, top, right, bottom)
-                    drawItems.add(DetectedItem(matchResult.value, RectF(matchRect)))
-
-                    // Debug.
-                    Timber.i(">>>>> ${javaClass.simpleName} > REGEX > ${matchResult.value}")
                 }
                 latelyText = line.text
                 latelyRect = line.boundingBox
@@ -194,5 +169,51 @@ class VehicleNumberRecognitionProcessor(
     ) {
         this.onSuccess = onSuccess
         this.onFailure = onFailure
+    }
+
+    private fun createDrawItems(
+        matchResult: MatchResult,
+        latelyRect: Rect?,
+        boundingBox: Rect?,
+        imageSize: Size
+    ): List<DetectedItem> {
+        // Detected Items.
+        val drawItems = mutableListOf<DetectedItem>()
+
+        // Add.
+        var matchRect = if (latelyRect != null) {
+            Rect(
+                min(latelyRect?.left ?: 0, boundingBox?.left ?: 0),
+                min(latelyRect?.top ?: 0, boundingBox?.top ?: 0),
+                max(latelyRect?.right ?: 0, boundingBox?.right ?: 0),
+                max(latelyRect?.bottom ?: 0, boundingBox?.bottom ?: 0)
+            )
+        } else {
+            Rect(
+                boundingBox?.left ?: 0,
+                boundingBox?.top ?: 0,
+                boundingBox?.right ?: 0,
+                boundingBox?.bottom ?: 0
+            )
+        }
+        val left = if (matchRect.left < 0) 0 else matchRect.left
+        val top = if (matchRect.top < 0) 0 else matchRect.top
+        val right = if (left + matchRect.width() > imageSize.width) {
+            imageSize.width
+        } else {
+            matchRect.right
+        }
+        val bottom = if (top + matchRect.height() > imageSize.height) {
+            imageSize.height
+        } else {
+            matchRect.bottom
+        }
+        matchRect = Rect(left, top, right, bottom)
+        drawItems.add(DetectedItem(matchResult.value, RectF(matchRect)))
+
+        // Debug.
+        Timber.i(">>>>> ${javaClass.simpleName} > REGEX > ${matchResult.value}")
+
+        return drawItems
     }
 }
