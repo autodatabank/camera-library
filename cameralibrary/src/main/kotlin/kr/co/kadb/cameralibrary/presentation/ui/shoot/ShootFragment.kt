@@ -52,45 +52,30 @@ internal class ShootFragment :
         fun create() = ShootFragment()
     }
 
-    // ViewController.
-    private val viewController: ShootController by lazy {
-        ShootController(requireActivity())
-    }
-
-    // ViewModel.
-    override val viewModel: ShootSharedViewModel by activityViewModels {
-        ShootSharedViewModelFactory(requireContext())
-    }
-
-    // Fragment Layout.
-    override val layoutResourceId: Int = R.layout.adb_cameralibrary_fragment_shoot
-
     // MediaActionSound2.
     private lateinit var mediaActionSound: MediaActionSound2
 
-    // AudioManager.
+    /*// AudioManager.
     private val audioManager by lazy {
         context?.getSystemService(Context.AUDIO_SERVICE) as? AudioManager
-    }
+    }*/
 
-    private var lensFacing: Int = CameraSelector.LENS_FACING_BACK
+    private var camera: Camera? = null
     private var preview: Preview? = null
     private var imageCapture: ImageCapture? = null
     private var imageAnalyzer: ImageAnalysis? = null
-    private var camera: Camera? = null
     private var cameraProvider: ProcessCameraProvider? = null
+    private var lensFacing: Int = CameraSelector.LENS_FACING_BACK
 
     /** Blocking camera operations are performed using this executor */
     private lateinit var cameraExecutor: ExecutorService
 
-    // 이미지 분석 Overlay.
-    private var graphicOverlay: GraphicOverlay? = null
-
-    // Update overlay information.
-    private var needUpdateGraphicOverlayImageSourceInfo = false
 
     // Images vision detectors.
     private var imageProcessor: VisionImageProcessor<*>? = null
+
+    // 이미지 분석 Overlay.
+    private lateinit var graphicOverlay: GraphicOverlay
 
     // Orientation EventListener.
     private val orientationEventListener by lazy {
@@ -115,10 +100,23 @@ internal class ShootFragment :
                 // Rotation 갱신.
                 imageCapture?.targetRotation = rotation
                 //imageAnalyzer?.targetRotation = rotation
-                graphicOverlay?.rotation = rotation.toFloat()
+                graphicOverlay.rotation = rotation.toFloat()
             }
         }
     }
+
+    // ViewController.
+    private val viewController: ShootController by lazy {
+        ShootController(requireActivity())
+    }
+
+    // ViewModel.
+    override val viewModel: ShootSharedViewModel by activityViewModels {
+        ShootSharedViewModelFactory(requireContext())
+    }
+
+    // Fragment Layout.
+    override val layoutResourceId: Int = R.layout.adb_cameralibrary_fragment_shoot
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -353,6 +351,10 @@ internal class ShootFragment :
 
         // 크롭크기로 영역 지정.
         binding.adbCameralibraryLayout.post {
+            val topSide = ConstraintSet.TOP
+            val endSide = ConstraintSet.END
+            val startSide = ConstraintSet.START
+            val bottomSide = ConstraintSet.BOTTOM
             val targetRotation = imageCapture?.targetRotation ?: 0
             val unusedAreaView = binding.adbCameralibraryLayoutUnusedArea
             val unusedAreaViewTop = binding.adbCameralibraryViewUnusedAreaTop
@@ -374,9 +376,7 @@ internal class ShootFragment :
                     layoutParams = ConstraintLayout.LayoutParams(0, unusedAreaHeight.toInt())
                     ConstraintSet().let {
                         it.clone(unusedAreaView)
-                        it.connect(
-                            id, ConstraintSet.TOP, unusedAreaView.id, ConstraintSet.TOP
-                        )
+                        it.connect(id, topSide, unusedAreaView.id, topSide)
                         it.applyTo(unusedAreaView)
                     }
                 }
@@ -384,9 +384,7 @@ internal class ShootFragment :
                     layoutParams = ConstraintLayout.LayoutParams(0, unusedAreaHeight.toInt())
                     ConstraintSet().let {
                         it.clone(unusedAreaView)
-                        it.connect(
-                            id, ConstraintSet.BOTTOM, unusedAreaView.id, ConstraintSet.BOTTOM
-                        )
+                        it.connect(id, bottomSide, unusedAreaView.id, bottomSide)
                         it.applyTo(unusedAreaView)
                     }
                 }
@@ -394,15 +392,9 @@ internal class ShootFragment :
                     layoutParams = ConstraintLayout.LayoutParams(unusedAreaWidth.toInt(), 0)
                     ConstraintSet().let {
                         it.clone(unusedAreaView)
-                        it.connect(
-                            id, ConstraintSet.START, unusedAreaView.id, ConstraintSet.START
-                        )
-                        it.connect(
-                            id, ConstraintSet.TOP, unusedAreaViewTop.id, ConstraintSet.BOTTOM
-                        )
-                        it.connect(
-                            id, ConstraintSet.BOTTOM, unusedAreaViewBottom.id, ConstraintSet.TOP
-                        )
+                        it.connect(id, startSide, unusedAreaView.id, startSide)
+                        it.connect(id, topSide, unusedAreaViewTop.id, bottomSide)
+                        it.connect(id, bottomSide, unusedAreaViewBottom.id, topSide)
                         it.applyTo(unusedAreaView)
                     }
                 }
@@ -410,15 +402,9 @@ internal class ShootFragment :
                     layoutParams = ConstraintLayout.LayoutParams(unusedAreaWidth.toInt(), 0)
                     ConstraintSet().also {
                         it.clone(unusedAreaView)
-                        it.connect(
-                            id, ConstraintSet.END, unusedAreaView.id, ConstraintSet.END
-                        )
-                        it.connect(
-                            id, ConstraintSet.TOP, unusedAreaViewTop.id, ConstraintSet.BOTTOM
-                        )
-                        it.connect(
-                            id, ConstraintSet.BOTTOM, unusedAreaViewBottom.id, ConstraintSet.TOP
-                        )
+                        it.connect(id, endSide, unusedAreaView.id, endSide)
+                        it.connect(id, topSide, unusedAreaViewTop.id, bottomSide)
+                        it.connect(id, bottomSide, unusedAreaViewBottom.id, topSide)
                         it.applyTo(unusedAreaView)
                     }
                 }
@@ -429,18 +415,10 @@ internal class ShootFragment :
                 layoutParams = ConstraintLayout.LayoutParams(1, 1)
                 ConstraintSet().also {
                     it.clone(unusedAreaView)
-                    it.connect(
-                        id, ConstraintSet.START, unusedAreaView.id, ConstraintSet.START
-                    )
-                    it.connect(
-                        id, ConstraintSet.END, unusedAreaView.id, ConstraintSet.END
-                    )
-                    it.connect(
-                        id, ConstraintSet.TOP, unusedAreaView.id, ConstraintSet.TOP
-                    )
-                    it.connect(
-                        id, ConstraintSet.BOTTOM, unusedAreaView.id, ConstraintSet.BOTTOM
-                    )
+                    it.connect(id, startSide, unusedAreaView.id, startSide)
+                    it.connect(id, endSide, unusedAreaView.id, endSide)
+                    it.connect(id, topSide, unusedAreaView.id, topSide)
+                    it.connect(id, bottomSide, unusedAreaView.id, bottomSide)
                     it.applyTo(unusedAreaView)
                 }
             }.run {
@@ -452,30 +430,21 @@ internal class ShootFragment :
                         else -> Pair(0, 2)
                     }
                     layoutParams = ConstraintLayout.LayoutParams(width, height)
-                    val constraintSet = ConstraintSet()
-                    constraintSet.clone(unusedAreaView)
-                    constraintSet.connect(
-                        id, ConstraintSet.START, unusedAreaView.id, ConstraintSet.START
-                    )
-                    constraintSet.connect(
-                        id, ConstraintSet.END, unusedAreaView.id, ConstraintSet.END
-                    )
-                    constraintSet.connect(
-                        id, ConstraintSet.TOP, unusedAreaView.id, ConstraintSet.TOP
-                    )
-                    constraintSet.connect(
-                        id, ConstraintSet.BOTTOM, unusedAreaView.id, ConstraintSet.BOTTOM
-                    )
-                    constraintSet.applyTo(unusedAreaView)
+                    ConstraintSet().also {
+                        it.clone(unusedAreaView)
+                        it.connect(id, startSide, unusedAreaView.id, startSide)
+                        it.connect(id, endSide, unusedAreaView.id, endSide)
+                        it.connect(id, topSide, unusedAreaView.id, topSide)
+                        it.connect(id, bottomSide, unusedAreaView.id, bottomSide)
+                        it.applyTo(unusedAreaView)
+                    }
                     val innerTransition = ChangeBounds()
                     innerTransition.interpolator = AccelerateDecelerateInterpolator()
                     TransitionManager.beginDelayedTransition(
                         binding.adbCameralibraryLayout, innerTransition
                     )
                 })
-                TransitionManager.beginDelayedTransition(
-                    binding.adbCameralibraryLayout, transition
-                )
+                TransitionManager.beginDelayedTransition(binding.adbCameralibraryLayout, transition)
             }
         }
     }
@@ -546,12 +515,14 @@ internal class ShootFragment :
                 }
                 else -> null
             }
+        }?.also {
+
         }
 
         // 이미지 분석.
         imageProcessor?.let { processor ->
             // Update overlay information.
-            needUpdateGraphicOverlayImageSourceInfo = true
+            var needUpdateGraphicOverlayImageSourceInfo = true
             // Image analysis.
             imageAnalyzer?.setAnalyzer(
                 ContextCompat.getMainExecutor(requireContext())
@@ -576,9 +547,7 @@ internal class ShootFragment :
                 }
 
                 try {
-                    graphicOverlay?.let {
-                        imageProcessor?.processImageProxy(imageProxy, it)
-                    }
+                    imageProcessor?.processImageProxy(imageProxy, graphicOverlay)
                 } catch (ex: MlKitException) {
                     ex.printStackTrace()
                 }
@@ -590,9 +559,8 @@ internal class ShootFragment :
                 when (viewModel.item.value.action) {
                     // 차량번호.
                     IntentKey.ACTION_DETECT_VEHICLE_NUMBER_IN_PICTURES -> {
-                        val analysisImageSize = graphicOverlay?.let {
-                            Size(it.imageWidth, it.imageHeight)
-                        } ?: Size(0, 0)
+                        val analysisImageSize =
+                            Size(graphicOverlay.imageWidth, graphicOverlay.imageHeight)
                         val scaleRect = viewModel.scaleRect(
                             detectRect,
                             analysisImageSize,
@@ -634,48 +602,42 @@ internal class ShootFragment :
     private fun playShutterSound(canMute: Boolean) {
         if (canMute) {
             // 미디어 볼륨으로 셔터효과음 재생.
-            mediaActionSound.playWithStreamVolume(
-                MediaActionSound.SHUTTER_CLICK,
-                audioManager
-            )
+            val audioManager = context?.getSystemService(Context.AUDIO_SERVICE) as? AudioManager
+            mediaActionSound.playWithStreamVolume(MediaActionSound.SHUTTER_CLICK, audioManager)
         } else {
             // 최소 볼륨으로 셔터효과음 재생.
-            mediaActionSound.playWithMinimumVolume(
-                MediaActionSound.SHUTTER_CLICK
-            )
+            mediaActionSound.playWithMinimumVolume(MediaActionSound.SHUTTER_CLICK)
         }
     }
 
     // 이미지 가져오기.
     private fun takePicture(detectText: String? = null, detectRect: RectF? = null) {
-        imageCapture?.takePicture(
-            cameraExecutor,
-            object : ImageCapture.OnImageCapturedCallback() {
-                override fun onCaptureSuccess(image: ImageProxy) {
-                    super.onCaptureSuccess(image)
-                    // Debug.
-                    Timber.i(">>>>> ImageCapture onCaptureSuccess")
+        imageCapture?.takePicture(cameraExecutor, object : ImageCapture.OnImageCapturedCallback() {
+            override fun onCaptureSuccess(image: ImageProxy) {
+                super.onCaptureSuccess(image)
+                // Debug.
+                Timber.i(">>>>> ImageCapture onCaptureSuccess")
 
-                    try {
-                        // 이미지 저장.
-                        viewModel.saveImage(
-                            image.planes[0].buffer,
-                            image.width,
-                            image.height,
-                            image.imageInfo.rotationDegrees,
-                            detectText,
-                            detectRect
-                        )
-                    } catch (ex: IOException) {
-                        ex.printStackTrace()
-                    }
+                // 이미지 저장.
+                try {
+                    viewModel.saveImage(
+                        image.planes[0].buffer,
+                        image.width,
+                        image.height,
+                        image.imageInfo.rotationDegrees,
+                        detectText,
+                        detectRect
+                    )
+                } catch (ex: IOException) {
+                    ex.printStackTrace()
                 }
+            }
 
-                override fun onError(exception: ImageCaptureException) {
-                    super.onError(exception)
-                    // Debug.
-                    Timber.e(">>>>> OnImageSavedCallback onError: ${exception.message}")
-                }
-            })
+            override fun onError(exception: ImageCaptureException) {
+                super.onError(exception)
+                // Debug.
+                Timber.e(">>>>> OnImageSavedCallback onError: ${exception.message}")
+            }
+        })
     }
 }
