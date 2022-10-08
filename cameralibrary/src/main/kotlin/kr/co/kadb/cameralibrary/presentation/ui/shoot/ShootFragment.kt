@@ -36,7 +36,6 @@ import kr.co.kadb.cameralibrary.presentation.widget.util.IntentKey
 import kr.co.kadb.cameralibrary.presentation.widget.util.MediaActionSound2
 import timber.log.Timber
 import java.io.IOException
-import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 
 /**
@@ -52,13 +51,23 @@ internal class ShootFragment :
         fun create() = ShootFragment()
     }
 
-    // MediaActionSound2.
-    private lateinit var mediaActionSound: MediaActionSound2
+    // 이미지 분석 Overlay.
+    private val detectOverlay by lazy {
+        binding.adbCameralibraryGraphicOverlay
+    }
 
-    /*// AudioManager.
+    // AudioManager.
     private val audioManager by lazy {
         context?.getSystemService(Context.AUDIO_SERVICE) as? AudioManager
-    }*/
+    }
+
+    // MediaActionSound2.
+    private val mediaActionSound = MediaActionSound2().apply {
+        load(MediaActionSound.SHUTTER_CLICK)
+    }
+
+    // Camera ExecutorService.
+    private var cameraExecutor = Executors.newSingleThreadExecutor()
 
     private var camera: Camera? = null
     private var preview: Preview? = null
@@ -67,15 +76,8 @@ internal class ShootFragment :
     private var cameraProvider: ProcessCameraProvider? = null
     private var lensFacing: Int = CameraSelector.LENS_FACING_BACK
 
-    /** Blocking camera operations are performed using this executor */
-    private lateinit var cameraExecutor: ExecutorService
-
-
     // Images vision detectors.
     private var imageProcessor: VisionImageProcessor<*>? = null
-
-    // 이미지 분석 Overlay.
-    private lateinit var graphicOverlay: GraphicOverlay
 
     // Orientation EventListener.
     private val orientationEventListener by lazy {
@@ -100,7 +102,7 @@ internal class ShootFragment :
                 // Rotation 갱신.
                 imageCapture?.targetRotation = rotation
                 //imageAnalyzer?.targetRotation = rotation
-                graphicOverlay.rotation = rotation.toFloat()
+                detectOverlay.rotation = rotation.toFloat()
             }
         }
     }
@@ -165,19 +167,10 @@ internal class ShootFragment :
 
     // Init Variable.
     override fun initVariable() {
-        // Initialize Background Executor
-        cameraExecutor = Executors.newSingleThreadExecutor()
-        // Initialize MediaActionSound
-        mediaActionSound = MediaActionSound2().apply {
-            load(MediaActionSound.SHUTTER_CLICK)
-        }
     }
 
     // Init Layout.
     override fun initLayout(view: View) {
-        // 분석 Overlay.
-        graphicOverlay = binding.adbCameralibraryGraphicOverlay
-
         // 수평선 사용 시에만 활성화.
         viewModel.item.value.hasHorizon.also {
             binding.adbCameralibraryViewHorizon.isVisible = it
@@ -453,7 +446,7 @@ internal class ShootFragment :
     private fun initCamera() {
         // Wait for the views to be properly laid out
         binding.adbCameralibraryPreviewView.post {
-            // Set up the camera and its use cases
+            // Setup for Camera UseCases.
             val cameraProviderFuture = ProcessCameraProvider.getInstance(requireContext())
             cameraProviderFuture.addListener({
                 // CameraProvider
@@ -464,7 +457,6 @@ internal class ShootFragment :
                     hasFrontCamera() -> CameraSelector.LENS_FACING_FRONT
                     else -> throw IllegalStateException("Back and front camera are unavailable")
                 }
-
                 // Build and bind the camera use cases
                 bindCameraUseCases()
             }, ContextCompat.getMainExecutor(requireContext()))
@@ -473,32 +465,24 @@ internal class ShootFragment :
 
     /** Declare and bind preview, capture and analysis use cases */
     private fun bindCameraUseCases() {
+        //
+        imageProcessor?.stop()
         // Must unbind the use-cases before rebinding them
         cameraProvider?.unbindAll()
 
-        //
-        imageProcessor?.stop()
-
-        // Preview
+        // Preview UseCase.
         preview = Preview.Builder()
             .setTargetAspectRatio(AspectRatio.RATIO_4_3)
             .setTargetRotation(binding.adbCameralibraryPreviewView.display.rotation)
             .build()
         preview?.setSurfaceProvider(binding.adbCameralibraryPreviewView.surfaceProvider)
 
-        // ImageCapture
+        // ImageCapture UseCase.
         imageCapture = ImageCapture.Builder()
             .setCaptureMode(ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY)
             .setTargetAspectRatio(AspectRatio.RATIO_4_3)
             .setTargetRotation(binding.adbCameralibraryPreviewView.display.rotation)
             .setFlashMode(viewModel.flashMode)
-            .build()
-
-        // ImageAnalysis
-        imageAnalyzer = ImageAnalysis.Builder()
-            .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
-            .setTargetAspectRatio(AspectRatio.RATIO_4_3)
-            .setTargetRotation(binding.adbCameralibraryPreviewView.display.rotation)
             .build()
 
         // Processor for detector.
@@ -515,39 +499,33 @@ internal class ShootFragment :
                 }
                 else -> null
             }
-        }?.also {
-
-        }
-
-        // 이미지 분석.
-        imageProcessor?.let { processor ->
+        }?.also { processor ->
             // Update overlay information.
             var needUpdateGraphicOverlayImageSourceInfo = true
-            // Image analysis.
-            imageAnalyzer?.setAnalyzer(
-                ContextCompat.getMainExecutor(requireContext())
-            ) { imageProxy: ImageProxy ->
+            // ImageAnalysis UseCase.
+            imageAnalyzer = ImageAnalysis.Builder()
+                .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
+                .setTargetAspectRatio(AspectRatio.RATIO_4_3)
+                .setTargetRotation(binding.adbCameralibraryPreviewView.display.rotation)
+                .build()
+            imageAnalyzer?.setAnalyzer(cameraExecutor) { imageProxy: ImageProxy ->
                 if (needUpdateGraphicOverlayImageSourceInfo) {
                     val isImageFlipped = lensFacing == CameraSelector.LENS_FACING_FRONT
                     val rotationDegrees = imageProxy.imageInfo.rotationDegrees
                     if (rotationDegrees == 0 || rotationDegrees == 180) {
-                        binding.adbCameralibraryGraphicOverlay.setImageSourceInfo(
-                            imageProxy.width,
-                            imageProxy.height,
-                            isImageFlipped
+                        detectOverlay.setImageSourceInfo(
+                            imageProxy.width, imageProxy.height, isImageFlipped
                         )
                     } else {
-                        binding.adbCameralibraryGraphicOverlay.setImageSourceInfo(
-                            imageProxy.height,
-                            imageProxy.width,
-                            isImageFlipped
+                        detectOverlay.setImageSourceInfo(
+                            imageProxy.height, imageProxy.width, isImageFlipped
                         )
                     }
                     needUpdateGraphicOverlayImageSourceInfo = false
                 }
 
                 try {
-                    imageProcessor?.processImageProxy(imageProxy, graphicOverlay)
+                    imageProcessor?.processImageProxy(imageProxy, detectOverlay)
                 } catch (ex: MlKitException) {
                     ex.printStackTrace()
                 }
@@ -559,32 +537,33 @@ internal class ShootFragment :
                 when (viewModel.item.value.action) {
                     // 차량번호.
                     IntentKey.ACTION_DETECT_VEHICLE_NUMBER_IN_PICTURES -> {
-                        val analysisImageSize =
-                            Size(graphicOverlay.imageWidth, graphicOverlay.imageHeight)
+                        val analysisSize =
+                            Size(detectOverlay.imageWidth, detectOverlay.imageHeight)
                         val scaleRect = viewModel.scaleRect(
                             detectRect,
-                            analysisImageSize,
+                            analysisSize,
                             imageCapture?.resolutionInfo?.resolution ?: Size(0, 0)
                         )
-                        takePicture(detectText as String, scaleRect)
+                        takePicture(detectText, scaleRect)
                     }
                     // 그 외.
                     else -> {
-                        viewModel.detectInImage(detectText as String, detectRect)
+                        viewModel.detectInImage(detectText, detectRect)
                     }
                 }
             }
         }
 
-        try {
-            // Bind UseCase to Lifecycle.
-            camera = CameraSelector.Builder().requireLensFacing(lensFacing).build().let {
-                cameraProvider?.bindToLifecycle(
-                    this, it, preview, imageCapture, imageAnalyzer
-                )
-            }
-        } catch (ex: Exception) {
-            ex.printStackTrace()
+        // Bind UseCase to Lifecycle.
+        val cameraSelector = CameraSelector.Builder().requireLensFacing(lensFacing).build()
+        camera = if (imageAnalyzer == null) {
+            cameraProvider?.bindToLifecycle(
+                this, cameraSelector, preview, imageCapture
+            )
+        } else {
+            cameraProvider?.bindToLifecycle(
+                this, cameraSelector, preview, imageCapture, imageAnalyzer
+            )
         }
     }
 
@@ -601,8 +580,7 @@ internal class ShootFragment :
     // 셔터음.
     private fun playShutterSound(canMute: Boolean) {
         if (canMute) {
-            // 미디어 볼륨으로 셔터효과음 재생.
-            val audioManager = context?.getSystemService(Context.AUDIO_SERVICE) as? AudioManager
+            // 미디어 볼륨으로 셔터효과음 재생(무음 가능).
             mediaActionSound.playWithStreamVolume(MediaActionSound.SHUTTER_CLICK, audioManager)
         } else {
             // 최소 볼륨으로 셔터효과음 재생.

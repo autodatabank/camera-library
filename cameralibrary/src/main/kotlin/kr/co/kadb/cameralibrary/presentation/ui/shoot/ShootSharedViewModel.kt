@@ -225,7 +225,6 @@ constructor(
     }
 
     // 이미지 저장.
-    @SuppressLint("RestrictedApi")
     fun saveImage(
         byteBuffer: ByteBuffer,
         width: Int,
@@ -237,10 +236,8 @@ constructor(
         // 셔터음 이벤트.
         event(Event.PlayShutterSound(item.value.canMute))
 
-        // Rewind to make sure it is at the beginning of the buffer
-        byteBuffer.rewind()
-
         // Image Buffer
+        byteBuffer.rewind()
         val byteArray = ByteArray(byteBuffer.capacity()).also {
             byteBuffer.get(it)
         }
@@ -351,39 +348,30 @@ constructor(
         }
     }
 
+    // ImageSize에 맞게 조정 된 Detect Rect 반환.
     fun scaleRect(detectRect: RectF, analysisImageSize: Size, imageSize: Size): RectF {
         val maxImageWidth = max(imageSize.width, imageSize.height).toFloat()
         val maxAnalysisImageWidth = max(analysisImageSize.width, analysisImageSize.height).toFloat()
         val ratio = maxImageWidth.div(maxAnalysisImageWidth)
-
-        // Debug.
-        Timber.i(">>>>> ${javaClass.simpleName} > detectRect : $detectRect")
-        Timber.i(">>>>> ${javaClass.simpleName} > imageSize : $imageSize")
-        Timber.i(">>>>> ${javaClass.simpleName} > analysisImageSize : $analysisImageSize")
-        Timber.i(">>>>> ${javaClass.simpleName} > maxImageWidth : $maxImageWidth, maxAnalysisImageWidth : $maxAnalysisImageWidth")
-        Timber.i(">>>>> ${javaClass.simpleName} > ratio : $ratio")
-
-        return detectRect.let { rect ->
-            val addition = 250.0f
-            val scaleRect = RectF(
-                rect.left * ratio - addition,
-                rect.top * ratio - addition,
-                rect.right * ratio + addition,
-                rect.bottom * ratio + addition
-            )
-            val left = if (scaleRect.left < 0) 0.0f else scaleRect.left
-            val top = if (scaleRect.top < 0) 0.0f else scaleRect.top
-            val right = if (left + scaleRect.width() > imageSize.width) {
-                imageSize.width.toFloat()
-            } else {
-                scaleRect.right
-            }
-            val bottom = if (top + scaleRect.height() > imageSize.height) {
-                imageSize.height.toFloat()
-            } else {
-                scaleRect.bottom
-            }
-            RectF(left, top, right, bottom)
+        val addition = 250.0f
+        val scaleRect = RectF(
+            detectRect.left * ratio - addition,
+            detectRect.top * ratio - addition,
+            detectRect.right * ratio + addition,
+            detectRect.bottom * ratio + addition
+        )
+        val left = if (scaleRect.left < 0) 0.0f else scaleRect.left
+        val top = if (scaleRect.top < 0) 0.0f else scaleRect.top
+        val right = if (left + scaleRect.width() > imageSize.width) {
+            imageSize.width.toFloat()
+        } else {
+            scaleRect.right
         }
+        val bottom = if (top + scaleRect.height() > imageSize.height) {
+            imageSize.height.toFloat()
+        } else {
+            scaleRect.bottom
+        }
+        return RectF(left, top, right, bottom)
     }
 }
