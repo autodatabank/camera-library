@@ -31,6 +31,9 @@ class MileageRecognitionProcessor(
     context: Context,
     textRecognizerOptions: TextRecognizerOptionsInterface
 ) : VisionProcessorBase<Text, String>(context) {
+    // 주행거리 정규식(0~9 4자리에서 6자리).
+    private val regex = Regex("[0-9]{3,6}")
+
     // Detected Items.
     private val detectedItems = mutableListOf<DetectedItem>()
 
@@ -64,20 +67,10 @@ class MileageRecognitionProcessor(
                 // Debug.
                 //Timber.i(">>>>> ${javaClass.simpleName} > LINE > ${line.text}")
                 line.elements.forEach { element ->
-                    // 주행거리 정규식(0~9 4자리에서 6자리).
-                    val regex = Regex("[0-9]{3,6}")
+                    // Find & Add(가장 큰 값 취합).
                     val matchResult = regex.find(element.text)
                     val mileage = matchResult?.value?.toIntOrNull() ?: 0
-
-                    // found.
                     if (/*element.confidence >= 0.7f && */mileage > 1000 && mileage > drawMileage) {
-                        // Debug.
-                        Timber.d(
-                            ">>>>> ${javaClass.simpleName} > ELEMENT > " +
-                                    "[$mileage] => ${element.text} : ${element.confidence}"
-                        )
-
-                        // 가장 큰 값 취합.
                         drawMileage = mileage
                         drawRectf = RectF(element.boundingBox)
                     }
@@ -87,9 +80,6 @@ class MileageRecognitionProcessor(
 
         // Draw & Result invoke.
         if (drawMileage > 0) {
-            // Debug.
-            Timber.i(">>>>> ${javaClass.simpleName} > DRAW > $drawMileage : $drawRectf")
-
             // Add & Draw.
             DetectedItem(drawMileage.toString(), drawRectf).also {
                 // Add.
@@ -113,6 +103,9 @@ class MileageRecognitionProcessor(
                     onSuccess?.invoke(drawMileage.toString(), drawRectf)
                 }
             }
+
+            // Debug.
+            Timber.i(">>>>> ${javaClass.simpleName} > DRAW > $drawMileage : $drawRectf")
         }
     }
 

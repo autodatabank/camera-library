@@ -35,19 +35,7 @@ class VehicleNumberRecognitionProcessor(
     context: Context,
     textRecognizerOptions: TextRecognizerOptionsInterface
 ) : VisionProcessorBase<Text, String>(context) {
-    // Detected Items.
-    private val detectedItems = mutableListOf<DetectedItem>()
-
-    // Success.
-    private var onSuccess: ((String, RectF) -> Unit)? = null
-
-    // Failure
-    private var onFailure: ((Exception) -> Unit)? = null
-
-    // Recognizer.
-    private val textRecognizer: TextRecognizer = TextRecognition.getClient(textRecognizerOptions)
-
-    // 차량번호 정규식(테스트).
+    // 차량번호 정규식.
     // 지역별: 서울 부산 대구 인천 광주 대전 울산 세종 경기 강원 충북 충남 전북 전남 경북 경남 제주
     // 자가용: 가나다라마 거너더러머버서어저 고노도로모보소오조 구누두루무부수우주
     // 사업용: 바사아자
@@ -70,8 +58,6 @@ class VehicleNumberRecognitionProcessor(
                 "(외교\s?[0-9]{3}-[0-9]{3})|" + // 외교용.
                 "([0-9]{2}\\(([육공해국합])\\)[0-9]{4})" // 군사용.
     )*/
-
-    // Find & Add
     // 인식률이 떨어져 간단한 정규식으로 처리.
     private val regex = Regex(
         //"([0-9]{2,3}\\s?" +
@@ -81,6 +67,18 @@ class VehicleNumberRecognitionProcessor(
                 "(외교\\s?[0-9]{3}-[0-9]{3})|" + // 외교용.
                 "([0-9]{2}\\(([육공해국합])\\)[0-9]{4})" // 군사용.
     )
+
+    // Detected Items.
+    private val detectedItems = mutableListOf<DetectedItem>()
+
+    // Success.
+    private var onSuccess: ((String, RectF) -> Unit)? = null
+
+    // Failure
+    private var onFailure: ((Exception) -> Unit)? = null
+
+    // Recognizer.
+    private val textRecognizer: TextRecognizer = TextRecognition.getClient(textRecognizerOptions)
 
     override fun stop() {
         super.stop()
@@ -104,18 +102,14 @@ class VehicleNumberRecognitionProcessor(
 
         // 정규화.
         results.textBlocks.forEach { textBlock ->
-            // Debug.
-            //Timber.i(">>>>> ${javaClass.simpleName} > TEXT_BLOCK[$index] > ${textBlock.text}")
-            textBlock.lines.forEachIndexed { index, line ->
-                // Debug.
-                //Timber.i(">>>>> ${javaClass.simpleName} > TEXT_LINE[$index] > $latelyText + ${line.text}")
-
-                // Find & Add.
+            textBlock.lines.forEach { line ->
+                // 1차 Find & Add.
                 regex.find(latelyText + line.text)?.let { matchResult ->
                     createDrawItems(matchResult, latelyRect, line.boundingBox, imageSize).also {
                         drawItems.addAll(it)
                     }
                 }
+                // 2차 Find & Add.
                 if (latelyText.isNotEmpty() && line.text.isNotEmpty()) {
                     regex.find(line.text + latelyText)?.let { matchResult ->
                         createDrawItems(matchResult, latelyRect, line.boundingBox, imageSize).also {
@@ -183,10 +177,10 @@ class VehicleNumberRecognitionProcessor(
         // Add.
         var matchRect = if (latelyRect != null) {
             Rect(
-                min(latelyRect?.left ?: 0, boundingBox?.left ?: 0),
-                min(latelyRect?.top ?: 0, boundingBox?.top ?: 0),
-                max(latelyRect?.right ?: 0, boundingBox?.right ?: 0),
-                max(latelyRect?.bottom ?: 0, boundingBox?.bottom ?: 0)
+                min(latelyRect.left, boundingBox?.left ?: 0),
+                min(latelyRect.top, boundingBox?.top ?: 0),
+                max(latelyRect.right, boundingBox?.right ?: 0),
+                max(latelyRect.bottom, boundingBox?.bottom ?: 0)
             )
         } else {
             Rect(
@@ -212,7 +206,7 @@ class VehicleNumberRecognitionProcessor(
         drawItems.add(DetectedItem(matchResult.value, RectF(matchRect)))
 
         // Debug.
-        Timber.i(">>>>> ${javaClass.simpleName} > REGEX > ${matchResult.value}")
+        Timber.i(">>>>> ${javaClass.simpleName} > DRAW > ${matchResult.value}")
 
         return drawItems
     }

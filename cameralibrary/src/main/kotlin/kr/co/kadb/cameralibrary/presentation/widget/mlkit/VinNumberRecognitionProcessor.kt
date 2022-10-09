@@ -31,6 +31,9 @@ class VinNumberRecognitionProcessor(
     context: Context,
     textRecognizerOptions: TextRecognizerOptionsInterface
 ) : VisionProcessorBase<Text, String>(context) {
+    // 차대번호 정규식(A~Z, 0~9 혼합 17자리).
+    private val regex = Regex("[A-Z0-9]{17}")
+
     // Detected Items.
     private val detectedItems = mutableListOf<DetectedItem>()
 
@@ -64,12 +67,8 @@ class VinNumberRecognitionProcessor(
                 //Timber.i(">>>>> ${javaClass.simpleName} > LINE > ${line.text}")
 
                 // Find & Add
-                // 차대번호 정규식(A~Z, 0~9 혼합 17자리).
-                Regex("[A-Z0-9]{17}").find(line.text)?.let { matchResult ->
+                regex.find(line.text)?.let { matchResult ->
                     drawItems.add(DetectedItem(matchResult.value, RectF(line.boundingBox)))
-
-                    // Debug.
-                    Timber.i(">>>>> ${javaClass.simpleName} > REGEX > ${matchResult.value}")
                 }
             }
         }
@@ -92,6 +91,8 @@ class VinNumberRecognitionProcessor(
                     drawItems.find { it.text == sortedItems[0].first }?.also {
                         onSuccess?.invoke(it.text, it.rect)
                     }
+                    // Debug.
+                    Timber.i(">>>>> ${javaClass.simpleName} > DRAW > ${sortedItems[0]}")
                 } else if (sortedItems.size > 1 &&
                     sortedItems[0].second > 5 &&
                     (sortedItems[0].second * 0.75f) > sortedItems[1].second
@@ -100,6 +101,9 @@ class VinNumberRecognitionProcessor(
                         onSuccess?.invoke(it.text, it.rect)
                     }
                 }
+
+                // Debug.
+                Timber.i(">>>>> ${javaClass.simpleName} > DRAW > $sortedItems")
             }
         }
     }
