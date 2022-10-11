@@ -10,7 +10,7 @@ data class CropSize constructor(
     var height: Float
 ) : Serializable {
     // 빈 값 비교.
-    val isEmpty = width == 0.0f && height == 0.0f
+    val isEmpty = width == 0.0f || height == 0.0f
 
     // 빈 값 비교.
     val isNotEmpty = width > 0.0f && height > 0.0f

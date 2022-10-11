@@ -1,6 +1,5 @@
 package kr.co.kadb.cameralibrary.presentation.ui.shoot
 
-import android.annotation.SuppressLint
 import android.app.Application
 import android.graphics.Bitmap
 import android.graphics.RectF
@@ -19,9 +18,9 @@ import kr.co.kadb.cameralibrary.presentation.model.UiState
 import kr.co.kadb.cameralibrary.presentation.viewmodel.BaseAndroidViewModel
 import kr.co.kadb.cameralibrary.presentation.widget.extension.*
 import kr.co.kadb.cameralibrary.presentation.widget.util.IntentKey.ACTION_DETECT_MILEAGE_IN_PICTURES
-import kr.co.kadb.cameralibrary.presentation.widget.util.IntentKey.ACTION_TAKE_MULTIPLE_PICTURES
 import kr.co.kadb.cameralibrary.presentation.widget.util.IntentKey.ACTION_DETECT_VEHICLE_NUMBER_IN_PICTURES
 import kr.co.kadb.cameralibrary.presentation.widget.util.IntentKey.ACTION_DETECT_VIN_NUMBER_IN_PICTURES
+import kr.co.kadb.cameralibrary.presentation.widget.util.IntentKey.ACTION_TAKE_MULTIPLE_PICTURES
 import timber.log.Timber
 import java.io.ByteArrayInputStream
 import java.io.IOException
@@ -36,7 +35,7 @@ import kotlin.math.max
 internal class ShootSharedViewModel
 constructor(
     application: Application,
-    @Suppress("UNUSED_PARAMETER") preferences: PreferenceManager
+    private val preferences: PreferenceManager
 ) : BaseAndroidViewModel<ShootUiState>(application, UiState.loading()) {
     // Event.
     sealed class Event {
@@ -79,13 +78,9 @@ constructor(
 
     // 카메라 플래쉬 모드.
     var flashMode: Int = ImageCapture.FLASH_MODE_OFF
-        get() = PreferenceManager.getInstance(
-            getApplication<Application>().applicationContext
-        ).flashMode
+        get() = preferences.flashMode
         set(value) {
-            PreferenceManager.getInstance(
-                getApplication<Application>().applicationContext
-            ).flashMode = value
+            preferences.flashMode = value
             field = value
         }
 
@@ -120,21 +115,39 @@ constructor(
         @IntRange(from = 1, to = 100)
         croppedJpegQuality: Int
     ) {
+        val isUsingMLKit = action == ACTION_DETECT_VEHICLE_NUMBER_IN_PICTURES
+                || action == ACTION_DETECT_MILEAGE_IN_PICTURES
+                || action == ACTION_DETECT_VIN_NUMBER_IN_PICTURES
+        val isMultiplePicture = action == ACTION_TAKE_MULTIPLE_PICTURES
+        val isMileagePicture = action == ACTION_DETECT_MILEAGE_IN_PICTURES
+        val isVinNumberPicture = action == ACTION_DETECT_VIN_NUMBER_IN_PICTURES
+        val isVehicleNumberPicture = action == ACTION_DETECT_VEHICLE_NUMBER_IN_PICTURES
+        val canSaveCroppedImage = if (isUsingMLKit) {
+            false
+        } else {
+            isSaveCroppedImage && cropSize?.isNotEmpty == true
+        }
+        val imageCropSize: CropSize = if (isUsingMLKit) {
+            CropSize.Uninitialized
+        } else {
+            cropSize ?: CropSize.Uninitialized
+        }
+
         // Update.
         state.value.value?.copy(
             action = action,
             isDebug = isDebug,
             isShooted = false,
-            isMultiplePicture = action == ACTION_TAKE_MULTIPLE_PICTURES,
-            isUsingMLKit = action == ACTION_DETECT_VEHICLE_NUMBER_IN_PICTURES || action == ACTION_DETECT_MILEAGE_IN_PICTURES || action == ACTION_DETECT_VIN_NUMBER_IN_PICTURES,
-            isVehicleNumberPicture = action == ACTION_DETECT_VEHICLE_NUMBER_IN_PICTURES,
-            isMileagePicture = action == ACTION_DETECT_MILEAGE_IN_PICTURES,
-            isVinNumberPicture = action == ACTION_DETECT_VIN_NUMBER_IN_PICTURES,
+            isMultiplePicture = isMultiplePicture,
+            isUsingMLKit = isUsingMLKit,
+            isVehicleNumberPicture = isVehicleNumberPicture,
+            isMileagePicture = isMileagePicture,
+            isVinNumberPicture = isVinNumberPicture,
             canMute = canMute,
             hasHorizon = hasHorizon,
             canUiRotation = canUiRotation,
-            isSaveCroppedImage = isSaveCroppedImage,
-            cropSize = cropSize ?: CropSize.Uninitialized,
+            isSaveCroppedImage = canSaveCroppedImage,
+            cropSize = imageCropSize,
             uris = arrayListOf(),
             sizes = arrayListOf(),
             rotations = arrayListOf(),
@@ -145,16 +158,16 @@ constructor(
             action = action,
             isDebug = isDebug,
             isShooted = false,
-            isMultiplePicture = action == ACTION_TAKE_MULTIPLE_PICTURES,
-            isUsingMLKit = action == ACTION_DETECT_VEHICLE_NUMBER_IN_PICTURES || action == ACTION_DETECT_MILEAGE_IN_PICTURES || action == ACTION_DETECT_VIN_NUMBER_IN_PICTURES,
-            isVehicleNumberPicture = action == ACTION_DETECT_VEHICLE_NUMBER_IN_PICTURES,
-            isMileagePicture = action == ACTION_DETECT_MILEAGE_IN_PICTURES,
-            isVinNumberPicture = action == ACTION_DETECT_VIN_NUMBER_IN_PICTURES,
+            isMultiplePicture = isMultiplePicture,
+            isUsingMLKit = isUsingMLKit,
+            isVehicleNumberPicture = isVehicleNumberPicture,
+            isMileagePicture = isMileagePicture,
+            isVinNumberPicture = isVinNumberPicture,
             canMute = canMute,
             hasHorizon = hasHorizon,
             canUiRotation = canUiRotation,
-            isSaveCroppedImage = isSaveCroppedImage,
-            cropSize = cropSize ?: CropSize.Uninitialized,
+            isSaveCroppedImage = canSaveCroppedImage,
+            cropSize = imageCropSize,
             uris = arrayListOf(),
             sizes = arrayListOf(),
             rotations = arrayListOf(),
@@ -168,11 +181,11 @@ constructor(
             updateState(isLoading = false, value = this)
         }
     }
-
-    // Horizon, UnusedAreaBorder 색상.
-    fun horizonAndUnusedAreaBorderColor(): Pair<Int, Int> {
-        return Pair(item.value.horizonColor, item.value.unusedAreaBorderColor)
-    }
+//
+//    // Horizon, UnusedAreaBorder 색상.
+//    fun horizonAndUnusedAreaBorderColor(): Pair<Int, Int> {
+//        return Pair(item.value.horizonColor, item.value.unusedAreaBorderColor)
+//    }
 
     // 사용하지 않는 영역 크기.
     fun unusedAreaSize(rotation: Int, width: Int, height: Int): Pair<Float, Float> {
@@ -250,11 +263,9 @@ constructor(
                 item.value.croppedJpegQuality
             ) { imagePath, imageUri, imageSize ->
                 // 이미지 사이즈.
-                val size = if (imageSize == null) {
-                    Size(width, height)
-                } else {
-                    Size(imageSize.width, imageSize.height)
-                }
+                val size = imageSize?.let {
+                    Size(it.width, it.height)
+                } ?: Size(width, height)
 
                 // 상태 업데이트.
                 updateState { value ->

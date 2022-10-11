@@ -1,6 +1,7 @@
 package kr.co.kadb.camera
 
 import android.content.Intent
+import android.graphics.Color
 import android.graphics.RectF
 import android.os.Bundle
 import android.widget.Button
@@ -150,13 +151,13 @@ class MainActivity : AppCompatActivity() {
             // Example 3.
             CameraIntent.Build(this).apply {
                 setAction(IntentKey.ACTION_TAKE_PICTURE)
-                //setCanMute(false)
+                setCanMute(false)
                 setHasHorizon(true)
                 setCropSize(cropSize)
                 setCanUiRotation(true)
-                //setHorizonColor(Color.RED)
-                //setUnusedAreaBorderColor(Color.GREEN)
-                //setCroppedJpegQuality(95)
+                setHorizonColor(Color.RED)
+                setUnusedAreaBorderColor(Color.GREEN)
+                setCroppedJpegQuality(95)
             }.run {
                 resultLauncher.launch(this.build())
             }
@@ -166,13 +167,13 @@ class MainActivity : AppCompatActivity() {
         findViewById<Button>(R.id.button_multiple_shoot).setOnClickListener {
             CameraIntent.Build(this).apply {
                 setAction(IntentKey.ACTION_TAKE_MULTIPLE_PICTURES)
-                //setCanMute(false)
+                setCanMute(false)
                 setHasHorizon(true)
                 setCropSize(cropSize)
                 setCanUiRotation(true)
-                //setHorizonColor(Color.RED)
-                //setUnusedAreaBorderColor(Color.GREEN)
-                //setCroppedJpegQuality(95)
+                setHorizonColor(Color.RED)
+                setUnusedAreaBorderColor(Color.GREEN)
+                setCroppedJpegQuality(95)
             }.run {
                 resultLauncher.launch(this.build())
             }
@@ -182,13 +183,10 @@ class MainActivity : AppCompatActivity() {
         findViewById<Button>(R.id.button_vehicle_number_shoot).setOnClickListener {
             CameraIntent.Build(this).apply {
                 setAction(IntentKey.ACTION_DETECT_VEHICLE_NUMBER_IN_PICTURES)
-                //setCanMute(false)
+                setCanMute(false)
                 setHasHorizon(true)
-                //setCropSize(cropSize)
                 setCanUiRotation(true)
-                //setHorizonColor(Color.RED)
-                //setUnusedAreaBorderColor(Color.GREEN)
-                //setCroppedJpegQuality(95)
+                setHorizonColor(Color.RED)
             }.run {
                 resultLauncher.launch(this.build())
             }
@@ -198,13 +196,10 @@ class MainActivity : AppCompatActivity() {
         findViewById<Button>(R.id.button_mileage_shoot).setOnClickListener {
             CameraIntent.Build(this).apply {
                 setAction(IntentKey.ACTION_DETECT_MILEAGE_IN_PICTURES)
-                //setCanMute(false)
-                //setHasHorizon(true)
-                //setCropSize(cropSize)
+                setCanMute(false)
+                setHasHorizon(true)
                 setCanUiRotation(true)
-                //setHorizonColor(Color.RED)
-                //setUnusedAreaBorderColor(Color.GREEN)
-                //setCroppedJpegQuality(95)
+                setHorizonColor(Color.RED)
             }.run {
                 resultLauncher.launch(this.build())
             }
@@ -214,13 +209,10 @@ class MainActivity : AppCompatActivity() {
         findViewById<Button>(R.id.button_vin_number_shoot).setOnClickListener {
             CameraIntent.Build(this).apply {
                 setAction(IntentKey.ACTION_DETECT_VIN_NUMBER_IN_PICTURES)
-                //setCanMute(false)
-                //setHasHorizon(true)
-                //setCropSize(cropSize)
+                setCanMute(false)
+                setHasHorizon(true)
                 setCanUiRotation(true)
-                //setHorizonColor(Color.RED)
-                //setUnusedAreaBorderColor(Color.GREEN)
-                //setCroppedJpegQuality(95)
+                setHorizonColor(Color.RED)
             }.run {
                 resultLauncher.launch(this.build())
             }

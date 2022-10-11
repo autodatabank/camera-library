@@ -176,6 +176,11 @@ internal class ShootFragment :
             binding.adbCameralibraryViewHorizon.isVisible = it
         }
 
+        // 수평선 Color 설정.
+        viewModel.item.value.horizonColor.also { color ->
+            binding.adbCameralibraryViewHorizon.setBackgroundColor(color)
+        }
+
         // 여러장 촬영 상태에서만 촬영완료 버튼 활성화.
         viewModel.item.value.isMultiplePicture.also {
             binding.adbCameralibraryLayoutFinish.isVisible = it
@@ -324,7 +329,7 @@ internal class ShootFragment :
 
     // Init unused area layout.
     private fun initUnusedAreaLayout() {
-        // 크롭 사용 시 Layout 및 Horizon 활성.
+        // 크롭 사용 유무에 따라 UnusedAreaLayout 활성 상태 변경.
         viewModel.item.value.cropSize.isNotEmpty.also {
             binding.adbCameralibraryViewUnusedAreaBorderTop.isVisible = it
             binding.adbCameralibraryViewUnusedAreaBorderEnd.isVisible = it
@@ -332,14 +337,12 @@ internal class ShootFragment :
             binding.adbCameralibraryViewUnusedAreaBorderBottom.isVisible = it
         }
 
-        // 수평선, 크롭 사용 시 Layout Border 및 Color 설정.
-        val (horizonColor, unusedAreaBorderColor) = viewModel.horizonAndUnusedAreaBorderColor()
-        binding.apply {
-            adbCameralibraryViewHorizon.setBackgroundColor(horizonColor)
-            adbCameralibraryViewUnusedAreaBorderTop.setBackgroundColor(unusedAreaBorderColor)
-            adbCameralibraryViewUnusedAreaBorderEnd.setBackgroundColor(unusedAreaBorderColor)
-            adbCameralibraryViewUnusedAreaBorderStart.setBackgroundColor(unusedAreaBorderColor)
-            adbCameralibraryViewUnusedAreaBorderBottom.setBackgroundColor(unusedAreaBorderColor)
+        // 크롭 사용 시 Layout Border Color 설정.
+        viewModel.item.value.unusedAreaBorderColor.also { color ->
+            binding.adbCameralibraryViewUnusedAreaBorderTop.setBackgroundColor(color)
+            binding.adbCameralibraryViewUnusedAreaBorderEnd.setBackgroundColor(color)
+            binding.adbCameralibraryViewUnusedAreaBorderStart.setBackgroundColor(color)
+            binding.adbCameralibraryViewUnusedAreaBorderBottom.setBackgroundColor(color)
         }
 
         // 크롭크기로 영역 지정.
