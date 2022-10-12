@@ -22,7 +22,6 @@ class CameraIntent {
         canMute: Boolean? = null,
         hasHorizon: Boolean? = null,
         canUiRotation: Boolean? = null,
-        isSaveCroppedImage: Boolean? = null,
         cropPercent: Array<Float>? = null,
         horizonColor: Array<Float>? = null,
         unusedAreaBorderColor: Array<Float>? = null,
@@ -40,9 +39,6 @@ class CameraIntent {
             canUiRotation?.let {
                 intent.putExtra(IntentKey.EXTRA_CAN_UI_ROTATION, it)
             }
-            /*isSaveCroppedImage?.let {
-                intent.putExtra(IntentKey.EXTRA_IS_SAVE_CROPPED_IMAGE, it)
-            }*/
             if (cropPercent != null && cropPercent.size >= 2) {
                 intent.putExtra(IntentKey.EXTRA_CROP_SIZE, CropSize(cropPercent[0], cropPercent[1]))
             }
@@ -66,7 +62,6 @@ class CameraIntent {
         canMute: Boolean? = null,
         hasHorizon: Boolean? = null,
         canUiRotation: Boolean? = null,
-        isSaveCroppedImage: Boolean? = null,
         cropPercent: Array<Float>? = null,
         horizonColor: Array<Float>? = null,
         unusedAreaBorderColor: Array<Float>? = null,
@@ -84,9 +79,6 @@ class CameraIntent {
             canUiRotation?.let {
                 intent.putExtra(IntentKey.EXTRA_CAN_UI_ROTATION, it)
             }
-            /*isSaveCroppedImage?.let {
-                intent.putExtra(IntentKey.EXTRA_IS_SAVE_CROPPED_IMAGE, it)
-            }*/
             if (cropPercent != null && cropPercent.size >= 2) {
                 intent.putExtra(IntentKey.EXTRA_CROP_SIZE, CropSize(cropPercent[0], cropPercent[1]))
             }
