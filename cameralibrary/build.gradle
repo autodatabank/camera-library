@@ -6,6 +6,7 @@ plugins {
 }
 
 group = 'com.github.autodatabank'
+version = '1.1.0'
 
 android {
     compileSdk 31
@@ -29,7 +30,7 @@ android {
     }
 
     kotlinOptions {
-        jvmTarget = '1.8'
+        jvmTarget = JavaVersion.VERSION_11
     }
 
     sourceSets {
@@ -102,12 +103,12 @@ dependencies {
     implementation "androidx.camera:camera-view:$camerax_version"
 
     // ML Kit.
-    implementation 'com.google.mlkit:text-recognition:16.0.0-beta6'
+    //implementation 'com.google.mlkit:text-recognition:16.0.0-beta6'
     implementation 'com.google.mlkit:text-recognition-korean:16.0.0-beta6'
-    implementation 'com.google.mlkit:entity-extraction:16.0.0-beta4'
+    //implementation 'com.google.mlkit:entity-extraction:16.0.0-beta4'
 
     // On Device Machine Learnings
-    implementation "com.google.android.odml:image:1.0.0-beta1"
+    //implementation "com.google.android.odml:image:1.0.0-beta1"
 
     // ACC.
     implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.5.1'
@@ -124,29 +125,14 @@ dependencies {
     implementation 'com.jakewharton.timber:timber:5.0.1'
 }
 
-// Because the components are created only during the afterEvaluate phase, you must
-// configure your publications using the afterEvaluate() lifecycle method.
 afterEvaluate {
     publishing {
         publications {
-            // Creates a Maven publication called "release".
             release(MavenPublication) {
-                // Applies the component for the release build variant.
                 from components.release
-
-                // You can then customize attributes of the publication as shown below.
                 groupId = 'com.github.autodatabank'
                 artifactId = 'camera-library'
-                version = android.defaultConfig.versionName
-            }
-            // Creates a Maven publication called “debug”.
-            debug(MavenPublication) {
-                // Applies the component for the debug build variant.
-                from components.debug
-
-                groupId = 'com.github.autodatabank'
-                artifactId = 'camera-library'
-                version = android.defaultConfig.versionName
+                version = '1.1.0'//version = android.defaultConfig.versionName
             }
         }
     }
