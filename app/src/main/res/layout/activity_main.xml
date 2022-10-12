@@ -72,6 +72,7 @@
         android:layout_height="64dp"
         android:text="TEST"
         android:textSize="18sp"
+        android:visibility="gone"
         app:layout_constraintBottom_toTopOf="@+id/button_one_shoot"
         app:layout_constraintEnd_toStartOf="@+id/button_mileage_shoot"
         app:layout_constraintStart_toStartOf="parent"
