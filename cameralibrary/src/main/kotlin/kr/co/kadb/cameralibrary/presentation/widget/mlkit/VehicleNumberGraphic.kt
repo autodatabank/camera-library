@@ -65,16 +65,16 @@ class VehicleNumberGraphic constructor(
         rect.top = translateY(rect.top)
         rect.bottom = translateY(rect.bottom)
         canvas.drawRect(rect, rectPaint)
-//        val textWidth = numberPaint.measureText(text)
-//        canvas.drawRect(
-//            rect.left - STROKE_WIDTH,
-//            rect.top - TEXT_HEIGHT,
-//            rect.left + textWidth + 2 * STROKE_WIDTH,
-//            rect.top,
-//            labelPaint
-//        )
-//        // Renders the text at the bottom of the box.
-//        canvas.drawText(text, rect.left, rect.top - STROKE_WIDTH, numberPaint)
+        /*val textWidth = numberPaint.measureText(text)
+        canvas.drawRect(
+            rect.left - STROKE_WIDTH,
+            rect.top - TEXT_HEIGHT,
+            rect.left + textWidth + 2 * STROKE_WIDTH,
+            rect.top,
+            labelPaint
+        )
+        // Renders the text at the bottom of the box.
+        canvas.drawText(text, rect.left, rect.top - STROKE_WIDTH, numberPaint)*/
     }
 
     companion object {

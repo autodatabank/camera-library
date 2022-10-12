@@ -53,11 +53,11 @@ class VinNumberGraphic constructor(
     /** Draws the text block annotations for position, size, and raw value on the supplied canvas. */
     override fun draw(canvas: Canvas) {
         drawItems?.forEach { item ->
-            drawText(item.text, item.rect, canvas)
+            drawText(/*item.text, */item.rect, canvas)
         }
     }
 
-    private fun drawText(text: String, rect: RectF, canvas: Canvas) {
+    private fun drawText(/*text: String, */rect: RectF, canvas: Canvas) {
         val x0 = translateX(rect.left)
         val x1 = translateX(rect.right)
         rect.left = min(x0, x1)
@@ -65,7 +65,7 @@ class VinNumberGraphic constructor(
         rect.top = translateY(rect.top)
         rect.bottom = translateY(rect.bottom)
         canvas.drawRect(rect, rectPaint)
-        val textWidth = numberPaint.measureText(text)
+        /*val textWidth = numberPaint.measureText(text)
         canvas.drawRect(
             rect.left - STROKE_WIDTH,
             rect.top - TEXT_HEIGHT,
@@ -74,7 +74,7 @@ class VinNumberGraphic constructor(
             labelPaint
         )
         // Renders the text at the bottom of the box.
-        canvas.drawText(text, rect.left, rect.top - STROKE_WIDTH, numberPaint)
+        canvas.drawText(text, rect.left, rect.top - STROKE_WIDTH, numberPaint)*/
     }
 
     companion object {
@@ -82,6 +82,6 @@ class VinNumberGraphic constructor(
         private const val MARKER_COLOR = Color.YELLOW
         private const val STROKE_WIDTH = 4.0f
         private const val TEXT_SIZE = 54.0f
-        private const val TEXT_HEIGHT = TEXT_SIZE + 2 * STROKE_WIDTH
+        //private const val TEXT_HEIGHT = TEXT_SIZE + 2 * STROKE_WIDTH
     }
 }
