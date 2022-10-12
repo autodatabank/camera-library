@@ -3,8 +3,6 @@ package kr.co.kadb.cameralibrary.data.local
 import android.content.Context
 import android.content.SharedPreferences
 
-//import javax.inject.Inject
-
 internal class PreferenceManager
 constructor(context: Context) {
     private val preferences: SharedPreferences =
