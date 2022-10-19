@@ -61,6 +61,6 @@ dependencies {
 
     // AutoDataBank CameraLibrary.
     implementation project(':cameralibrary')
-    //implementation 'com.github.autodatabank:camera-library:1.0.12'
+    //implementation 'com.github.autodatabank:camera-library:1.1.0-beta1'
 }
 

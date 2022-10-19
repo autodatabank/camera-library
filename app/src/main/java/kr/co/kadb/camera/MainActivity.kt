@@ -109,7 +109,7 @@ class MainActivity : AppCompatActivity() {
                         Timber.i(">>>>> ACTION_DETECT_IN_PICTURES > $detectRect")
                         Timber.i(">>>>> ACTION_DETECT_IN_PICTURES > $imageWidth x $imageHeight")
 
-                        // 이미지에서 텍스트 감지.
+                        // 감지한 텍스트.
                         findViewById<TextView>(R.id.textview).text = detectText
 
                         // 이미지 URI.
@@ -162,6 +162,7 @@ class MainActivity : AppCompatActivity() {
                 setHorizonColor(Color.RED)
                 setUnusedAreaBorderColor(Color.GREEN)
                 setCroppedJpegQuality(95)
+                setSaveCropedImage(false)
             }.run {
                 resultLauncher.launch(this.build())
             }
@@ -178,6 +179,7 @@ class MainActivity : AppCompatActivity() {
                 setHorizonColor(Color.RED)
                 setUnusedAreaBorderColor(Color.GREEN)
                 setCroppedJpegQuality(95)
+                setSaveCropedImage(false)
             }.run {
                 resultLauncher.launch(this.build())
             }
