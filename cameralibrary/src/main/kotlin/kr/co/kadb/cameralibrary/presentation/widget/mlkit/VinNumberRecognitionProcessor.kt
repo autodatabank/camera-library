@@ -31,8 +31,25 @@ class VinNumberRecognitionProcessor(
     context: Context,
     textRecognizerOptions: TextRecognizerOptionsInterface
 ) : VisionProcessorBase<Text, String>(context) {
-    // 차대번호 정규식(A~Z, 0~9 혼합 17자리).
-    private val regex = Regex("[A-Z0-9]{17}")
+    // 차대번호 정규식(A~Z, 0~9 혼합 11자리 + 0~9 6자리(생산번호)).
+    // Regex("[a-zA-Z0-9]{11}[a-zA-Z0-9]{1}[0-9]{5}")
+    // 주의수입차는 생산번호 첫자이에 영문인 경우가 있음.
+    private val regex = """([a-zA-Z0-9]{12})([bBgGiIoOqsSzZ0-9]{5})""".toRegex()
+    private val conversionData = mapOf(
+        'b' to '6',
+        'B' to '8',
+        'g' to '9',
+        'G' to '6',
+        'i' to '1',
+        'I' to '1',
+        'o' to '0',
+        'O' to '0',
+        'q' to '9',
+        's' to '5',
+        'S' to '5',
+        'z' to '2',
+        'Z' to '2',
+    )
 
     // Detected Items.
     private val detectedItems = mutableListOf<DetectedItem>()
@@ -68,7 +85,11 @@ class VinNumberRecognitionProcessor(
 
                 // Find & Add
                 regex.find(line.text)?.let { matchResult ->
-                    drawItems.add(DetectedItem(matchResult.value, RectF(line.boundingBox)))
+                    var (groupNumber, serial) = matchResult.destructured
+                    conversionData.forEach {
+                        serial = serial.replace(it.key, it.value)
+                    }
+                    drawItems.add(DetectedItem(groupNumber + serial, RectF(line.boundingBox)))
                 }
             }
         }
