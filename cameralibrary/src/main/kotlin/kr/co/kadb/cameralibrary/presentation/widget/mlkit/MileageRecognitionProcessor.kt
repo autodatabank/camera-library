@@ -24,6 +24,7 @@ import com.google.mlkit.vision.text.Text
 import com.google.mlkit.vision.text.TextRecognition
 import com.google.mlkit.vision.text.TextRecognizer
 import com.google.mlkit.vision.text.TextRecognizerOptionsInterface
+import kr.co.kadb.cameralibrary.presentation.widget.extension.removeCommas
 import timber.log.Timber
 
 /** Processor for the text detector demo. */
@@ -32,7 +33,7 @@ class MileageRecognitionProcessor(
     textRecognizerOptions: TextRecognizerOptionsInterface
 ) : VisionProcessorBase<Text, String>(context) {
     // 주행거리 정규식(0~9 4자리에서 6자리).
-    private val regex = Regex("[0-9]{3,6}")
+    private val regex = """[0-9]{1,3}(,)?[0-9]{3}""".toRegex()
 
     // Detected Items.
     private val detectedItems = mutableListOf<DetectedItem>()
@@ -69,7 +70,7 @@ class MileageRecognitionProcessor(
                 line.elements.forEach { element ->
                     // Find & Add(가장 큰 값 취합).
                     val matchResult = regex.find(element.text)
-                    val mileage = matchResult?.value?.toIntOrNull() ?: 0
+                    val mileage = matchResult?.value?.removeCommas()?.toIntOrNull() ?: 0
                     if (/*element.confidence >= 0.7f && */mileage > 1000 && mileage > drawMileage) {
                         drawMileage = mileage
                         drawRectf = RectF(element.boundingBox)
@@ -99,7 +100,8 @@ class MileageRecognitionProcessor(
                     onSuccess?.invoke(drawMileage.toString(), drawRectf)
                 } else if (sortedItems.size > 1 &&
                     sortedItems[0].second > 5 &&
-                    (sortedItems[0].second * 0.5f) > sortedItems[1].second) {
+                    (sortedItems[0].second * 0.5f) > sortedItems[1].second
+                ) {
                     onSuccess?.invoke(drawMileage.toString(), drawRectf)
                 }
             }
