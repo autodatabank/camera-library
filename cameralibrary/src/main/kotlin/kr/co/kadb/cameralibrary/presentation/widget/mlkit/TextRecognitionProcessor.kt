@@ -31,18 +31,37 @@ class TextRecognitionProcessor(
     context: Context,
     textRecognizerOptions: TextRecognizerOptionsInterface
 ) : VisionProcessorBase<Text, String>(context) {
+    // 차대번호 정규식(A~Z, 0~9 혼합 11자리 + 0~9 6자리(생산번호)).
+    // Regex("[a-zA-Z0-9]{11}[a-zA-Z0-9]{1}[0-9]{5}")
+    // 주의수입차는 생산번호 첫자이에 영문인 경우가 있음.
+    private val regex = """([a-zA-Z0-9]{12})([bBgGiIoOqsSzZ0-9]{5})""".toRegex()
+    private val conversionData = mapOf(
+        'b' to '6',
+        'B' to '8',
+        'g' to '9',
+        'G' to '6',
+        'i' to '1',
+        'I' to '1',
+        'o' to '0',
+        'O' to '0',
+        'q' to '9',
+        's' to '5',
+        'S' to '5',
+        'z' to '2',
+        'Z' to '2',
+    )
+
+    // Detected Items.
+    private val detectedItems = mutableListOf<DetectedItem>()
+
+    // Success.
+    private var onSuccess: ((String, RectF) -> Unit)? = null
+
+    // Failure
+    private var onFailure: ((Exception) -> Unit)? = null
+
     // Recognizer.
     private val textRecognizer: TextRecognizer = TextRecognition.getClient(textRecognizerOptions)
-
-
-    // 블에서 인식 된 텍스트 그룹화.
-    /*private val shouldGroupRecognizedTextInBlocks: Boolean =
-        PreferenceUtils.shouldGroupRecognizedTextInBlocks(context)
-    // 언어 표시.
-    private val showLanguageTag: Boolean = PreferenceUtils.showLanguageTag(context)
-    // 신뢰성 표시.
-    private val showConfidence: Boolean = PreferenceUtils.shouldShowTextConfidence(context)*/
-
 
     override fun stop() {
         super.stop()
@@ -54,29 +73,61 @@ class TextRecognitionProcessor(
     }
 
     override fun onSuccess(results: Text, graphicOverlay: GraphicOverlay) {
-        // Debug.
-        //Timber.d(">>>>> ${javaClass.simpleName} > onSuccess")
+        // Detected Items.
+        val drawItems = mutableListOf<DetectedItem>()
+        // 정규화.
+        results.textBlocks.forEach { textBlock ->
+            // Debug.
+            //Timber.i(">>>>> ${javaClass.simpleName} > TEXT_BLOCK > ${textBlock.text}")
+            textBlock.lines.forEach { line ->
+                // Debug.
+                Timber.i(">>>>> ${javaClass.simpleName} > LINE > ${line.text}")
 
+                // Find & Add
+//                regex.find(line.text)?.let { matchResult ->
+//                    var (groupNumber, serial) = matchResult.destructured
+//                    conversionData.forEach {
+//                        serial = serial.replace(it.key, it.value)
+//                    }
+//                    drawItems.add(DetectedItem(groupNumber + serial, RectF(line.boundingBox)))
+//                }
+                drawItems.add(DetectedItem(line.text, RectF(line.boundingBox)))
+            }
+        }
 
-//        //logExtrasForTesting(text)
-//        graphicOverlay.add(
-//            TextGraphic(
-//                graphicOverlay,
-//                results,
-////                /*shouldGroupRecognizedTextInBlocks*/ shouldGroupTextInBlocks = false,
-////                /*showLanguageTag*/ showLanguageTag = false,
-////                /*showConfidence*/ showConfidence = false
-//            )
-//        )
-//        graphicOverlay.add(
-//            TextGraphic(
-//                graphicOverlay,
-//                results,
-//                /*shouldGroupRecognizedTextInBlocks*/ shouldGroupTextInBlocks = false,
-//                /*showLanguageTag*/ showLanguageTag = false,
-//                /*showConfidence*/ showConfidence = false
-//            )
-//        )
+        // Draw & Result invoke.
+        if (drawItems.isNotEmpty()) {
+            // Add.
+            detectedItems.addAll(drawItems)
+            // Draw.
+            graphicOverlay.add(TextGraphic(graphicOverlay, drawItems))
+
+//            // Grouping & Result.
+//            detectedItems.groupingBy { it.text }.eachCount().also { map ->
+//                /*val max = map.maxBy { it.value }
+//                if (max.value > 10) {
+//                    onSuccess?.invoke(drawMileage.toString(), drawRectf)
+//                }*/
+//                val sortedItems = map.toList().sortedByDescending { (_, value) -> value }
+//                if (sortedItems.size == 1 && sortedItems[0].second > 5) {
+//                    drawItems.find { it.text == sortedItems[0].first }?.also {
+//                        onSuccess?.invoke(it.text, it.rect)
+//                    }
+//                    // Debug.
+//                    Timber.i(">>>>> ${javaClass.simpleName} > DRAW > ${sortedItems[0]}")
+//                } else if (sortedItems.size > 1 &&
+//                    sortedItems[0].second > 5 &&
+//                    (sortedItems[0].second * 0.75f) > sortedItems[1].second
+//                ) {
+//                    drawItems.find { it.text == sortedItems[0].first }?.also {
+//                        onSuccess?.invoke(it.text, it.rect)
+//                    }
+//                }
+//
+//                // Debug.
+//                Timber.i(">>>>> ${javaClass.simpleName} > DRAW > $sortedItems")
+//            }
+        }
     }
 
     override fun onFailure(ex: Exception) {
@@ -84,63 +135,11 @@ class TextRecognitionProcessor(
         Timber.w(">>>>> ${javaClass.simpleName} > onFailure : $ex")
     }
 
-    override fun onComplete(onFailure: ((Exception) -> Unit)?, onSuccess: ((String, RectF) -> Unit)?) {
-        TODO("Not yet implemented")
+    override fun onComplete(
+        onFailure: ((Exception) -> Unit)?,
+        onSuccess: ((String, RectF) -> Unit)?
+    ) {
+        this.onSuccess = onSuccess
+        this.onFailure = onFailure
     }
-
-    /*companion object {
-        private const val TAG = "TextRecProcessor"
-        private fun logExtrasForTesting(text: Text?) {
-            if (text != null) {
-                Log.v(MANUAL_TESTING_LOG, "Detected text has : " + text.textBlocks.size + " blocks")
-                for (i in text.textBlocks.indices) {
-                    val lines = text.textBlocks[i].lines
-                    Log.v(
-                        MANUAL_TESTING_LOG,
-                        String.format("Detected text block %d has %d lines", i, lines.size)
-                    )
-                    for (j in lines.indices) {
-                        val elements = lines[j].elements
-                        Log.v(
-                            MANUAL_TESTING_LOG,
-                            String.format("Detected text line %d has %d elements", j, elements.size)
-                        )
-                        for (k in elements.indices) {
-                            val element = elements[k]
-                            Log.v(
-                                MANUAL_TESTING_LOG,
-                                String.format("Detected text element %d says: %s", k, element.text)
-                            )
-                            Log.v(
-                                MANUAL_TESTING_LOG,
-                                String.format(
-                                    "Detected text element %d has a bounding box: %s",
-                                    k,
-                                    element.boundingBox!!.flattenToString()
-                                )
-                            )
-                            Log.v(
-                                MANUAL_TESTING_LOG,
-                                String.format(
-                                    "Expected corner point size is 4, get %d",
-                                    element.cornerPoints!!.size
-                                )
-                            )
-                            for (point in element.cornerPoints!!) {
-                                Log.v(
-                                    MANUAL_TESTING_LOG,
-                                    String.format(
-                                        "Corner point for element %d is located at: x - %d, y = %d",
-                                        k,
-                                        point.x,
-                                        point.y
-                                    )
-                                )
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }*/
 }
