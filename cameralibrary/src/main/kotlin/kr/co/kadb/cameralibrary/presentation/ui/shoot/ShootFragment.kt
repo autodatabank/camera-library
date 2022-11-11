@@ -500,6 +500,9 @@ internal class ShootFragment :
                 IntentKey.ACTION_DETECT_VEHICLE_NUMBER_IN_PICTURES -> {
                     VehicleNumberRecognitionProcessor(requireContext(), processor)
                 }
+                IntentKey.ACTION_DETECT_MAINTENANCE_STATEMENT_IN_PICTURES -> {
+                    TextRecognitionProcessor(requireContext(), processor)
+                }
                 else -> null
             }
         }?.also { processor ->
@@ -602,8 +605,22 @@ internal class ShootFragment :
                 // Debug.
                 Timber.i(">>>>> ImageCapture onCaptureSuccess")
 
-                val frameMetadata = FrameMetadata(image.width, image.height, image.imageInfo.rotationDegrees)
-                imageProcessor?.processByteBuffer(image.planes[0].buffer, frameMetadata, detectOverlay)
+                imageProcessor = KoreanTextRecognizerOptions.Builder().build().let { processor ->
+                    TextRecognitionProcessor(requireContext(), processor)
+                }
+
+                val frameMetadata = FrameMetadata.Builder()
+                    .setWidth(image.width)
+                    .setHeight(image.height)
+                    .setRotation(image.imageInfo.rotationDegrees)
+                    .build()
+                imageProcessor?.processByteBuffer(
+                    image.planes[0].buffer,
+                    frameMetadata,
+                    detectOverlay
+                )
+                imageAnalyzer?.clearAnalyzer()
+                imageProcessor?.run { this.stop() }
 
 //                // 이미지 저장.
 //                try {

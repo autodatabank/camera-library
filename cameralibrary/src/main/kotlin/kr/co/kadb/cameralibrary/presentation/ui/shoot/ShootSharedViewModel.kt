@@ -17,6 +17,7 @@ import kr.co.kadb.cameralibrary.presentation.model.ShootUiState
 import kr.co.kadb.cameralibrary.presentation.model.UiState
 import kr.co.kadb.cameralibrary.presentation.viewmodel.BaseAndroidViewModel
 import kr.co.kadb.cameralibrary.presentation.widget.extension.*
+import kr.co.kadb.cameralibrary.presentation.widget.util.IntentKey.ACTION_DETECT_MAINTENANCE_STATEMENT_IN_PICTURES
 import kr.co.kadb.cameralibrary.presentation.widget.util.IntentKey.ACTION_DETECT_MILEAGE_IN_PICTURES
 import kr.co.kadb.cameralibrary.presentation.widget.util.IntentKey.ACTION_DETECT_VEHICLE_NUMBER_IN_PICTURES
 import kr.co.kadb.cameralibrary.presentation.widget.util.IntentKey.ACTION_DETECT_VIN_NUMBER_IN_PICTURES
@@ -118,10 +119,12 @@ constructor(
         val isUsingMLKit = action == ACTION_DETECT_VEHICLE_NUMBER_IN_PICTURES
                 || action == ACTION_DETECT_MILEAGE_IN_PICTURES
                 || action == ACTION_DETECT_VIN_NUMBER_IN_PICTURES
+                || action == ACTION_DETECT_MAINTENANCE_STATEMENT_IN_PICTURES
         val isMultiplePicture = action == ACTION_TAKE_MULTIPLE_PICTURES
         val isMileagePicture = action == ACTION_DETECT_MILEAGE_IN_PICTURES
         val isVinNumberPicture = action == ACTION_DETECT_VIN_NUMBER_IN_PICTURES
         val isVehicleNumberPicture = action == ACTION_DETECT_VEHICLE_NUMBER_IN_PICTURES
+        val isMaintenanceStatementPicture = action == ACTION_DETECT_MAINTENANCE_STATEMENT_IN_PICTURES
         val canSaveCroppedImage = if (isUsingMLKit) {
             false
         } else {
@@ -143,6 +146,7 @@ constructor(
             isVehicleNumberPicture = isVehicleNumberPicture,
             isMileagePicture = isMileagePicture,
             isVinNumberPicture = isVinNumberPicture,
+            isMaintenanceStatementPicture = isMaintenanceStatementPicture,
             canMute = canMute,
             hasHorizon = hasHorizon,
             canUiRotation = canUiRotation,
@@ -163,6 +167,7 @@ constructor(
             isVehicleNumberPicture = isVehicleNumberPicture,
             isMileagePicture = isMileagePicture,
             isVinNumberPicture = isVinNumberPicture,
+            isMaintenanceStatementPicture = isMaintenanceStatementPicture,
             canMute = canMute,
             hasHorizon = hasHorizon,
             canUiRotation = canUiRotation,

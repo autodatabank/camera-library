@@ -14,6 +14,7 @@ internal data class ShootItem(
     val isVehicleNumberPicture: Boolean,
     val isMileagePicture: Boolean,
     val isVinNumberPicture: Boolean,
+    val isMaintenanceStatementPicture: Boolean,
     val canMute: Boolean,
     val hasHorizon: Boolean,
     val canUiRotation: Boolean,
