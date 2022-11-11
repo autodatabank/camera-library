@@ -86,7 +86,7 @@ class MileageRecognitionProcessor(
                 // Add.
                 detectedItems.add(it)
                 // Draw.
-                graphicOverlay.add(MileageGraphic(graphicOverlay, listOf(it)))
+                graphicOverlay.add(BorderingGraphic(graphicOverlay, listOf(it)))
             }
 
             // Grouping & Result.
