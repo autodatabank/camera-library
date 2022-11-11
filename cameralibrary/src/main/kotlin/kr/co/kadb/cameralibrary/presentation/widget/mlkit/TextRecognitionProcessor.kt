@@ -58,16 +58,16 @@ class TextRecognitionProcessor(
         //Timber.d(">>>>> ${javaClass.simpleName} > onSuccess")
 
 
-        //logExtrasForTesting(text)
-        graphicOverlay.add(
-            NumberGraphic(
-                graphicOverlay,
-                results,
-                /*shouldGroupRecognizedTextInBlocks*/ shouldGroupTextInBlocks = false,
-                /*showLanguageTag*/ showLanguageTag = false,
-                /*showConfidence*/ showConfidence = false
-            )
-        )
+//        //logExtrasForTesting(text)
+//        graphicOverlay.add(
+//            TextGraphic(
+//                graphicOverlay,
+//                results,
+////                /*shouldGroupRecognizedTextInBlocks*/ shouldGroupTextInBlocks = false,
+////                /*showLanguageTag*/ showLanguageTag = false,
+////                /*showConfidence*/ showConfidence = false
+//            )
+//        )
 //        graphicOverlay.add(
 //            TextGraphic(
 //                graphicOverlay,

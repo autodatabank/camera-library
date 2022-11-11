@@ -99,7 +99,7 @@ class VinNumberRecognitionProcessor(
             // Add.
             detectedItems.addAll(drawItems)
             // Draw.
-            graphicOverlay.add(VinNumberGraphic(graphicOverlay, drawItems))
+            graphicOverlay.add(BorderingGraphic(graphicOverlay, drawItems))
 
             // Grouping & Result.
             detectedItems.groupingBy { it.text }.eachCount().also { map ->

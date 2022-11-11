@@ -27,21 +27,17 @@ import kotlin.math.min
  * Graphic instance for rendering TextBlock position, size, and ID within an associated graphic
  * overlay view.
  */
-class MileageGraphic constructor(
+class BorderingGraphic constructor(
     overlay: GraphicOverlay?,
     private val drawItems: List<DetectedItem>?
 ) : GraphicOverlay.Graphic(overlay) {
-
     private val rectPaint = Paint()
     private val labelPaint = Paint()
-    private val numberPaint = Paint()
 
     init {
         rectPaint.color = MARKER_COLOR
         rectPaint.style = Paint.Style.STROKE
         rectPaint.strokeWidth = STROKE_WIDTH
-        numberPaint.color = TEXT_COLOR
-        numberPaint.textSize = TEXT_SIZE
         labelPaint.color = MARKER_COLOR
         labelPaint.style = Paint.Style.FILL
         // Redraw the overlay, as this graphic has been added.
@@ -51,11 +47,11 @@ class MileageGraphic constructor(
     /** Draws the text block annotations for position, size, and raw value on the supplied canvas. */
     override fun draw(canvas: Canvas) {
         drawItems?.forEach { item ->
-            drawText(/*item.text, */item.rect, canvas)
+            drawText(item.rect, canvas)
         }
     }
 
-    private fun drawText(/*text: String, */rect: RectF, canvas: Canvas) {
+    private fun drawText(rect: RectF, canvas: Canvas) {
         val x0 = translateX(rect.left)
         val x1 = translateX(rect.right)
         rect.left = min(x0, x1)
@@ -63,23 +59,10 @@ class MileageGraphic constructor(
         rect.top = translateY(rect.top)
         rect.bottom = translateY(rect.bottom)
         canvas.drawRect(rect, rectPaint)
-        /*val textWidth = numberPaint.measureText(text)
-        canvas.drawRect(
-            rect.left - STROKE_WIDTH,
-            rect.top - TEXT_HEIGHT,
-            rect.left + textWidth + 2 * STROKE_WIDTH,
-            rect.top,
-            labelPaint
-        )
-        // Renders the text at the bottom of the box.
-        canvas.drawText(text, rect.left, rect.top - STROKE_WIDTH, numberPaint)*/
     }
 
     companion object {
-        private const val TEXT_COLOR = Color.BLACK
         private const val MARKER_COLOR = Color.YELLOW
         private const val STROKE_WIDTH = 4.0f
-        private const val TEXT_SIZE = 54.0f
-        //private const val TEXT_HEIGHT = TEXT_SIZE + 2 * STROKE_WIDTH
     }
 }

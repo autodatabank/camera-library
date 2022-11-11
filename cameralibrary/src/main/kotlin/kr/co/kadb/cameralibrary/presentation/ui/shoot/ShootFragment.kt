@@ -602,19 +602,22 @@ internal class ShootFragment :
                 // Debug.
                 Timber.i(">>>>> ImageCapture onCaptureSuccess")
 
-                // 이미지 저장.
-                try {
-                    viewModel.saveImage(
-                        image.planes[0].buffer,
-                        image.width,
-                        image.height,
-                        image.imageInfo.rotationDegrees,
-                        detectText,
-                        detectRect
-                    )
-                } catch (ex: IOException) {
-                    ex.printStackTrace()
-                }
+                val frameMetadata = FrameMetadata(image.width, image.height, image.imageInfo.rotationDegrees)
+                imageProcessor?.processByteBuffer(image.planes[0].buffer, frameMetadata, detectOverlay)
+
+//                // 이미지 저장.
+//                try {
+//                    viewModel.saveImage(
+//                        image.planes[0].buffer,
+//                        image.width,
+//                        image.height,
+//                        image.imageInfo.rotationDegrees,
+//                        detectText,
+//                        detectRect
+//                    )
+//                } catch (ex: IOException) {
+//                    ex.printStackTrace()
+//                }
             }
 
             override fun onError(exception: ImageCaptureException) {

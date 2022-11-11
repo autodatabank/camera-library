@@ -7,6 +7,9 @@ object IntentKey {
 	// 여러장 촬영.
 	const val ACTION_TAKE_MULTIPLE_PICTURES = "kr.co.kadb.cameralibrary.ACTION_TAKE_MULTIPLE_PICTURES"
 
+	// 정비명세서 촬영.
+	const val ACTION_TAKE_MAINTENANCE_STATEMENT = "kr.co.kadb.cameralibrary.ACTION_TAKE_MAINTENANCE_STATEMENT"
+
 	// 차량번호 촬영.
 	const val ACTION_DETECT_VEHICLE_NUMBER_IN_PICTURES = "kr.co.kadb.cameralibrary.ACTION_DETECT_VEHICLE_NUMBER_IN_PICTURES"
 
