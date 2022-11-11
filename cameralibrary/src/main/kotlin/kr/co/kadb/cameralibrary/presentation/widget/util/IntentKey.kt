@@ -7,17 +7,17 @@ object IntentKey {
 	// 여러장 촬영.
 	const val ACTION_TAKE_MULTIPLE_PICTURES = "kr.co.kadb.cameralibrary.ACTION_TAKE_MULTIPLE_PICTURES"
 
-	// 정비명세서 촬영.
-	const val ACTION_TAKE_MAINTENANCE_STATEMENT = "kr.co.kadb.cameralibrary.ACTION_TAKE_MAINTENANCE_STATEMENT"
-
 	// 차량번호 촬영.
-	const val ACTION_DETECT_VEHICLE_NUMBER_IN_PICTURES = "kr.co.kadb.cameralibrary.ACTION_DETECT_VEHICLE_NUMBER_IN_PICTURES"
+	internal const val ACTION_DETECT_VEHICLE_NUMBER_IN_PICTURES = "kr.co.kadb.cameralibrary.ACTION_DETECT_VEHICLE_NUMBER_IN_PICTURES"
 
 	// 주행거리 촬영.
 	const val ACTION_DETECT_MILEAGE_IN_PICTURES = "kr.co.kadb.cameralibrary.ACTION_DETECT_MILEAGE_IN_PICTURES"
 
 	// 차대번호 촬영.
 	const val ACTION_DETECT_VIN_NUMBER_IN_PICTURES = "kr.co.kadb.cameralibrary.ACTION_DETECT_VIN_NUMBER_IN_PICTURES"
+
+	// 정비명세서 촬영.
+	const val ACTION_DETECT_MAINTENANCE_STATEMENT_IN_PICTURES = "kr.co.kadb.cameralibrary.ACTION_DETECT_MAINTENANCE_STATEMENT_IN_PICTURES"
 
 	// 종료.
 	internal const val BROADCAST_FINISH = "kr.co.kadb.cameralibrary.finish"
