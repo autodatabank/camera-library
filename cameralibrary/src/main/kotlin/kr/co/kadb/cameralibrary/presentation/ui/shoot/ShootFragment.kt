@@ -605,36 +605,19 @@ internal class ShootFragment :
                 // Debug.
                 Timber.i(">>>>> ImageCapture onCaptureSuccess")
 
-                imageProcessor = KoreanTextRecognizerOptions.Builder().build().let { processor ->
-                    TextRecognitionProcessor(requireContext(), processor)
+                // 이미지 저장.
+                try {
+                    viewModel.saveImage(
+                        image.planes[0].buffer,
+                        image.width,
+                        image.height,
+                        image.imageInfo.rotationDegrees,
+                        detectText,
+                        detectRect
+                    )
+                } catch (ex: IOException) {
+                    ex.printStackTrace()
                 }
-
-                val frameMetadata = FrameMetadata.Builder()
-                    .setWidth(image.width)
-                    .setHeight(image.height)
-                    .setRotation(image.imageInfo.rotationDegrees)
-                    .build()
-                imageProcessor?.processByteBuffer(
-                    image.planes[0].buffer,
-                    frameMetadata,
-                    detectOverlay
-                )
-                imageAnalyzer?.clearAnalyzer()
-                imageProcessor?.run { this.stop() }
-
-//                // 이미지 저장.
-//                try {
-//                    viewModel.saveImage(
-//                        image.planes[0].buffer,
-//                        image.width,
-//                        image.height,
-//                        image.imageInfo.rotationDegrees,
-//                        detectText,
-//                        detectRect
-//                    )
-//                } catch (ex: IOException) {
-//                    ex.printStackTrace()
-//                }
             }
 
             override fun onError(exception: ImageCaptureException) {
