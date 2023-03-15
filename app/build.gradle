@@ -4,12 +4,12 @@ plugins {
 }
 
 android {
-    compileSdk 31
+    compileSdk 33
 
     defaultConfig {
         applicationId "kr.co.kadb.camera"
         minSdk 21
-        targetSdk 31
+        targetSdk 33
         versionCode 22101301
         versionName "1.0.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
