@@ -8,19 +8,29 @@ import android.media.AudioManager
 import android.media.MediaActionSound
 import android.os.Bundle
 import android.util.Size
+import android.view.LayoutInflater
 import android.view.OrientationEventListener
 import android.view.Surface
 import android.view.View
+import android.view.ViewGroup
 import android.view.animation.AccelerateDecelerateInterpolator
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
-import androidx.camera.core.*
+import androidx.camera.core.AspectRatio
+import androidx.camera.core.Camera
+import androidx.camera.core.CameraSelector
+import androidx.camera.core.ImageAnalysis
+import androidx.camera.core.ImageCapture
+import androidx.camera.core.ImageCaptureException
+import androidx.camera.core.ImageProxy
+import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.viewModels
 import androidx.transition.ChangeBounds
 import androidx.transition.TransitionManager
 import androidx.transition.addListener
@@ -28,10 +38,13 @@ import com.google.mlkit.common.MlKitException
 import com.google.mlkit.vision.text.korean.KoreanTextRecognizerOptions
 import kr.co.kadb.cameralibrary.R
 import kr.co.kadb.cameralibrary.databinding.AdbCameralibraryFragmentShootBinding
-import kr.co.kadb.cameralibrary.presentation.base.BaseBindingFragment
+import kr.co.kadb.cameralibrary.presentation.base.BaseViewBindingFragment
 import kr.co.kadb.cameralibrary.presentation.ui.shoot.ShootSharedViewModel.Event
 import kr.co.kadb.cameralibrary.presentation.widget.extension.repeatOnStarted
-import kr.co.kadb.cameralibrary.presentation.widget.mlkit.*
+import kr.co.kadb.cameralibrary.presentation.widget.mlkit.MileageRecognitionProcessor
+import kr.co.kadb.cameralibrary.presentation.widget.mlkit.VehicleNumberRecognitionProcessor
+import kr.co.kadb.cameralibrary.presentation.widget.mlkit.VinNumberRecognitionProcessor
+import kr.co.kadb.cameralibrary.presentation.widget.mlkit.VisionImageProcessor
 import kr.co.kadb.cameralibrary.presentation.widget.util.IntentKey
 import kr.co.kadb.cameralibrary.presentation.widget.util.MediaActionSound2
 import timber.log.Timber
@@ -45,11 +58,20 @@ import java.util.concurrent.Executors
  * - Photo taking
  * - Image analysis
  */
-internal class ShootFragment :
-    BaseBindingFragment<AdbCameralibraryFragmentShootBinding, ShootSharedViewModel>() {
+internal class ShootFragment : BaseViewBindingFragment<AdbCameralibraryFragmentShootBinding>() {
+
     companion object {
         fun create() = ShootFragment()
     }
+
+    // ViewModel.
+    private val viewModel: ShootSharedViewModel by activityViewModels {
+        ShootSharedViewModelFactory(requireContext())
+    }
+
+    // ViewBinding.
+    override fun fragmentBinding(inflater: LayoutInflater, container: ViewGroup?) =
+        AdbCameralibraryFragmentShootBinding.inflate(inflater, container, false)
 
     // 이미지 분석 Overlay.
     private val detectOverlay by lazy {
@@ -112,7 +134,7 @@ internal class ShootFragment :
         ShootController(requireActivity())
     }
 
-    // ViewModel.
+    /*// ViewModel.
     override val viewModel: ShootSharedViewModel by activityViewModels {
         ShootSharedViewModelFactory(requireContext())
     }
@@ -123,7 +145,7 @@ internal class ShootFragment :
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding.viewModel = viewModel
-    }
+    }*/
 
     override fun onStart() {
         super.onStart()
@@ -165,12 +187,8 @@ internal class ShootFragment :
         return false
     }
 
-    // Init Variable.
-    override fun initVariable() {
-    }
-
     // Init Layout.
-    override fun initLayout(view: View) {
+    override fun initScreen(view: View, savedInstanceState: Bundle?) {
         // 수평선 사용 시에만 활성화.
         viewModel.item.value.hasHorizon.also {
             binding.adbCameralibraryViewHorizon.isVisible = it
@@ -198,10 +216,12 @@ internal class ShootFragment :
                 R.string.adb_cameralibrary_text_flash_on,
                 R.drawable.adb_cameralibrary_selector_ic_baseline_flash_on_accent_48
             )
+
             ImageCapture.FLASH_MODE_AUTO -> Pair(
                 R.string.adb_cameralibrary_text_flash_auto,
                 R.drawable.adb_cameralibrary_selector_ic_baseline_flash_auto_accent_48
             )
+
             else -> Pair(
                 R.string.adb_cameralibrary_text_flash_off,
                 R.drawable.adb_cameralibrary_selector_ic_baseline_flash_off_white_48
@@ -300,11 +320,13 @@ internal class ShootFragment :
                     R.drawable.adb_cameralibrary_selector_ic_baseline_flash_on_accent_48,
                     ImageCapture.FLASH_MODE_ON
                 )
+
                 ImageCapture.FLASH_MODE_ON -> Triple(
                     R.string.adb_cameralibrary_text_flash_auto,
                     R.drawable.adb_cameralibrary_selector_ic_baseline_flash_auto_accent_48,
                     ImageCapture.FLASH_MODE_AUTO
                 )
+
                 else -> Triple(
                     R.string.adb_cameralibrary_text_flash_off,
                     R.drawable.adb_cameralibrary_selector_ic_baseline_flash_off_white_48,
@@ -321,10 +343,6 @@ internal class ShootFragment :
         binding.adbCameralibraryButtonFinish.setOnClickListener {
             viewModel.stopShooting()
         }
-    }
-
-    // Init Callback.
-    override fun initCallback() {
     }
 
     // Init unused area layout.
@@ -494,12 +512,15 @@ internal class ShootFragment :
                 IntentKey.ACTION_DETECT_MILEAGE_IN_PICTURES -> {
                     MileageRecognitionProcessor(requireContext(), processor)
                 }
+
                 IntentKey.ACTION_DETECT_VIN_NUMBER_IN_PICTURES -> {
                     VinNumberRecognitionProcessor(requireContext(), processor)
                 }
+
                 IntentKey.ACTION_DETECT_VEHICLE_NUMBER_IN_PICTURES -> {
                     VehicleNumberRecognitionProcessor(requireContext(), processor)
                 }
+
                 else -> null
             }
         }?.also { processor ->
