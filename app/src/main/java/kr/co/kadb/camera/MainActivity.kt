@@ -23,6 +23,7 @@ import kr.co.kadb.cameralibrary.presentation.widget.util.UriHelper
 import timber.log.Timber
 
 class MainActivity : AppCompatActivity() {
+
     // Crop Size.
     private val cropSize = CropSize(0.7f, 0.5f)
 
