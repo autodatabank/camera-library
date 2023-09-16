@@ -63,8 +63,14 @@ internal open class BaseController constructor(activityContext: Context) {
         deniedAction: ((Boolean) -> Unit)? = null,
         grantedAction: (() -> Unit)? = null
     ) {
-        val permissions = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            listOf(Manifest.permission.READ_EXTERNAL_STORAGE)
+        val permissions = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            listOf(
+                Manifest.permission.READ_MEDIA_IMAGES
+            )
+        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            listOf(
+                Manifest.permission.READ_EXTERNAL_STORAGE
+            )
         } else {
             listOf(
                 Manifest.permission.READ_EXTERNAL_STORAGE,
@@ -116,7 +122,12 @@ internal open class BaseController constructor(activityContext: Context) {
         deniedAction: ((Boolean) -> Unit)? = null,
         grantedAction: (() -> Unit)? = null
     ) {
-        val permissions = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+        val permissions = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            listOf(
+                Manifest.permission.CAMERA,
+                Manifest.permission.READ_MEDIA_IMAGES
+            )
+        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             listOf(
                 Manifest.permission.CAMERA,
                 Manifest.permission.READ_EXTERNAL_STORAGE
