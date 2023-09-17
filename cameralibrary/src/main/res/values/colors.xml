@@ -63,9 +63,9 @@
 <!--	<<color name="adb_cameralibrary_bg_disable">#0C000000</color>>-->
 <!--	<color name="adb_cameralibrary_bg_cover">#55000000</color>-->
 <!--    <color name="adb_cameralibrary_bg_claimed">#8096BDED</color>-->
-    <color name="adb_cameralibrary_bg_camera_horizon">#AAFF0000</color>
-    <color name="adb_cameralibrary_bg_camera_unused_area">#AA000000</color>
-    <color name="adb_cameralibrary_bg_camera_unused_area_border">#AA00FF00</color>
+    <color name="adb_cameralibrary_bg_camera_horizon">#88FF0000</color>
+    <color name="adb_cameralibrary_bg_camera_unused_area">#88000000</color>
+    <color name="adb_cameralibrary_bg_camera_unused_area_border">#8800FF00</color>
 
     <color name="adb_cameralibrary_black">#000000</color>
     <color name="adb_cameralibrary_white">#FFFFFF</color>
