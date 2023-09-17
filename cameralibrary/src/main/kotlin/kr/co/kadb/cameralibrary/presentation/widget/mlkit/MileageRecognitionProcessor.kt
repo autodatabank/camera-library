@@ -107,7 +107,7 @@ class MileageRecognitionProcessor(
             }
 
             // Debug.
-            Timber.i(">>>>> ${javaClass.simpleName} > DRAW > $drawMileage : $drawRectf")
+            //Timber.i(">>>>> ${javaClass.simpleName} > DRAW > $drawMileage : $drawRectf")
         }
     }
 

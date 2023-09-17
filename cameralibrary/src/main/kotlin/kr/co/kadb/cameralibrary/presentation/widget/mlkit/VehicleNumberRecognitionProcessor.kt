@@ -206,7 +206,7 @@ class VehicleNumberRecognitionProcessor(
         drawItems.add(DetectedItem(matchResult.value, RectF(matchRect)))
 
         // Debug.
-        Timber.i(">>>>> ${javaClass.simpleName} > DRAW > ${matchResult.value}")
+        //Timber.i(">>>>> ${javaClass.simpleName} > DRAW > ${matchResult.value}")
 
         return drawItems
     }

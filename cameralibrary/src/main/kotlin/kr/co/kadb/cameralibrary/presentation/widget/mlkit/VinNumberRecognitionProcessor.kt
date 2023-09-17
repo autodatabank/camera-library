@@ -113,7 +113,7 @@ class VinNumberRecognitionProcessor(
                         onSuccess?.invoke(it.text, it.rect)
                     }
                     // Debug.
-                    Timber.i(">>>>> ${javaClass.simpleName} > DRAW > ${sortedItems[0]}")
+                    //Timber.i(">>>>> ${javaClass.simpleName} > DRAW > ${sortedItems[0]}")
                 } else if (sortedItems.size > 1 &&
                     sortedItems[0].second > 5 &&
                     (sortedItems[0].second * 0.75f) > sortedItems[1].second
@@ -124,7 +124,7 @@ class VinNumberRecognitionProcessor(
                 }
 
                 // Debug.
-                Timber.i(">>>>> ${javaClass.simpleName} > DRAW > $sortedItems")
+                //Timber.i(">>>>> ${javaClass.simpleName} > DRAW > $sortedItems")
             }
         }
     }
