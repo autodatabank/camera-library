@@ -12,13 +12,13 @@ import kr.co.kadb.cameralibrary.presentation.widget.util.IntentKey
  * Created by oooobang on 2022. 7. 27..
  * 카메라용 Intent Builder.
  */
-class CameraIntent {
+public class CameraIntent {
     // 한 장 촬영.
     @Deprecated(
         message = "agrs의 직관성을 위하여 Deprecated.",
         level = DeprecationLevel.WARNING
     )
-    fun navigateToTakePicture(
+    public fun navigateToTakePicture(
         activityContext: Context,
         canMute: Boolean? = null,
         hasHorizon: Boolean? = null,
@@ -58,7 +58,7 @@ class CameraIntent {
         message = "agrs의 직관성을 위하여 Deprecated.",
         level = DeprecationLevel.WARNING
     )
-    fun navigateToTakeMultiplePictures(
+    public fun navigateToTakeMultiplePictures(
         activityContext: Context,
         canMute: Boolean? = null,
         hasHorizon: Boolean? = null,
@@ -94,7 +94,7 @@ class CameraIntent {
     }
 
     // 한 장 촬영.
-    fun navigateToTakePicture(
+    public fun navigateToTakePicture(
         activityContext: Context,
         canMute: Boolean? = null,
         hasHorizon: Boolean? = null,
@@ -134,7 +134,7 @@ class CameraIntent {
     }
 
     // 여러 장 촬영.
-    fun navigateToTakeMultiplePictures(
+    public fun navigateToTakeMultiplePictures(
         activityContext: Context,
         canMute: Boolean? = null,
         hasHorizon: Boolean? = null,
@@ -174,7 +174,7 @@ class CameraIntent {
     }
 
     // Builder.
-    class Build(private val activityContext: Context) {
+    public class Build(private val activityContext: Context) {
         private var action: String? = null
         private var canMute: Boolean? = null
         private var hasHorizon: Boolean? = null
@@ -188,22 +188,22 @@ class CameraIntent {
         @IntRange(from = 1, to = 100)
         private var croppedJpegQuality: Int = 95
 
-        fun setAction(action: String?): Build {
+        public fun setAction(action: String?): Build {
             this.action = action
             return this
         }
 
-        fun setCanMute(canMute: Boolean?): Build {
+        public fun setCanMute(canMute: Boolean?): Build {
             this.canMute = canMute ?: false
             return this
         }
 
-        fun setHasHorizon(hasHorizon: Boolean?): Build {
+        public fun setHasHorizon(hasHorizon: Boolean?): Build {
             this.hasHorizon = hasHorizon ?: false
             return this
         }
 
-        fun setSaveCropedImage(isSaveCroppedImage: Boolean?): Build {
+        public fun setSaveCropedImage(isSaveCroppedImage: Boolean?): Build {
             this.isSaveCroppedImage = isSaveCroppedImage ?: false
             return this
         }
@@ -213,17 +213,17 @@ class CameraIntent {
                     "따라서 setCropPercent(CropSize) 사용하세요.",
             level = DeprecationLevel.WARNING
         )
-        fun setCropPercent(cropPercent: Array<Float>?): Build {
+        public fun setCropPercent(cropPercent: Array<Float>?): Build {
             this.cropPercent = cropPercent
             return this
         }
 
-        fun setCropSize(cropSize: CropSize): Build {
+        public fun setCropSize(cropSize: CropSize): Build {
             this.cropSize = cropSize
             return this
         }
 
-        fun setCropSize(
+        public fun setCropSize(
             @FloatRange(from = 0.0, to = 1.0) width: Float,
             @FloatRange(from = 0.0, to = 1.0) height: Float
         ): Build {
@@ -231,22 +231,22 @@ class CameraIntent {
             return this
         }
 
-        fun setCanUiRotation(canUiRotation: Boolean?): Build {
+        public fun setCanUiRotation(canUiRotation: Boolean?): Build {
             this.canUiRotation = canUiRotation
             return this
         }
 
-        fun setHorizonColor(horizonColor: Int?): Build {
+        public fun setHorizonColor(horizonColor: Int?): Build {
             this.horizonColor = horizonColor
             return this
         }
 
-        fun setUnusedAreaBorderColor(unusedAreaBorderColor: Int?): Build {
+        public fun setUnusedAreaBorderColor(unusedAreaBorderColor: Int?): Build {
             this.unusedAreaBorderColor = unusedAreaBorderColor
             return this
         }
 
-        fun setCroppedJpegQuality(
+        public fun setCroppedJpegQuality(
             @IntRange(
                 from = 1,
                 to = 100
@@ -256,7 +256,7 @@ class CameraIntent {
             return this
         }
 
-        fun build(): Intent {
+        public fun build(): Intent {
             return Intent(activityContext, ShootActivity::class.java).also { cameraIntent ->
                 cameraIntent.action = action
                 cameraIntent.putExtra(IntentKey.EXTRA_CAN_MUTE, canMute)

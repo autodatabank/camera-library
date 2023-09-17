@@ -1,4 +1,4 @@
-package kr.co.kadb.cameralibrary.domain.model
+package kr.co.kadb.cameralibrary.presentation.model
 
 import android.net.Uri
 import android.util.Size

@@ -30,6 +30,7 @@ import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import androidx.fragment.app.activityViewModels
+import androidx.transition.AutoTransition
 import androidx.transition.ChangeBounds
 import androidx.transition.TransitionManager
 import androidx.transition.addListener
@@ -38,16 +39,16 @@ import com.google.mlkit.vision.text.korean.KoreanTextRecognizerOptions
 import kr.co.kadb.cameralibrary.R
 import kr.co.kadb.cameralibrary.databinding.AdbCameralibraryFragmentShootBinding
 import kr.co.kadb.cameralibrary.presentation.base.BaseViewBindingFragment
-import kr.co.kadb.cameralibrary.presentation.ui.shoot.ShootSharedViewModel.Event.DetectInImage
-import kr.co.kadb.cameralibrary.presentation.ui.shoot.ShootSharedViewModel.Event.PlayShutterSound
-import kr.co.kadb.cameralibrary.presentation.ui.shoot.ShootSharedViewModel.Event.TakeMultiplePictures
-import kr.co.kadb.cameralibrary.presentation.ui.shoot.ShootSharedViewModel.Event.TakePicture
+import kr.co.kadb.cameralibrary.presentation.ui.shoot.ShootEvent.*
 import kr.co.kadb.cameralibrary.presentation.widget.extension.repeatOnStarted
 import kr.co.kadb.cameralibrary.presentation.widget.mlkit.MileageRecognitionProcessor
 import kr.co.kadb.cameralibrary.presentation.widget.mlkit.VehicleNumberRecognitionProcessor
 import kr.co.kadb.cameralibrary.presentation.widget.mlkit.VinNumberRecognitionProcessor
 import kr.co.kadb.cameralibrary.presentation.widget.mlkit.VisionImageProcessor
 import kr.co.kadb.cameralibrary.presentation.widget.util.IntentKey
+import kr.co.kadb.cameralibrary.presentation.widget.util.IntentKey.ACTION_DETECT_MILEAGE_IN_PICTURES
+import kr.co.kadb.cameralibrary.presentation.widget.util.IntentKey.ACTION_DETECT_VEHICLE_NUMBER_IN_PICTURES
+import kr.co.kadb.cameralibrary.presentation.widget.util.IntentKey.ACTION_DETECT_VIN_NUMBER_IN_PICTURES
 import kr.co.kadb.cameralibrary.presentation.widget.util.MediaActionSound2
 import timber.log.Timber
 import java.io.IOException
@@ -66,14 +67,14 @@ internal class ShootFragment : BaseViewBindingFragment<AdbCameralibraryFragmentS
         fun create() = ShootFragment()
     }
 
+    // ViewBinding.
+    override fun fragmentBinding(inflater: LayoutInflater, container: ViewGroup?) =
+        AdbCameralibraryFragmentShootBinding.inflate(inflater, container, false)
+
     // ViewModel.
     private val viewModel: ShootSharedViewModel by activityViewModels {
         ShootSharedViewModelFactory(requireContext())
     }
-
-    // ViewBinding.
-    override fun fragmentBinding(inflater: LayoutInflater, container: ViewGroup?) =
-        AdbCameralibraryFragmentShootBinding.inflate(inflater, container, false)
 
     // 이미지 분석 Overlay.
     private val detectOverlay by lazy {
@@ -81,7 +82,7 @@ internal class ShootFragment : BaseViewBindingFragment<AdbCameralibraryFragmentS
     }
 
     // AudioManager.
-    private val audioManager by lazy {
+    private val audioManager: AudioManager? by lazy {
         context?.getSystemService(Context.AUDIO_SERVICE) as? AudioManager
     }
 
@@ -135,19 +136,6 @@ internal class ShootFragment : BaseViewBindingFragment<AdbCameralibraryFragmentS
     private val viewController: ShootController by lazy {
         ShootController(requireActivity())
     }
-
-    /*// ViewModel.
-    override val viewModel: ShootSharedViewModel by activityViewModels {
-        ShootSharedViewModelFactory(requireContext())
-    }
-
-    // Fragment Layout.
-    override val layoutResourceId: Int = R.layout.adb_cameralibrary_fragment_shoot
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-        binding.viewModel = viewModel
-    }*/
 
     override fun onStart() {
         super.onStart()
@@ -255,9 +243,8 @@ internal class ShootFragment : BaseViewBindingFragment<AdbCameralibraryFragmentS
                         putExtra(IntentKey.EXTRA_HEIGHT, event.size.height)
                         putExtra(IntentKey.EXTRA_ROTATION, event.rotation)
                         setDataAndType(event.uri, "image/jpeg")
-                    }.also {
-                        requireActivity().setResult(Activity.RESULT_OK, it)
                     }.run {
+                        requireActivity().setResult(Activity.RESULT_OK, this)
                         activity?.finish()
                         event.thumbnailBitmap?.recycle()
                     }
@@ -267,9 +254,8 @@ internal class ShootFragment : BaseViewBindingFragment<AdbCameralibraryFragmentS
                         putExtra(IntentKey.EXTRA_URIS, event.uris)
                         putExtra(IntentKey.EXTRA_SIZES, event.sizes)
                         putExtra(IntentKey.EXTRA_ROTATIONS, event.rotations)
-                    }.also {
-                        requireActivity().setResult(Activity.RESULT_OK, it)
                     }.run {
+                        requireActivity().setResult(Activity.RESULT_OK, this)
                         activity?.finish()
                     }
                     // 이미지 감지 결과 전달.
@@ -282,9 +268,8 @@ internal class ShootFragment : BaseViewBindingFragment<AdbCameralibraryFragmentS
                         putExtra(IntentKey.EXTRA_HEIGHT, event.size?.height)
                         putExtra(IntentKey.EXTRA_ROTATION, event.rotation)
                         setDataAndType(event.uri, "image/jpeg")
-                    }.also {
-                        requireActivity().setResult(Activity.RESULT_OK, it)
                     }.run {
+                        requireActivity().setResult(Activity.RESULT_OK, this)
                         activity?.finish()
                     }
                 }
@@ -296,12 +281,9 @@ internal class ShootFragment : BaseViewBindingFragment<AdbCameralibraryFragmentS
     override fun initListener() {
         // 촬영.
         binding.adbCameralibraryButtonShooting.setOnClickListener {
-            // 촬영 가능 확인.
-            if (!viewModel.canTakePicture()) {
-                return@setOnClickListener
+            if (viewModel.canTakePicture()) {
+                takePicture()
             }
-            // 이미지 가져오기.
-            takePicture()
         }
 
         // 플래쉬.
@@ -370,64 +352,61 @@ internal class ShootFragment : BaseViewBindingFragment<AdbCameralibraryFragmentS
             )
 
             // 플래쉬, 촬영, 완료 버튼 회전.
-            (targetRotation * 90).toFloat().also {
-                binding.adbCameralibraryLayoutFlash.animate().rotation(it)
-                binding.adbCameralibraryLayoutFinish.animate().rotation(it)
-                binding.adbCameralibraryButtonShooting.animate().rotation(it)
+            with((targetRotation * 90).toFloat()) {
+                binding.adbCameralibraryLayoutFlash.animate().rotation(this)
+                binding.adbCameralibraryLayoutFinish.animate().rotation(this)
+                binding.adbCameralibraryButtonShooting.animate().rotation(this)
             }
+
+            val constraintSet = ConstraintSet()
 
             // 크롭 사용 시 Layout 설정.
             if (unusedAreaWidth > 0 && unusedAreaHeight > 0) {
                 binding.adbCameralibraryViewUnusedAreaTop.apply {
                     layoutParams = ConstraintLayout.LayoutParams(0, unusedAreaHeight.toInt())
-                    ConstraintSet().let {
-                        it.clone(unusedAreaView)
-                        it.connect(id, topSide, unusedAreaView.id, topSide)
-                        it.applyTo(unusedAreaView)
-                    }
+                }.run {
+                    constraintSet.clone(unusedAreaView)
+                    constraintSet.connect(id, topSide, unusedAreaView.id, topSide)
+                    constraintSet.applyTo(unusedAreaView)
                 }
                 binding.adbCameralibraryViewUnusedAreaBottom.apply {
                     layoutParams = ConstraintLayout.LayoutParams(0, unusedAreaHeight.toInt())
-                    ConstraintSet().let {
-                        it.clone(unusedAreaView)
-                        it.connect(id, bottomSide, unusedAreaView.id, bottomSide)
-                        it.applyTo(unusedAreaView)
-                    }
+                }.run {
+                    constraintSet.clone(unusedAreaView)
+                    constraintSet.connect(id, bottomSide, unusedAreaView.id, bottomSide)
+                    constraintSet.applyTo(unusedAreaView)
                 }
                 binding.adbCameralibraryViewUnusedAreaStart.apply {
                     layoutParams = ConstraintLayout.LayoutParams(unusedAreaWidth.toInt(), 0)
-                    ConstraintSet().let {
-                        it.clone(unusedAreaView)
-                        it.connect(id, startSide, unusedAreaView.id, startSide)
-                        it.connect(id, topSide, unusedAreaViewTop.id, bottomSide)
-                        it.connect(id, bottomSide, unusedAreaViewBottom.id, topSide)
-                        it.applyTo(unusedAreaView)
-                    }
+                }.run {
+                    constraintSet.clone(unusedAreaView)
+                    constraintSet.connect(id, startSide, unusedAreaView.id, startSide)
+                    constraintSet.connect(id, topSide, unusedAreaViewTop.id, bottomSide)
+                    constraintSet.connect(id, bottomSide, unusedAreaViewBottom.id, topSide)
+                    constraintSet.applyTo(unusedAreaView)
                 }
                 binding.adbCameralibraryViewUnusedAreaEnd.apply {
                     layoutParams = ConstraintLayout.LayoutParams(unusedAreaWidth.toInt(), 0)
-                    ConstraintSet().also {
-                        it.clone(unusedAreaView)
-                        it.connect(id, endSide, unusedAreaView.id, endSide)
-                        it.connect(id, topSide, unusedAreaViewTop.id, bottomSide)
-                        it.connect(id, bottomSide, unusedAreaViewBottom.id, topSide)
-                        it.applyTo(unusedAreaView)
-                    }
+                }.run {
+                    constraintSet.clone(unusedAreaView)
+                    constraintSet.connect(id, endSide, unusedAreaView.id, endSide)
+                    constraintSet.connect(id, topSide, unusedAreaViewTop.id, bottomSide)
+                    constraintSet.connect(id, bottomSide, unusedAreaViewBottom.id, topSide)
+                    constraintSet.applyTo(unusedAreaView)
                 }
             }
 
             // 수평선.
             binding.adbCameralibraryViewHorizon.apply {
                 layoutParams = ConstraintLayout.LayoutParams(1, 1)
-                ConstraintSet().also {
-                    it.clone(unusedAreaView)
-                    it.connect(id, startSide, unusedAreaView.id, startSide)
-                    it.connect(id, endSide, unusedAreaView.id, endSide)
-                    it.connect(id, topSide, unusedAreaView.id, topSide)
-                    it.connect(id, bottomSide, unusedAreaView.id, bottomSide)
-                    it.applyTo(unusedAreaView)
-                }
             }.run {
+                constraintSet.clone(unusedAreaView)
+                constraintSet.connect(id, startSide, unusedAreaView.id, startSide)
+                constraintSet.connect(id, endSide, unusedAreaView.id, endSide)
+                constraintSet.connect(id, topSide, unusedAreaView.id, topSide)
+                constraintSet.connect(id, bottomSide, unusedAreaView.id, bottomSide)
+                constraintSet.applyTo(unusedAreaView)
+
                 val transition = ChangeBounds()
                 transition.interpolator = AccelerateDecelerateInterpolator()
                 transition.addListener(onEnd = {
@@ -436,18 +415,14 @@ internal class ShootFragment : BaseViewBindingFragment<AdbCameralibraryFragmentS
                         else -> Pair(0, 2)
                     }
                     layoutParams = ConstraintLayout.LayoutParams(width, height)
-                    ConstraintSet().also {
-                        it.clone(unusedAreaView)
-                        it.connect(id, startSide, unusedAreaView.id, startSide)
-                        it.connect(id, endSide, unusedAreaView.id, endSide)
-                        it.connect(id, topSide, unusedAreaView.id, topSide)
-                        it.connect(id, bottomSide, unusedAreaView.id, bottomSide)
-                        it.applyTo(unusedAreaView)
-                    }
-                    val innerTransition = ChangeBounds()
-                    innerTransition.interpolator = AccelerateDecelerateInterpolator()
+                    constraintSet.clone(unusedAreaView)
+                    constraintSet.connect(id, startSide, unusedAreaView.id, startSide)
+                    constraintSet.connect(id, endSide, unusedAreaView.id, endSide)
+                    constraintSet.connect(id, topSide, unusedAreaView.id, topSide)
+                    constraintSet.connect(id, bottomSide, unusedAreaView.id, bottomSide)
+                    constraintSet.applyTo(unusedAreaView)
                     TransitionManager.beginDelayedTransition(
-                        binding.adbCameralibraryLayout, innerTransition
+                        binding.adbCameralibraryLayout, AutoTransition()
                     )
                 })
                 TransitionManager.beginDelayedTransition(binding.adbCameralibraryLayout, transition)
@@ -460,150 +435,167 @@ internal class ShootFragment : BaseViewBindingFragment<AdbCameralibraryFragmentS
         // Wait for the views to be properly laid out
         binding.adbCameralibraryPreviewView.post {
             // Setup for Camera UseCases.
-            val cameraProviderFuture = ProcessCameraProvider.getInstance(requireContext())
-            cameraProviderFuture.addListener({
-                // CameraProvider
-                cameraProvider = cameraProviderFuture.get()
-                // Select lensFacing depending on the available cameras
-                lensFacing = when {
-                    hasBackCamera() -> CameraSelector.LENS_FACING_BACK
-                    hasFrontCamera() -> CameraSelector.LENS_FACING_FRONT
-                    else -> throw IllegalStateException("Back and front camera are unavailable")
-                }
-                // Build and bind the camera use cases
-                bindCameraUseCases()
-            }, ContextCompat.getMainExecutor(requireContext()))
+            ProcessCameraProvider.getInstance(requireContext()).apply {
+                addListener({
+                    // CameraProvider
+                    cameraProvider = get()
+                    // Select lensFacing depending on the available cameras
+                    lensFacing = when {
+                        hasBackCamera() -> CameraSelector.LENS_FACING_BACK
+                        hasFrontCamera() -> CameraSelector.LENS_FACING_FRONT
+                        else -> throw IllegalStateException("Back and front camera are unavailable")
+                    }
+                    // Build and bind the camera use cases
+                    bindCameraUseCases()
+                }, ContextCompat.getMainExecutor(requireContext()))
+            }
         }
     }
 
-    /** Declare and bind preview, capture and analysis use cases */
     private fun bindCameraUseCases() {
-        //
+        // 이미지 처리기가 있다면 중지시킵니다.
         imageProcessor?.stop()
-        // Must unbind the use-cases before rebinding them
+        // 기존에 바인드된 use-cases를 해제합니다.
         cameraProvider?.unbindAll()
 
-        // Preview UseCase.
-        preview = Preview.Builder()
-            .setTargetAspectRatio(AspectRatio.RATIO_4_3)
-            .setTargetRotation(binding.adbCameralibraryPreviewView.display.rotation)
-            .build()
+        // Preview UseCase를 설정합니다.
+        preview = Preview.Builder().apply {
+            setTargetAspectRatio(AspectRatio.RATIO_4_3)
+            setTargetRotation(binding.adbCameralibraryPreviewView.display.rotation)
+        }.build()
         preview?.setSurfaceProvider(binding.adbCameralibraryPreviewView.surfaceProvider)
 
-        // ImageCapture UseCase.
-        imageCapture = ImageCapture.Builder()
-            .setCaptureMode(ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY)
-            .setTargetAspectRatio(AspectRatio.RATIO_4_3)
-            .setTargetRotation(binding.adbCameralibraryPreviewView.display.rotation)
-            .setFlashMode(viewModel.flashMode)
-            .build()
+        // ImageCapture UseCase를 설정합니다.
+        imageCapture = ImageCapture.Builder().apply {
+            setCaptureMode(ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY)
+            setTargetAspectRatio(AspectRatio.RATIO_4_3)
+            setTargetRotation(binding.adbCameralibraryPreviewView.display.rotation)
+            setFlashMode(viewModel.flashMode)
+        }.build()
 
-        // Processor for detector.
-        imageProcessor = KoreanTextRecognizerOptions.Builder().build().let { processor ->
-            when (viewModel.item.value.action) {
-                IntentKey.ACTION_DETECT_MILEAGE_IN_PICTURES -> {
-                    MileageRecognitionProcessor(requireContext(), processor)
-                }
+        // 프로세서를 초기화합니다.
+        imageProcessor = when (viewModel.item.value.action) {
+            ACTION_DETECT_MILEAGE_IN_PICTURES -> MileageRecognitionProcessor(
+                requireContext(), createKoreanTextRecognizerOptions()
+            )
 
-                IntentKey.ACTION_DETECT_VIN_NUMBER_IN_PICTURES -> {
-                    VinNumberRecognitionProcessor(requireContext(), processor)
-                }
+            ACTION_DETECT_VIN_NUMBER_IN_PICTURES -> VinNumberRecognitionProcessor(
+                requireContext(), createKoreanTextRecognizerOptions()
+            )
 
-                IntentKey.ACTION_DETECT_VEHICLE_NUMBER_IN_PICTURES -> {
-                    VehicleNumberRecognitionProcessor(requireContext(), processor)
-                }
+            ACTION_DETECT_VEHICLE_NUMBER_IN_PICTURES -> VehicleNumberRecognitionProcessor(
+                requireContext(), createKoreanTextRecognizerOptions()
+            )
 
-                else -> null
-            }
+            else -> null
         }?.also { processor ->
-            // Clear.
+            //imageProcessor?.let { processor ->
+            // clearAnalyzer를 호출하기 전에 analyzer를 초기화합니다.
             imageAnalyzer?.clearAnalyzer()
-            // Update overlay information.
-            var needUpdateGraphicOverlayImageSourceInfo = true
-            // ImageAnalysis UseCase.
-            imageAnalyzer = ImageAnalysis.Builder()
-                .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
-                .setTargetAspectRatio(AspectRatio.RATIO_4_3)
-                .setTargetRotation(binding.adbCameralibraryPreviewView.display.rotation)
-                .build()
-            imageAnalyzer?.setAnalyzer(cameraExecutor) { imageProxy: ImageProxy ->
-                if (needUpdateGraphicOverlayImageSourceInfo) {
-                    val isImageFlipped = lensFacing == CameraSelector.LENS_FACING_FRONT
-                    val rotationDegrees = imageProxy.imageInfo.rotationDegrees
-                    if (rotationDegrees == 0 || rotationDegrees == 180) {
-                        detectOverlay.setImageSourceInfo(
-                            imageProxy.width, imageProxy.height, isImageFlipped
-                        )
-                    } else {
-                        detectOverlay.setImageSourceInfo(
-                            imageProxy.height, imageProxy.width, isImageFlipped
-                        )
-                    }
-                    needUpdateGraphicOverlayImageSourceInfo = false
-                }
 
-                try {
-                    imageProcessor?.processImageProxy(imageProxy, detectOverlay)
-                } catch (ex: MlKitException) {
-                    ex.printStackTrace()
-                }
+            // 그래픽 오버레이 이미지 소스 정보 업데이트 필요.
+            needUpdateGraphicOverlayImageSourceInfo = true
+
+            // ImageAnalysis UseCase를 설정합니다.
+            imageAnalyzer = ImageAnalysis.Builder().apply {
+                setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
+                setTargetAspectRatio(AspectRatio.RATIO_4_3)
+                setTargetRotation(binding.adbCameralibraryPreviewView.display.rotation)
+            }.build()
+            imageAnalyzer?.setAnalyzer(cameraExecutor) { imageProxy: ImageProxy ->
+                updateOverlayImageSourceInfoIfNeeded(imageProxy)
+                processImageProxySafely(imageProxy)
             }
 
-            // 분석 완료.
+            // Processor를 사용하여 onComplete를 호출합니다.
             processor.onComplete { detectText, detectRect ->
-                imageAnalyzer?.clearAnalyzer()
-                imageProcessor?.run { this.stop() }
-                when (viewModel.item.value.action) {
-                    // 차량번호.
-                    IntentKey.ACTION_DETECT_VEHICLE_NUMBER_IN_PICTURES -> {
-                        val analysisSize =
-                            Size(detectOverlay.imageWidth, detectOverlay.imageHeight)
-                        val scaleRect = viewModel.scaleRect(
-                            detectRect,
-                            analysisSize,
-                            imageCapture?.resolutionInfo?.resolution ?: Size(0, 0)
-                        )
-                        takePicture(detectText, scaleRect)
-                    }
-                    // 그 외.
-                    else -> {
-                        viewModel.detectInImage(detectText, detectRect)
-                    }
-                }
+                handleCompleteAction(detectText, detectRect)
             }
         }
 
-        // Bind UseCase to Lifecycle.
+        // CameraSelector를 설정하고 UseCase를 Lifecycle에 바인드합니다.
         val cameraSelector = CameraSelector.Builder().requireLensFacing(lensFacing).build()
-        camera = if (imageAnalyzer == null) {
-            cameraProvider?.bindToLifecycle(
+        camera = when (imageAnalyzer == null) {
+            true -> cameraProvider?.bindToLifecycle(
                 this, cameraSelector, preview, imageCapture
             )
-        } else {
-            cameraProvider?.bindToLifecycle(
+
+            else -> cameraProvider?.bindToLifecycle(
                 this, cameraSelector, preview, imageCapture, imageAnalyzer
             )
         }
     }
 
-    // 후면 카메라 사용 가능.
-    private fun hasBackCamera(): Boolean {
-        return cameraProvider?.hasCamera(CameraSelector.DEFAULT_BACK_CAMERA) ?: false
+    // 이미지 프록시를 안전하게 처리합니다.
+    private fun processImageProxySafely(imageProxy: ImageProxy) {
+        try {
+            imageProcessor?.processImageProxy(imageProxy, detectOverlay)
+        } catch (ex: MlKitException) {
+            ex.printStackTrace()
+        }/* finally {
+            imageProxy.close()
+        }*/
     }
 
-    // 전면 카메라 사용 가능.
-    private fun hasFrontCamera(): Boolean {
-        return cameraProvider?.hasCamera(CameraSelector.DEFAULT_FRONT_CAMERA) ?: false
+    // Overlay의 이미지 소스 정보를 업데이트합니다.
+    private var needUpdateGraphicOverlayImageSourceInfo = true
+    private fun updateOverlayImageSourceInfoIfNeeded(imageProxy: ImageProxy) {
+        if (needUpdateGraphicOverlayImageSourceInfo) {
+            val isImageFlipped = lensFacing == CameraSelector.LENS_FACING_FRONT
+            val rotationDegrees = imageProxy.imageInfo.rotationDegrees
+            val (width, height) = when (rotationDegrees == 0 || rotationDegrees == 180) {
+                true -> Pair(imageProxy.width, imageProxy.height)
+                else -> Pair(imageProxy.height, imageProxy.width)
+            }
+            detectOverlay.setImageSourceInfo(width, height, isImageFlipped)
+            needUpdateGraphicOverlayImageSourceInfo = false
+        }
     }
+
+    // Processor 옵션을 생성합니다.
+    private fun createKoreanTextRecognizerOptions(): KoreanTextRecognizerOptions {
+        return KoreanTextRecognizerOptions.Builder().build()
+    }
+
+    // 처리 완료 후 액션을 처리합니다.
+    private fun handleCompleteAction(detectText: String, detectRect: RectF) {
+        imageAnalyzer?.clearAnalyzer()
+        imageProcessor?.stop()
+        when (viewModel.item.value.action) {
+            ACTION_DETECT_VEHICLE_NUMBER_IN_PICTURES -> {
+                val scaleRect = viewModel.scaleRect(
+                    detectRect,
+                    Size(detectOverlay.imageWidth, detectOverlay.imageHeight),
+                    imageCapture?.resolutionInfo?.resolution ?: Size(0, 0)
+                )
+                takePicture(detectText, scaleRect)
+            }
+
+            else -> viewModel.detectInImage(detectText, detectRect)
+        }
+    }
+
+    // 후면 카메라 사용 가능.
+    private fun hasBackCamera(): Boolean = cameraProvider?.hasCamera(
+        CameraSelector.DEFAULT_BACK_CAMERA
+    ) ?: false
+
+    // 전면 카메라 사용 가능.
+    private fun hasFrontCamera(): Boolean = cameraProvider?.hasCamera(
+        CameraSelector.DEFAULT_FRONT_CAMERA
+    ) ?: false
 
     // 셔터음.
     private fun playShutterSound(canMute: Boolean) {
-        if (canMute) {
+        when (canMute) {
             // 미디어 볼륨으로 셔터효과음 재생(무음 가능).
-            mediaActionSound.playWithStreamVolume(MediaActionSound.SHUTTER_CLICK, audioManager)
-        } else {
+            true -> mediaActionSound.playWithStreamVolume(
+                MediaActionSound.SHUTTER_CLICK, audioManager
+            )
             // 최소 볼륨으로 셔터효과음 재생.
-            mediaActionSound.playWithMinimumVolume(MediaActionSound.SHUTTER_CLICK)
+            else -> mediaActionSound.playWithMinimumVolume(
+                MediaActionSound.SHUTTER_CLICK
+            )
         }
     }
 

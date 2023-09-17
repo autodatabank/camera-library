@@ -4,6 +4,14 @@
     >
 
     <application>
+
+        <provider
+            android:authorities="kr.co.kadb.cameralibrary.cameralibraryinitprovider"
+            android:name="kr.co.kadb.cameralibrary.CameraLibraryInitProvider"
+            android:exported="false"
+            android:initOrder="100"
+            />
+
         <!-- 촬영. -->
         <activity
             android:name=".presentation.ui.shoot.ShootActivity"

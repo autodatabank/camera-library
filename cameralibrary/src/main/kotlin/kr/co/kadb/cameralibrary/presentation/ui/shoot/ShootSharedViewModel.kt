@@ -11,10 +11,10 @@ import androidx.exifinterface.media.ExifInterface
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
-import kr.co.kadb.cameralibrary.data.local.PreferenceManager
+import kr.co.kadb.cameralibrary.PreferenceManager
+import kr.co.kadb.cameralibrary.presentation.base.UiState
 import kr.co.kadb.cameralibrary.presentation.model.CropSize
-import kr.co.kadb.cameralibrary.presentation.model.ShootUiState
-import kr.co.kadb.cameralibrary.presentation.model.UiState
+import kr.co.kadb.cameralibrary.presentation.ui.shoot.ShootEvent.*
 import kr.co.kadb.cameralibrary.presentation.viewmodel.BaseAndroidViewModel
 import kr.co.kadb.cameralibrary.presentation.widget.extension.*
 import kr.co.kadb.cameralibrary.presentation.widget.util.IntentKey.ACTION_DETECT_MAINTENANCE_STATEMENT_IN_PICTURES
@@ -38,29 +38,9 @@ constructor(
     application: Application,
     private val preferences: PreferenceManager
 ) : BaseAndroidViewModel<ShootUiState>(application, UiState.loading()) {
-    // Event.
-    sealed class Event {
-        data class PlayShutterSound(val canMute: Boolean) : Event()
-        data class TakePicture(
-            val uri: Uri, val size: Size, val rotation: Int, val thumbnailBitmap: Bitmap?
-        ) : Event()
-
-        data class TakeMultiplePictures(
-            val uris: ArrayList<Uri>, val sizes: ArrayList<Size>, val rotations: ArrayList<Int>
-        ) : Event()
-
-        data class DetectInImage(
-            val text: String? = null,
-            val rect: RectF? = null,
-            val uri: Uri? = null,
-            val size: Size? = null,
-            val rotation: Int? = null,
-            val thumbnailBitmap: Bitmap? = null
-        ) : Event()
-    }
 
     // Event.
-    private val _eventFlow = MutableSharedFlow<Event>()
+    private val _eventFlow = MutableSharedFlow<ShootEvent>()
     val eventFlow = _eventFlow.asSharedFlow()
 
     // Item.
@@ -96,7 +76,7 @@ constructor(
     }
 
     // Emit event.
-    private fun event(event: Event) {
+    private fun event(event: ShootEvent) {
         viewModelScope.launch {
             _eventFlow.emit(event)
         }
@@ -221,7 +201,7 @@ constructor(
                 false
             } else {
                 updateState { value ->
-                    value?.copy(isShooted = true)
+                    value.copy(isShooted = true)
                 }
                 true
             }
@@ -231,7 +211,7 @@ constructor(
     // 촬영완료 이벤트.
     fun stopShooting() {
         event(
-            Event.TakeMultiplePictures(
+            TakeMultiplePictures(
                 item.value.uris, item.value.sizes, item.value.rotations
             )
         )
@@ -239,7 +219,7 @@ constructor(
 
     // 이미지에서 텍스트 감지.
     fun detectInImage(text: String, rect: RectF) {
-        event(Event.DetectInImage(text, rect))
+        event(DetectInImage(text, rect))
     }
 
     // 이미지 저장.
@@ -252,7 +232,7 @@ constructor(
         detectRect: RectF? = null
     ) {
         // 셔터음 이벤트.
-        event(Event.PlayShutterSound(item.value.canMute))
+        event(PlayShutterSound(item.value.canMute))
 
         // Image Buffer
         byteBuffer.rewind()
@@ -286,7 +266,7 @@ constructor(
                         addAll(value?.rotations ?: arrayListOf())
                         add(rotation)
                     }
-                    value?.copy(uris = uris, sizes = sizes, rotations = rotations)
+                    value.copy(uris = uris, sizes = sizes, rotations = rotations)
                 }
 
                 // 촬영 완료.
@@ -296,7 +276,7 @@ constructor(
                     val thumbnail = imageUri?.toThumbnail(context, size)
                     // 감지 완료 이벤트.
                     event(
-                        Event.DetectInImage(
+                        DetectInImage(
                             detectText,
                             detectRect,
                             imageUri ?: Uri.EMPTY,
@@ -310,7 +290,7 @@ constructor(
                     val context = getApplication<Application>().applicationContext
                     val thumbnail = imageUri?.toThumbnail(context, size)
                     // 촬영 완료 이벤트.
-                    event(Event.TakePicture(imageUri ?: Uri.EMPTY, size, rotation, thumbnail))
+                    event(TakePicture(imageUri ?: Uri.EMPTY, size, rotation, thumbnail))
                 }
             }
         }

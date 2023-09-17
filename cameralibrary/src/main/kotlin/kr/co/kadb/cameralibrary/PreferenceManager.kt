@@ -1,4 +1,4 @@
-package kr.co.kadb.cameralibrary.data.local
+package kr.co.kadb.cameralibrary
 
 import android.content.Context
 import android.content.SharedPreferences

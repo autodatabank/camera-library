@@ -25,7 +25,7 @@ import timber.log.Timber
 class MainActivity : AppCompatActivity() {
 
     // Crop Size.
-    private val cropSize = CropSize(0.7f, 0.5f)
+    private val cropSize = CropSize(0.8f, 0.7f)
 
     // Activity for result.
     // Example 2, 3.

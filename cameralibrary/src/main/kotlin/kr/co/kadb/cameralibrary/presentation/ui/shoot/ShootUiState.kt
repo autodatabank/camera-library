@@ -1,9 +1,10 @@
-package kr.co.kadb.cameralibrary.presentation.model
+package kr.co.kadb.cameralibrary.presentation.ui.shoot
 
 import android.net.Uri
 import android.util.Size
 import androidx.annotation.IntRange
-import kr.co.kadb.cameralibrary.domain.model.ShootItem
+import kr.co.kadb.cameralibrary.presentation.model.ShootItem
+import kr.co.kadb.cameralibrary.presentation.model.CropSize
 
 /**
  * Created by oooobang on 2022. 7. 17..

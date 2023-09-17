@@ -31,6 +31,7 @@ android {
 
     kotlinOptions {
         jvmTarget = JavaVersion.VERSION_17
+        //freeCompilerArgs += '-Xexplicit-api=strict'
     }
 
     sourceSets {
@@ -80,16 +81,6 @@ dependencies {
     implementation 'androidx.transition:transition-ktx:1.4.1'
     implementation "androidx.interpolator:interpolator:1.0.0"
     implementation "androidx.constraintlayout:constraintlayout:2.1.4"
-
-    // Android Architecture Components.
-    //def lifecycle_version = '2.5.1'
-    //implementation "androidx.lifecycle:lifecycle-runtime-ktx:$lifecycle_version"
-    //implementation "androidx.lifecycle:lifecycle-livedata-ktx:$lifecycle_version"
-    //implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycle_version"
-
-    // Kotlin.
-    //implementation 'org.jetbrains.kotlin:kotlin-reflect:1.7.20'
-    //implementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.7.20'
 
     // Kotlin Coroutines.
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3'

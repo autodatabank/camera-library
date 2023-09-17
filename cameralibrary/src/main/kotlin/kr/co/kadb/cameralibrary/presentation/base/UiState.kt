@@ -1,4 +1,4 @@
-package kr.co.kadb.cameralibrary.presentation.model
+package kr.co.kadb.cameralibrary.presentation.base
 
 internal data class UiState<T>(
     val isLoading: Boolean = false,
