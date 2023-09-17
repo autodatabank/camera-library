@@ -1,7 +1,6 @@
 package kr.co.kadb.cameralibrary.presentation.ui.shoot
 
 import android.app.Application
-import android.graphics.Bitmap
 import android.graphics.RectF
 import android.net.Uri
 import android.util.Size
@@ -255,15 +254,15 @@ constructor(
                 // 상태 업데이트.
                 updateState { value ->
                     val uris = arrayListOf<Uri>().apply {
-                        addAll(value?.uris ?: arrayListOf())
+                        addAll(value.uris)
                         add(imageUri ?: Uri.EMPTY)
                     }
                     val sizes = arrayListOf<Size>().apply {
-                        addAll(value?.sizes ?: arrayListOf())
+                        addAll(value.sizes)
                         add(size)
                     }
                     val rotations = arrayListOf<Int>().apply {
-                        addAll(value?.rotations ?: arrayListOf())
+                        addAll(value.rotations)
                         add(rotation)
                     }
                     value.copy(uris = uris, sizes = sizes, rotations = rotations)
