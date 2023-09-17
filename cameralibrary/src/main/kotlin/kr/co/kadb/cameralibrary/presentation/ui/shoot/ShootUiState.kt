@@ -12,26 +12,26 @@ import kr.co.kadb.cameralibrary.presentation.model.CropSize
  */
 internal data class ShootUiState(
     val action: String?,
-    val isDebug: Boolean,
-    val isShooted: Boolean,
-    val isMultiplePicture: Boolean,
-    val isUsingMLKit: Boolean,
-    val isVehicleNumberPicture: Boolean,
-    val isMileagePicture: Boolean,
-    val isVinNumberPicture: Boolean,
-    val isMaintenanceStatementPicture: Boolean,
-    val canMute: Boolean,
-    val hasHorizon: Boolean,
-    val canUiRotation: Boolean,
-    val isSaveCroppedImage: Boolean,
-    val cropSize: CropSize,
-    val uris: ArrayList<Uri>,
-    val sizes: ArrayList<Size>,
-    val rotations: ArrayList<Int>,
-    val horizonColor: Int,
-    val unusedAreaBorderColor: Int,
+    val isDebug: Boolean = false,
+    val isShooted: Boolean = false,
+    val isMultiplePicture: Boolean = false,
+    val isUsingMLKit: Boolean = false,
+    val isVehicleNumberPicture: Boolean = false,
+    val isMileagePicture: Boolean = false,
+    val isVinNumberPicture: Boolean = false,
+    val isMaintenanceStatementPicture: Boolean = false,
+    val canMute: Boolean = false,
+    val hasHorizon: Boolean = false,
+    val canUiRotation: Boolean = false,
+    val isSaveCroppedImage: Boolean = false,
+    val cropSize: CropSize = CropSize.Uninitialized,
+    val uris: ArrayList<Uri> = arrayListOf(),
+    val sizes: ArrayList<Size> = arrayListOf(),
+    val rotations: ArrayList<Int> = arrayListOf(),
+    val horizonColor: Int = -1,
+    val unusedAreaBorderColor: Int = -1,
     @IntRange(from = 1, to = 100)
-    val croppedJpegQuality: Int
+    val croppedJpegQuality: Int = 95
 ) {
     /*class DiffCallback : DiffUtil.ItemCallback<NewsItemUiState>() {
         override fun areItemsTheSame(
