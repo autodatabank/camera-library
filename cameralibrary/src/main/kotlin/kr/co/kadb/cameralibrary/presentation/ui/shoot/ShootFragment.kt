@@ -620,6 +620,7 @@ internal class ShootFragment : BaseViewBindingFragment<AdbCameralibraryFragmentS
                 } catch (ex: IOException) {
                     ex.printStackTrace()
                 }
+                image.close()
             }
 
             override fun onError(exception: ImageCaptureException) {
