@@ -2,6 +2,7 @@ package kr.co.kadb.cameralibrary.presentation
 
 import android.content.Context
 import android.content.Intent
+import androidx.annotation.FloatRange
 import androidx.annotation.IntRange
 import kr.co.kadb.cameralibrary.presentation.model.CropSize
 import kr.co.kadb.cameralibrary.presentation.ui.shoot.ShootActivity
@@ -219,6 +220,14 @@ class CameraIntent {
 
         fun setCropSize(cropSize: CropSize): Build {
             this.cropSize = cropSize
+            return this
+        }
+
+        fun setCropSize(
+            @FloatRange(from = 0.0, to = 1.0) width: Float,
+            @FloatRange(from = 0.0, to = 1.0) height: Float
+        ): Build {
+            this.cropSize = CropSize(width, height)
             return this
         }
 

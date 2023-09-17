@@ -38,7 +38,10 @@ import com.google.mlkit.vision.text.korean.KoreanTextRecognizerOptions
 import kr.co.kadb.cameralibrary.R
 import kr.co.kadb.cameralibrary.databinding.AdbCameralibraryFragmentShootBinding
 import kr.co.kadb.cameralibrary.presentation.base.BaseViewBindingFragment
-import kr.co.kadb.cameralibrary.presentation.ui.shoot.ShootSharedViewModel.Event
+import kr.co.kadb.cameralibrary.presentation.ui.shoot.ShootSharedViewModel.Event.DetectInImage
+import kr.co.kadb.cameralibrary.presentation.ui.shoot.ShootSharedViewModel.Event.PlayShutterSound
+import kr.co.kadb.cameralibrary.presentation.ui.shoot.ShootSharedViewModel.Event.TakeMultiplePictures
+import kr.co.kadb.cameralibrary.presentation.ui.shoot.ShootSharedViewModel.Event.TakePicture
 import kr.co.kadb.cameralibrary.presentation.widget.extension.repeatOnStarted
 import kr.co.kadb.cameralibrary.presentation.widget.mlkit.MileageRecognitionProcessor
 import kr.co.kadb.cameralibrary.presentation.widget.mlkit.VehicleNumberRecognitionProcessor
@@ -241,58 +244,48 @@ internal class ShootFragment : BaseViewBindingFragment<AdbCameralibraryFragmentS
         // Event collect.
         repeatOnStarted {
             viewModel.eventFlow.collect { event ->
-                // Debug.
-                Timber.i(">>>>> ShootFragment event collect : $event")
                 when (event) {
                     // 셔터음.
-                    is Event.PlayShutterSound -> {
-                        playShutterSound(event.canMute)
-                    }
+                    is PlayShutterSound -> playShutterSound(event.canMute)
                     // 한 장 촬영 결과 전달.
-                    is Event.TakePicture -> {
-                        Intent().apply {
-                            action = viewModel.item.value.action
-                            putExtra("data", event.thumbnailBitmap)
-                            putExtra(IntentKey.EXTRA_WIDTH, event.size.width)
-                            putExtra(IntentKey.EXTRA_HEIGHT, event.size.height)
-                            putExtra(IntentKey.EXTRA_ROTATION, event.rotation)
-                            setDataAndType(event.uri, "image/jpeg")
-                        }.also {
-                            requireActivity().setResult(Activity.RESULT_OK, it)
-                        }.run {
-                            activity?.finish()
-                            event.thumbnailBitmap?.recycle()
-                        }
+                    is TakePicture -> Intent().apply {
+                        action = viewModel.item.value.action
+                        putExtra("data", event.thumbnailBitmap)
+                        putExtra(IntentKey.EXTRA_WIDTH, event.size.width)
+                        putExtra(IntentKey.EXTRA_HEIGHT, event.size.height)
+                        putExtra(IntentKey.EXTRA_ROTATION, event.rotation)
+                        setDataAndType(event.uri, "image/jpeg")
+                    }.also {
+                        requireActivity().setResult(Activity.RESULT_OK, it)
+                    }.run {
+                        activity?.finish()
+                        event.thumbnailBitmap?.recycle()
                     }
                     // 여러 장 촬영 결과 전달.
-                    is Event.TakeMultiplePictures -> {
-                        Intent().apply {
-                            action = viewModel.item.value.action
-                            putExtra(IntentKey.EXTRA_URIS, event.uris)
-                            putExtra(IntentKey.EXTRA_SIZES, event.sizes)
-                            putExtra(IntentKey.EXTRA_ROTATIONS, event.rotations)
-                        }.also {
-                            requireActivity().setResult(Activity.RESULT_OK, it)
-                        }.run {
-                            activity?.finish()
-                        }
+                    is TakeMultiplePictures -> Intent().apply {
+                        action = viewModel.item.value.action
+                        putExtra(IntentKey.EXTRA_URIS, event.uris)
+                        putExtra(IntentKey.EXTRA_SIZES, event.sizes)
+                        putExtra(IntentKey.EXTRA_ROTATIONS, event.rotations)
+                    }.also {
+                        requireActivity().setResult(Activity.RESULT_OK, it)
+                    }.run {
+                        activity?.finish()
                     }
                     // 이미지 감지 결과 전달.
-                    is Event.DetectInImage -> {
-                        Intent().apply {
-                            action = viewModel.item.value.action
-                            putExtra(IntentKey.EXTRA_DETECT_TEXT, event.text)
-                            putExtra(IntentKey.EXTRA_DETECT_RECT, event.rect)
-                            putExtra("data", event.thumbnailBitmap)
-                            putExtra(IntentKey.EXTRA_WIDTH, event.size?.width)
-                            putExtra(IntentKey.EXTRA_HEIGHT, event.size?.height)
-                            putExtra(IntentKey.EXTRA_ROTATION, event.rotation)
-                            setDataAndType(event.uri, "image/jpeg")
-                        }.also {
-                            requireActivity().setResult(Activity.RESULT_OK, it)
-                        }.run {
-                            activity?.finish()
-                        }
+                    is DetectInImage -> Intent().apply {
+                        action = viewModel.item.value.action
+                        putExtra(IntentKey.EXTRA_DETECT_TEXT, event.text)
+                        putExtra(IntentKey.EXTRA_DETECT_RECT, event.rect)
+                        putExtra("data", event.thumbnailBitmap)
+                        putExtra(IntentKey.EXTRA_WIDTH, event.size?.width)
+                        putExtra(IntentKey.EXTRA_HEIGHT, event.size?.height)
+                        putExtra(IntentKey.EXTRA_ROTATION, event.rotation)
+                        setDataAndType(event.uri, "image/jpeg")
+                    }.also {
+                        requireActivity().setResult(Activity.RESULT_OK, it)
+                    }.run {
+                        activity?.finish()
                     }
                 }
             }

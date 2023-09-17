@@ -22,16 +22,16 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_11
-        targetCompatibility JavaVersion.VERSION_11
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
     }
 
     kotlinOptions {
-        jvmTarget = JavaVersion.VERSION_11
+        jvmTarget = JavaVersion.VERSION_17
     }
 
     buildFeatures {
-        viewBinding true
+        //viewBinding true
     }
 
     packagingOptions {
@@ -64,6 +64,6 @@ dependencies {
 
     // AutoDataBank CameraLibrary.
     implementation project(':cameralibrary')
-    //implementation 'com.github.autodatabank:camera-library:1.1.0-beta3'
+    //implementation 'com.github.autodatabank:camera-library:1.1.0'
 }
 

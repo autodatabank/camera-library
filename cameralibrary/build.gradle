@@ -25,12 +25,12 @@ android {
     }
 
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_11
-        targetCompatibility JavaVersion.VERSION_11
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
     }
 
     kotlinOptions {
-        jvmTarget = JavaVersion.VERSION_11
+        jvmTarget = JavaVersion.VERSION_17
     }
 
     sourceSets {
@@ -69,7 +69,7 @@ dependencies {
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
 
     // 종속성 충돌에 의한 Guava 필수.
-    implementation 'com.google.guava:guava:31.1-jre'
+    implementation 'com.google.guava:guava:32.1.2-jre'
 
     // Android Jetpack.
     implementation 'androidx.core:core-ktx:1.10.1'
