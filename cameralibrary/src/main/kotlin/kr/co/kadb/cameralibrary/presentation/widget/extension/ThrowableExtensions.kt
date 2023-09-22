@@ -8,7 +8,7 @@ import java.net.SocketTimeoutException
  * Throwable Extension.
  */
 
-fun Throwable.toFailedThrowable(): Throwable {
+internal fun Throwable.toFailedThrowable(): Throwable {
     // Debug.
     Timber.e(">>>>> Exception : ${this.stackTraceToString()}")
 

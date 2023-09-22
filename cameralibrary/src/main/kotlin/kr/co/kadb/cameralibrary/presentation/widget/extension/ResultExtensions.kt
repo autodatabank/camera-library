@@ -12,7 +12,7 @@ import kotlinx.coroutines.flow.Flow
  *
  * Cancellation exceptions need to be rethrown. See https://github.com/Kotlin/kotlinx.coroutines/issues/1814.
  */
-inline fun <R> resultOf(block: () -> R): Result<R> {
+internal inline fun <R> resultOf(block: () -> R): Result<R> {
     return try {
         Result.success(block())
     } catch (t: TimeoutCancellationException) {
@@ -24,7 +24,7 @@ inline fun <R> resultOf(block: () -> R): Result<R> {
     }
 }
 
-suspend inline fun <T> Flow<Result<T>>.collectResult(
+internal suspend inline fun <T> Flow<Result<T>>.collectResult(
     crossinline block: suspend Result<T>.() -> Unit
 ) {
     collect {

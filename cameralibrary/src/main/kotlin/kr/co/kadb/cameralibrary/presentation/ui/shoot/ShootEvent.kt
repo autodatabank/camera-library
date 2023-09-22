@@ -6,7 +6,7 @@ import android.net.Uri
 import android.util.Size
 
 // Event.
-sealed class ShootEvent {
+internal sealed class ShootEvent {
     data class PlayShutterSound(val canMute: Boolean) : ShootEvent()
     data class TakePicture(
         val uri: Uri, val size: Size, val rotation: Int, val thumbnailBitmap: Bitmap?

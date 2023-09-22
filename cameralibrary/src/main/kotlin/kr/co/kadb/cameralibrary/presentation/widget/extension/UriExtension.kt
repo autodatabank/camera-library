@@ -17,7 +17,7 @@ import kotlin.math.min
  * Uri Extension.
  */
 /*// 이미지 Exif.
-fun Uri.exif(context: Context): Exif? {
+internal fun Uri.exif(context: Context): Exif? {
     var exif: Exif? = null
     var inputStream: InputStream? = null
     try {
@@ -35,7 +35,7 @@ fun Uri.exif(context: Context): Exif? {
 }*/
 
 // 이미지 ExifInterface.
-fun Uri.exifInterface(context: Context): ExifInterface? {
+public fun Uri.exifInterface(context: Context): ExifInterface? {
     var exifInterface: ExifInterface? = null
     var inputStream: InputStream? = null
     try {
@@ -64,7 +64,7 @@ fun Uri.exifInterface(context: Context): ExifInterface? {
 }
 
 // 이미지 Thumbnail 반환.
-fun Uri.toThumbnail(
+internal fun Uri.toThumbnail(
     context: Context,
     originSize: Size? = null,
     thumbnailSize: Int = 96
@@ -118,7 +118,7 @@ fun Uri.toThumbnail(
 
 // Bitmap 반환.
 @Suppress("DEPRECATION")
-fun Uri.toBitmap(
+internal fun Uri.toBitmap(
     context: Context
 ): Bitmap? {
     try {
@@ -134,7 +134,7 @@ fun Uri.toBitmap(
 }
 
 // 이미지 Uri에서 회전후 Crop한 Bitmap 반환.
-fun Uri.rotateAndCrop(
+internal fun Uri.rotateAndCrop(
     context: Context,
     cropRect: Rect,
     rotationDegrees: Int? = null
@@ -163,7 +163,7 @@ fun Uri.rotateAndCrop(
 }
 
 // 이미지 Uri에서 회전후 중앙 기준 Crop한 Bitmap 반환.
-fun Uri.rotateAndCenterCrop(
+internal fun Uri.rotateAndCenterCrop(
     context: Context,
     cropSize: Size,
     originSize: Size? = null,
@@ -214,7 +214,7 @@ fun Uri.rotateAndCenterCrop(
 }
 
 // 이미지 Uri에서 회전후 중앙 기준 Crop한 Bitmap 반환.
-fun Uri.rotateAndCenterCrop(
+internal fun Uri.rotateAndCenterCrop(
     context: Context,
     @FloatRange(from = 0.0, to = 1.0)
     cropWidth: Float,
@@ -275,7 +275,7 @@ fun Uri.rotateAndCenterCrop(
 }
 
 // 이미지 리사이징.
-fun Uri.resize(context: Context, resize: Int): Bitmap? {
+internal fun Uri.resize(context: Context, resize: Int): Bitmap? {
     try {
         val options: BitmapFactory.Options = BitmapFactory.Options()
         BitmapFactory.decodeStream(context.contentResolver.openInputStream(this), null, options)

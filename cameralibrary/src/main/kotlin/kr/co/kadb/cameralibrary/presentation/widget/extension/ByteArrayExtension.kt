@@ -21,7 +21,7 @@ import java.io.FileOutputStream
  * ByteArray Extension.
  */
 // 저장.
-fun ByteArray?.save(
+internal fun ByteArray?.save(
     context: Context? = null,
     isPublicDirectory: Boolean = false,
     filename: String = System.currentTimeMillis().toString(),
@@ -191,7 +191,7 @@ fun ByteArray?.save(
 }
 
 // To Bitmap.
-fun ByteArray?.toBitmap(sampleSize: Int = 1): Bitmap? {
+internal fun ByteArray?.toBitmap(sampleSize: Int = 1): Bitmap? {
     // 샘플링.
     val options = BitmapFactory.Options().apply {
         inSampleSize = sampleSize

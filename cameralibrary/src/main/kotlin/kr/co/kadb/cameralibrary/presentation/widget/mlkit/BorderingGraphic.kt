@@ -27,7 +27,7 @@ import kotlin.math.min
  * Graphic instance for rendering TextBlock position, size, and ID within an associated graphic
  * overlay view.
  */
-class BorderingGraphic constructor(
+internal class BorderingGraphic constructor(
     overlay: GraphicOverlay?,
     private val drawItems: List<DetectedItem>?
 ) : GraphicOverlay.Graphic(overlay) {

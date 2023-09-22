@@ -7,7 +7,7 @@ import timber.log.Timber
  * Created by oooobang on 2018. 1. 31..
  */
 
-fun Any?.fieldReflection(obj: Any?) {
+internal fun Any?.fieldReflection(obj: Any?) {
     try {
         obj?.javaClass?.declaredFields?.forEach { outerField ->
             this?.javaClass?.declaredFields?.forEach { innerField ->
@@ -26,6 +26,6 @@ fun Any?.fieldReflection(obj: Any?) {
 }
 
 // Json Pretty.
-fun Any?.toJsonPretty(): String {
+internal fun Any?.toJsonPretty(): String {
     return GsonBuilder().setPrettyPrinting().create().toJson(this)
 }

@@ -27,7 +27,7 @@ import com.google.mlkit.vision.text.TextRecognizerOptionsInterface
 import timber.log.Timber
 
 /** Processor for the text detector demo. */
-class TextRecognitionProcessor(
+internal class TextRecognitionProcessor(
     context: Context,
     textRecognizerOptions: TextRecognizerOptionsInterface
 ) : VisionProcessorBase<Text, String>(context) {

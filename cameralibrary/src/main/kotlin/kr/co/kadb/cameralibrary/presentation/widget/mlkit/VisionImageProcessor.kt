@@ -24,7 +24,7 @@ import java.nio.ByteBuffer
 /**
  * An interface to process the images with different vision detectors and custom image models.
  */
-interface VisionImageProcessor<R> {
+internal interface VisionImageProcessor<R> {
     /**
      * Processes a bitmap image.
      */

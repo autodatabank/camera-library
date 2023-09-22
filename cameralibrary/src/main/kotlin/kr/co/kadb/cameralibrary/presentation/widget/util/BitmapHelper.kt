@@ -11,10 +11,10 @@ import kr.co.kadb.cameralibrary.presentation.widget.extension.toBase64
 /**
  * Utility class for Bitmap.
  */
-class BitmapHelper {
-    companion object {
+public class BitmapHelper {
+    public companion object {
         @JvmStatic
-        fun save(
+        public fun save(
             context: Context,
             bitmap: Bitmap?,
             isPublicDirectory: Boolean = false
@@ -23,7 +23,7 @@ class BitmapHelper {
         }
 
         @JvmStatic
-        fun save(
+        public fun save(
             context: Context,
             bitmap: Bitmap?,
             isPublicDirectory: Boolean = false,
@@ -39,24 +39,24 @@ class BitmapHelper {
         }
 
         @JvmStatic
-        fun resize(bitmap: Bitmap?, resizePixcel: Int): Bitmap? {
+        public fun resize(bitmap: Bitmap?, resizePixcel: Int): Bitmap? {
             return bitmap?.resize(resizePixcel)
         }
 
         @JvmStatic
-        fun optimumResize(bitmap: Bitmap?, resizePixcel: Int): Bitmap? {
+        public fun optimumResize(bitmap: Bitmap?, resizePixcel: Int): Bitmap? {
             return bitmap?.optimumResize(resizePixcel)
         }
 
         @JvmStatic
-        fun toBase64(
+        public fun toBase64(
             bitmap: Bitmap?
         ): String? {
             return bitmap.toBase64()
         }
 
         @JvmStatic
-        fun toBase64(
+        public fun toBase64(
             bitmap: Bitmap?,
             flags: Int = Base64.NO_WRAP,
             format: Bitmap.CompressFormat = Bitmap.CompressFormat.JPEG

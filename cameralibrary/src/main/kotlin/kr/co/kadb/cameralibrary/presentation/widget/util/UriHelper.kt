@@ -14,25 +14,25 @@ import kr.co.kadb.cameralibrary.presentation.widget.extension.toThumbnail
 /**
  * Utility class for Uri.
  */
-class UriHelper {
-    companion object {
+public class UriHelper {
+    public companion object {
         @JvmStatic
-        fun toBitmap(context: Context, uri: Uri?): Bitmap? {
+        public fun toBitmap(context: Context, uri: Uri?): Bitmap? {
             return uri?.toBitmap(context)
         }
 
         @JvmStatic
-        fun toThumbnail(context: Context, uri: Uri?): Bitmap? {
+        public fun toThumbnail(context: Context, uri: Uri?): Bitmap? {
             return uri?.toThumbnail(context)
         }
 
         @JvmStatic
-        fun toThumbnail(context: Context, uri: Uri?, originSize: Size?): Bitmap? {
+        public fun toThumbnail(context: Context, uri: Uri?, originSize: Size?): Bitmap? {
             return uri?.toThumbnail(context, originSize)
         }
 
         @JvmStatic
-        fun toThumbnail(
+        public fun toThumbnail(
             context: Context,
             uri: Uri?,
             originSize: Size?,
@@ -42,12 +42,12 @@ class UriHelper {
         }
 
         @JvmStatic
-        fun rotateAndCrop(context: Context, uri: Uri?, cropRect: Rect): Bitmap? {
+        public fun rotateAndCrop(context: Context, uri: Uri?, cropRect: Rect): Bitmap? {
             return uri?.rotateAndCrop(context, cropRect)
         }
 
         @JvmStatic
-        fun rotateAndCrop(
+        public fun rotateAndCrop(
             context: Context,
             uri: Uri?,
             cropRect: Rect,
@@ -65,7 +65,7 @@ class UriHelper {
             )
         )
         @JvmStatic
-        fun rotateAndCenterCrop(
+        public fun rotateAndCenterCrop(
             context: Context,
             uri: Uri?,
             cropPercent: Array<Float>
@@ -82,7 +82,7 @@ class UriHelper {
             )
         )
         @JvmStatic
-        fun rotateAndCenterCrop(
+        public fun rotateAndCenterCrop(
             context: Context,
             uri: Uri?,
             cropPercent: Array<Float>,
@@ -97,7 +97,7 @@ class UriHelper {
         }
 
         @JvmStatic
-        fun rotateAndCenterCrop(
+        public fun rotateAndCenterCrop(
             context: Context,
             uri: Uri?,
             @FloatRange(from = 0.0, to = 1.0)
@@ -109,7 +109,7 @@ class UriHelper {
         }
 
         @JvmStatic
-        fun rotateAndCenterCrop(
+        public fun rotateAndCenterCrop(
             context: Context,
             uri: Uri?,
             @FloatRange(from = 0.0, to = 1.0)

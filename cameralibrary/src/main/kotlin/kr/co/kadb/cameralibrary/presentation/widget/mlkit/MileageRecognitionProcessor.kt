@@ -28,7 +28,7 @@ import kr.co.kadb.cameralibrary.presentation.widget.extension.removeCommas
 import timber.log.Timber
 
 /** Processor for the text detector demo. */
-class MileageRecognitionProcessor(
+internal class MileageRecognitionProcessor(
     context: Context,
     textRecognizerOptions: TextRecognizerOptionsInterface
 ) : VisionProcessorBase<Text, String>(context) {

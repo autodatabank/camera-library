@@ -31,7 +31,7 @@ import java.lang.Integer.max
 import java.lang.Integer.min
 
 /** Processor for the text detector demo. */
-class VehicleNumberRecognitionProcessor(
+internal class VehicleNumberRecognitionProcessor(
     context: Context,
     textRecognizerOptions: TextRecognizerOptionsInterface
 ) : VisionProcessorBase<Text, String>(context) {

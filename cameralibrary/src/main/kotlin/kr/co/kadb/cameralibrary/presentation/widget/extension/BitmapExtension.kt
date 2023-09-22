@@ -196,7 +196,7 @@ private val DO_NOT_COPY_EXIF_TAGS = listOf(
 )
 
 // 저장.
-fun Bitmap?.save(
+internal fun Bitmap?.save(
     context: Context? = null,
     isPublicDirectory: Boolean = false,
     filename: String = System.currentTimeMillis().toString(),
@@ -369,14 +369,14 @@ fun Bitmap?.save(
 }
 
 // toByteArray.
-fun Bitmap?.toByteArray(format: Bitmap.CompressFormat = Bitmap.CompressFormat.JPEG): ByteArray? {
+internal fun Bitmap?.toByteArray(format: Bitmap.CompressFormat = Bitmap.CompressFormat.JPEG): ByteArray? {
     val stream = ByteArrayOutputStream()
     this?.compress(format, 95, stream)
     return stream.toByteArray()
 }
 
 // 특정 컬러 투명처리.
-fun Bitmap?.toTransparentBitmap(replaceThisColor: Int): Bitmap? {
+internal fun Bitmap?.toTransparentBitmap(replaceThisColor: Int): Bitmap? {
     if (this != null) {
         val picw = this.width
         val pich = this.height
@@ -402,7 +402,7 @@ fun Bitmap?.toTransparentBitmap(replaceThisColor: Int): Bitmap? {
 }
 
 // 이미지 Uri에서 회전후 중앙 기준 Crop한 Bitmap 반환.
-fun Bitmap.rotateAndCenterCrop(
+internal fun Bitmap.rotateAndCenterCrop(
     cropSize: Size,
     rotationDegrees: Int
 ): Bitmap? {
@@ -437,7 +437,7 @@ fun Bitmap.rotateAndCenterCrop(
 }
 
 // 이미지 Uri에서 중앙 기준 Crop한 Bitmap 반환.
-fun Bitmap.centerCrop(
+internal fun Bitmap.centerCrop(
     @FloatRange(from = 0.0, to = 1.0)
     cropWidth: Float,
     @FloatRange(from = 0.0, to = 1.0)
@@ -464,7 +464,7 @@ fun Bitmap.centerCrop(
 }
 
 // 이미지 Uri에서 회전후 중앙 기준 Crop한 Bitmap 반환.
-fun Bitmap.rotateAndCenterCrop(
+internal fun Bitmap.rotateAndCenterCrop(
     @FloatRange(from = 0.0, to = 1.0)
     cropWidth: Float,
     @FloatRange(from = 0.0, to = 1.0)
@@ -496,7 +496,7 @@ fun Bitmap.rotateAndCenterCrop(
 }
 
 // 리사이징.
-fun Bitmap?.resize(resizePixcel: Int): Bitmap? {
+internal fun Bitmap?.resize(resizePixcel: Int): Bitmap? {
     try {
         return this?.let { bitmap ->
             val sample = if (width >= height) {
@@ -518,7 +518,7 @@ fun Bitmap?.resize(resizePixcel: Int): Bitmap? {
 }
 
 // 리사이징.
-fun Bitmap?.optimumResize(resize: Int): Bitmap? {
+internal fun Bitmap?.optimumResize(resize: Int): Bitmap? {
     try {
         return this?.let { bitmap ->
 //            val byteArray = bitmap.toByteArray()
@@ -552,7 +552,7 @@ fun Bitmap?.optimumResize(resize: Int): Bitmap? {
 }
 
 // Base64.
-fun Bitmap?.toBase64(
+internal fun Bitmap?.toBase64(
     flags: Int = Base64.NO_WRAP,
     format: Bitmap.CompressFormat = Bitmap.CompressFormat.JPEG
 ): String? {

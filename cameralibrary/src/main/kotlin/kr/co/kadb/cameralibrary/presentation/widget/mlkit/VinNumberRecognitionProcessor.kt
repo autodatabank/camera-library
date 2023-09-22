@@ -27,7 +27,7 @@ import com.google.mlkit.vision.text.TextRecognizerOptionsInterface
 import timber.log.Timber
 
 /** Processor for the text detector demo. */
-class VinNumberRecognitionProcessor(
+internal class VinNumberRecognitionProcessor(
     context: Context,
     textRecognizerOptions: TextRecognizerOptionsInterface
 ) : VisionProcessorBase<Text, String>(context) {

@@ -25,7 +25,7 @@ import java.io.File
  * Context Extension.
  */
 // 어플리케이션 종료.
-fun Context.applicationFinish() {
+internal fun Context.applicationFinish() {
     showAlert {
         setTitle(R.string.adb_cameralibrary_text_notify)
         setMessage(R.string.adb_cameralibrary_text_application_finish)
@@ -36,7 +36,7 @@ fun Context.applicationFinish() {
     }
 }
 
-fun Context.getResourceIndex(@ArrayRes resourceId: Int, text: String?): Int {
+internal fun Context.getResourceIndex(@ArrayRes resourceId: Int, text: String?): Int {
     val resources = resources.getStringArray(resourceId)
     resources.forEachIndexed { index, s ->
         if (s == text) {
@@ -47,12 +47,12 @@ fun Context.getResourceIndex(@ArrayRes resourceId: Int, text: String?): Int {
 }
 
 //
-fun Context.getResourceString(@ArrayRes resourceId: Int, index: Int): String {
+internal fun Context.getResourceString(@ArrayRes resourceId: Int, index: Int): String {
     return resources.getStringArray(resourceId)[index]
 }
 
 // AlertDialog.
-fun Context.showAlert(
+internal fun Context.showAlert(
     message: CharSequence?,
     @StringRes titleId: Int = R.string.adb_cameralibrary_text_notify
 ) {
@@ -63,7 +63,7 @@ fun Context.showAlert(
 }
 
 // AlertDialog.
-fun Context.showAlert(
+internal fun Context.showAlert(
     @StringRes messageId: Int,
     @StringRes titleId: Int = R.string.adb_cameralibrary_text_notify
 ) {
@@ -74,7 +74,7 @@ fun Context.showAlert(
 }
 
 // AlertDialog.
-inline fun Context.showAlert(
+internal inline fun Context.showAlert(
     message: CharSequence?,
     @StringRes titleId: Int = R.string.adb_cameralibrary_text_notify,
     showAlertDialog: AlertDialog.Builder.() -> Unit
@@ -91,7 +91,7 @@ inline fun Context.showAlert(
 }
 
 // AlertDialog.
-inline fun Context.showAlert(
+internal inline fun Context.showAlert(
     @StringRes messageId: Int,
     @StringRes titleId: Int = R.string.adb_cameralibrary_text_notify,
     showAlertDialog: AlertDialog.Builder.() -> Unit
@@ -108,7 +108,7 @@ inline fun Context.showAlert(
 }
 
 // AlertDialog.
-inline fun Context.showAlert(showAlertDialog: AlertDialog.Builder.() -> Any) {
+internal inline fun Context.showAlert(showAlertDialog: AlertDialog.Builder.() -> Any) {
     if ((this as? Activity)?.isFinishing != true) {
         val dialogBuilder = AlertDialog.Builder(this)
         dialogBuilder.showAlertDialog()
@@ -118,7 +118,7 @@ inline fun Context.showAlert(showAlertDialog: AlertDialog.Builder.() -> Any) {
 }
 
 // Media Scanning
-//internal fun Context.mediaScanning(file: File) = OBMediaScanning(this, file)
+//internal internal fun Context.mediaScanning(file: File) = OBMediaScanning(this, file)
 
 // Media Scanning
 internal fun Context.mediaScanning(
@@ -147,7 +147,7 @@ internal fun Context.mediaScanning(
 }
 
 // InputMethodManager.
-val Context.inputMethodManager: InputMethodManager
+internal val Context.inputMethodManager: InputMethodManager
     get() = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
 
 /**
@@ -166,7 +166,7 @@ val Context.inputMethodManager: InputMethodManager
  * Note: If you support devices on Honeycomb or earlier,
  * then you must call this in onResume() and unregister in onPause()
  */
-inline fun Context.registerReceiver(
+internal inline fun Context.registerReceiver(
     intentFilter: IntentFilter,
     crossinline onReceive: (intent: Intent?) -> Unit
 ): BroadcastReceiver {
@@ -180,7 +180,7 @@ inline fun Context.registerReceiver(
 }
 
 // 파일생성.
-fun Context?.createFile(
+internal fun Context?.createFile(
     isPublicDirectory: Boolean = false,
     filename: String = System.currentTimeMillis().toString(),
     format: Bitmap.CompressFormat = Bitmap.CompressFormat.JPEG,
@@ -251,7 +251,7 @@ fun Context?.createFile(
 }
 
 // OutputFileOptions.Builder 생성.
-fun Context.outputFileOptionsBuilder(
+internal fun Context.outputFileOptionsBuilder(
     isPublicDirectory: Boolean = false,
     filename: String = System.currentTimeMillis().toString(),
     format: Bitmap.CompressFormat = Bitmap.CompressFormat.JPEG
@@ -311,7 +311,7 @@ fun Context.outputFileOptionsBuilder(
 }
 
 // Pixel to dp
-fun Context.pxToDp(px: Int): Float {
+internal fun Context.pxToDp(px: Int): Float {
     return if (px > 0) {
         val density = resources.displayMetrics.density
         px / density
@@ -321,7 +321,7 @@ fun Context.pxToDp(px: Int): Float {
 }
 
 // Dp to pixel
-fun Context.dpToPx(dp: Int): Float {
+internal fun Context.dpToPx(dp: Int): Float {
     return if (dp > 0) {
         val density = resources.displayMetrics.density
         dp * density

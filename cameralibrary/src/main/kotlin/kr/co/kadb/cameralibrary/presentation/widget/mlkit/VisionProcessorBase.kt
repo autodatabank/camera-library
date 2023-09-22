@@ -40,7 +40,7 @@ import java.util.*
  *
  * @param <T> The type of the detected feature.
  */
-abstract class VisionProcessorBase<T, R>(
+internal abstract class VisionProcessorBase<T, R>(
     context: Context
 ) : VisionImageProcessor<R> {
     private var activityManager: ActivityManager =

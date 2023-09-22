@@ -9,7 +9,7 @@ import java.text.DecimalFormat
  * Long Extension.
  */
 // 콤마를 포함한 숫자형식.
-fun Long?.numberWithComma(): String {
+internal fun Long?.numberWithComma(): String {
 	return try {
 		DecimalFormat("#,###").format(this)
 	} catch (ex: Exception) {
