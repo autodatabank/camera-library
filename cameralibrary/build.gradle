@@ -9,6 +9,21 @@ group = 'com.github.autodatabank'
 version = '1.1.6'
 
 android {
+    signingConfigs {
+        debug {
+            storeFile file("/Users/oooobang/.android/debug.keystore")
+            storePassword "android"
+            keyAlias "androiddebugkey"
+            keyPassword "android"
+        }
+        release {
+            storeFile file("/Users/oooobang/.android/debug.keystore")
+            storePassword "android"
+            keyAlias "androiddebugkey"
+            keyPassword "android"
+        }
+    }
+
     compileSdk 34
 
     defaultConfig {
@@ -19,7 +34,7 @@ android {
 
     buildTypes {
         release {
-            minifyEnabled false
+            minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
