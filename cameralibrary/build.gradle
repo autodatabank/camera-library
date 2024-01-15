@@ -6,7 +6,7 @@ plugins {
 }
 
 group = 'com.github.autodatabank'
-version = '1.1.5'
+version = '1.1.6'
 
 android {
     compileSdk 34
@@ -117,13 +117,13 @@ afterEvaluate {
                 from components.release
                 groupId = 'com.github.autodatabank'
                 artifactId = 'camera-library'
-                version = '1.1.5'//android.defaultConfig.versionName
+                version = '1.1.6'//android.defaultConfig.versionName
             }
             /*release(MavenPublication) {
                 from components.release
                 groupId = 'com.github.autodatabank'
                 artifactId = 'camera-library'
-                version = '1.1.5'//android.defaultConfig.versionName
+                version = '1.1.6'//android.defaultConfig.versionName
             }*/
         }
     }
