@@ -338,7 +338,7 @@ internal class ShootFragment : BaseViewBindingFragment<AdbCameralibraryFragmentS
         }
 
         // 크롭크기로 영역 지정.
-        binding.adbCameralibraryLayout.post {
+        binding.adbCameralibraryPreviewView.post {
             val topSide = ConstraintSet.TOP
             val endSide = ConstraintSet.END
             val startSide = ConstraintSet.START
