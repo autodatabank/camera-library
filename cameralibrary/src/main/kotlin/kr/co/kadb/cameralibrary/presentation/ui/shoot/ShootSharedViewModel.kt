@@ -6,6 +6,7 @@ import android.net.Uri
 import android.util.Size
 import androidx.annotation.IntRange
 import androidx.camera.core.ImageCapture
+import androidx.core.net.toUri
 import androidx.exifinterface.media.ExifInterface
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.*
@@ -324,12 +325,13 @@ constructor(
             )
 
             // Save Bitmap.
-            cropBitmap.save(
+            cropBitmap.saveImage(
                 context, true, exifInterface = exifInterface, jpegQuality = croppedJpegQuality
-            ) { imagePath, imageUri ->
+            ) { savedPath, originBitmap ->
+                originBitmap?.recycle()
                 action.invoke(
-                    imagePath,
-                    imageUri,
+                    savedPath,
+                    savedPath?.toUri(),
                     Size(cropBitmap?.width ?: 0, cropBitmap?.height ?: 0)
                 )
             }
@@ -337,8 +339,8 @@ constructor(
             cropBitmap?.recycle()
         } else {
             // Save Bitmap.
-            byteArray.save(context, true) { imagePath, imageUri ->
-                action.invoke(imagePath, imageUri, null)
+            byteArray.saveImage(context, true) { savedPath ->
+                action.invoke(savedPath, savedPath?.toUri(), null)
             }
         }
     }

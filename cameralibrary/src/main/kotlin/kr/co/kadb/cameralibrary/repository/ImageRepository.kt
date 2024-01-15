@@ -2,6 +2,7 @@ package kr.co.kadb.cameralibrary.repository
 
 import android.net.Uri
 import android.util.Size
+import androidx.core.net.toUri
 import androidx.exifinterface.media.ExifInterface
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
@@ -9,8 +10,8 @@ import kotlinx.coroutines.flow.callbackFlow
 import kr.co.kadb.cameralibrary.CameraLibraryInitProvider
 import kr.co.kadb.cameralibrary.presentation.model.Image
 import kr.co.kadb.cameralibrary.presentation.model.CropSize
+import kr.co.kadb.cameralibrary.presentation.widget.extension.*
 import kr.co.kadb.cameralibrary.presentation.widget.extension.centerCrop
-import kr.co.kadb.cameralibrary.presentation.widget.extension.save
 import kr.co.kadb.cameralibrary.presentation.widget.extension.toBitmap
 import java.io.ByteArrayInputStream
 import java.io.IOException
@@ -46,16 +47,17 @@ internal class ImageRepository {
             bitmap?.recycle()
 
             // Save Bitmap.
-            cropedBitmap.save(
+            cropedBitmap.saveImage(
                 CameraLibraryInitProvider().requireContext,
                 true,
                 exifInterface = exifInterface,
                 jpegQuality = croppedJpegQuality
-            ) { imagePath, imageUri ->
+            ) { savedPath, originBitmap ->
+                originBitmap?.recycle()
                 trySend(
                     Image(
-                        path = imagePath ?: "",
-                        uri = imageUri ?: Uri.EMPTY,
+                        path = savedPath ?: "",
+                        uri = savedPath?.toUri() ?: Uri.EMPTY,
                         size = Size(cropedBitmap?.width ?: 0, cropedBitmap?.height ?: 0)
                     )
                 )
@@ -63,13 +65,13 @@ internal class ImageRepository {
             cropedBitmap?.recycle()
         } else {
             // Save Bitmap.
-            byteArray.save(
+            byteArray.saveImage(
                 CameraLibraryInitProvider().requireContext, true
-            ) { imagePath, imageUri ->
+            ) { savedPath ->
                 trySend(
                     Image(
-                        path = imagePath ?: "",
-                        uri = imageUri ?: Uri.EMPTY
+                        path = savedPath ?: "",
+                        uri = savedPath?.toUri() ?: Uri.EMPTY
                     )
                 )
             }

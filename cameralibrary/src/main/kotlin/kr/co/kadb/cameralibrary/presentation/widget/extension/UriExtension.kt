@@ -13,8 +13,7 @@ import java.io.InputStream
 import kotlin.math.min
 
 /**
- * Created by oooobang on 2022. 7. 20..
- * Uri Extension.
+  * Uri Extension.
  */
 /*// 이미지 Exif.
 internal fun Uri.exif(context: Context): Exif? {
@@ -43,18 +42,18 @@ public fun Uri.exifInterface(context: Context): ExifInterface? {
             inputStream = stream
             ExifInterface(stream)
         }
-//        // Debug.
-//        if (BuildConfig.DEBUG) {
-//            ExifInterface::class.java.fields.forEach {
-//                if (it.name.startsWith("TAG_")) {
-//                    val value = it.get(it.name) as String
-//                    Timber.i(
-//                        ">>>>> exifInterface ${it.name} : " +
-//                                "${exifInterface?.getAttribute(value)}"
-//                    )
-//                }
-//            }
-//        }
+        /*// Debug.
+        if (BuildConfig.DEBUG) {
+            ExifInterface::class.java.fields.forEach {
+                if (it.name.startsWith("TAG_")) {
+                    val value = it.get(it.name) as String
+                    Timber.i(
+                        ">>>>> exifInterface ${it.name} : " +
+                                "${exifInterface?.getAttribute(value)}"
+                    )
+                }
+            }
+        }*/
     } catch (ex: Exception) {
         ex.printStackTrace()
     } finally {
@@ -275,7 +274,7 @@ internal fun Uri.rotateAndCenterCrop(
 }
 
 // 이미지 리사이징.
-internal fun Uri.resize(context: Context, resize: Int): Bitmap? {
+internal fun Uri.optimumResize(context: Context, resize: Int): Bitmap? {
     try {
         val options: BitmapFactory.Options = BitmapFactory.Options()
         BitmapFactory.decodeStream(context.contentResolver.openInputStream(this), null, options)

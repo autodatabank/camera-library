@@ -4,35 +4,29 @@ import android.content.ContentValues
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import android.net.Uri
-import android.os.Build
-import android.os.Environment
-import android.os.ParcelFileDescriptor
+import android.os.*
 import android.provider.MediaStore
-import androidx.annotation.IntRange
-import androidx.core.net.toUri
 import androidx.exifinterface.media.ExifInterface
-import timber.log.Timber
+import kr.co.kadb.cameralibrary.presentation.widget.util.DebugLog
 import java.io.File
 import java.io.FileOutputStream
 
 /**
- * Created by oooobang on 2018. 5. 11..
  * ByteArray Extension.
  */
 // 저장.
-internal fun ByteArray?.save(
+internal fun ByteArray?.saveImage(
     context: Context? = null,
     isPublicDirectory: Boolean = false,
     filename: String = System.currentTimeMillis().toString(),
     format: Bitmap.CompressFormat = Bitmap.CompressFormat.JPEG,
     rotation: Int? = null,
-    action: ((path: String?, uri: Uri?) -> Unit)? = null
+    action: ((savedPath: String?) -> Unit)? = null
 ): String? {
-    var path: String? = null
+    var imagePath: String? = null
     val extension = when (format) {
         Bitmap.CompressFormat.PNG -> "png"
-        Bitmap.CompressFormat.JPEG -> "jpg"
+        Bitmap.CompressFormat.JPEG -> "jpeg"
         else -> "webp"
     }
 
@@ -59,10 +53,10 @@ internal fun ByteArray?.save(
                 val collection = MediaStore.Images.Media.EXTERNAL_CONTENT_URI
                 contentResolver.insert(collection, contentValues)?.let { uri ->
                     // Debug.
-                    Timber.i(">>>>> Q URI : %s", uri)
+                    DebugLog.i { ">>>>> Q URI : $uri" }
 
                     // 반환용.
-                    path = uri.toString()
+                    imagePath = uri.toString()
 
                     // 파일 쓰기.
                     var fileOutputStream: FileOutputStream? = null
@@ -103,7 +97,7 @@ internal fun ByteArray?.save(
                                 else -> null
                             }
                             // Debug.
-                            Timber.i(">>>>> ExifInterface Rotation : $rotation => $orientation")
+                            DebugLog.i { ">>>>> ExifInterface Rotation : $rotation => $orientation" }
 
                             orientation?.let {
                                 val exifInterface = ExifInterface(fileDescriptor)
@@ -120,7 +114,7 @@ internal fun ByteArray?.save(
                     }
                 }
             }
-            action?.invoke(path, path?.toUri())
+            action?.invoke(imagePath)
         } else {
             var fileOutputStream: FileOutputStream? = null
             try {
@@ -130,11 +124,11 @@ internal fun ByteArray?.save(
                     childDirectory
                 )
                 if (!directory.mkdirs()) {
-                    Timber.i(">>>>> Directory not created : %s", directory)
+                    DebugLog.i { ">>>>> Directory not created : $directory" }
                 }
 
-                path = "${directory.absolutePath}/$filename.$extension"
-                fileOutputStream = FileOutputStream(path)
+                val imageFile = File("${directory.absolutePath}/$filename.$extension")
+                fileOutputStream = FileOutputStream(imageFile)
                 fileOutputStream?.write(this)
 
                 // Exif 태그 데이터를 이미지 파일에 저장.
@@ -145,16 +139,17 @@ internal fun ByteArray?.save(
                     270 -> ExifInterface.ORIENTATION_ROTATE_270
                     else -> null
                 }
-                // Debug.
-                Timber.i(">>>>> ExifInterface Rotation : $rotation => $orientation")
 
                 orientation?.let {
-                    val exifInterface = ExifInterface(File(path!!))
+                    val exifInterface = ExifInterface(imageFile)
                     exifInterface.setAttribute(
                         ExifInterface.TAG_ORIENTATION, it.toString()
                     )
                     exifInterface.saveAttributes()
                 }
+
+                // 반환용.
+                imagePath = imageFile.absolutePath
             } catch (ex: Exception) {
                 ex.printStackTrace()
             } finally {
@@ -162,8 +157,8 @@ internal fun ByteArray?.save(
             }
 
             // Media Scanning.
-            context?.mediaScanning(path) { scanPath, scanUri ->
-                action?.invoke(scanPath, scanUri)
+            context?.mediaScanning(imagePath) { scanPath, scanUri ->
+                action?.invoke(scanUri?.toString() ?: scanPath)
             }
         }
     } else {
@@ -172,22 +167,27 @@ internal fun ByteArray?.save(
         try {
             val directory = context?.getExternalFilesDir(Environment.DIRECTORY_PICTURES)
             if (directory?.mkdirs() != true) {
-                Timber.i(">>>>> Directory not created : %s", directory)
+                DebugLog.i { ">>>>> Directory not created : $directory" }
             }
-            path = "${directory?.absolutePath}/$filename.$extension"
-            fileOutputStream = FileOutputStream(path)
+
+            val imageFile = File("${directory?.absolutePath}/$filename.$extension")
+            fileOutputStream = FileOutputStream(imageFile)
             fileOutputStream?.write(this)
+
+            // 반환용.
+            imagePath = imageFile.absolutePath
         } catch (ex: Exception) {
             ex.printStackTrace()
         } finally {
             fileOutputStream?.close()
         }
+        action?.invoke(imagePath)
     }
 
     // Debug.
-    Timber.i(">>>>> Save ByteArray Finish : %s", path)
+    DebugLog.i { ">>>>> Save ByteArray Finish : $imagePath" }
 
-    return path
+    return imagePath
 }
 
 // To Bitmap.

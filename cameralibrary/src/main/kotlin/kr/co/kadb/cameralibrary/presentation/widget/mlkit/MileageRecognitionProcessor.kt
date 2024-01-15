@@ -24,7 +24,7 @@ import com.google.mlkit.vision.text.Text
 import com.google.mlkit.vision.text.TextRecognition
 import com.google.mlkit.vision.text.TextRecognizer
 import com.google.mlkit.vision.text.TextRecognizerOptionsInterface
-import kr.co.kadb.cameralibrary.presentation.widget.extension.removeCommas
+import kr.co.kadb.cameralibrary.presentation.widget.extension.removeCurrency
 import timber.log.Timber
 
 /** Processor for the text detector demo. */
@@ -70,7 +70,7 @@ internal class MileageRecognitionProcessor(
                 line.elements.forEach { element ->
                     // Find & Add(가장 큰 값 취합).
                     val matchResult = regex.find(element.text)
-                    val mileage = matchResult?.value?.removeCommas()?.toIntOrNull() ?: 0
+                    val mileage = matchResult?.value?.removeCurrency()?.toIntOrNull() ?: 0
                     if (/*element.confidence >= 0.7f && */mileage > 1000 && mileage > drawMileage) {
                         drawMileage = mileage
                         drawRectf = RectF(element.boundingBox)

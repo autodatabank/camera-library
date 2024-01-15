@@ -10,15 +10,11 @@ import android.widget.Toast
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AlertDialog
 import kr.co.kadb.cameralibrary.R
+import kr.co.kadb.cameralibrary.presentation.base.BaseActivity
 
 /**
- * Created by oooobang on 2018. 3. 2..
  * Activity Extension.
  */
-
-// toast.
-internal var toast: Toast? = null
-
 // 키보드 내리기.
 internal fun Activity.hideSoftInput() {
     val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as? InputMethodManager
@@ -27,7 +23,7 @@ internal fun Activity.hideSoftInput() {
 
 // Toast.
 @SuppressLint("ShowToast")
-internal fun Activity.showToast(message: CharSequence) {
+internal fun BaseActivity.showToast(message: CharSequence) {
     toast?.cancel()
     toast = Toast.makeText(this, message, Toast.LENGTH_SHORT)
     toast?.show()
@@ -35,7 +31,7 @@ internal fun Activity.showToast(message: CharSequence) {
 
 // Toast.
 @SuppressLint("ShowToast")
-internal fun Activity.showToast(@StringRes messageId: Int) {
+internal fun BaseActivity.showToast(@StringRes messageId: Int) {
     toast?.cancel()
     toast = Toast.makeText(this, messageId, Toast.LENGTH_SHORT)
     toast?.show()
@@ -43,7 +39,7 @@ internal fun Activity.showToast(@StringRes messageId: Int) {
 
 // 알림 Toast.
 @SuppressLint("ShowToast")
-internal fun Activity.showNotificationToast(message: CharSequence) {
+internal fun BaseActivity.showNotificationToast(message: CharSequence) {
     toast?.cancel()
     toast = Toast.makeText(this, message, Toast.LENGTH_SHORT)
     toast?.show()
@@ -51,7 +47,7 @@ internal fun Activity.showNotificationToast(message: CharSequence) {
 
 // 알림 Toast.
 @SuppressLint("ShowToast")
-internal fun Activity.showNotificationToast(@StringRes messageId: Int) {
+internal fun BaseActivity.showNotificationToast(@StringRes messageId: Int) {
     toast?.cancel()
     toast = Toast.makeText(this, messageId, Toast.LENGTH_SHORT)
     toast?.show()
@@ -59,7 +55,7 @@ internal fun Activity.showNotificationToast(@StringRes messageId: Int) {
 
 // 성공 Toast.
 @SuppressLint("ShowToast")
-internal fun Activity.showSuccessToast(@StringRes messageId: Int) {
+internal fun BaseActivity.showSuccessToast(@StringRes messageId: Int) {
     toast?.cancel()
     toast = Toast.makeText(this, messageId, Toast.LENGTH_SHORT)
     toast?.show()
@@ -67,7 +63,7 @@ internal fun Activity.showSuccessToast(@StringRes messageId: Int) {
 
 // 성공 Toast.
 @SuppressLint("ShowToast")
-internal fun Activity.showSuccessToast(message: String) {
+internal fun BaseActivity.showSuccessToast(message: String) {
     toast?.cancel()
     toast = Toast.makeText(this, message, Toast.LENGTH_SHORT)
     toast?.show()
@@ -75,7 +71,7 @@ internal fun Activity.showSuccessToast(message: String) {
 
 // 오류 Toast.
 @SuppressLint("ShowToast")
-internal fun Activity.showErrorToast(@StringRes messageId: Int) {
+internal fun BaseActivity.showErrorToast(@StringRes messageId: Int) {
     toast?.cancel()
     toast = Toast.makeText(this, messageId, Toast.LENGTH_SHORT)
     toast?.show()
@@ -83,7 +79,7 @@ internal fun Activity.showErrorToast(@StringRes messageId: Int) {
 
 // 오류 Toast.
 @SuppressLint("ShowToast")
-internal fun Activity.showErrorToast(message: String) {
+internal fun BaseActivity.showErrorToast(message: String) {
     toast?.cancel()
     toast = Toast.makeText(this, message, Toast.LENGTH_SHORT)
     toast?.show()

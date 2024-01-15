@@ -3,9 +3,9 @@ package kr.co.kadb.cameralibrary.presentation.widget.util
 import android.content.Context
 import android.graphics.Bitmap
 import android.util.Base64
+import kr.co.kadb.cameralibrary.presentation.widget.extension.*
 import kr.co.kadb.cameralibrary.presentation.widget.extension.optimumResize
 import kr.co.kadb.cameralibrary.presentation.widget.extension.resize
-import kr.co.kadb.cameralibrary.presentation.widget.extension.save
 import kr.co.kadb.cameralibrary.presentation.widget.extension.toBase64
 
 /**
@@ -19,7 +19,9 @@ public class BitmapHelper {
             bitmap: Bitmap?,
             isPublicDirectory: Boolean = false
         ): String? {
-            return bitmap?.save(context, isPublicDirectory)
+            return bitmap?.saveImage(context, isPublicDirectory) { _, originBitmap ->
+                originBitmap?.recycle()
+            }
         }
 
         @JvmStatic
@@ -30,12 +32,14 @@ public class BitmapHelper {
             filename: String = System.currentTimeMillis().toString(),
             format: Bitmap.CompressFormat = Bitmap.CompressFormat.JPEG
         ): String? {
-            return bitmap?.save(
+            return bitmap?.saveImage(
                 context = context,
                 isPublicDirectory = isPublicDirectory,
                 filename = filename,
                 format = format
-            )
+            ) { _, originBitmap ->
+                originBitmap?.recycle()
+            }
         }
 
         @JvmStatic
@@ -61,7 +65,7 @@ public class BitmapHelper {
             flags: Int = Base64.NO_WRAP,
             format: Bitmap.CompressFormat = Bitmap.CompressFormat.JPEG
         ): String? {
-            return bitmap.toBase64()
+            return bitmap.toBase64(flags, format)
         }
     }
 }

@@ -3,6 +3,7 @@ package kr.co.kadb.cameralibrary.presentation.base
 import android.content.BroadcastReceiver
 import android.content.IntentFilter
 import android.os.Bundle
+import android.widget.Toast
 import kr.co.kadb.cameralibrary.presentation.widget.extension.registerReceiver
 import kr.co.kadb.cameralibrary.presentation.widget.listener.FragmentCreateListener
 import kr.co.kadb.cameralibrary.presentation.widget.listener.FragmentResumeListener
@@ -22,6 +23,9 @@ internal abstract class BaseActivity : OBActivity(), FragmentCreateListener, Fra
 
     // 현재 활성 된 Fragment.
     private var activeFragmentRef: WeakReference<BaseFragment>? = null
+
+    // Toast.
+    var toast: Toast? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

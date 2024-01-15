@@ -15,6 +15,7 @@ import androidx.annotation.ArrayRes
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AlertDialog
 import androidx.camera.core.ImageCapture
+import androidx.core.content.ContextCompat
 import kr.co.kadb.cameralibrary.R
 import kr.co.kadb.cameralibrary.presentation.widget.util.IntentKey.BROADCAST_FINISH
 import timber.log.Timber
@@ -175,7 +176,9 @@ internal inline fun Context.registerReceiver(
             onReceive.invoke(intent)
         }
     }
-    registerReceiver(receiver, intentFilter)
+    ContextCompat.registerReceiver(
+        this, receiver, intentFilter, ContextCompat.RECEIVER_EXPORTED
+    )
     return receiver
 }
 

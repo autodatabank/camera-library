@@ -7,9 +7,13 @@ import android.os.Parcelable
 import java.io.Serializable
 
 /**
- * Created by oooobang on 2022. 9. 27..
- * String Extension.
+  * String Extension.
  */
+@Deprecated(
+    message = "'getSerializable(String, Class<T>): Serializable?' is deprecated. Deprecated in Java",
+    level = DeprecationLevel.WARNING,
+    replaceWith = ReplaceWith("Intent.serializable(key: String)")
+)
 public fun <T : Serializable?> Intent.getSerializable(name: String, clazz: Class<T>): T? {
     /*return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
         this.getSerializableExtra(name, clazz)
@@ -20,6 +24,11 @@ public fun <T : Serializable?> Intent.getSerializable(name: String, clazz: Class
     return this.getSerializableExtra(name) as T
 }
 
+@Deprecated(
+    message = "'getParcelable(String, Class<T>): Parcelable?' is deprecated. Deprecated in Java",
+    level = DeprecationLevel.WARNING,
+    replaceWith = ReplaceWith("Intent.parcelable(key: String)")
+)
 public fun <T : Parcelable?> Intent.getParcelable(name: String, clazz: Class<T>): T? {
     /*return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
         this.getParcelableExtra(name, clazz)

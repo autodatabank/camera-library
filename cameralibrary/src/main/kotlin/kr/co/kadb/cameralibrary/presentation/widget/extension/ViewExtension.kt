@@ -5,14 +5,12 @@ package kr.co.kadb.cameralibrary.presentation.widget.extension
 import android.view.View
 
 /**
- * Created by oooobang on 2018. 3. 7..
  * View Extension.
  */
-
 internal fun View.showSoftInput() {
-	context.inputMethodManager.showSoftInput(this, 0)
+	context?.inputMethodManager?.showSoftInput(this, 0)
 }
 
 internal fun View.hideSoftInput() {
-	context.inputMethodManager.hideSoftInputFromWindow(this.applicationWindowToken, 0)
+	context?.inputMethodManager?.hideSoftInputFromWindow(this.applicationWindowToken, 0)
 }

@@ -14,6 +14,7 @@ import androidx.annotation.FloatRange
 import androidx.annotation.IntRange
 import androidx.core.net.toUri
 import androidx.exifinterface.media.ExifInterface
+import kr.co.kadb.cameralibrary.presentation.widget.util.DebugLog
 import timber.log.Timber
 import java.io.ByteArrayOutputStream
 import java.io.File
@@ -23,7 +24,7 @@ import java.io.FileOutputStream
  * Created by oooobang on 2018. 5. 11..
  * Bitmap Extension.
  */
-private val ALL_EXIF_TAGS = listOf(
+private val allExifTags = listOf(
     ExifInterface.TAG_IMAGE_WIDTH,
     ExifInterface.TAG_IMAGE_LENGTH,
     ExifInterface.TAG_BITS_PER_SAMPLE,
@@ -179,37 +180,35 @@ private val ALL_EXIF_TAGS = listOf(
     ExifInterface.TAG_SUBFILE_TYPE
 )
 
-private val DO_NOT_COPY_EXIF_TAGS = listOf(
-    // Dimension-related tags, which might change after cropping.
+private val doNotCopyExifTags = listOf(
     ExifInterface.TAG_IMAGE_WIDTH,
     ExifInterface.TAG_IMAGE_LENGTH,
     ExifInterface.TAG_PIXEL_X_DIMENSION,
-    // Thumbnail-related tags. Currently we do not create thumbnail for cropped images.
     ExifInterface.TAG_PIXEL_Y_DIMENSION,
-    // Our primary image is always Jpeg.
     ExifInterface.TAG_COMPRESSION,
     ExifInterface.TAG_JPEG_INTERCHANGE_FORMAT,
     ExifInterface.TAG_JPEG_INTERCHANGE_FORMAT_LENGTH,
     ExifInterface.TAG_THUMBNAIL_IMAGE_LENGTH,
     ExifInterface.TAG_THUMBNAIL_IMAGE_WIDTH/*,
-        ExifInterface.TAG_THUMBNAIL_ORIENTATION*/
+    ExifInterface.TAG_THUMBNAIL_ORIENTATION*/
 )
 
 // 저장.
-internal fun Bitmap?.save(
-    context: Context? = null,
+internal fun Bitmap?.saveImage(
+    context: Context?,
     isPublicDirectory: Boolean = false,
     filename: String = System.currentTimeMillis().toString(),
     format: Bitmap.CompressFormat = Bitmap.CompressFormat.JPEG,
     exifInterface: ExifInterface? = null,
     @IntRange(from = 1, to = 100)
     jpegQuality: Int = 95,
-    action: ((path: String?, uri: Uri?) -> Unit)? = null
+    action: ((savedPath: String?, originBitmap: Bitmap?) -> Unit)? = null
 ): String? {
-    var path: String? = null
+
+    var imagePath: String? = null
     val extension = when (format) {
         Bitmap.CompressFormat.PNG -> "png"
-        Bitmap.CompressFormat.JPEG -> "jpg"
+        Bitmap.CompressFormat.JPEG -> "jpeg"
         else -> "webp"
     }
 
@@ -236,10 +235,10 @@ internal fun Bitmap?.save(
                 val collection = MediaStore.Images.Media.EXTERNAL_CONTENT_URI
                 contentResolver.insert(collection, contentValues)?.let { uri ->
                     // Debug.
-                    Timber.i(">>>>> Q URI : %s", uri)
+                    DebugLog.i { ">>>>> Q URI : : $uri" }
 
                     // 반환용.
-                    path = uri.toString()
+                    imagePath = uri.toString()
 
                     // 파일 쓰기.
                     var fileOutputStream: FileOutputStream? = null
@@ -250,8 +249,9 @@ internal fun Bitmap?.save(
                             uri, "w", null
                         )
                         parcelFileDescriptor?.fileDescriptor?.also { fileDescriptor ->
-                            fileOutputStream = FileOutputStream(fileDescriptor)
-                            this?.compress(format, jpegQuality, fileOutputStream)
+                            fileOutputStream = FileOutputStream(fileDescriptor).also {
+                                this?.compress(format, jpegQuality, it)
+                            }
                             contentResolver.update(uri, contentValues, null, null)
                         }
                     } catch (ex: Exception) {
@@ -274,8 +274,8 @@ internal fun Bitmap?.save(
                         parcelFileDescriptor?.fileDescriptor?.also { fileDescriptor ->
                             exifInterface?.let { exif ->
                                 val saveExifInterface = ExifInterface(fileDescriptor)
-                                val exifInterfaceTags = ALL_EXIF_TAGS.toMutableList()
-                                exifInterfaceTags.removeAll(DO_NOT_COPY_EXIF_TAGS)
+                                val exifInterfaceTags = allExifTags.toMutableList()
+                                exifInterfaceTags.removeAll(doNotCopyExifTags)
                                 exifInterfaceTags.forEach { tag ->
                                     exif.getAttribute(tag)?.let { originValue ->
                                         saveExifInterface.setAttribute(tag, originValue)
@@ -291,28 +291,29 @@ internal fun Bitmap?.save(
                     }
                 }
             }
-            action?.invoke(path, path?.toUri())
+
+            action?.invoke(imagePath, this)
         } else {
             var fileOutputStream: FileOutputStream? = null
             try {
-                @Suppress("DEPRECATION")
                 val directory = File(
                     Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES),
                     childDirectory
                 )
                 if (!directory.mkdirs()) {
-                    Timber.i(">>>>> Directory not created : %s", directory)
+                    DebugLog.i { ">>>>> Directory not created : $directory" }
                 }
 
-                path = "${directory.absolutePath}/$filename.$extension"
-                fileOutputStream = FileOutputStream(path)
-                this?.compress(format, jpegQuality, fileOutputStream)
+                val imageFile = File("${directory.absolutePath}/$filename.$extension")
+                fileOutputStream = FileOutputStream(imageFile).also {
+                    this?.compress(format, jpegQuality, it)
+                }
 
                 // Exif 태그 데이터를 이미지 파일에 저장.
                 exifInterface?.let { exif ->
-                    val saveExifInterface = ExifInterface(File(path!!))
-                    val exifInterfaceTags = ALL_EXIF_TAGS.toMutableList()
-                    exifInterfaceTags.removeAll(DO_NOT_COPY_EXIF_TAGS)
+                    val saveExifInterface = ExifInterface(imageFile)
+                    val exifInterfaceTags = allExifTags.toMutableList()
+                    exifInterfaceTags.removeAll(doNotCopyExifTags)
                     exifInterfaceTags.forEach { tag ->
                         exif.getAttribute(tag)?.let { originValue ->
                             saveExifInterface.setAttribute(tag, originValue)
@@ -320,6 +321,9 @@ internal fun Bitmap?.save(
                     }
                     saveExifInterface.saveAttributes()
                 }
+
+                // 반환용.
+                imagePath = imageFile.absolutePath
             } catch (ex: Exception) {
                 ex.printStackTrace()
             } finally {
@@ -327,8 +331,8 @@ internal fun Bitmap?.save(
             }
 
             // Media Scanning.
-            context?.mediaScanning(path) { scanPath, scanUri ->
-                action?.invoke(scanPath, scanUri)
+            context?.mediaScanning(imagePath) { scanPath, scanUri ->
+                action?.invoke(scanUri?.toString() ?: scanPath, this)
             }
         }
     } else {
@@ -337,17 +341,19 @@ internal fun Bitmap?.save(
         try {
             val directory = context?.getExternalFilesDir(Environment.DIRECTORY_PICTURES)
             if (directory?.mkdirs() != true) {
-                Timber.i(">>>>> Directory not created : %s", directory)
+                DebugLog.i { ">>>>> Directory not created : $directory" }
             }
-            path = "${directory?.absolutePath}/$filename.$extension"
-            fileOutputStream = FileOutputStream(path)
-            this?.compress(format, jpegQuality, fileOutputStream)
+
+            val imageFile = File("${directory?.absolutePath}/$filename.$extension")
+            fileOutputStream = FileOutputStream(imageFile).also {
+                this?.compress(format, jpegQuality, it)
+            }
 
             // Exif 태그 데이터를 이미지 파일에 저장.
             exifInterface?.let { exif ->
-                val saveExifInterface = ExifInterface(File(path!!))
-                val exifInterfaceTags = ALL_EXIF_TAGS.toMutableList()
-                exifInterfaceTags.removeAll(DO_NOT_COPY_EXIF_TAGS)
+                val saveExifInterface = ExifInterface(imageFile)
+                val exifInterfaceTags = allExifTags.toMutableList()
+                exifInterfaceTags.removeAll(doNotCopyExifTags)
                 exifInterfaceTags.forEach { tag ->
                     exif.getAttribute(tag)?.let { originValue ->
                         saveExifInterface.setAttribute(tag, originValue)
@@ -355,17 +361,80 @@ internal fun Bitmap?.save(
                 }
                 saveExifInterface.saveAttributes()
             }
+
+            // 반환용.
+            imagePath = imageFile.absolutePath
         } catch (ex: Exception) {
             ex.printStackTrace()
         } finally {
             fileOutputStream?.close()
         }
+
+        action?.invoke(imagePath, this)
     }
 
     // Debug.
-    Timber.i(">>>>> Save Bitmap Finish : %s", path)
+    DebugLog.i { ">>>>> Save Bitmap Finish : $imagePath" }
 
-    return path
+    return imagePath
+}
+
+// 저장.
+internal fun Bitmap?.saveImageTemporary(
+    context: Context?,
+    filename: String = System.currentTimeMillis().toString(),
+    format: Bitmap.CompressFormat = Bitmap.CompressFormat.JPEG,
+    exifInterface: ExifInterface? = null,
+    @IntRange(from = 1, to = 100)
+    jpegQuality: Int = 95,
+    action: ((internalSavedPath: String?, originBitmap: Bitmap?) -> Unit)? = null
+): String? {
+
+    var imagePath: String? = null
+    val extension = when (format) {
+        Bitmap.CompressFormat.PNG -> "png"
+        Bitmap.CompressFormat.JPEG -> "jpeg"
+        else -> "webp"
+    }
+    /* 내부 저장소 사용. */
+    var fileOutputStream: FileOutputStream? = null
+    try {
+        val directory = context?.getExternalFilesDir("temporary")
+        if (directory?.mkdirs() != true) {
+            DebugLog.i { ">>>>> Directory not created : $directory" }
+        }
+
+        val imageFile = File("${directory?.absolutePath}/$filename.$extension")
+        fileOutputStream = FileOutputStream(imageFile)
+        this?.compress(format, jpegQuality, fileOutputStream)
+
+        // Exif 태그 데이터를 이미지 파일에 저장.
+        exifInterface?.let { exif ->
+            val saveExifInterface = ExifInterface(imageFile)
+            val exifInterfaceTags = allExifTags.toMutableList()
+            exifInterfaceTags.removeAll(doNotCopyExifTags)
+            exifInterfaceTags.forEach { tag ->
+                exif.getAttribute(tag)?.let { originValue ->
+                    saveExifInterface.setAttribute(tag, originValue)
+                }
+            }
+            saveExifInterface.saveAttributes()
+        }
+
+        // 반환용.
+        imagePath = imageFile.absolutePath
+    } catch (ex: Exception) {
+        ex.printStackTrace()
+    } finally {
+        fileOutputStream?.close()
+    }
+
+    action?.invoke(imagePath, this)
+
+    // Debug.
+    DebugLog.i { ">>>>> Save Temporary Bitmap Finish : $imagePath" }
+
+    return imagePath
 }
 
 // toByteArray.
