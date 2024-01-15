@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+<manifest
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     >
 
@@ -24,20 +25,11 @@
     <uses-permission android:name="android.permission.CAMERA" />
 
     <application>
-
-        <!--<provider
-            android:authorities="kr.co.kadb.cameralibrary.cameralibraryinitprovider"
-            android:name="kr.co.kadb.cameralibrary.CameraLibraryInitProvider"
-            android:exported="false"
-            android:initOrder="100"
-            />-->
-
-        <!-- 촬영. -->
         <activity
             android:name=".presentation.ui.shoot.ShootActivity"
             android:clearTaskOnLaunch="true"
-            android:configChanges="orientation|screenLayout|screenSize|smallestScreenSize"
-            android:exported="false"
+            android:configChanges="keyboard|keyboardHidden|orientation|screenSize"
+            android:exported="true"
             android:launchMode="singleTop"
             android:resizeableActivity="true"
             android:rotationAnimation="seamless"
