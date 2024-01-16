@@ -17,15 +17,13 @@ import kr.co.kadb.cameralibrary.presentation.model.CropSize
 import kr.co.kadb.cameralibrary.presentation.ui.shoot.ShootEvent.*
 import kr.co.kadb.cameralibrary.presentation.viewmodel.BaseAndroidViewModel
 import kr.co.kadb.cameralibrary.presentation.widget.extension.*
+import kr.co.kadb.cameralibrary.presentation.widget.util.DebugLog
 import kr.co.kadb.cameralibrary.presentation.widget.util.IntentKey.ACTION_DETECT_MAINTENANCE_STATEMENT_IN_PICTURES
 import kr.co.kadb.cameralibrary.presentation.widget.util.IntentKey.ACTION_DETECT_MILEAGE_IN_PICTURES
 import kr.co.kadb.cameralibrary.presentation.widget.util.IntentKey.ACTION_DETECT_VEHICLE_NUMBER_IN_PICTURES
 import kr.co.kadb.cameralibrary.presentation.widget.util.IntentKey.ACTION_DETECT_VIN_NUMBER_IN_PICTURES
 import kr.co.kadb.cameralibrary.presentation.widget.util.IntentKey.ACTION_TAKE_MULTIPLE_PICTURES
-import timber.log.Timber
-import java.io.ByteArrayInputStream
-import java.io.IOException
-import java.io.InputStream
+import java.io.*
 import java.nio.ByteBuffer
 import kotlin.math.max
 
@@ -70,7 +68,7 @@ constructor(
         viewModelScope.launch {
             item.collect { item ->
                 // Debug.
-                Timber.i(">>>>> ShootSharedViewModel item : %s", item)
+                DebugLog.i { ">>>>> ShootSharedViewModel item : $item" }
             }
         }
     }
@@ -104,7 +102,8 @@ constructor(
         val isMileagePicture = action == ACTION_DETECT_MILEAGE_IN_PICTURES
         val isVinNumberPicture = action == ACTION_DETECT_VIN_NUMBER_IN_PICTURES
         val isVehicleNumberPicture = action == ACTION_DETECT_VEHICLE_NUMBER_IN_PICTURES
-        val isMaintenanceStatementPicture = action == ACTION_DETECT_MAINTENANCE_STATEMENT_IN_PICTURES
+        val isMaintenanceStatementPicture =
+            action == ACTION_DETECT_MAINTENANCE_STATEMENT_IN_PICTURES
         val canSaveCroppedImage = if (isUsingMLKit) {
             false
         } else {
@@ -161,7 +160,7 @@ constructor(
             croppedJpegQuality = croppedJpegQuality
         ).run {
             // Debug.
-            Timber.d(">>>>> ShootUiState : ${this.toJsonPretty()}")
+            DebugLog.d { "ShootUiState : ${this.toJsonPretty()}" }
             // Update.
             updateState(isLoading = false, value = this)
         }
@@ -182,6 +181,7 @@ constructor(
                         (height.toFloat() * (1.0f - item.value.cropSize.height) * 0.5f)
                     )
                 }
+
                 else -> {
                     Pair(
                         (width.toFloat() * (1.0f - item.value.cropSize.height) * 0.5f),

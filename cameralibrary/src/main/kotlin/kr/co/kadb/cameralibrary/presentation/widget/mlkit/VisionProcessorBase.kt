@@ -27,11 +27,12 @@ import androidx.camera.core.ImageProxy
 import com.google.android.gms.tasks.Task
 import com.google.android.gms.tasks.TaskExecutors
 import com.google.mlkit.vision.common.InputImage
-import timber.log.Timber
+import kr.co.kadb.cameralibrary.presentation.widget.util.DebugLog
 import java.lang.Math.max
 import java.lang.Math.min
 import java.nio.ByteBuffer
-import java.util.*
+import java.util.Timer
+import java.util.TimerTask
 
 /**
  * Abstract base class for ML Kit frame processors. Subclasses need to implement {@link
@@ -316,27 +317,27 @@ internal abstract class VisionProcessorBase<T, R>(
             // Only log inference info once per second. When frameProcessedInOneSecondInterval is
             // equal to 1, it means this is the first frame processed during the current second.
             if (frameProcessedInOneSecondInterval == 1) {
-                Timber.d("Num of Runs: $numRuns")
-                Timber.d(
+                DebugLog.d { "Num of Runs: $numRuns" }
+                DebugLog.d {
                     "Frame latency: max=" +
                             maxFrameMs +
                             ", min=" +
                             minFrameMs +
                             ", avg=" +
                             totalFrameMs / numRuns
-                )
-                Timber.d(
+                }
+                DebugLog.d {
                     "Detector latency: max=" +
                             maxDetectorMs +
                             ", min=" +
                             minDetectorMs +
                             ", avg=" +
                             totalDetectorMs / numRuns
-                )
+                }
                 val mi = ActivityManager.MemoryInfo()
                 activityManager.getMemoryInfo(mi)
                 val availableMegs: Long = mi.availMem / 0x100000L
-                Timber.d("Memory available in system: $availableMegs MB")
+                DebugLog.d { "Memory available in system: $availableMegs MB" }
             }
             graphicOverlay.clear()
 //            if (originalCameraImage != null) {

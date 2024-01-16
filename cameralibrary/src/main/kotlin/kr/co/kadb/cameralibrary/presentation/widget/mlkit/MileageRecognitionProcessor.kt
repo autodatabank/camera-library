@@ -20,12 +20,9 @@ import android.content.Context
 import android.graphics.RectF
 import com.google.android.gms.tasks.Task
 import com.google.mlkit.vision.common.InputImage
-import com.google.mlkit.vision.text.Text
-import com.google.mlkit.vision.text.TextRecognition
-import com.google.mlkit.vision.text.TextRecognizer
-import com.google.mlkit.vision.text.TextRecognizerOptionsInterface
+import com.google.mlkit.vision.text.*
 import kr.co.kadb.cameralibrary.presentation.widget.extension.removeCurrency
-import timber.log.Timber
+import kr.co.kadb.cameralibrary.presentation.widget.util.DebugLog
 
 /** Processor for the text detector demo. */
 internal class MileageRecognitionProcessor(
@@ -63,10 +60,10 @@ internal class MileageRecognitionProcessor(
         // 정규화.
         results.textBlocks.forEach { textBlock ->
             // Debug.
-            //Timber.i(">>>>> ${javaClass.simpleName} > TEXT_BLOCK > ${textBlock.text}")
+            //DebugLog.i { "${textBlock.text}" }
             textBlock.lines.forEach { line ->
                 // Debug.
-                //Timber.i(">>>>> ${javaClass.simpleName} > LINE > ${line.text}")
+                //DebugLog.i { "${line.text}" }
                 line.elements.forEach { element ->
                     // Find & Add(가장 큰 값 취합).
                     val matchResult = regex.find(element.text)
@@ -107,13 +104,13 @@ internal class MileageRecognitionProcessor(
             }
 
             // Debug.
-            //Timber.i(">>>>> ${javaClass.simpleName} > DRAW > $drawMileage : $drawRectf")
+            //DebugLog.i { "$drawMileage : $drawRectf" }
         }
     }
 
     override fun onFailure(ex: Exception) {
         // Debug.
-        Timber.w(">>>>> ${javaClass.simpleName} > onFailure : $ex")
+        DebugLog.w { "onFailure : $ex" }
         onFailure?.invoke(ex)
     }
 

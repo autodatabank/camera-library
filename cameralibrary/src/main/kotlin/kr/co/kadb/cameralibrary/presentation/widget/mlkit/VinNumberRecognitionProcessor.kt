@@ -20,11 +20,8 @@ import android.content.Context
 import android.graphics.RectF
 import com.google.android.gms.tasks.Task
 import com.google.mlkit.vision.common.InputImage
-import com.google.mlkit.vision.text.Text
-import com.google.mlkit.vision.text.TextRecognition
-import com.google.mlkit.vision.text.TextRecognizer
-import com.google.mlkit.vision.text.TextRecognizerOptionsInterface
-import timber.log.Timber
+import com.google.mlkit.vision.text.*
+import kr.co.kadb.cameralibrary.presentation.widget.util.DebugLog
 
 /** Processor for the text detector demo. */
 internal class VinNumberRecognitionProcessor(
@@ -78,10 +75,10 @@ internal class VinNumberRecognitionProcessor(
         // 정규화.
         results.textBlocks.forEach { textBlock ->
             // Debug.
-            //Timber.i(">>>>> ${javaClass.simpleName} > TEXT_BLOCK > ${textBlock.text}")
+            //DebugLog.i { "${textBlock.text}" }
             textBlock.lines.forEach { line ->
                 // Debug.
-                //Timber.i(">>>>> ${javaClass.simpleName} > LINE > ${line.text}")
+                //DebugLog.i { "${line.text}" }
 
                 // Find & Add
                 regex.find(line.text)?.let { matchResult ->
@@ -113,7 +110,7 @@ internal class VinNumberRecognitionProcessor(
                         onSuccess?.invoke(it.text, it.rect)
                     }
                     // Debug.
-                    //Timber.i(">>>>> ${javaClass.simpleName} > DRAW > ${sortedItems[0]}")
+                    //DebugLog.i { "${sortedItems[0]}" }
                 } else if (sortedItems.size > 1 &&
                     sortedItems[0].second > 5 &&
                     (sortedItems[0].second * 0.75f) > sortedItems[1].second
@@ -124,14 +121,14 @@ internal class VinNumberRecognitionProcessor(
                 }
 
                 // Debug.
-                //Timber.i(">>>>> ${javaClass.simpleName} > DRAW > $sortedItems")
+                //DebugLog.i { "$sortedItems" }
             }
         }
     }
 
     override fun onFailure(ex: Exception) {
         // Debug.
-        Timber.w(">>>>> ${javaClass.simpleName} > onFailure : $ex")
+        DebugLog.w { "onFailure : $ex" }
     }
 
     override fun onComplete(

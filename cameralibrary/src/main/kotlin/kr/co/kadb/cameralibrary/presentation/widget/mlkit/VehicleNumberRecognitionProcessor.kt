@@ -22,11 +22,8 @@ import android.graphics.RectF
 import android.util.Size
 import com.google.android.gms.tasks.Task
 import com.google.mlkit.vision.common.InputImage
-import com.google.mlkit.vision.text.Text
-import com.google.mlkit.vision.text.TextRecognition
-import com.google.mlkit.vision.text.TextRecognizer
-import com.google.mlkit.vision.text.TextRecognizerOptionsInterface
-import timber.log.Timber
+import com.google.mlkit.vision.text.*
+import kr.co.kadb.cameralibrary.presentation.widget.util.DebugLog
 import java.lang.Integer.max
 import java.lang.Integer.min
 
@@ -154,7 +151,7 @@ internal class VehicleNumberRecognitionProcessor(
 
     override fun onFailure(ex: Exception) {
         // Debug.
-        Timber.w(">>>>> ${javaClass.simpleName} > onFailure : $ex")
+        DebugLog.w { "onFailure : $ex" }
     }
 
     override fun onComplete(
@@ -206,7 +203,7 @@ internal class VehicleNumberRecognitionProcessor(
         drawItems.add(DetectedItem(matchResult.value, RectF(matchRect)))
 
         // Debug.
-        //Timber.i(">>>>> ${javaClass.simpleName} > DRAW > ${matchResult.value}")
+        //DebugLog.i { "${matchResult.value}" }
 
         return drawItems
     }

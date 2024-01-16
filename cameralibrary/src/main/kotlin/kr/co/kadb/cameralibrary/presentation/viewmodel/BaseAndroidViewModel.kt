@@ -2,11 +2,9 @@ package kr.co.kadb.cameralibrary.presentation.viewmodel
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.flow.*
 import kr.co.kadb.cameralibrary.presentation.base.UiState
-import timber.log.Timber
+import kr.co.kadb.cameralibrary.presentation.widget.util.DebugLog
 
 internal abstract class BaseAndroidViewModel<T>(
     application: Application,
@@ -19,10 +17,10 @@ internal abstract class BaseAndroidViewModel<T>(
     val state = _state.asStateFlow()
 
     protected fun updateState(transform: (T) -> T) {
-        Timber.i(">>>>> AndroidViewModel updateState")
+        DebugLog.i { "AndroidViewModel updateState" }
         val state = state.value
         val value = state.value ?: return
-        Timber.i(">>>>> AndroidViewModel updateState : %s", value)
+        DebugLog.i { ">>>>> AndroidViewModel updateState : $value" }
         _state.update {
             UiState.success(transform(value))
         }

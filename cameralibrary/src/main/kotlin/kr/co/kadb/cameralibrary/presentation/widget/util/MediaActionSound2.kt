@@ -17,10 +17,7 @@ package kr.co.kadb.cameralibrary.presentation.widget.util
 
 import android.content.Context
 import android.content.Context.AUDIO_SERVICE
-import android.media.AudioAttributes
-import android.media.AudioManager
-import android.media.SoundPool
-import timber.log.Timber
+import android.media.*
 
 /**
  * Modified by Miloš Černilovský on March 16 2021: converted original class to Kotlin,
@@ -51,40 +48,41 @@ internal class MediaActionSound2 {
     private val mSounds = SOUND_FILES.indices.map {
         SoundState(it)
     }.toTypedArray()
-    private val mLoadCompleteListener = SoundPool.OnLoadCompleteListener { soundPool, sampleId, status ->
-        for (sound in mSounds) {
-            if (sound.id != sampleId) {
-                continue
-            }
-            var playSoundId = 0
-            synchronized(sound) {
-                if (status != 0) {
-                    sound.state = STATE_NOT_LOADED
-                    sound.id = 0
-                    Timber.e(
-                        TAG, "OnLoadCompleteListener() error: " + status +
-                                " loading sound: " + sound.name
-                    )
-                    return@OnLoadCompleteListener
+    private val mLoadCompleteListener =
+        SoundPool.OnLoadCompleteListener { soundPool, sampleId, status ->
+            for (sound in mSounds) {
+                if (sound.id != sampleId) {
+                    continue
                 }
-                when (sound.state) {
-                    STATE_LOADING -> sound.state = STATE_LOADED
-                    STATE_LOADING_PLAY_REQUESTED -> {
-                        playSoundId = sound.id
-                        sound.state = STATE_LOADED
+                var playSoundId = 0
+                synchronized(sound) {
+                    if (status != 0) {
+                        sound.state = STATE_NOT_LOADED
+                        sound.id = 0
+                        DebugLog.e {
+                            "OnLoadCompleteListener() error: " + status +
+                                    " loading sound: " + sound.name
+                        }
+                        return@OnLoadCompleteListener
                     }
-                    else -> Timber.e(
-                        TAG, "OnLoadCompleteListener() called in wrong state: "
-                                + sound.state + " for sound: " + sound.name
-                    )
+                    when (sound.state) {
+                        STATE_LOADING -> sound.state = STATE_LOADED
+                        STATE_LOADING_PLAY_REQUESTED -> {
+                            playSoundId = sound.id
+                            sound.state = STATE_LOADED
+                        }
+
+                        else -> DebugLog.e {
+                            "OnLoadCompleteListener() called in wrong state: " + sound.state + " for sound: " + sound.name
+                        }
+                    }
                 }
+                if (playSoundId != 0) {
+                    soundPool.play(playSoundId, sound.volumeLeft, sound.volumeRight, 0, 0, 1.0f)
+                }
+                break
             }
-            if (playSoundId != 0) {
-                soundPool.play(playSoundId, sound.volumeLeft, sound.volumeRight, 0, 0, 1.0f)
-            }
-            break
         }
-    }
     private var mSoundPool: SoundPool? = SoundPool.Builder()
         .setMaxStreams(NUM_MEDIA_SOUND_STREAMS)
         .setAudioAttributes(
@@ -151,14 +149,15 @@ internal class MediaActionSound2 {
             when (sound.state) {
                 STATE_NOT_LOADED -> {
                     if (loadSound(sound) <= 0) {
-                        Timber.e(TAG, "load() error loading sound: $soundName")
+                        DebugLog.e { "load() error loading sound: $soundName" }
                         false
                     } else {
                         true
                     }
                 }
+
                 else -> {
-                    Timber.e(TAG, "load() called in wrong state: $sound for sound: $soundName")
+                    DebugLog.e { "load() called in wrong state: $sound for sound: $soundName" }
                     false
                 }
             }
@@ -170,8 +169,20 @@ internal class MediaActionSound2 {
      * If retrieving volume is not successful, [defaultLeftVolume] and [defaultRightVolume] are used. Finally calls [play].
      * @param streamType One of [AudioManager] constants beginning with "STREAM_" prefix, e. g. [AudioManager.STREAM_MUSIC]
      */
-    fun playWithStreamVolume(soundName: Int, context: Context, streamType: Int = AudioManager.STREAM_MUSIC, defaultLeftVolume: Float = 1f, defaultRightVolume: Float = 1f) {
-        playWithStreamVolume(soundName, context.getSystemService(AUDIO_SERVICE) as AudioManager?, streamType, defaultLeftVolume, defaultRightVolume)
+    fun playWithStreamVolume(
+        soundName: Int,
+        context: Context,
+        streamType: Int = AudioManager.STREAM_MUSIC,
+        defaultLeftVolume: Float = 1f,
+        defaultRightVolume: Float = 1f
+    ) {
+        playWithStreamVolume(
+            soundName,
+            context.getSystemService(AUDIO_SERVICE) as AudioManager?,
+            streamType,
+            defaultLeftVolume,
+            defaultRightVolume
+        )
     }
 
     /**
@@ -179,8 +190,16 @@ internal class MediaActionSound2 {
      * [defaultLeftVolume] and [defaultRightVolume] are used. Finally calls [play].
      * @param streamType One of [AudioManager] constants beginning with "STREAM_" prefix, e. g. [AudioManager.STREAM_MUSIC]
      */
-    fun playWithStreamVolume(soundName: Int, audioManager: AudioManager?, streamType: Int = AudioManager.STREAM_MUSIC, defaultLeftVolume: Float = 1f, defaultRightVolume: Float = 1f) {
-        val volume = audioManager?.let { it.getStreamVolume(streamType) / it.getStreamMaxVolume(streamType).toFloat() }
+    fun playWithStreamVolume(
+        soundName: Int,
+        audioManager: AudioManager?,
+        streamType: Int = AudioManager.STREAM_MUSIC,
+        defaultLeftVolume: Float = 1f,
+        defaultRightVolume: Float = 1f
+    ) {
+        val volume = audioManager?.let {
+            it.getStreamVolume(streamType) / it.getStreamMaxVolume(streamType).toFloat()
+        }
         play(soundName, volume ?: defaultLeftVolume, volume ?: defaultRightVolume)
     }
 
@@ -232,14 +251,17 @@ internal class MediaActionSound2 {
             when (sound.state) {
                 STATE_NOT_LOADED -> {
                     if (loadSound(sound) <= 0) {
-                        Timber.e(TAG, "play() error loading sound: $soundName")
+                        DebugLog.e { "play() error loading sound: $soundName" }
                     } else {
                         setRequestPlayStatus(sound, leftVolume, rightVolume)
                     }
                 }
+
                 STATE_LOADING -> setRequestPlayStatus(sound, leftVolume, rightVolume)
                 STATE_LOADED -> mSoundPool!!.play(sound.id, leftVolume, rightVolume, 0, 0, 1.0f)
-                else -> Timber.e(TAG, "play() called in wrong state: " + sound.state + " for sound: " + soundName)
+                else -> DebugLog.e {
+                    "play() called in wrong state: " + sound.state + " for sound: " + soundName
+                }
             }
         }
     }

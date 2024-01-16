@@ -24,7 +24,7 @@ internal fun Uri.exif(context: Context): Exif? {
             inputStream = stream
             Exif.createFromInputStream(stream)
         }
-        Timber.i(">>>>> exif : $exif")
+        DebugLog.i { "exif : $exif" }
     } catch (ex: Exception) {
         ex.printStackTrace()
     } finally {
@@ -47,10 +47,10 @@ public fun Uri.exifInterface(context: Context): ExifInterface? {
             ExifInterface::class.java.fields.forEach {
                 if (it.name.startsWith("TAG_")) {
                     val value = it.get(it.name) as String
-                    Timber.i(
+                    DebugLog.i {
                         ">>>>> exifInterface ${it.name} : " +
                                 "${exifInterface?.getAttribute(value)}"
-                    )
+                    }
                 }
             }
         }*/

@@ -193,7 +193,7 @@
 //////                Imgproc.boundingRect(approxContour).also {
 ////////                    it.width >= minWidth && it.height >= minHeight
 ////////                }?.run {
-////////                    Timber.i(">>>>> OPENCV => contourArea : $contourArea , approxCurve : ${approxCurve.total()} , contourSize : $contourSize , ${this.width} x ${this.height}")
+////////                    DebugLog.i { "contourArea : $contourArea , approxCurve : ${approxCurve.total()} , contourSize : $contourSize , ${this.width} x ${this.height}" }
 //////                    Imgproc.rectangle(bwMat, it, scalar, thickness)
 //////                }
 //////            }
@@ -208,7 +208,7 @@
 ////        contours.forEach { matOfPoint ->
 ////            val contourArea = Imgproc.contourArea(matOfPoint)
 ////            //compare this contour to the previous largest contour found
-////            //Timber.i(">>>>> OPENCV => Area : $contourArea , $minArea")
+////            //DebugLog.i { "Area : $contourArea , $minArea" }
 ////            if (contourArea > minArea) {
 ////                //check if this contour is a square
 ////                val curve = MatOfPoint2f(*matOfPoint.toArray())
@@ -223,9 +223,9 @@
 ////                    Imgproc.boundingRect(matOfPoint).takeIf {
 ////                        it.width >= minWidth && it.height >= minHeight
 ////                    }?.run {
-////                        Timber.i(
+////                        DebugLog.i{
 ////                            ">>>>> OPENCV => contourArea : $contourArea , approxCurve : ${approxCurve.total()} , ${this.width} x ${this.height}"
-////                        )
+////                        }
 ////                        Imgproc.rectangle(bwMat, this, scalar, thickness)
 ////                    }
 ////                }

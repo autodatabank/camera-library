@@ -4,9 +4,8 @@ import android.app.Activity
 import android.content.Intent
 import android.content.res.Configuration
 import android.os.Bundle
-import androidx.appcompat.app.AppCompatActivity
 import android.view.Menu
-import timber.log.Timber
+import androidx.appcompat.app.AppCompatActivity
 
 /**
  * Created by oooobang on 2018. 3. 7..
@@ -23,7 +22,7 @@ internal abstract class OBActivity : AppCompatActivity() {
 		 */
 
 		//==================================================
-		Timber.v("=========================> ${javaClass.simpleName} onCreate <")
+		DebugLog.v { "${javaClass.simpleName} onCreate <" }
 		//==================================================
 	}
 
@@ -38,7 +37,7 @@ internal abstract class OBActivity : AppCompatActivity() {
 		 */
 
 		//==================================================
-		Timber.v("=========================> ${javaClass.simpleName} onRestoreInstanceState <")
+		DebugLog.v { "${javaClass.simpleName} onRestoreInstanceState <" }
 		//==================================================
 	}
 
@@ -46,7 +45,7 @@ internal abstract class OBActivity : AppCompatActivity() {
 		super.onNewIntent(intent)
 
 		//==================================================
-		Timber.v("=========================> ${javaClass.simpleName} onNewIntent <")
+		DebugLog.v { "${javaClass.simpleName} onNewIntent <" }
 		//==================================================
 	}
 
@@ -60,7 +59,7 @@ internal abstract class OBActivity : AppCompatActivity() {
 		 */
 
 		//==================================================
-		Timber.v("=========================> ${javaClass.simpleName} onStart <")
+		DebugLog.v { "${javaClass.simpleName} onStart <" }
 		//==================================================
 	}
 
@@ -75,7 +74,7 @@ internal abstract class OBActivity : AppCompatActivity() {
 		 */
 
 		//==================================================
-		Timber.v("=========================> ${javaClass.simpleName} onRestart <")
+		DebugLog.v { "${javaClass.simpleName} onRestart <" }
 		//==================================================
 	}
 
@@ -90,14 +89,14 @@ internal abstract class OBActivity : AppCompatActivity() {
 		 */
 
 		//==================================================
-		Timber.v("=========================> ${javaClass.simpleName} onResume <")
+		DebugLog.v { "${javaClass.simpleName} onResume <" }
 		//==================================================
 	}
 
 	override fun onWindowFocusChanged(hasFocus: Boolean) {
 		super.onWindowFocusChanged(hasFocus)
 		//==================================================
-		Timber.v("=========================> ${javaClass.simpleName} onWindowFocusChanged($hasFocus) <")
+		DebugLog.v { "${javaClass.simpleName} onWindowFocusChanged($hasFocus) <" }
 		//==================================================
 	}
 
@@ -107,7 +106,7 @@ internal abstract class OBActivity : AppCompatActivity() {
 	override fun startActivity(intent: Intent) {
 		super.startActivity(intent)
 		//==================================================
-		Timber.v("=========================> ${javaClass.simpleName} startActivity <")
+		DebugLog.v { "${javaClass.simpleName} startActivity <" }
 		//==================================================
 	}
 
@@ -117,7 +116,7 @@ internal abstract class OBActivity : AppCompatActivity() {
 	override fun onChildTitleChanged(childActivity: Activity, title: CharSequence) {
 		super.onChildTitleChanged(childActivity, title)
 		//==================================================
-		Timber.v("=========================> ${javaClass.simpleName} onChildTitleChanged <")
+		DebugLog.v { "${javaClass.simpleName} onChildTitleChanged <" }
 		//==================================================
 	}
 
@@ -127,13 +126,13 @@ internal abstract class OBActivity : AppCompatActivity() {
 	override fun onPostCreate(savedInstanceState: Bundle?) {
 		super.onPostCreate(savedInstanceState)
 		//==================================================
-		Timber.v("=========================> ${javaClass.simpleName} onPostCreate <")
+		DebugLog.v { "${javaClass.simpleName} onPostCreate <" }
 		//==================================================
 	}
 
 	override fun onCreateOptionsMenu(menu: Menu): Boolean {
 		//==================================================
-		Timber.v("=========================> ${javaClass.simpleName} onCreateOptionsMenu <")
+		DebugLog.v { "${javaClass.simpleName} onCreateOptionsMenu <" }
 		//==================================================
 
 		return super.onCreateOptionsMenu(menu)
@@ -141,7 +140,7 @@ internal abstract class OBActivity : AppCompatActivity() {
 
 	override fun onPrepareOptionsMenu(menu: Menu): Boolean {
 		//==================================================
-		Timber.v("=========================> ${javaClass.simpleName} onPrepareOptionsMenu <")
+		DebugLog.v { "${javaClass.simpleName} onPrepareOptionsMenu <" }
 		//==================================================
 
 		return super.onCreateOptionsMenu(menu)
@@ -158,7 +157,7 @@ internal abstract class OBActivity : AppCompatActivity() {
 		 */
 
 		//==================================================
-		Timber.v("=========================> ${javaClass.simpleName} onSaveInstanceState <")
+		DebugLog.v { "${javaClass.simpleName} onSaveInstanceState <" }
 		//==================================================
 	}
 
@@ -173,7 +172,7 @@ internal abstract class OBActivity : AppCompatActivity() {
 		 */
 
 		//==================================================
-		Timber.v("=========================> ${javaClass.simpleName} onPause <")
+		DebugLog.v { "${javaClass.simpleName} onPause <" }
 		//==================================================
 	}
 
@@ -188,7 +187,7 @@ internal abstract class OBActivity : AppCompatActivity() {
 		 */
 
 		//==================================================
-		Timber.v("=========================> ${javaClass.simpleName} onStop <")
+		DebugLog.v { "${javaClass.simpleName} onStop <" }
 		//==================================================
 	}
 
@@ -196,7 +195,7 @@ internal abstract class OBActivity : AppCompatActivity() {
 		super.onUserInteraction()
 
 		//==================================================
-		Timber.v("=========================> ${javaClass.simpleName} onUserInteraction <")
+		DebugLog.v { "${javaClass.simpleName} onUserInteraction <" }
 		//==================================================
 	}
 
@@ -204,7 +203,7 @@ internal abstract class OBActivity : AppCompatActivity() {
 		super.onUserLeaveHint()
 
 		//==================================================
-		Timber.v("=========================> ${javaClass.simpleName} onUserLeaveHint <")
+		DebugLog.v { "${javaClass.simpleName} onUserLeaveHint <" }
 		//==================================================
 	}
 
@@ -212,7 +211,7 @@ internal abstract class OBActivity : AppCompatActivity() {
 		super.onConfigurationChanged(newConfig)
 
 		//==================================================
-		Timber.v("=========================> ${javaClass.simpleName} onConfigurationChanged <")
+		DebugLog.v { "${javaClass.simpleName} onConfigurationChanged <" }
 		//==================================================
 	}
 //
@@ -220,7 +219,7 @@ internal abstract class OBActivity : AppCompatActivity() {
 //		super.onActivityResult(requestCode, resultCode, data)
 //
 //		//==================================================
-//		Timber.v("=========================> " + javaClass.simpleName + " onActivityResult <")
+//		DebugLog.v { "" + javaClass.simpleName + " onActivityResult <" }
 //		//==================================================
 //	}
 
@@ -228,7 +227,7 @@ internal abstract class OBActivity : AppCompatActivity() {
 		super.onLowMemory()
 
 		//==================================================
-		Timber.v("=========================> ${javaClass.simpleName} onLowMemory <")
+		DebugLog.v { "${javaClass.simpleName} onLowMemory <" }
 		//==================================================
 	}
 
@@ -236,7 +235,7 @@ internal abstract class OBActivity : AppCompatActivity() {
 		super.onBackPressed()
 
 		//==================================================
-		Timber.v("=========================> ${javaClass.simpleName} onBackPressed <")
+		DebugLog.v { "${javaClass.simpleName} onBackPressed <" }
 		//==================================================
 	}
 
@@ -250,7 +249,7 @@ internal abstract class OBActivity : AppCompatActivity() {
 		 */
 
 		//==================================================
-		Timber.v("=========================> ${javaClass.simpleName} onDestroy <")
+		DebugLog.v { "${javaClass.simpleName} onDestroy <" }
 		//==================================================
 	}
 }

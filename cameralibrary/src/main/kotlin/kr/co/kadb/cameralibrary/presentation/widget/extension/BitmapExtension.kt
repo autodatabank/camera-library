@@ -3,22 +3,15 @@ package kr.co.kadb.cameralibrary.presentation.widget.extension
 import android.content.ContentValues
 import android.content.Context
 import android.graphics.*
-import android.net.Uri
-import android.os.Build
-import android.os.Environment
-import android.os.ParcelFileDescriptor
+import android.os.*
 import android.provider.MediaStore
 import android.util.Base64
 import android.util.Size
 import androidx.annotation.FloatRange
 import androidx.annotation.IntRange
-import androidx.core.net.toUri
 import androidx.exifinterface.media.ExifInterface
 import kr.co.kadb.cameralibrary.presentation.widget.util.DebugLog
-import timber.log.Timber
-import java.io.ByteArrayOutputStream
-import java.io.File
-import java.io.FileOutputStream
+import java.io.*
 
 /**
  * Created by oooobang on 2018. 5. 11..

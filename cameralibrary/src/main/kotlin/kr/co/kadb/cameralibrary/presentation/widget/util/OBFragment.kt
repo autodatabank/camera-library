@@ -5,7 +5,6 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.Fragment
-import timber.log.Timber
 
 /**
  * Created by oooobang on 2018. 3. 7..
@@ -16,7 +15,7 @@ internal abstract class OBFragment : Fragment() {
 		super.onAttach(context)
 
 		//==================================================
-		Timber.v("=========================> ${javaClass.simpleName} onAttach(Context) <")
+		DebugLog.v { "${javaClass.simpleName} onAttach(Context) <" }
 		//==================================================
 	}
 
@@ -27,7 +26,7 @@ internal abstract class OBFragment : Fragment() {
 		super.onCreate(savedInstanceState)
 
 		//==================================================
-		Timber.v("=========================> ${javaClass.simpleName} onCreate <")
+		DebugLog.v { "${javaClass.simpleName} onCreate <" }
 		//==================================================
 	}
 
@@ -36,7 +35,7 @@ internal abstract class OBFragment : Fragment() {
 		super.onViewCreated(view, savedInstanceState)
 
 		//==================================================
-		Timber.v("=========================> ${javaClass.simpleName} onViewCreated <")
+		DebugLog.v { "${javaClass.simpleName} onViewCreated <" }
 		//==================================================
 	}
 
@@ -47,7 +46,7 @@ internal abstract class OBFragment : Fragment() {
 		super.onStart()
 
 		//==================================================
-		Timber.v("=========================> ${javaClass.simpleName} onStart <")
+		DebugLog.v { "${javaClass.simpleName} onStart <" }
 		//==================================================
 	}
 
@@ -59,7 +58,7 @@ internal abstract class OBFragment : Fragment() {
 		super.onResume()
 
 		//==================================================
-		Timber.v("=========================> ${javaClass.simpleName} onResume <")
+		DebugLog.v { "${javaClass.simpleName} onResume <" }
 		//==================================================
 	}
 
@@ -70,7 +69,7 @@ internal abstract class OBFragment : Fragment() {
 		super.onPause()
 
 		//==================================================
-		Timber.v("=========================> ${javaClass.simpleName} onPause <")
+		DebugLog.v { "${javaClass.simpleName} onPause <" }
 		//==================================================
 	}
 
@@ -81,7 +80,7 @@ internal abstract class OBFragment : Fragment() {
 		super.onSaveInstanceState(savedInstanceState)
 
 		//==================================================
-		Timber.v("=========================> ${javaClass.simpleName} onSaveInstanceState <")
+		DebugLog.v { "${javaClass.simpleName} onSaveInstanceState <" }
 		//==================================================
 	}
 
@@ -93,7 +92,7 @@ internal abstract class OBFragment : Fragment() {
 		super.onStop()
 
 		//==================================================
-		Timber.v("=========================> ${javaClass.simpleName} onStop <")
+		DebugLog.v { "${javaClass.simpleName} onStop <" }
 		//==================================================
 	}
 
@@ -105,7 +104,7 @@ internal abstract class OBFragment : Fragment() {
 		super.onDestroyView()
 
 		//==================================================
-		Timber.v("=========================> ${javaClass.simpleName} onDestroyView <")
+		DebugLog.v { "${javaClass.simpleName} onDestroyView <" }
 		//==================================================
 	}
 
@@ -117,7 +116,7 @@ internal abstract class OBFragment : Fragment() {
 		super.onDestroy()
 
 		//==================================================
-		Timber.v("=========================> ${javaClass.simpleName} onDestroy <")
+		DebugLog.v { "${javaClass.simpleName} onDestroy <" }
 		//==================================================
 	}
 
@@ -128,7 +127,7 @@ internal abstract class OBFragment : Fragment() {
 		super.onDetach()
 
 		//==================================================
-		Timber.v("=========================> ${javaClass.simpleName} onDetach <")
+		DebugLog.v { "${javaClass.simpleName} onDetach <" }
 		//==================================================
 	}
 
@@ -136,7 +135,7 @@ internal abstract class OBFragment : Fragment() {
 		super.startActivity(intent)
 
 		//==================================================
-		Timber.v("=========================> ${javaClass.simpleName} startActivity <")
+		DebugLog.v { "${javaClass.simpleName} startActivity <" }
 		//==================================================
 	}
 
@@ -144,7 +143,7 @@ internal abstract class OBFragment : Fragment() {
 		super.onLowMemory()
 
 		//==================================================
-		Timber.e("=========================> ${javaClass.simpleName} onLowMemory <")
+		DebugLog.e { "${javaClass.simpleName} onLowMemory <" }
 		//==================================================
 	}
 }

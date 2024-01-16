@@ -9,16 +9,12 @@ import android.provider.Settings
 import androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AppCompatActivity
-import com.karumi.dexter.Dexter
-import com.karumi.dexter.MultiplePermissionsReport
-import com.karumi.dexter.PermissionToken
+import com.karumi.dexter.*
 import com.karumi.dexter.listener.PermissionRequest
 import com.karumi.dexter.listener.multi.MultiplePermissionsListener
 import kr.co.kadb.cameralibrary.R
-import kr.co.kadb.cameralibrary.presentation.widget.extension.negativeButton
-import kr.co.kadb.cameralibrary.presentation.widget.extension.positiveButton
-import kr.co.kadb.cameralibrary.presentation.widget.extension.showAlert
-import timber.log.Timber
+import kr.co.kadb.cameralibrary.presentation.widget.extension.*
+import kr.co.kadb.cameralibrary.presentation.widget.util.DebugLog
 
 /**
  * Created by oooobang on 2018. 2. 28..
@@ -32,11 +28,12 @@ internal open class BaseController constructor(activityContext: Context) {
     internal val fragmentManager = (activityContext as AppCompatActivity).supportFragmentManager
 
     // Activity For Result.
-    private var resultDetailsSettings =
-        activity.registerForActivityResult(StartActivityForResult()) { result ->
-            // Debug.
-            Timber.i(">>>>> RESULT : %s", result.resultCode)
-        }
+    private var resultDetailsSettings = activity.registerForActivityResult(
+        StartActivityForResult()
+    ) { result ->
+        // Debug.
+        DebugLog.i { ">>>>> RESULT : ${result.resultCode}" }
+    }
 
     // BackStack.
     fun navigateToBackStack() {

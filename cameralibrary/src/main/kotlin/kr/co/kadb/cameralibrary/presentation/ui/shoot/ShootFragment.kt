@@ -8,32 +8,18 @@ import android.media.AudioManager
 import android.media.MediaActionSound
 import android.os.Bundle
 import android.util.Size
-import android.view.LayoutInflater
-import android.view.OrientationEventListener
-import android.view.Surface
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import android.view.animation.AccelerateDecelerateInterpolator
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
-import androidx.camera.core.AspectRatio
-import androidx.camera.core.Camera
-import androidx.camera.core.CameraSelector
-import androidx.camera.core.ImageAnalysis
-import androidx.camera.core.ImageCapture
-import androidx.camera.core.ImageCaptureException
-import androidx.camera.core.ImageProxy
-import androidx.camera.core.Preview
+import androidx.camera.core.*
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import androidx.fragment.app.activityViewModels
-import androidx.transition.AutoTransition
-import androidx.transition.ChangeBounds
-import androidx.transition.TransitionManager
-import androidx.transition.addListener
+import androidx.transition.*
 import com.google.mlkit.common.MlKitException
 import com.google.mlkit.vision.text.korean.KoreanTextRecognizerOptions
 import kr.co.kadb.cameralibrary.R
@@ -41,16 +27,11 @@ import kr.co.kadb.cameralibrary.databinding.AdbCameralibraryFragmentShootBinding
 import kr.co.kadb.cameralibrary.presentation.base.BaseViewBindingFragment
 import kr.co.kadb.cameralibrary.presentation.ui.shoot.ShootEvent.*
 import kr.co.kadb.cameralibrary.presentation.widget.extension.repeatOnStarted
-import kr.co.kadb.cameralibrary.presentation.widget.mlkit.MileageRecognitionProcessor
-import kr.co.kadb.cameralibrary.presentation.widget.mlkit.VehicleNumberRecognitionProcessor
-import kr.co.kadb.cameralibrary.presentation.widget.mlkit.VinNumberRecognitionProcessor
-import kr.co.kadb.cameralibrary.presentation.widget.mlkit.VisionImageProcessor
-import kr.co.kadb.cameralibrary.presentation.widget.util.IntentKey
+import kr.co.kadb.cameralibrary.presentation.widget.mlkit.*
+import kr.co.kadb.cameralibrary.presentation.widget.util.*
 import kr.co.kadb.cameralibrary.presentation.widget.util.IntentKey.ACTION_DETECT_MILEAGE_IN_PICTURES
 import kr.co.kadb.cameralibrary.presentation.widget.util.IntentKey.ACTION_DETECT_VEHICLE_NUMBER_IN_PICTURES
 import kr.co.kadb.cameralibrary.presentation.widget.util.IntentKey.ACTION_DETECT_VIN_NUMBER_IN_PICTURES
-import kr.co.kadb.cameralibrary.presentation.widget.util.MediaActionSound2
-import timber.log.Timber
 import java.io.IOException
 import java.util.concurrent.Executors
 
@@ -605,7 +586,7 @@ internal class ShootFragment : BaseViewBindingFragment<AdbCameralibraryFragmentS
             override fun onCaptureSuccess(image: ImageProxy) {
                 super.onCaptureSuccess(image)
                 // Debug.
-                Timber.i(">>>>> ImageCapture onCaptureSuccess")
+                DebugLog.i { "ImageCapture onCaptureSuccess" }
 
                 // 이미지 저장.
                 try {
@@ -626,7 +607,7 @@ internal class ShootFragment : BaseViewBindingFragment<AdbCameralibraryFragmentS
             override fun onError(exception: ImageCaptureException) {
                 super.onError(exception)
                 // Debug.
-                Timber.e(">>>>> OnImageSavedCallback onError: ${exception.message}")
+                DebugLog.e { "OnImageSavedCallback onError: ${exception.message}" }
             }
         })
     }

@@ -17,8 +17,8 @@ import androidx.appcompat.app.AlertDialog
 import androidx.camera.core.ImageCapture
 import androidx.core.content.ContextCompat
 import kr.co.kadb.cameralibrary.R
+import kr.co.kadb.cameralibrary.presentation.widget.util.DebugLog
 import kr.co.kadb.cameralibrary.presentation.widget.util.IntentKey.BROADCAST_FINISH
-import timber.log.Timber
 import java.io.File
 
 /**
@@ -128,8 +128,8 @@ internal fun Context.mediaScanning(
     this, arrayOf(path), arrayOf(mimeType)
 ) { scanPath, scanUri ->
     // Debug.
-    Timber.i("MediaScannerConnection URI => %s", scanUri)
-    Timber.i("MediaScannerConnection PATH => %s", scanPath)
+    DebugLog.i { ">>>>> MediaScannerConnection URI : $scanUri" }
+    DebugLog.i { ">>>>> MediaScannerConnection PATH : $scanPath" }
     action?.invoke(scanPath, scanUri)
 }
 
@@ -142,8 +142,8 @@ internal fun Context.mediaScanning(
     this, paths, mimeTypes
 ) { scanPath, scanUri ->
     // Debug.
-    Timber.i("MediaScannerConnection URI => %s", scanUri)
-    Timber.i("MediaScannerConnection PATH => %s", scanPath)
+    DebugLog.i { "MediaScannerConnection URI => $scanUri" }
+    DebugLog.i { "MediaScannerConnection PATH => $scanPath" }
     action?.invoke(scanPath, scanUri)
 }
 
@@ -215,7 +215,7 @@ internal fun Context?.createFile(
                 val collection = MediaStore.Images.Media.EXTERNAL_CONTENT_URI
                 contentResolver.insert(collection, contentValues)?.let { uri ->
                     // Debug.
-                    Timber.i(">>>>> VERSION_CODES >= Q URI : %s", uri)
+                    DebugLog.i { ">>>>> VERSION_CODES >= Q URI : $uri" }
 
                     // 반환용.
                     path = uri.toString()
@@ -228,24 +228,24 @@ internal fun Context?.createFile(
                 childDirectory
             )
             if (!directory.mkdirs()) {
-                Timber.i(">>>>> Directory not created : %s", directory)
+                DebugLog.i { "Directory not created => $directory" }
             }
 
             path = "${directory.absolutePath}/$filename.$extension"
 
             // Debug.
-            Timber.i(">>>>> VERSION_CODES < Q PATH : %s", path)
+            DebugLog.i { ">>>>> VERSION_CODES < Q PATH : $path" }
         }
     } else {
         // 내부 저장소 사용.
         val directory = this?.getExternalFilesDir(Environment.DIRECTORY_PICTURES)
         if (directory?.mkdirs() != true) {
-            Timber.i(">>>>> Directory not created : %s", directory)
+            DebugLog.i { ">>>>> Directory not created : $directory" }
         }
         path = "${directory?.absolutePath}/$filename.$extension"
 
         // Debug.
-        Timber.i(">>>>> PATH : %s", path)
+        DebugLog.i { ">>>>> PATH : $path" }
     }
 
     return path?.let {
@@ -291,7 +291,7 @@ internal fun Context.outputFileOptionsBuilder(
                 childDirectory
             )
             if (!directory.mkdirs()) {
-                Timber.i(">>>>> Directory not created : %s", directory)
+                DebugLog.i { ">>>>> Directory not created : $directory" }
             }
 
             // Builder.
@@ -303,7 +303,7 @@ internal fun Context.outputFileOptionsBuilder(
         // 내부 저장소 사용.
         val directory = this.getExternalFilesDir(Environment.DIRECTORY_PICTURES)
         if (directory?.mkdirs() != true) {
-            Timber.i(">>>>> Directory not created : %s", directory)
+            DebugLog.i { ">>>>> Directory not created : $directory" }
         }
 
         // Builder.
