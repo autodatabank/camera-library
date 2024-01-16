@@ -6,16 +6,10 @@ plugins {
 }
 
 group = 'com.github.autodatabank'
-version = '1.1.6'
+version = '1.1.7'
 
 android {
     signingConfigs {
-        debug {
-            storeFile file("/Users/oooobang/.android/debug.keystore")
-            storePassword "android"
-            keyAlias "androiddebugkey"
-            keyPassword "android"
-        }
         release {
             storeFile file("/Users/oooobang/.android/debug.keystore")
             storePassword "android"
@@ -35,6 +29,7 @@ android {
     buildTypes {
         release {
             minifyEnabled true
+            signingConfig signingConfigs.debug
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
@@ -69,7 +64,7 @@ android {
 
     // Do NOT compress tflite model files (need to call out to developers!)
     androidResources {
-        noCompress 'tflite'
+        noCompress += 'tflite'
     }
 
     // predix.
@@ -132,13 +127,13 @@ afterEvaluate {
                 from components.release
                 groupId = 'com.github.autodatabank'
                 artifactId = 'camera-library'
-                version = '1.1.6'//android.defaultConfig.versionName
+                version = '1.1.7'//android.defaultConfig.versionName
             }
             /*release(MavenPublication) {
                 from components.release
                 groupId = 'com.github.autodatabank'
                 artifactId = 'camera-library'
-                version = '1.1.6'//android.defaultConfig.versionName
+                version = '1.1.7'//android.defaultConfig.versionName
             }*/
         }
     }
