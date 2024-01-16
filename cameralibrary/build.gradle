@@ -6,7 +6,7 @@ plugins {
 }
 
 group = 'com.github.autodatabank'
-version = '1.1.12'
+version = '1.1.13'
 
 android {
     signingConfigs {
@@ -28,7 +28,7 @@ android {
 
     buildTypes {
         release {
-            minifyEnabled true
+            minifyEnabled false
             signingConfig signingConfigs.debug
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
@@ -127,7 +127,7 @@ afterEvaluate {
                 from components.release
                 groupId = 'com.github.autodatabank'
                 artifactId = 'camera-library'
-                version = '1.1.12'//android.defaultConfig.versionName
+                version = '1.1.13'//android.defaultConfig.versionName
             }
         }
     }

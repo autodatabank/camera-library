@@ -19,14 +19,14 @@ android {
         applicationId "kr.co.kadb.camera"
         minSdk 21
         targetSdk 34
-        versionCode 24011604
-        versionName "1.1.12"
+        versionCode 24011605
+        versionName "1.1.13"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
     buildTypes {
         release {
-            minifyEnabled true
+            minifyEnabled false
             signingConfig signingConfigs.debug
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
