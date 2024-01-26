@@ -4,28 +4,21 @@ import android.content.Intent
 import android.graphics.Color
 import android.graphics.RectF
 import android.os.Bundle
-import android.widget.Button
-import android.widget.ImageView
-import android.widget.TextView
+import android.widget.*
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.graphics.toRect
 import androidx.exifinterface.media.ExifInterface
 import kr.co.kadb.cameralibrary.presentation.CameraIntent
-import kr.co.kadb.cameralibrary.presentation.model.CropSize
-import kr.co.kadb.cameralibrary.presentation.widget.extension.exifInterface
-import kr.co.kadb.cameralibrary.presentation.widget.extension.getParcelable
-import kr.co.kadb.cameralibrary.presentation.widget.extension.getSerializable
-import kr.co.kadb.cameralibrary.presentation.widget.util.BitmapHelper
-import kr.co.kadb.cameralibrary.presentation.widget.util.IntentKey
-import kr.co.kadb.cameralibrary.presentation.widget.util.UriHelper
+import kr.co.kadb.cameralibrary.presentation.widget.extension.*
+import kr.co.kadb.cameralibrary.presentation.widget.util.*
 import timber.log.Timber
 
 class MainActivity : AppCompatActivity() {
 
-    // Crop Size.
-    private val cropSize = CropSize(0.8f, 0.7f)
+    /*// Crop Size.
+    private val cropSize = CropSize(0.8f, 0.7f)*/
 
     // Activity for result.
     // Example 2, 3.
@@ -85,11 +78,9 @@ class MainActivity : AppCompatActivity() {
                 IntentKey.ACTION_TAKE_MULTIPLE_PICTURES -> {
                     // 여러장.
                     // 이미지 URI.
-                    val imageUris =
-                        intent.getSerializable(IntentKey.EXTRA_URIS, ArrayList::class.java)
+                    val imageUris = intent.getStringArrayListExtra(IntentKey.EXTRA_URIS)
                     // 이미지 사이즈.
-                    val imageSizes =
-                        intent.getSerializable(IntentKey.EXTRA_SIZES, ArrayList::class.java)
+                    val imageSizes = intent.getStringArrayListExtra(IntentKey.EXTRA_SIZES)
 
                     // Debug.
                     Timber.d(">>>>> imageUris : $imageUris")
@@ -105,8 +96,7 @@ class MainActivity : AppCompatActivity() {
                     // 감지한 텍스트.
                     val detectText = intent.getStringExtra(IntentKey.EXTRA_DETECT_TEXT)
                     // 감지한 Rect.
-                    val detectRect =
-                        intent.getParcelable(IntentKey.EXTRA_DETECT_RECT, RectF::class.java)
+                    val detectRect = intent.parcelable<RectF>(IntentKey.EXTRA_DETECT_RECT)
 
                     // Debug.
                     Timber.i(">>>>> ACTION_DETECT_IN_PICTURES : $detectText")
@@ -161,12 +151,12 @@ class MainActivity : AppCompatActivity() {
                 setAction(IntentKey.ACTION_TAKE_PICTURE)
                 setCanMute(false)
                 setHasHorizon(true)
-                setCropSize(cropSize)
+                /*setCropSize(cropSize)*/
                 setCanUiRotation(true)
                 setHorizonColor(Color.RED)
                 setUnusedAreaBorderColor(Color.GREEN)
-                setCroppedJpegQuality(95)
-                setSaveCropedImage(false)
+                /*setCroppedJpegQuality(95)
+                setSaveCropedImage(false)*/
             }.run {
                 resultLauncher.launch(this.build())
             }
@@ -178,12 +168,12 @@ class MainActivity : AppCompatActivity() {
                 setAction(IntentKey.ACTION_TAKE_MULTIPLE_PICTURES)
                 setCanMute(false)
                 setHasHorizon(true)
-                setCropSize(cropSize)
+                /*setCropSize(cropSize)*/
                 setCanUiRotation(true)
                 setHorizonColor(Color.RED)
                 setUnusedAreaBorderColor(Color.GREEN)
-                setCroppedJpegQuality(95)
-                setSaveCropedImage(false)
+                /*setCroppedJpegQuality(95)
+                setSaveCropedImage(false)*/
             }.run {
                 resultLauncher.launch(this.build())
             }
