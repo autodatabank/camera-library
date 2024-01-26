@@ -2,15 +2,11 @@ package kr.co.kadb.cameralibrary.presentation.ui.shoot
 
 import android.os.Build
 import android.os.Bundle
-import android.view.View
-import android.view.WindowInsets
-import android.view.WindowInsetsController
+import android.view.*
 import androidx.activity.viewModels
 import androidx.core.content.ContextCompat
 import kr.co.kadb.cameralibrary.R
 import kr.co.kadb.cameralibrary.presentation.base.BaseActivity
-import kr.co.kadb.cameralibrary.presentation.model.CropSize
-import kr.co.kadb.cameralibrary.presentation.widget.extension.getSerializable
 import kr.co.kadb.cameralibrary.presentation.widget.util.IntentKey
 
 /**
@@ -26,6 +22,7 @@ internal class ShootActivity : BaseActivity() {
     // ViewModel.
     private val viewModel: ShootSharedViewModel by viewModels {
         ShootSharedViewModelFactory(this)
+        //ShootSharedViewModelFactory(CameraServiceLocator.getInstance(application))
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -34,12 +31,12 @@ internal class ShootActivity : BaseActivity() {
 
         // 기본 수평선 색상.
         val defaultHorizonColor = ContextCompat.getColor(
-            applicationContext, R.color.adb_cameralibrary_bg_camera_horizon
+            applicationContext, R.color.adb_cameralibrary_camera_horizon
         )
-        // 기본 크롭영역 선 색상.
+        /*// 기본 크롭영역 선 색상.
         val defaultUnusedAreaBorderColor = ContextCompat.getColor(
             applicationContext, R.color.adb_cameralibrary_bg_camera_unused_area_border
-        )
+        )*/
 
         // Intent Data.
         val action = intent.action
@@ -47,13 +44,13 @@ internal class ShootActivity : BaseActivity() {
         val canMute = intent.getBooleanExtra(IntentKey.EXTRA_CAN_MUTE, false)
         val hasHorizon = intent.getBooleanExtra(IntentKey.EXTRA_HAS_HORIZON, false)
         val canUiRotation = intent.getBooleanExtra(IntentKey.EXTRA_CAN_UI_ROTATION, false)
-        val isSaveCroppedImage =
-            intent.getBooleanExtra(IntentKey.EXTRA_IS_SAVE_CROPPED_IMAGE, false)
+        /*val isSaveCroppedImage =
+            intent.getBooleanExtra(IntentKey.EXTRA_IS_SAVE_CROPPED_IMAGE, false)*/
         val horizonColor = intent.getIntExtra(IntentKey.EXTRA_HORIZON_COLOR, defaultHorizonColor)
-        val unusedAreaBorderColor =
-            intent.getIntExtra(IntentKey.EXTRA_CROP_BORDER_COLOR, defaultUnusedAreaBorderColor)
+        /*val unusedAreaBorderColor =
+            intent.getIntExtra(IntentKey.EXTRA_CROP_BORDER_COLOR, defaultUnusedAreaBorderColor)*/
 
-        @Suppress("DEPRECATION")
+        /*@Suppress("DEPRECATION")
         val cropPercent = intent.getSerializable(
             IntentKey.EXTRA_CROP_PERCENT,
             Array<Float>::class.java
@@ -63,18 +60,11 @@ internal class ShootActivity : BaseActivity() {
         } else {
             CropSize(cropPercent[0], cropPercent[1])
         }
-        val croppedJpegQuality = intent.getIntExtra(IntentKey.EXTRA_CROPPED_JPEG_QUALITY, 95)
+        val croppedJpegQuality = intent.getIntExtra(IntentKey.EXTRA_CROPPED_JPEG_QUALITY, 95)*/
+
+        // init viewmodel.
         viewModel.initUiState(
-            action,
-            isDebug,
-            canMute,
-            hasHorizon,
-            canUiRotation,
-            isSaveCroppedImage,
-            cropSize,
-            horizonColor,
-            unusedAreaBorderColor,
-            croppedJpegQuality
+            action, isDebug, canMute, hasHorizon, canUiRotation, horizonColor
         )
 
         //

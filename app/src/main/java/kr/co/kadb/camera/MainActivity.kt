@@ -154,8 +154,8 @@ class MainActivity : AppCompatActivity() {
                 /*setCropSize(cropSize)*/
                 setCanUiRotation(true)
                 setHorizonColor(Color.RED)
-                setUnusedAreaBorderColor(Color.GREEN)
-                /*setCroppedJpegQuality(95)
+                /*setUnusedAreaBorderColor(Color.GREEN)
+                setCroppedJpegQuality(95)
                 setSaveCropedImage(false)*/
             }.run {
                 resultLauncher.launch(this.build())
@@ -171,8 +171,8 @@ class MainActivity : AppCompatActivity() {
                 /*setCropSize(cropSize)*/
                 setCanUiRotation(true)
                 setHorizonColor(Color.RED)
-                setUnusedAreaBorderColor(Color.GREEN)
-                /*setCroppedJpegQuality(95)
+                /*setUnusedAreaBorderColor(Color.GREEN)
+                setCroppedJpegQuality(95)
                 setSaveCropedImage(false)*/
             }.run {
                 resultLauncher.launch(this.build())

@@ -3,7 +3,7 @@ package kr.co.kadb.cameralibrary.presentation.model
 import androidx.annotation.FloatRange
 import java.io.Serializable
 
-public data class CropSize constructor(
+public data class CropSize(
     @FloatRange(from = 0.0, to = 1.0)
     val width: Float = 0.0f,
     @FloatRange(from = 0.0, to = 1.0)

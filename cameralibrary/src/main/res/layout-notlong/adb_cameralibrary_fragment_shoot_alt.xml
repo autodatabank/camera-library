@@ -11,7 +11,7 @@
         android:layout_width="0dp"
         android:layout_height="0dp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintDimensionRatio="h, 3:4"
+        app:layout_constraintDimensionRatio="w, 3:4"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
@@ -27,8 +27,8 @@
         />
     <View
         android:id="@+id/adb_cameralibrary_view_horizon"
-        android:layout_width="0dp"
-        android:layout_height="2px"
+        android:layout_width="2px"
+        android:layout_height="0dp"
         android:background="@color/adb_cameralibrary_camera_horizon"
         app:layout_constraintBottom_toBottomOf="@+id/adb_cameralibrary_preview_view"
         app:layout_constraintEnd_toEndOf="@+id/adb_cameralibrary_preview_view"

@@ -8,8 +8,7 @@ import kr.co.kadb.cameralibrary.presentation.base.BaseController
  * Created by oooobang on 2020. 2. 3..
  * Controller.
  */
-internal class ShootController
-constructor(activityContext: Context) : BaseController(activityContext) {
+internal class ShootController(activityContext: Context) : BaseController(activityContext) {
 	// ContainerId.
 	private val containerId: Int = R.id.layout_container
 

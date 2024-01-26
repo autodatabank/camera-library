@@ -5,39 +5,30 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kr.co.kadb.cameralibrary.presentation.base.UiState
+import kr.co.kadb.cameralibrary.presentation.widget.util.DebugLog
 
 internal abstract class BaseViewModel<T>(
     initialState: UiState<T>
 ) : ViewModel() {
-    /*private val disposable = CompositeDisposable()*/
 
-    private val _state = MutableStateFlow(initialState)
-    val state = _state.asStateFlow()
+    private val _uiStateFlow = MutableStateFlow(initialState)
+    val uiState = _uiStateFlow.asStateFlow()
 
     protected fun updateState(transform: (T) -> T) {
-        val state = state.value
+        DebugLog.i { "ViewModel updateState" }
+        val state = uiState.value
         val value = state.value ?: return
-        _state.update {
+        DebugLog.i { ">>>>> ViewModel updateState : $value" }
+        _uiStateFlow.update {
             UiState.success(transform(value))
         }
     }
 
     protected fun updateState(
-        isLoading: Boolean = state.value.isLoading,
-        cause: Throwable? = state.value.cause,
-        value: T? = state.value.value
+        isLoading: Boolean = uiState.value.isLoading,
+        cause: Throwable? = uiState.value.cause,
+        value: T? = uiState.value.value
     ) {
-        _state.value = UiState(isLoading = isLoading, cause = cause, value = value)
+        _uiStateFlow.value = UiState(isLoading = isLoading, cause = cause, value = value)
     }
-
-    /*protected fun addDisposable(disposable: Disposable) {
-        this.disposable.add(disposable)
-    }*/
-
-    /*override fun onCleared() {
-        if (!disposable.isDisposed) {
-            disposable.clear()
-        }
-        super.onCleared()
-    }*/
 }

@@ -1,72 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- . -->
-<!--    <color name="adb_cameralibrary_primary">#289D70</color>-->
-<!--    <color name="adb_cameralibrary_primary_light">#61CF9F</color>-->
-<!--    <color name="adb_cameralibrary_primary_dark">#006E45</color>-->
-<!--    <color display="primary_inverse">@color/white</color>-->
-<!--    <color display="secondary">#173F70</color>-->
-    <!--<color name="adb_cameralibrary_secondary_light">#61CF9F</color>-->
-    <!--color display="secondary_dark">#88FBB040</color-->
-<!--    <color display="secondary_inverse">@color/white</color>-->
     <color name="adb_cameralibrary_accent">#FBB040</color>
-<!--    <color name="adb_cameralibrary_accent_light">#FFE271</color>-->
-<!--    <color name="adb_cameralibrary_accent_dark">#C48100</color>-->
     <color name="adb_cameralibrary_disable">#E3E3E3</color>
-<!--    <color name="adb_cameralibrary_kakao">#FAEB38</color>-->
-<!--    <color name="adb_cameralibrary_kakao_dark">#80FAEB38</color>-->
-
-
-    <!-- Text Color. -->
-<!--    <color name="adb_cameralibrary_text_primary">@color/adb_cameralibrary_primary</color>-->
-<!--    <color name="adb_cameralibrary_text_primary_light">#0099FF</color>-->
-<!--    <color name="adb_cameralibrary_text_accent">#6538AF</color>-->
-<!--    <color name="adb_cameralibrary_text_normal">#535353</color>-->
-<!--    <color name="adb_cameralibrary_text_normal_alpha">#C0535353</color>-->
-<!--    <color name="adb_cameralibrary_text_normal_hint">#26535353</color>-->
-<!--    <color name="adb_cameralibrary_text_white">#FFFFFF</color>-->
-<!--    <color name="adb_cameralibrary_text_white_hint">#80FFFFFF</color>-->
-
-
-    <!-- Control Color. -->
-<!--    <color name="adb_cameralibrary_control_primary_dark">@color/adb_cameralibrary_primary_dark</color>-->
-<!--    <color name="adb_cameralibrary_control_normal">#DBDBDB</color>-->
-<!--    <color name="adb_cameralibrary_control_require">@color/adb_cameralibrary_pink_900</color>-->
-
-
-    <!-- Divider Color. -->
-<!--    <color name="adb_cameralibrary_divider_normal">#331D1D1D</color>-->
-<!--    <color name="adb_cameralibrary_divider_accent">@color/adb_cameralibrary_accent</color>-->
-<!--    <color name="adb_cameralibrary_divider_light">#0C1D1D1D</color>-->
-
-
-    <!-- Line Color. -->
-<!--    <color name="adb_cameralibrary_line_normal">#DBDBDB</color>-->
-<!--    <color name="adb_cameralibrary_line_white">#FFFFFF</color>-->
-<!--    <color name="adb_cameralibrary_line_marginal_1">#191D1D1D</color>-->
-
-
-    <!-- Loding Color. -->
-<!--    <color name="adb_cameralibrary_loading_list">#C0000000</color>-->
-
-
-    <!-- Background Color. -->
-<!--    <color name="adb_cameralibrary_bg_normal">@color/adb_cameralibrary_white</color>-->
-<!--    <color name="adb_cameralibrary_bg_primary">@color/adb_cameralibrary_primary</color>-->
-<!--    <color name="adb_cameralibrary_bg_accent">@color/adb_cameralibrary_accent</color>-->
-<!--    <color name="adb_cameralibrary_bg_light_grey">#F1F1F1</color>-->
-<!--    <color name="adb_cameralibrary_bg_grey">#E6E6E6</color>-->
-<!--    <color name="adb_cameralibrary_bg_dark_grey">#383D43</color>-->
-<!--    <color name="adb_cameralibrary_bg_selected_accent">#FFFCD4</color>-->
-<!--	<color name="adb_cameralibrary_bg_added">@color/adb_cameralibrary_accent</color>-->
-<!--    <color name="adb_cameralibrary_bg_disable">#EEEEEE</color>-->
-<!--	<<color name="adb_cameralibrary_bg_disable">#0C000000</color>>-->
-<!--	<color name="adb_cameralibrary_bg_cover">#55000000</color>-->
-<!--    <color name="adb_cameralibrary_bg_claimed">#8096BDED</color>-->
-    <color name="adb_cameralibrary_bg_camera_horizon">#88FF0000</color>
+    <color name="adb_cameralibrary_camera_horizon">#88FF0000</color>
     <color name="adb_cameralibrary_bg_camera_unused_area">#88000000</color>
     <color name="adb_cameralibrary_bg_camera_unused_area_border">#8800FF00</color>
-
     <color name="adb_cameralibrary_black">#000000</color>
     <color name="adb_cameralibrary_white">#FFFFFF</color>
 </resources>

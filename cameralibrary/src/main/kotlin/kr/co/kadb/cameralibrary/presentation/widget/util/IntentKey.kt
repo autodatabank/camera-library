@@ -50,6 +50,10 @@ public object IntentKey {
 	public const val EXTRA_HAS_HORIZON: String = "EXTRA_HAS_HORIZON"
 
 	// 촬영 후 크롭 이미지 저장(원본 이미지는 저장 안함) 요청용.
+	@Deprecated(
+		message = "다양한 단말에서의 테스트 필요 이슈로 Crop 기능 Deprecated.",
+		level = DeprecationLevel.WARNING
+	)
 	public const val EXTRA_IS_SAVE_CROPPED_IMAGE: String = "EXTRA_IS_SAVE_CROPPED_IMAGE"
 
 	// 촬영 시 미리보기 화면에 표시 할 마스크(백분율) 크기 요청용.
@@ -61,6 +65,10 @@ public object IntentKey {
 	public const val EXTRA_CROP_PERCENT: String = "EXTRA_CROP_PERCENT"
 
 	// 촬영 시 미리보기 화면에 표시 할 마스크(백분율) 크기 요청용.
+	@Deprecated(
+		message = "다양한 단말에서의 테스트 필요 이슈로 Crop 기능 Deprecated.",
+		level = DeprecationLevel.WARNING
+	)
 	public const val EXTRA_CROP_SIZE: String = "EXTRA_CROP_SIZE"
 
 	// 촬영 시 UI 로테이션 금지(Image Exif값에는 영향 없음) 요청용.
@@ -70,9 +78,17 @@ public object IntentKey {
 	public const val EXTRA_HORIZON_COLOR: String = "EXTRA_HORIZON_COLOR"
 
 	// 촬영 시 미리보기 화면에 표시 할 마스크(백분율) Border Color 요청용.
+	@Deprecated(
+		message = "다양한 단말에서의 테스트 필요 이슈로 Crop 기능 Deprecated.",
+		level = DeprecationLevel.WARNING
+	)
 	public const val EXTRA_CROP_BORDER_COLOR: String = "EXTRA_CROP_BORDER_COLOR"
 
 	// 촬영 후 이미지 저장 시 JPEG 품질(1~100) 요청용.
+	@Deprecated(
+		message = "다양한 단말에서의 테스트 필요 이슈로 Crop 기능 Deprecated.",
+		level = DeprecationLevel.WARNING
+	)
 	public const val EXTRA_CROPPED_JPEG_QUALITY: String = "EXTRA_CROPPED_JPEG_QUALITY"
 
 	// 한 장 촬영 시 width 반환용.

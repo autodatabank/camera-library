@@ -7,9 +7,7 @@ import android.graphics.RectF
 import android.media.AudioManager
 import android.media.MediaActionSound
 import android.os.Bundle
-import android.util.Size
 import android.view.*
-import android.view.animation.AccelerateDecelerateInterpolator
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.camera.core.*
@@ -19,12 +17,14 @@ import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import androidx.fragment.app.activityViewModels
-import androidx.transition.*
+import androidx.transition.AutoTransition
+import androidx.transition.TransitionManager
 import com.google.mlkit.common.MlKitException
 import com.google.mlkit.vision.text.korean.KoreanTextRecognizerOptions
 import kr.co.kadb.cameralibrary.R
 import kr.co.kadb.cameralibrary.databinding.AdbCameralibraryFragmentShootBinding
 import kr.co.kadb.cameralibrary.presentation.base.BaseViewBindingFragment
+import kr.co.kadb.cameralibrary.presentation.ui.CameraServiceLocator
 import kr.co.kadb.cameralibrary.presentation.ui.shoot.ShootEvent.*
 import kr.co.kadb.cameralibrary.presentation.widget.extension.repeatOnStarted
 import kr.co.kadb.cameralibrary.presentation.widget.mlkit.*
@@ -55,6 +55,19 @@ internal class ShootFragment : BaseViewBindingFragment<AdbCameralibraryFragmentS
     // ViewModel.
     private val viewModel: ShootSharedViewModel by activityViewModels {
         ShootSharedViewModelFactory(requireContext())
+        //ShootSharedViewModelFactory(CameraServiceLocator.getInstance(requireActivity().application))
+    }
+
+    private val portraitConstraint by lazy {
+        ConstraintSet().apply {
+            clone(context, R.layout.adb_cameralibrary_fragment_shoot_alt)
+        }
+    }
+
+    private val landscapeConstraint by lazy {
+        ConstraintSet().apply {
+            clone(context, R.layout.adb_cameralibrary_fragment_shoot)
+        }
     }
 
     // 이미지 분석 Overlay.
@@ -102,7 +115,7 @@ internal class ShootFragment : BaseViewBindingFragment<AdbCameralibraryFragmentS
 
                 // 회전에 따른 UI 변경.
                 if (viewModel.item.value.canUiRotation && imageCapture?.targetRotation != rotation) {
-                    initUnusedAreaLayout()
+                    initLayoutAfterRotation()
                 }
 
                 // Rotation 갱신.
@@ -126,7 +139,7 @@ internal class ShootFragment : BaseViewBindingFragment<AdbCameralibraryFragmentS
         // 권한 확인 후 카메라 및 UI 초기화.
         viewController.requestCameraPermission {
             initCamera()
-            initUnusedAreaLayout()
+            initLayoutAfterRotation()
         }
     }
 
@@ -147,11 +160,6 @@ internal class ShootFragment : BaseViewBindingFragment<AdbCameralibraryFragmentS
         cameraExecutor.shutdown()
         mediaActionSound.release()
     }
-
-    /*override fun onDestroy() {
-        super.onDestroy()
-        imageProcessor?.run { this.stop() }
-    }*/
 
     override fun onBackPressed(): Boolean {
         viewModel.stopShooting()
@@ -300,37 +308,25 @@ internal class ShootFragment : BaseViewBindingFragment<AdbCameralibraryFragmentS
         }
     }
 
-    // Init unused area layout.
-    private fun initUnusedAreaLayout() {
-        // 크롭 사용 유무에 따라 UnusedAreaLayout 활성 상태 변경.
-        viewModel.item.value.cropSize.isNotEmpty.also {
-            binding.adbCameralibraryViewUnusedAreaBorderTop.isVisible = it
-            binding.adbCameralibraryViewUnusedAreaBorderEnd.isVisible = it
-            binding.adbCameralibraryViewUnusedAreaBorderStart.isVisible = it
-            binding.adbCameralibraryViewUnusedAreaBorderBottom.isVisible = it
-        }
-
-        // 크롭 사용 시 Layout Border Color 설정.
-        viewModel.item.value.unusedAreaBorderColor.also { color ->
-            binding.adbCameralibraryViewUnusedAreaBorderTop.setBackgroundColor(color)
-            binding.adbCameralibraryViewUnusedAreaBorderEnd.setBackgroundColor(color)
-            binding.adbCameralibraryViewUnusedAreaBorderStart.setBackgroundColor(color)
-            binding.adbCameralibraryViewUnusedAreaBorderBottom.setBackgroundColor(color)
-        }
-
+    // Init layout.
+    private fun initLayoutAfterRotation() {
         // 크롭크기로 영역 지정.
         binding.adbCameralibraryPreviewView.post {
-            val topSide = ConstraintSet.TOP
-            val endSide = ConstraintSet.END
-            val startSide = ConstraintSet.START
-            val bottomSide = ConstraintSet.BOTTOM
+            // 여러장 촬영 상태에서만 촬영완료 버튼 활성화.
+            val isMultiplePicture = viewModel.item.value.isMultiplePicture
+            val isMileagePicture = viewModel.item.value.isMileagePicture
+            val isVinNumberPicture = viewModel.item.value.isVinNumberPicture
+            val isMultipleVisibility = when (isMultiplePicture) {
+                true -> View.VISIBLE
+                else -> View.GONE
+            }
+            val isShootVisibility = when (isMileagePicture || isVinNumberPicture) {
+                true -> View.GONE
+                else -> View.VISIBLE
+            }
+
+            // rotation.
             val targetRotation = imageCapture?.targetRotation ?: 0
-            val unusedAreaView = binding.adbCameralibraryLayoutUnusedArea
-            val unusedAreaViewTop = binding.adbCameralibraryViewUnusedAreaTop
-            val unusedAreaViewBottom = binding.adbCameralibraryViewUnusedAreaBottom
-            val (unusedAreaWidth, unusedAreaHeight) = viewModel.unusedAreaSize(
-                targetRotation, unusedAreaView.width, unusedAreaView.height
-            )
 
             // 플래쉬, 촬영, 완료 버튼 회전.
             with((targetRotation * 90).toFloat()) {
@@ -339,74 +335,49 @@ internal class ShootFragment : BaseViewBindingFragment<AdbCameralibraryFragmentS
                 binding.adbCameralibraryButtonShooting.animate().rotation(this)
             }
 
-            val constraintSet = ConstraintSet()
-
-            // 크롭 사용 시 Layout 설정.
-            if (unusedAreaWidth > 0 && unusedAreaHeight > 0) {
-                binding.adbCameralibraryViewUnusedAreaTop.apply {
-                    layoutParams = ConstraintLayout.LayoutParams(0, unusedAreaHeight.toInt())
-                }.run {
-                    constraintSet.clone(unusedAreaView)
-                    constraintSet.connect(id, topSide, unusedAreaView.id, topSide)
-                    constraintSet.applyTo(unusedAreaView)
-                }
-                binding.adbCameralibraryViewUnusedAreaBottom.apply {
-                    layoutParams = ConstraintLayout.LayoutParams(0, unusedAreaHeight.toInt())
-                }.run {
-                    constraintSet.clone(unusedAreaView)
-                    constraintSet.connect(id, bottomSide, unusedAreaView.id, bottomSide)
-                    constraintSet.applyTo(unusedAreaView)
-                }
-                binding.adbCameralibraryViewUnusedAreaStart.apply {
-                    layoutParams = ConstraintLayout.LayoutParams(unusedAreaWidth.toInt(), 0)
-                }.run {
-                    constraintSet.clone(unusedAreaView)
-                    constraintSet.connect(id, startSide, unusedAreaView.id, startSide)
-                    constraintSet.connect(id, topSide, unusedAreaViewTop.id, bottomSide)
-                    constraintSet.connect(id, bottomSide, unusedAreaViewBottom.id, topSide)
-                    constraintSet.applyTo(unusedAreaView)
-                }
-                binding.adbCameralibraryViewUnusedAreaEnd.apply {
-                    layoutParams = ConstraintLayout.LayoutParams(unusedAreaWidth.toInt(), 0)
-                }.run {
-                    constraintSet.clone(unusedAreaView)
-                    constraintSet.connect(id, endSide, unusedAreaView.id, endSide)
-                    constraintSet.connect(id, topSide, unusedAreaViewTop.id, bottomSide)
-                    constraintSet.connect(id, bottomSide, unusedAreaViewBottom.id, topSide)
-                    constraintSet.applyTo(unusedAreaView)
-                }
+            // 수평선 회전.
+            val layoutParams = ConstraintLayout.LayoutParams(1, 1).apply {
+                startToStart = ConstraintLayout.LayoutParams.PARENT_ID
+                topToTop = ConstraintLayout.LayoutParams.PARENT_ID
+                endToEnd = ConstraintLayout.LayoutParams.PARENT_ID
+                bottomToBottom = ConstraintLayout.LayoutParams.PARENT_ID
             }
-
-            // 수평선.
-            binding.adbCameralibraryViewHorizon.apply {
-                layoutParams = ConstraintLayout.LayoutParams(1, 1)
-            }.run {
-                constraintSet.clone(unusedAreaView)
-                constraintSet.connect(id, startSide, unusedAreaView.id, startSide)
-                constraintSet.connect(id, endSide, unusedAreaView.id, endSide)
-                constraintSet.connect(id, topSide, unusedAreaView.id, topSide)
-                constraintSet.connect(id, bottomSide, unusedAreaView.id, bottomSide)
-                constraintSet.applyTo(unusedAreaView)
-
-                val transition = ChangeBounds()
-                transition.interpolator = AccelerateDecelerateInterpolator()
-                transition.addListener(onEnd = {
-                    val (width, height) = when (targetRotation) {
-                        1, 3 -> Pair(2, 0)
-                        else -> Pair(0, 2)
+            binding.adbCameralibraryViewHorizon.layoutParams = layoutParams
+            binding.adbCameralibraryViewHorizon.requestLayout()
+            binding.adbCameralibraryViewHorizon.post {
+                when (targetRotation) {
+                    1, 3 -> {
+                        portraitConstraint.apply {
+                            setVisibility(
+                                binding.adbCameralibraryLayoutFinish.id, isMultipleVisibility
+                            )
+                            setVisibility(
+                                binding.adbCameralibraryLayoutFlash.id, isShootVisibility
+                            )
+                            setVisibility(
+                                binding.adbCameralibraryButtonShooting.id, isShootVisibility
+                            )
+                        }
+                        portraitConstraint.applyTo(binding.root)
+                        TransitionManager.beginDelayedTransition(binding.root, AutoTransition())
                     }
-                    layoutParams = ConstraintLayout.LayoutParams(width, height)
-                    constraintSet.clone(unusedAreaView)
-                    constraintSet.connect(id, startSide, unusedAreaView.id, startSide)
-                    constraintSet.connect(id, endSide, unusedAreaView.id, endSide)
-                    constraintSet.connect(id, topSide, unusedAreaView.id, topSide)
-                    constraintSet.connect(id, bottomSide, unusedAreaView.id, bottomSide)
-                    constraintSet.applyTo(unusedAreaView)
-                    TransitionManager.beginDelayedTransition(
-                        binding.adbCameralibraryLayout, AutoTransition()
-                    )
-                })
-                TransitionManager.beginDelayedTransition(binding.adbCameralibraryLayout, transition)
+
+                    else -> {
+                        landscapeConstraint.apply {
+                            setVisibility(
+                                binding.adbCameralibraryLayoutFinish.id, isMultipleVisibility
+                            )
+                            setVisibility(
+                                binding.adbCameralibraryLayoutFlash.id, isShootVisibility
+                            )
+                            setVisibility(
+                                binding.adbCameralibraryButtonShooting.id, isShootVisibility
+                            )
+                        }
+                        landscapeConstraint.applyTo(binding.root)
+                        TransitionManager.beginDelayedTransition(binding.root, AutoTransition())
+                    }
+                }
             }
         }
     }
@@ -507,16 +478,6 @@ internal class ShootFragment : BaseViewBindingFragment<AdbCameralibraryFragmentS
         }
     }
 
-    // 이미지 프록시를 안전하게 처리합니다.
-    private fun processImageProxySafely(imageProxy: ImageProxy) {
-        try {
-            imageProcessor?.processImageProxy(imageProxy, detectOverlay)
-        } catch (ex: MlKitException) {
-            ex.printStackTrace()
-        }/* finally {
-            imageProxy.close()
-        }*/
-    }
 
     // Overlay의 이미지 소스 정보를 업데이트합니다.
     private var needUpdateGraphicOverlayImageSourceInfo = true
@@ -533,6 +494,17 @@ internal class ShootFragment : BaseViewBindingFragment<AdbCameralibraryFragmentS
         }
     }
 
+    // 이미지 프록시를 안전하게 처리합니다.
+    private fun processImageProxySafely(imageProxy: ImageProxy) {
+        try {
+            imageProcessor?.processImageProxy(imageProxy, detectOverlay)
+        } catch (ex: MlKitException) {
+            ex.printStackTrace()
+        }/* finally {
+            imageProxy.close()
+        }*/
+    }
+
     // Processor 옵션을 생성합니다.
     private fun createKoreanTextRecognizerOptions(): KoreanTextRecognizerOptions {
         return KoreanTextRecognizerOptions.Builder().build()
@@ -542,7 +514,7 @@ internal class ShootFragment : BaseViewBindingFragment<AdbCameralibraryFragmentS
     private fun handleCompleteAction(detectText: String, detectRect: RectF) {
         imageAnalyzer?.clearAnalyzer()
         imageProcessor?.stop()
-        when (viewModel.item.value.action) {
+        /*when (viewModel.item.value.action) {
             ACTION_DETECT_VEHICLE_NUMBER_IN_PICTURES -> {
                 val scaleRect = viewModel.scaleRect(
                     detectRect,
@@ -553,7 +525,8 @@ internal class ShootFragment : BaseViewBindingFragment<AdbCameralibraryFragmentS
             }
 
             else -> viewModel.detectInImage(detectText, detectRect)
-        }
+        }*/
+        viewModel.detectInImage(detectText, detectRect)
     }
 
     // 후면 카메라 사용 가능.

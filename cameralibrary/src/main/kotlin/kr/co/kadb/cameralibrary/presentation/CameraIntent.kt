@@ -14,6 +14,7 @@ import kr.co.kadb.cameralibrary.presentation.widget.util.IntentKey
  */
 public class CameraIntent {
     // 한 장 촬영.
+    @Suppress("DEPRECATION")
     @Deprecated(
         message = "agrs의 직관성을 위하여 Deprecated.",
         level = DeprecationLevel.WARNING
@@ -24,8 +25,8 @@ public class CameraIntent {
         hasHorizon: Boolean? = null,
         canUiRotation: Boolean? = null,
         cropPercent: Array<Float>? = null,
-        horizonColor: Array<Float>? = null,
-        unusedAreaBorderColor: Array<Float>? = null,
+        horizonColor: Int? = null,
+        unusedAreaBorderColor: Int? = null,
         @IntRange(from = 1, to = 100)
         croppedJpegQuality: Int = 95
     ): Intent {
@@ -54,6 +55,7 @@ public class CameraIntent {
     }
 
     // 여러 장 촬영.
+    @Suppress("DEPRECATION")
     @Deprecated(
         message = "agrs의 직관성을 위하여 Deprecated.",
         level = DeprecationLevel.WARNING
@@ -64,8 +66,8 @@ public class CameraIntent {
         hasHorizon: Boolean? = null,
         canUiRotation: Boolean? = null,
         cropPercent: Array<Float>? = null,
-        horizonColor: Array<Float>? = null,
-        unusedAreaBorderColor: Array<Float>? = null,
+        horizonColor: Int? = null,
+        unusedAreaBorderColor: Int? = null,
         @IntRange(from = 1, to = 100)
         croppedJpegQuality: Int = 95
     ): Intent {
@@ -94,6 +96,11 @@ public class CameraIntent {
     }
 
     // 한 장 촬영.
+    @Suppress("DEPRECATION")
+    @Deprecated(
+        message = "다양한 단말에서의 테스트 필요 이슈로 Crop 기능 Deprecated.",
+        level = DeprecationLevel.WARNING
+    )
     public fun navigateToTakePicture(
         activityContext: Context,
         canMute: Boolean? = null,
@@ -101,8 +108,8 @@ public class CameraIntent {
         canUiRotation: Boolean? = null,
         isSaveCroppedImage: Boolean? = null,
         cropSize: CropSize? = null,
-        horizonColor: Array<Float>? = null,
-        unusedAreaBorderColor: Array<Float>? = null,
+        horizonColor: Int? = null,
+        unusedAreaBorderColor: Int? = null,
         @IntRange(from = 1, to = 100)
         croppedJpegQuality: Int = 95
     ): Intent {
@@ -134,6 +141,11 @@ public class CameraIntent {
     }
 
     // 여러 장 촬영.
+    @Suppress("DEPRECATION")
+    @Deprecated(
+        message = "다양한 단말에서의 테스트 필요 이슈로 Crop 기능 Deprecated.",
+        level = DeprecationLevel.WARNING
+    )
     public fun navigateToTakeMultiplePictures(
         activityContext: Context,
         canMute: Boolean? = null,
@@ -141,8 +153,8 @@ public class CameraIntent {
         canUiRotation: Boolean? = null,
         isSaveCroppedImage: Boolean? = null,
         cropSize: CropSize? = null,
-        horizonColor: Array<Float>? = null,
-        unusedAreaBorderColor: Array<Float>? = null,
+        horizonColor: Int? = null,
+        unusedAreaBorderColor: Int? = null,
         @IntRange(from = 1, to = 100)
         croppedJpegQuality: Int = 95
     ): Intent {
@@ -173,20 +185,86 @@ public class CameraIntent {
         }
     }
 
+    // 한 장 촬영.
+    public fun navigateToTakePicture(
+        activityContext: Context,
+        canMute: Boolean? = null,
+        hasHorizon: Boolean? = null,
+        canUiRotation: Boolean? = null,
+        horizonColor: Int? = null
+    ): Intent {
+        return Intent(activityContext, ShootActivity::class.java).also { intent ->
+            intent.action = IntentKey.ACTION_TAKE_PICTURE
+            canMute?.let {
+                intent.putExtra(IntentKey.EXTRA_CAN_MUTE, it)
+            }
+            hasHorizon?.let {
+                intent.putExtra(IntentKey.EXTRA_HAS_HORIZON, hasHorizon)
+            }
+            canUiRotation?.let {
+                intent.putExtra(IntentKey.EXTRA_CAN_UI_ROTATION, it)
+            }
+            horizonColor?.let {
+                intent.putExtra(IntentKey.EXTRA_HORIZON_COLOR, it)
+            }
+        }
+    }
+
+    // 여러 장 촬영.
+    public fun navigateToTakeMultiplePictures(
+        activityContext: Context,
+        canMute: Boolean? = null,
+        hasHorizon: Boolean? = null,
+        canUiRotation: Boolean? = null,
+        horizonColor: Int? = null
+    ): Intent {
+        return Intent(activityContext, ShootActivity::class.java).also { intent ->
+            intent.action = IntentKey.ACTION_TAKE_MULTIPLE_PICTURES
+            canMute?.let {
+                intent.putExtra(IntentKey.EXTRA_CAN_MUTE, it)
+            }
+            hasHorizon?.let {
+                intent.putExtra(IntentKey.EXTRA_HAS_HORIZON, hasHorizon)
+            }
+            canUiRotation?.let {
+                intent.putExtra(IntentKey.EXTRA_CAN_UI_ROTATION, it)
+            }
+            horizonColor?.let {
+                intent.putExtra(IntentKey.EXTRA_HORIZON_COLOR, it)
+            }
+        }
+    }
+
     // Builder.
     public class Build(private val activityContext: Context) {
         private var action: String? = null
         private var canMute: Boolean? = null
         private var hasHorizon: Boolean? = null
+        @Deprecated(
+            message = "다양한 단말에서의 테스트 필요 이슈로 Crop 기능 Deprecated.",
+            level = DeprecationLevel.WARNING
+        )
         private var isSaveCroppedImage: Boolean? = null
+        @Deprecated(
+            message = "다양한 단말에서의 테스트 필요 이슈로 Crop 기능 Deprecated.",
+            level = DeprecationLevel.WARNING
+        )
         private var cropPercent: Array<Float>? = null
+        @Deprecated(
+            message = "다양한 단말에서의 테스트 필요 이슈로 Crop 기능 Deprecated.",
+            level = DeprecationLevel.WARNING
+        )
         private var cropSize: CropSize? = null
         private var canUiRotation: Boolean? = null
         private var horizonColor: Int? = null
+        @Deprecated(
+            message = "다양한 단말에서의 테스트 필요 이슈로 Crop 기능 Deprecated.",
+            level = DeprecationLevel.WARNING
+        )
         private var unusedAreaBorderColor: Int? = null
 
         @Deprecated(
-            message = "다양한 단말에서의 테스트 필요 이슈로 Deprecated.",
+            message = "다양한 단말에서의 테스트 필요 이슈로 Crop 기능 Deprecated.",
             level = DeprecationLevel.WARNING
         )
         @IntRange(from = 1, to = 100)
@@ -207,8 +285,9 @@ public class CameraIntent {
             return this
         }
 
+        @Suppress("DEPRECATION")
         @Deprecated(
-            message = "다양한 단말에서의 테스트 필요 이슈로 Deprecated.",
+            message = "다양한 단말에서의 테스트 필요 이슈로 Crop 기능 Deprecated.",
             level = DeprecationLevel.WARNING
         )
         public fun setSaveCropedImage(isSaveCroppedImage: Boolean?): Build {
@@ -216,6 +295,7 @@ public class CameraIntent {
             return this
         }
 
+        @Suppress("DEPRECATION")
         @Deprecated(
             message = "agrs의 직관성을 위하여 Deprecated." +
                     "따라서 setCropPercent(CropSize) 사용하세요.",
@@ -226,8 +306,9 @@ public class CameraIntent {
             return this
         }
 
+        @Suppress("DEPRECATION")
         @Deprecated(
-            message = "다양한 단말에서의 테스트 필요 이슈로 Deprecated.",
+            message = "다양한 단말에서의 테스트 필요 이슈로 Crop 기능 Deprecated.",
             level = DeprecationLevel.WARNING
         )
         public fun setCropSize(cropSize: CropSize): Build {
@@ -235,8 +316,9 @@ public class CameraIntent {
             return this
         }
 
+        @Suppress("DEPRECATION")
         @Deprecated(
-            message = "다양한 단말에서의 테스트 필요 이슈로 Deprecated.",
+            message = "다양한 단말에서의 테스트 필요 이슈로 Crop 기능 Deprecated.",
             level = DeprecationLevel.WARNING
         )
         public fun setCropSize(
@@ -257,13 +339,18 @@ public class CameraIntent {
             return this
         }
 
+        @Suppress("DEPRECATION")
+        @Deprecated(
+            message = "다양한 단말에서의 테스트 필요 이슈로 Crop 기능 Deprecated.",
+            level = DeprecationLevel.WARNING
+        )
         public fun setUnusedAreaBorderColor(unusedAreaBorderColor: Int?): Build {
             this.unusedAreaBorderColor = unusedAreaBorderColor
             return this
         }
 
         @Deprecated(
-            message = "다양한 단말에서의 테스트 필요 이슈로 Deprecated.",
+            message = "다양한 단말에서의 테스트 필요 이슈로 Crop 기능 Deprecated.",
             level = DeprecationLevel.WARNING
         )
         public fun setCroppedJpegQuality(
@@ -278,7 +365,7 @@ public class CameraIntent {
         }
 
         /*
-         * 다양한 단말에서의 테스트 필요 이슈로 Crop 기능 비활성.
+         * 다양한 단말에서의 테스트 필요 이슈로 Crop 기능 Deprecated.
          */
         public fun build(): Intent {
             return Intent(activityContext, ShootActivity::class.java).also { cameraIntent ->

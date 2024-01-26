@@ -4,18 +4,15 @@ import android.app.Application
 import android.graphics.RectF
 import android.net.Uri
 import android.util.Size
-import androidx.annotation.IntRange
 import androidx.camera.core.ImageCapture
 import androidx.core.net.toUri
-import androidx.exifinterface.media.ExifInterface
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import kr.co.kadb.cameralibrary.PreferenceManager
 import kr.co.kadb.cameralibrary.presentation.base.UiState
-import kr.co.kadb.cameralibrary.presentation.model.CropSize
 import kr.co.kadb.cameralibrary.presentation.ui.shoot.ShootEvent.*
-import kr.co.kadb.cameralibrary.presentation.viewmodel.BaseAndroidViewModel
+import kr.co.kadb.cameralibrary.presentation.viewmodel.BaseViewModel
 import kr.co.kadb.cameralibrary.presentation.widget.extension.*
 import kr.co.kadb.cameralibrary.presentation.widget.util.DebugLog
 import kr.co.kadb.cameralibrary.presentation.widget.util.IntentKey.ACTION_DETECT_MAINTENANCE_STATEMENT_IN_PICTURES
@@ -23,7 +20,6 @@ import kr.co.kadb.cameralibrary.presentation.widget.util.IntentKey.ACTION_DETECT
 import kr.co.kadb.cameralibrary.presentation.widget.util.IntentKey.ACTION_DETECT_VEHICLE_NUMBER_IN_PICTURES
 import kr.co.kadb.cameralibrary.presentation.widget.util.IntentKey.ACTION_DETECT_VIN_NUMBER_IN_PICTURES
 import kr.co.kadb.cameralibrary.presentation.widget.util.IntentKey.ACTION_TAKE_MULTIPLE_PICTURES
-import java.io.*
 import java.nio.ByteBuffer
 import kotlin.math.max
 
@@ -31,25 +27,25 @@ import kotlin.math.max
  * Created by oooobang on 2022. 7. 11..
  * ViewModel.
  */
-internal class ShootSharedViewModel
-constructor(
-    application: Application,
+internal class ShootSharedViewModel(
+    private val application: Application,
+    //private val saveImageUseCase: SaveImageUseCase,
     private val preferences: PreferenceManager
-) : BaseAndroidViewModel<ShootUiState>(application, UiState.loading()) {
+) : BaseViewModel<ShootUiState>(UiState.loading()) {
 
     // Event.
     private val _eventFlow = MutableSharedFlow<ShootEvent>()
     val eventFlow = _eventFlow.asSharedFlow()
 
     // Item.
-    val item: StateFlow<ShootUiState> = state
+    val item: StateFlow<ShootUiState> = uiState
         .map {
             it.getOrDefault(ShootUiState.Uninitialized)
         }
         .stateIn(viewModelScope, SharingStarted.Eagerly, ShootUiState.Uninitialized)
 
     @Suppress("unused")
-    val isEmpty: StateFlow<Boolean> = state.filter { !it.isLoading }
+    val isEmpty: StateFlow<Boolean> = uiState.filter { !it.isLoading }
         .map {
             it.value?.action.isNullOrEmpty()
         }
@@ -87,12 +83,7 @@ constructor(
         canMute: Boolean = false,
         hasHorizon: Boolean = false,
         canUiRotation: Boolean = false,
-        isSaveCroppedImage: Boolean = false,
-        cropSize: CropSize?,
-        horizonColor: Int,
-        unusedAreaBorderColor: Int,
-        @IntRange(from = 1, to = 100)
-        croppedJpegQuality: Int
+        horizonColor: Int
     ) {
         val isUsingMLKit = action == ACTION_DETECT_VEHICLE_NUMBER_IN_PICTURES
                 || action == ACTION_DETECT_MILEAGE_IN_PICTURES
@@ -104,19 +95,9 @@ constructor(
         val isVehicleNumberPicture = action == ACTION_DETECT_VEHICLE_NUMBER_IN_PICTURES
         val isMaintenanceStatementPicture =
             action == ACTION_DETECT_MAINTENANCE_STATEMENT_IN_PICTURES
-        val canSaveCroppedImage = if (isUsingMLKit) {
-            false
-        } else {
-            isSaveCroppedImage && cropSize?.isNotEmpty == true
-        }
-        val imageCropSize: CropSize = if (isUsingMLKit) {
-            CropSize.Uninitialized
-        } else {
-            cropSize ?: CropSize.Uninitialized
-        }
 
         // Update.
-        state.value.value?.copy(
+        uiState.value.value?.copy(
             action = action,
             isDebug = isDebug,
             isShooted = false,
@@ -129,14 +110,10 @@ constructor(
             canMute = canMute,
             hasHorizon = hasHorizon,
             canUiRotation = canUiRotation,
-            isSaveCroppedImage = canSaveCroppedImage,
-            cropSize = imageCropSize,
             uris = arrayListOf(),
             sizes = arrayListOf(),
             rotations = arrayListOf(),
-            horizonColor = horizonColor,
-            unusedAreaBorderColor = unusedAreaBorderColor,
-            croppedJpegQuality = croppedJpegQuality
+            horizonColor = horizonColor
         ) ?: ShootUiState(
             action = action,
             isDebug = isDebug,
@@ -150,47 +127,15 @@ constructor(
             canMute = canMute,
             hasHorizon = hasHorizon,
             canUiRotation = canUiRotation,
-            isSaveCroppedImage = canSaveCroppedImage,
-            cropSize = imageCropSize,
             uris = arrayListOf(),
             sizes = arrayListOf(),
             rotations = arrayListOf(),
-            horizonColor = horizonColor,
-            unusedAreaBorderColor = unusedAreaBorderColor,
-            croppedJpegQuality = croppedJpegQuality
+            horizonColor = horizonColor
         ).run {
             // Debug.
             DebugLog.d { "ShootUiState : ${this.toJsonPretty()}" }
             // Update.
             updateState(isLoading = false, value = this)
-        }
-    }
-//
-//    // Horizon, UnusedAreaBorder 색상.
-//    fun horizonAndUnusedAreaBorderColor(): Pair<Int, Int> {
-//        return Pair(item.value.horizonColor, item.value.unusedAreaBorderColor)
-//    }
-
-    // 사용하지 않는 영역 크기.
-    fun unusedAreaSize(rotation: Int, width: Int, height: Int): Pair<Float, Float> {
-        return if (item.value.cropSize.isNotEmpty) {
-            when (rotation) {
-                0, 2 -> {
-                    Pair(
-                        (width.toFloat() * (1.0f - item.value.cropSize.width) * 0.5f),
-                        (height.toFloat() * (1.0f - item.value.cropSize.height) * 0.5f)
-                    )
-                }
-
-                else -> {
-                    Pair(
-                        (width.toFloat() * (1.0f - item.value.cropSize.height) * 0.5f),
-                        (height.toFloat() * (1.0f - item.value.cropSize.width) * 0.5f)
-                    )
-                }
-            }
-        } else {
-            Pair(0.0f, 0.0f)
         }
     }
 
@@ -242,11 +187,7 @@ constructor(
 
         // 이미지 저장 및 상태 업데이트.
         viewModelScope.launch {
-            imageSave(
-                byteArray,
-                item.value.isSaveCroppedImage,
-                item.value.croppedJpegQuality
-            ) { imagePath, imageUri, imageSize ->
+            imageSave(byteArray) { imagePath, imageUri, imageSize ->
                 // 이미지 사이즈.
                 val size = imageSize?.let {
                     Size(it.width, it.height)
@@ -272,7 +213,7 @@ constructor(
                 // 촬영 완료.
                 if (item.value.isVehicleNumberPicture) {
                     // Thumbnail.
-                    val context = getApplication<Application>().applicationContext
+                    val context = application.applicationContext
                     val thumbnail = imageUri?.toThumbnail(context, size)
                     // 감지 완료 이벤트.
                     event(
@@ -287,7 +228,7 @@ constructor(
                     )
                 } else if (!item.value.isMultiplePicture) {
                     // Thumbnail.
-                    val context = getApplication<Application>().applicationContext
+                    val context = application.applicationContext
                     val thumbnail = imageUri?.toThumbnail(context, size)
                     // 촬영 완료 이벤트.
                     event(TakePicture(imageUri ?: Uri.EMPTY, size, rotation, thumbnail))
@@ -298,50 +239,12 @@ constructor(
 
     // 이미지 저장.
     private fun imageSave(
-        byteArray: ByteArray,
-        isSaveCroppedImage: Boolean,
-        @IntRange(from = 1, to = 100)
-        croppedJpegQuality: Int,
-        action: (path: String?, uri: Uri?, size: Size?) -> Unit
+        byteArray: ByteArray, action: (path: String?, uri: Uri?, size: Size?) -> Unit
     ) {
-        val context = getApplication<Application>().applicationContext
-        if (isSaveCroppedImage) {
-            // Get the original ExifInterface.
-            val inputStream: InputStream = ByteArrayInputStream(byteArray)
-            var exifInterface: ExifInterface? = null
-            try {
-                exifInterface = ExifInterface(inputStream)
-            } catch (ex: IOException) {
-                ex.printStackTrace()
-            } finally {
-                inputStream.close()
-            }
-            // Croped Bitmap.
-            val bitmap = byteArray.toBitmap()
-            val cropBitmap = bitmap?.centerCrop(
-                item.value.cropSize.width,
-                item.value.cropSize.height,
-                exifInterface?.rotationDegrees
-            )
-
-            // Save Bitmap.
-            cropBitmap.saveImage(
-                context, true, exifInterface = exifInterface, jpegQuality = croppedJpegQuality
-            ) { savedPath, originBitmap ->
-                originBitmap?.recycle()
-                action.invoke(
-                    savedPath,
-                    savedPath?.toUri(),
-                    Size(cropBitmap?.width ?: 0, cropBitmap?.height ?: 0)
-                )
-            }
-            bitmap?.recycle()
-            cropBitmap?.recycle()
-        } else {
-            // Save Bitmap.
-            byteArray.saveImage(context, true) { savedPath ->
-                action.invoke(savedPath, savedPath?.toUri(), null)
-            }
+        val context = application.applicationContext
+        // Save Bitmap.
+        byteArray.saveImage(context, true) { savedPath ->
+            action.invoke(savedPath, savedPath?.toUri(), null)
         }
     }
 
