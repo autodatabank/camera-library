@@ -148,10 +148,10 @@ internal class ShootFragment : BaseViewBindingFragment<AdbCameralibraryFragmentS
         mediaActionSound.release()
     }
 
-    override fun onDestroy() {
+    /*override fun onDestroy() {
         super.onDestroy()
         imageProcessor?.run { this.stop() }
-    }
+    }*/
 
     override fun onBackPressed(): Boolean {
         viewModel.stopShooting()
@@ -441,7 +441,7 @@ internal class ShootFragment : BaseViewBindingFragment<AdbCameralibraryFragmentS
 
         // Preview UseCase를 설정합니다.
         preview = Preview.Builder().apply {
-            setTargetAspectRatio(AspectRatio.RATIO_4_3)
+            //setTargetAspectRatio(AspectRatio.RATIO_4_3)
             setTargetRotation(binding.adbCameralibraryPreviewView.display.rotation)
         }.build()
         preview?.setSurfaceProvider(binding.adbCameralibraryPreviewView.surfaceProvider)
@@ -449,7 +449,7 @@ internal class ShootFragment : BaseViewBindingFragment<AdbCameralibraryFragmentS
         // ImageCapture UseCase를 설정합니다.
         imageCapture = ImageCapture.Builder().apply {
             setCaptureMode(ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY)
-            setTargetAspectRatio(AspectRatio.RATIO_4_3)
+            //setTargetAspectRatio(AspectRatio.RATIO_4_3)
             setTargetRotation(binding.adbCameralibraryPreviewView.display.rotation)
             setFlashMode(viewModel.flashMode)
         }.build()
@@ -480,7 +480,7 @@ internal class ShootFragment : BaseViewBindingFragment<AdbCameralibraryFragmentS
             // ImageAnalysis UseCase를 설정합니다.
             imageAnalyzer = ImageAnalysis.Builder().apply {
                 setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
-                setTargetAspectRatio(AspectRatio.RATIO_4_3)
+                //setTargetAspectRatio(AspectRatio.RATIO_4_3)
                 setTargetRotation(binding.adbCameralibraryPreviewView.display.rotation)
             }.build()
             imageAnalyzer?.setAnalyzer(cameraExecutor) { imageProxy: ImageProxy ->

@@ -185,6 +185,10 @@ public class CameraIntent {
         private var horizonColor: Int? = null
         private var unusedAreaBorderColor: Int? = null
 
+        @Deprecated(
+            message = "다양한 단말에서의 테스트 필요 이슈로 Deprecated.",
+            level = DeprecationLevel.WARNING
+        )
         @IntRange(from = 1, to = 100)
         private var croppedJpegQuality: Int = 95
 
@@ -203,6 +207,10 @@ public class CameraIntent {
             return this
         }
 
+        @Deprecated(
+            message = "다양한 단말에서의 테스트 필요 이슈로 Deprecated.",
+            level = DeprecationLevel.WARNING
+        )
         public fun setSaveCropedImage(isSaveCroppedImage: Boolean?): Build {
             this.isSaveCroppedImage = isSaveCroppedImage ?: false
             return this
@@ -218,11 +226,19 @@ public class CameraIntent {
             return this
         }
 
+        @Deprecated(
+            message = "다양한 단말에서의 테스트 필요 이슈로 Deprecated.",
+            level = DeprecationLevel.WARNING
+        )
         public fun setCropSize(cropSize: CropSize): Build {
             this.cropSize = cropSize
             return this
         }
 
+        @Deprecated(
+            message = "다양한 단말에서의 테스트 필요 이슈로 Deprecated.",
+            level = DeprecationLevel.WARNING
+        )
         public fun setCropSize(
             @FloatRange(from = 0.0, to = 1.0) width: Float,
             @FloatRange(from = 0.0, to = 1.0) height: Float
@@ -246,22 +262,31 @@ public class CameraIntent {
             return this
         }
 
+        @Deprecated(
+            message = "다양한 단말에서의 테스트 필요 이슈로 Deprecated.",
+            level = DeprecationLevel.WARNING
+        )
         public fun setCroppedJpegQuality(
             @IntRange(
                 from = 1,
                 to = 100
             ) croppedJpegQuality: Int = 95
         ): Build {
+            @Suppress("DEPRECATION")
             this.croppedJpegQuality = croppedJpegQuality
             return this
         }
 
+        /*
+         * 다양한 단말에서의 테스트 필요 이슈로 Crop 기능 비활성.
+         */
         public fun build(): Intent {
             return Intent(activityContext, ShootActivity::class.java).also { cameraIntent ->
                 cameraIntent.action = action
+                cameraIntent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY)
                 cameraIntent.putExtra(IntentKey.EXTRA_CAN_MUTE, canMute)
                 cameraIntent.putExtra(IntentKey.EXTRA_HAS_HORIZON, hasHorizon)
-                if (cropPercent == null || (cropPercent?.size ?: 0) < 2) {
+                /*if (cropPercent == null || (cropPercent?.size ?: 0) < 2) {
                     cameraIntent.putExtra(IntentKey.EXTRA_CROP_SIZE, cropSize)
                 } else {
                     cameraIntent.putExtra(
@@ -271,12 +296,12 @@ public class CameraIntent {
                             cropPercent?.get(1) ?: 0.0f
                         )
                     )
-                }
+                }*/
                 cameraIntent.putExtra(IntentKey.EXTRA_CAN_UI_ROTATION, canUiRotation)
-                cameraIntent.putExtra(IntentKey.EXTRA_IS_SAVE_CROPPED_IMAGE, isSaveCroppedImage)
+                /*cameraIntent.putExtra(IntentKey.EXTRA_IS_SAVE_CROPPED_IMAGE, isSaveCroppedImage)*/
                 cameraIntent.putExtra(IntentKey.EXTRA_HORIZON_COLOR, horizonColor)
-                cameraIntent.putExtra(IntentKey.EXTRA_CROP_BORDER_COLOR, unusedAreaBorderColor)
-                cameraIntent.putExtra(IntentKey.EXTRA_CROPPED_JPEG_QUALITY, croppedJpegQuality)
+                /*cameraIntent.putExtra(IntentKey.EXTRA_CROP_BORDER_COLOR, unusedAreaBorderColor)
+                cameraIntent.putExtra(IntentKey.EXTRA_CROPPED_JPEG_QUALITY, croppedJpegQuality)*/
             }
         }
     }
