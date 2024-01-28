@@ -21,7 +21,6 @@ import kr.co.kadb.cameralibrary.presentation.widget.util.IntentKey.ACTION_DETECT
 import kr.co.kadb.cameralibrary.presentation.widget.util.IntentKey.ACTION_DETECT_VIN_NUMBER_IN_PICTURES
 import kr.co.kadb.cameralibrary.presentation.widget.util.IntentKey.ACTION_TAKE_MULTIPLE_PICTURES
 import java.nio.ByteBuffer
-import kotlin.math.max
 
 /**
  * Created by oooobang on 2022. 7. 11..
@@ -248,7 +247,7 @@ internal class ShootSharedViewModel(
         }
     }
 
-    // ImageSize에 맞게 조정 된 Detect Rect 반환.
+    /*// ImageSize에 맞게 조정 된 Detect Rect 반환.
     fun scaleRect(detectRect: RectF, analysisImageSize: Size, imageSize: Size): RectF {
         val maxImageWidth = max(imageSize.width, imageSize.height).toFloat()
         val maxAnalysisImageWidth = max(analysisImageSize.width, analysisImageSize.height).toFloat()
@@ -273,5 +272,5 @@ internal class ShootSharedViewModel(
             scaleRect.bottom
         }
         return RectF(left, top, right, bottom)
-    }
+    }*/
 }

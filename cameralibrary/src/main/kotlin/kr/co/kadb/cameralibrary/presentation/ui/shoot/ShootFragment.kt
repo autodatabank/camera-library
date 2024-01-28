@@ -24,7 +24,6 @@ import com.google.mlkit.vision.text.korean.KoreanTextRecognizerOptions
 import kr.co.kadb.cameralibrary.R
 import kr.co.kadb.cameralibrary.databinding.AdbCameralibraryFragmentShootBinding
 import kr.co.kadb.cameralibrary.presentation.base.BaseViewBindingFragment
-import kr.co.kadb.cameralibrary.presentation.ui.CameraServiceLocator
 import kr.co.kadb.cameralibrary.presentation.ui.shoot.ShootEvent.*
 import kr.co.kadb.cameralibrary.presentation.widget.extension.repeatOnStarted
 import kr.co.kadb.cameralibrary.presentation.widget.mlkit.*
@@ -310,7 +309,6 @@ internal class ShootFragment : BaseViewBindingFragment<AdbCameralibraryFragmentS
 
     // Init layout.
     private fun initLayoutAfterRotation() {
-        // 크롭크기로 영역 지정.
         binding.adbCameralibraryPreviewView.post {
             // 여러장 촬영 상태에서만 촬영완료 버튼 활성화.
             val isMultiplePicture = viewModel.item.value.isMultiplePicture

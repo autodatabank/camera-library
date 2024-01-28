@@ -14,7 +14,7 @@ internal class ShootSharedViewModelFactory(
             @Suppress("UNCHECKED_CAST")
             ShootSharedViewModel(
                 context.applicationContext as Application,
-                PreferenceManager.getInstance(context)
+                PreferenceManager.getInstance(context.applicationContext)
             ) as T
         } else {
             throw IllegalArgumentException()
