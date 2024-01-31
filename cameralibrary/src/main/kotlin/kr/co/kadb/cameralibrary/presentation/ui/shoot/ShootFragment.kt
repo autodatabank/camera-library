@@ -7,10 +7,13 @@ import android.graphics.RectF
 import android.media.AudioManager
 import android.media.MediaActionSound
 import android.os.Bundle
+import android.util.Size
 import android.view.*
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.camera.core.*
+import androidx.camera.core.resolutionselector.ResolutionSelector
+import androidx.camera.core.resolutionselector.ResolutionStrategy
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
@@ -408,20 +411,28 @@ internal class ShootFragment : BaseViewBindingFragment<AdbCameralibraryFragmentS
         // 기존에 바인드된 use-cases를 해제합니다.
         cameraProvider?.unbindAll()
 
+        val screenSize = Size(1280, 720)//if (rotation == 0) Size(720, 1280) else Size(1280, 720)
+        val resolutionSelector = ResolutionSelector.Builder()
+            .setResolutionStrategy(
+                ResolutionStrategy(screenSize, ResolutionStrategy.FALLBACK_RULE_NONE)
+            ).build()
+
         // Preview UseCase를 설정합니다.
-        preview = Preview.Builder().apply {
-            //setTargetAspectRatio(AspectRatio.RATIO_4_3)
-            setTargetRotation(binding.adbCameralibraryPreviewView.display.rotation)
-        }.build()
+        preview = Preview.Builder()
+            //.setTargetAspectRatio(AspectRatio.RATIO_4_3)
+            .setResolutionSelector(resolutionSelector)
+            .setTargetRotation(binding.adbCameralibraryPreviewView.display.rotation)
+            .build()
         preview?.setSurfaceProvider(binding.adbCameralibraryPreviewView.surfaceProvider)
 
         // ImageCapture UseCase를 설정합니다.
-        imageCapture = ImageCapture.Builder().apply {
-            setCaptureMode(ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY)
-            //setTargetAspectRatio(AspectRatio.RATIO_4_3)
-            setTargetRotation(binding.adbCameralibraryPreviewView.display.rotation)
-            setFlashMode(viewModel.flashMode)
-        }.build()
+        imageCapture = ImageCapture.Builder()
+            //.setTargetAspectRatio(AspectRatio.RATIO_4_3)
+            .setResolutionSelector(resolutionSelector)
+            .setCaptureMode(ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY)
+            .setTargetRotation(binding.adbCameralibraryPreviewView.display.rotation)
+            .setFlashMode(viewModel.flashMode)
+            .build()
 
         // 프로세서를 초기화합니다.
         imageProcessor = when (viewModel.item.value.action) {
@@ -447,11 +458,12 @@ internal class ShootFragment : BaseViewBindingFragment<AdbCameralibraryFragmentS
             needUpdateGraphicOverlayImageSourceInfo = true
 
             // ImageAnalysis UseCase를 설정합니다.
-            imageAnalyzer = ImageAnalysis.Builder().apply {
-                setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
-                //setTargetAspectRatio(AspectRatio.RATIO_4_3)
-                setTargetRotation(binding.adbCameralibraryPreviewView.display.rotation)
-            }.build()
+            imageAnalyzer = ImageAnalysis.Builder()
+                //.setTargetAspectRatio(AspectRatio.RATIO_4_3)
+                .setResolutionSelector(resolutionSelector)
+                .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
+                .setTargetRotation(binding.adbCameralibraryPreviewView.display.rotation)
+                .build()
             imageAnalyzer?.setAnalyzer(cameraExecutor) { imageProxy: ImageProxy ->
                 updateOverlayImageSourceInfoIfNeeded(imageProxy)
                 processImageProxySafely(imageProxy)
@@ -475,7 +487,6 @@ internal class ShootFragment : BaseViewBindingFragment<AdbCameralibraryFragmentS
             )
         }
     }
-
 
     // Overlay의 이미지 소스 정보를 업데이트합니다.
     private var needUpdateGraphicOverlayImageSourceInfo = true
@@ -505,7 +516,9 @@ internal class ShootFragment : BaseViewBindingFragment<AdbCameralibraryFragmentS
 
     // Processor 옵션을 생성합니다.
     private fun createKoreanTextRecognizerOptions(): KoreanTextRecognizerOptions {
-        return KoreanTextRecognizerOptions.Builder().build()
+        return KoreanTextRecognizerOptions
+            .Builder()
+            .build()
     }
 
     // 처리 완료 후 액션을 처리합니다.
