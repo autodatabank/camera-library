@@ -370,7 +370,6 @@ public class CameraIntent {
         public fun build(): Intent {
             return Intent(activityContext, ShootActivity::class.java).also { cameraIntent ->
                 cameraIntent.action = action
-                cameraIntent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY)
                 cameraIntent.putExtra(IntentKey.EXTRA_CAN_MUTE, canMute)
                 cameraIntent.putExtra(IntentKey.EXTRA_HAS_HORIZON, hasHorizon)
                 /*if (cropPercent == null || (cropPercent?.size ?: 0) < 2) {

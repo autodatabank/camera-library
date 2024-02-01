@@ -128,10 +128,6 @@ internal class VehicleNumberRecognitionProcessor(
 
             // Grouping & Result.
             detectedItems.groupingBy { it.text }.eachCount().also { map ->
-                /*val max = map.maxBy { it.value }
-                if (max.value > 10) {
-                    onSuccess?.invoke(drawMileage.toString(), drawRectf)
-                }*/
                 val sortedItems = map.toList().sortedByDescending { (_, value) -> value }
                 if (/*sortedItems.size == 1 && */sortedItems[0].second > 5) {
                     drawItems.find { it.text == sortedItems[0].first }?.also {
@@ -201,9 +197,6 @@ internal class VehicleNumberRecognitionProcessor(
         }
         matchRect = Rect(left, top, right, bottom)
         drawItems.add(DetectedItem(matchResult.value, RectF(matchRect)))
-
-        // Debug.
-        //DebugLog.i { "${matchResult.value}" }
 
         return drawItems
     }

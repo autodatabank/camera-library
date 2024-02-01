@@ -220,6 +220,7 @@ internal abstract class VisionProcessorBase<T, R>(
         }*/
         // 대체.
         val bitmap: Bitmap? = BitmapUtils.getBitmap(image)
+        //val bitmap: Bitmap? = BitmapUtils.convertImageProxyToBlackAndWhite(image)
 
 
         // ML Image 사용하지 않음.

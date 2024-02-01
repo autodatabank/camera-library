@@ -30,7 +30,7 @@ internal class VinNumberRecognitionProcessor(
 ) : VisionProcessorBase<Text, String>(context) {
     // 차대번호 정규식(A~Z, 0~9 혼합 11자리 + 0~9 6자리(생산번호)).
     // Regex("[a-zA-Z0-9]{11}[a-zA-Z0-9]{1}[0-9]{5}")
-    // 주의수입차는 생산번호 첫자이에 영문인 경우가 있음.
+    // 주의수입차는 생산번호 첫자리에 영문인 경우가 있음.
     private val regex = """([a-zA-Z0-9]{12})([bBgGiIoOqsSzZ0-9]{5})""".toRegex()
     private val conversionData = mapOf(
         'b' to '6',
@@ -74,20 +74,23 @@ internal class VinNumberRecognitionProcessor(
         val drawItems = mutableListOf<DetectedItem>()
         // 정규화.
         results.textBlocks.forEach { textBlock ->
-            // Debug.
-            //DebugLog.i { "${textBlock.text}" }
             textBlock.lines.forEach { line ->
-                // Debug.
-                //DebugLog.i { "${line.text}" }
+                if (line.confidence >= 0.5f) {
+                    // Find & Add
+                    regex.find(line.text)?.let { matchResult ->
+                        var (groupNumber, serial) = matchResult.destructured
+                        conversionData.forEach {
+                            serial = serial.replace(it.key, it.value)
+                        }
+                        drawItems.add(DetectedItem(groupNumber + serial, RectF(line.boundingBox)))
 
-                // Find & Add
-                regex.find(line.text)?.let { matchResult ->
-                    var (groupNumber, serial) = matchResult.destructured
-                    conversionData.forEach {
-                        serial = serial.replace(it.key, it.value)
+                        // Debug.
+                        //DebugLog.i { ">>>>> find: ${matchResult.value}, ${line.confidence}" }
                     }
-                    drawItems.add(DetectedItem(groupNumber + serial, RectF(line.boundingBox)))
                 }
+
+                // Debug.
+                //DebugLog.i { ">>>>> ${line.text}, ${line.confidence}" }
             }
         }
 
@@ -97,38 +100,21 @@ internal class VinNumberRecognitionProcessor(
             detectedItems.addAll(drawItems)
             // Draw.
             graphicOverlay.add(BorderingGraphic(graphicOverlay, drawItems))
-
             // Grouping & Result.
             detectedItems.groupingBy { it.text }.eachCount().also { map ->
-                /*val max = map.maxBy { it.value }
-                if (max.value > 10) {
-                    onSuccess?.invoke(drawMileage.toString(), drawRectf)
-                }*/
                 val sortedItems = map.toList().sortedByDescending { (_, value) -> value }
-                if (sortedItems.size == 1 && sortedItems[0].second > 5) {
-                    drawItems.find { it.text == sortedItems[0].first }?.also {
-                        onSuccess?.invoke(it.text, it.rect)
-                    }
-                    // Debug.
-                    //DebugLog.i { "${sortedItems[0]}" }
-                } else if (sortedItems.size > 1 &&
-                    sortedItems[0].second > 5 &&
-                    (sortedItems[0].second * 0.75f) > sortedItems[1].second
-                ) {
-                    drawItems.find { it.text == sortedItems[0].first }?.also {
+                if (sortedItems[0].second >= 5) {
+                    detectedItems.find { it.text == sortedItems[0].first }?.also {
                         onSuccess?.invoke(it.text, it.rect)
                     }
                 }
-
-                // Debug.
-                //DebugLog.i { "$sortedItems" }
             }
         }
     }
 
     override fun onFailure(ex: Exception) {
         // Debug.
-        DebugLog.w { "onFailure : $ex" }
+        DebugLog.w { ">>>>> onFailure : $ex" }
     }
 
     override fun onComplete(

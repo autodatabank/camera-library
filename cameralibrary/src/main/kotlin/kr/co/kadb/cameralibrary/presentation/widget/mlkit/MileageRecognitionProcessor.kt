@@ -59,16 +59,12 @@ internal class MileageRecognitionProcessor(
         var drawRectf = RectF()
         // 정규화.
         results.textBlocks.forEach { textBlock ->
-            // Debug.
-            //DebugLog.i { "${textBlock.text}" }
             textBlock.lines.forEach { line ->
-                // Debug.
-                //DebugLog.i { "${line.text}" }
                 line.elements.forEach { element ->
                     // Find & Add(가장 큰 값 취합).
                     val matchResult = regex.find(element.text)
                     val mileage = matchResult?.value?.removeCurrency()?.toIntOrNull() ?: 0
-                    if (/*element.confidence >= 0.7f && */mileage > 1000 && mileage > drawMileage) {
+                    if (mileage > 1000 && mileage > drawMileage) {
                         drawMileage = mileage
                         drawRectf = RectF(element.boundingBox)
                     }
@@ -85,32 +81,21 @@ internal class MileageRecognitionProcessor(
                 // Draw.
                 graphicOverlay.add(BorderingGraphic(graphicOverlay, listOf(it)))
             }
-
             // Grouping & Result.
             detectedItems.groupingBy { it.text }.eachCount().also { map ->
-                /*val max = map.maxBy { it.value }
-                if (max.value > 10) {
-                    onSuccess?.invoke(drawMileage.toString(), drawRectf)
-                }*/
                 val sortedItems = map.toList().sortedByDescending { (_, value) -> value }
-                if (sortedItems.size == 1 && sortedItems[0].second > 5) {
-                    onSuccess?.invoke(drawMileage.toString(), drawRectf)
-                } else if (sortedItems.size > 1 &&
-                    sortedItems[0].second > 5 &&
-                    (sortedItems[0].second * 0.5f) > sortedItems[1].second
-                ) {
-                    onSuccess?.invoke(drawMileage.toString(), drawRectf)
+                if (sortedItems[0].second >= 3) {
+                    detectedItems.find { it.text == sortedItems[0].first }?.also {
+                        onSuccess?.invoke(it.text, it.rect)
+                    }
                 }
             }
-
-            // Debug.
-            //DebugLog.i { "$drawMileage : $drawRectf" }
         }
     }
 
     override fun onFailure(ex: Exception) {
         // Debug.
-        DebugLog.w { "onFailure : $ex" }
+        DebugLog.w { ">>>>> onFailure : $ex" }
         onFailure?.invoke(ex)
     }
 

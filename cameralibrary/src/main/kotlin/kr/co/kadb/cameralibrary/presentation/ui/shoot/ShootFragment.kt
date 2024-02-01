@@ -155,6 +155,8 @@ internal class ShootFragment : BaseViewBindingFragment<AdbCameralibraryFragmentS
 
         // Disable orientation listener.
         orientationEventListener.disable()
+        // finish.
+        activity?.finish()
     }
 
     override fun onDestroyView() {
@@ -262,6 +264,7 @@ internal class ShootFragment : BaseViewBindingFragment<AdbCameralibraryFragmentS
                     }.run {
                         requireActivity().setResult(Activity.RESULT_OK, this)
                         activity?.finish()
+                        event.thumbnailBitmap?.recycle()
                     }
                 }
             }
@@ -411,16 +414,22 @@ internal class ShootFragment : BaseViewBindingFragment<AdbCameralibraryFragmentS
         // 기존에 바인드된 use-cases를 해제합니다.
         cameraProvider?.unbindAll()
 
-        val screenSize = Size(1280, 720)//if (rotation == 0) Size(720, 1280) else Size(1280, 720)
-        val resolutionSelector = ResolutionSelector.Builder()
+        val imageAnalysisSize = Size(1024, 768)
+        //val imageAnalysisSize = Size(800, 600)
+        //val imageAnalysisSize = Size(1024, 768)
+        //val imageAnalysisSize = Size(1280, 720)
+        val imageAnalysisResolutionSelector = ResolutionSelector.Builder()
             .setResolutionStrategy(
-                ResolutionStrategy(screenSize, ResolutionStrategy.FALLBACK_RULE_NONE)
+                ResolutionStrategy(
+                    imageAnalysisSize,
+                    ResolutionStrategy.FALLBACK_RULE_CLOSEST_LOWER
+                )
             ).build()
 
         // Preview UseCase를 설정합니다.
         preview = Preview.Builder()
             //.setTargetAspectRatio(AspectRatio.RATIO_4_3)
-            .setResolutionSelector(resolutionSelector)
+            //.setResolutionSelector(resolutionSelector)
             .setTargetRotation(binding.adbCameralibraryPreviewView.display.rotation)
             .build()
         preview?.setSurfaceProvider(binding.adbCameralibraryPreviewView.surfaceProvider)
@@ -428,7 +437,7 @@ internal class ShootFragment : BaseViewBindingFragment<AdbCameralibraryFragmentS
         // ImageCapture UseCase를 설정합니다.
         imageCapture = ImageCapture.Builder()
             //.setTargetAspectRatio(AspectRatio.RATIO_4_3)
-            .setResolutionSelector(resolutionSelector)
+//            .setResolutionSelector(resolutionSelector)
             .setCaptureMode(ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY)
             .setTargetRotation(binding.adbCameralibraryPreviewView.display.rotation)
             .setFlashMode(viewModel.flashMode)
@@ -460,7 +469,7 @@ internal class ShootFragment : BaseViewBindingFragment<AdbCameralibraryFragmentS
             // ImageAnalysis UseCase를 설정합니다.
             imageAnalyzer = ImageAnalysis.Builder()
                 //.setTargetAspectRatio(AspectRatio.RATIO_4_3)
-                .setResolutionSelector(resolutionSelector)
+                .setResolutionSelector(imageAnalysisResolutionSelector)
                 .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
                 .setTargetRotation(binding.adbCameralibraryPreviewView.display.rotation)
                 .build()
@@ -569,9 +578,6 @@ internal class ShootFragment : BaseViewBindingFragment<AdbCameralibraryFragmentS
         imageCapture?.takePicture(cameraExecutor, object : ImageCapture.OnImageCapturedCallback() {
             override fun onCaptureSuccess(image: ImageProxy) {
                 super.onCaptureSuccess(image)
-                // Debug.
-                DebugLog.i { "ImageCapture onCaptureSuccess" }
-
                 // 이미지 저장.
                 try {
                     viewModel.saveImage(

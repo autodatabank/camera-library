@@ -20,7 +20,7 @@ import kr.co.kadb.cameralibrary.presentation.widget.util.DebugLog
  * Created by oooobang on 2018. 2. 28..
  * Base Controller.
  */
-internal open class BaseController constructor(activityContext: Context) {
+internal open class BaseController(activityContext: Context) {
     // Activity.
     internal val activity = activityContext as AppCompatActivity
 

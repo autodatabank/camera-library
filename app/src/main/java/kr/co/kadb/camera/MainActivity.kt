@@ -73,6 +73,9 @@ class MainActivity : AppCompatActivity() {
                     findViewById<ImageView>(R.id.imageview_thumbnail).setImageBitmap(
                         resizeBitmap
                     )
+
+                    // Debug.
+                    Timber.d(">>>>> imageUri : $imageUri")
                 }
 
                 IntentKey.ACTION_TAKE_MULTIPLE_PICTURES -> {
