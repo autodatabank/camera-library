@@ -239,7 +239,7 @@ internal class ShootFragment : BaseViewBindingFragment<AdbCameralibraryFragmentS
                     }.run {
                         requireActivity().setResult(Activity.RESULT_OK, this)
                         activity?.finish()
-                        event.thumbnailBitmap?.recycle()
+                        //event.thumbnailBitmap?.recycle()
                     }
                     // 여러 장 촬영 결과 전달.
                     is TakeMultiplePictures -> Intent().apply {
@@ -264,7 +264,7 @@ internal class ShootFragment : BaseViewBindingFragment<AdbCameralibraryFragmentS
                     }.run {
                         requireActivity().setResult(Activity.RESULT_OK, this)
                         activity?.finish()
-                        event.thumbnailBitmap?.recycle()
+                        //event.thumbnailBitmap?.recycle()
                     }
                 }
             }
