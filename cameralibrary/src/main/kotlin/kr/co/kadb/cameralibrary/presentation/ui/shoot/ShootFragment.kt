@@ -104,7 +104,7 @@ internal class ShootFragment : BaseViewBindingFragment<AdbCameralibraryFragmentS
     private val orientationEventListener by lazy {
         object : OrientationEventListener(requireContext()) {
             override fun onOrientationChanged(orientation: Int) {
-                if (orientation == ORIENTATION_UNKNOWN) {
+                if (!hasBinding || orientation == ORIENTATION_UNKNOWN) {
                     return
                 }
 
@@ -135,8 +135,6 @@ internal class ShootFragment : BaseViewBindingFragment<AdbCameralibraryFragmentS
 
     override fun onStart() {
         super.onStart()
-        // Enable orientation listener.
-        orientationEventListener.enable()
 
         // 권한 확인 후 카메라 및 UI 초기화.
         viewController.requestCameraPermission {
@@ -145,18 +143,21 @@ internal class ShootFragment : BaseViewBindingFragment<AdbCameralibraryFragmentS
         }
     }
 
-    override fun onPause() {
-        super.onPause()
-        imageProcessor?.run { this.stop() }
+    override fun onResume() {
+        super.onResume()
+
+        // Enable orientation listener.
+        orientationEventListener.enable()
     }
 
-    override fun onStop() {
-        super.onStop()
+    override fun onPause() {
+        super.onPause()
 
         // Disable orientation listener.
         orientationEventListener.disable()
-        // finish.
-        activity?.finish()
+
+        //
+        imageProcessor?.run { this.stop() }
     }
 
     override fun onDestroyView() {

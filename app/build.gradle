@@ -19,8 +19,8 @@ android {
         applicationId "kr.co.kadb.camera"
         minSdk 21
         targetSdk 34
-        versionCode 24020101
-        versionName "1.1.16"
+        versionCode 24022101
+        versionName "1.1.20"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 

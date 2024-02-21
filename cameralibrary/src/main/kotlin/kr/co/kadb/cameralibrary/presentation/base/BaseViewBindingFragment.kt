@@ -14,6 +14,8 @@ internal abstract class BaseViewBindingFragment<T : ViewBinding> : BaseFragment(
     // Binding.
     private var _binding: T? = null
     val binding get() = _binding!!
+    val hasBinding: Boolean
+        get() = _binding != null
 
     // ViewBinding.
     abstract fun fragmentBinding(inflater: LayoutInflater, container: ViewGroup?): T
