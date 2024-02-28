@@ -104,7 +104,7 @@ internal class ShootFragment : BaseViewBindingFragment<AdbCameralibraryFragmentS
     private val orientationEventListener by lazy {
         object : OrientationEventListener(requireContext()) {
             override fun onOrientationChanged(orientation: Int) {
-                if (!hasBinding || orientation == ORIENTATION_UNKNOWN) {
+                if (orientation == ORIENTATION_UNKNOWN) {
                     return
                 }
 
@@ -316,7 +316,7 @@ internal class ShootFragment : BaseViewBindingFragment<AdbCameralibraryFragmentS
 
     // Init layout.
     private fun initLayoutAfterRotation() {
-        binding.adbCameralibraryPreviewView.post {
+        bindingSafely?.adbCameralibraryPreviewView?.post {
             // 여러장 촬영 상태에서만 촬영완료 버튼 활성화.
             val isMultiplePicture = viewModel.item.value.isMultiplePicture
             val isMileagePicture = viewModel.item.value.isMileagePicture
@@ -335,9 +335,9 @@ internal class ShootFragment : BaseViewBindingFragment<AdbCameralibraryFragmentS
 
             // 플래쉬, 촬영, 완료 버튼 회전.
             with((targetRotation * 90).toFloat()) {
-                binding.adbCameralibraryLayoutFlash.animate().rotation(this)
-                binding.adbCameralibraryLayoutFinish.animate().rotation(this)
-                binding.adbCameralibraryButtonShooting.animate().rotation(this)
+                bindingSafely?.adbCameralibraryLayoutFlash?.animate()?.rotation(this)
+                bindingSafely?.adbCameralibraryLayoutFinish?.animate()?.rotation(this)
+                bindingSafely?.adbCameralibraryButtonShooting?.animate()?.rotation(this)
             }
 
             // 수평선 회전.
@@ -347,9 +347,9 @@ internal class ShootFragment : BaseViewBindingFragment<AdbCameralibraryFragmentS
                 endToEnd = ConstraintLayout.LayoutParams.PARENT_ID
                 bottomToBottom = ConstraintLayout.LayoutParams.PARENT_ID
             }
-            binding.adbCameralibraryViewHorizon.layoutParams = layoutParams
-            binding.adbCameralibraryViewHorizon.requestLayout()
-            binding.adbCameralibraryViewHorizon.post {
+            bindingSafely?.adbCameralibraryViewHorizon?.layoutParams = layoutParams
+            bindingSafely?.adbCameralibraryViewHorizon?.requestLayout()
+            bindingSafely?.adbCameralibraryViewHorizon?.post {
                 when (targetRotation) {
                     1, 3 -> {
                         portraitConstraint.apply {
@@ -363,8 +363,10 @@ internal class ShootFragment : BaseViewBindingFragment<AdbCameralibraryFragmentS
                                 binding.adbCameralibraryButtonShooting.id, isShootVisibility
                             )
                         }
-                        portraitConstraint.applyTo(binding.root)
-                        TransitionManager.beginDelayedTransition(binding.root, AutoTransition())
+                        portraitConstraint.applyTo(bindingSafely?.root)
+                        bindingSafely?.root?.let {
+                            TransitionManager.beginDelayedTransition(it, AutoTransition())
+                        }
                     }
 
                     else -> {
@@ -379,8 +381,10 @@ internal class ShootFragment : BaseViewBindingFragment<AdbCameralibraryFragmentS
                                 binding.adbCameralibraryButtonShooting.id, isShootVisibility
                             )
                         }
-                        landscapeConstraint.applyTo(binding.root)
-                        TransitionManager.beginDelayedTransition(binding.root, AutoTransition())
+                        landscapeConstraint.applyTo(bindingSafely?.root)
+                        bindingSafely?.root?.let {
+                            TransitionManager.beginDelayedTransition(it, AutoTransition())
+                        }
                     }
                 }
             }
