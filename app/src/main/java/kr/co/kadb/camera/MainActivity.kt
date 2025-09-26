@@ -11,7 +11,8 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.graphics.toRect
 import androidx.exifinterface.media.ExifInterface
 import kr.co.kadb.cameralibrary.presentation.CameraIntent
-import kr.co.kadb.cameralibrary.presentation.widget.extension.*
+import kr.co.kadb.cameralibrary.presentation.widget.extension.exifInterface
+import kr.co.kadb.cameralibrary.presentation.widget.extension.parcelable
 import kr.co.kadb.cameralibrary.presentation.widget.util.*
 import timber.log.Timber
 

@@ -1,0 +1,64 @@
+name: Sync Commit to Notion
+
+on:
+  push:  # 모든 브랜치에서 커밋 발생 시 동작
+
+jobs:
+  sync-commit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0  # 모든 커밋 기록 가져오기
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: npm install @notionhq/client
+
+      - name: Get changed files
+        id: changed-files
+        run: |
+          echo "added<<EOF" >> $GITHUB_OUTPUT
+          git diff-tree --no-commit-id --name-only -r ${{ github.sha }} --diff-filter=A | jq -R -s -c 'split("\n")[:-1] | map(select(. != "")) | map(@json)' >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+          
+          echo "modified<<EOF" >> $GITHUB_OUTPUT
+          git diff-tree --no-commit-id --name-only -r ${{ github.sha }} --diff-filter=M | jq -R -s -c 'split("\n")[:-1] | map(select(. != "")) | map(@json)' >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+          
+          echo "removed<<EOF" >> $GITHUB_OUTPUT
+          git diff-tree --no-commit-id --name-only -r ${{ github.sha }} --diff-filter=D | jq -R -s -c 'split("\n")[:-1] | map(select(. != "")) | map(@json)' >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: Get git tags
+        id: git-tags
+        run: |
+          echo "tags<<EOF" >> $GITHUB_OUTPUT
+          git tag --points-at ${{ github.sha }} | jq -R -s -c 'split("\n")[:-1] | map(select(. != "")) | map(@json)' >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: Run Notion Sync
+        env:
+          NOTION_KEY: ${{ secrets.NOTION_KEY }}
+          NOTION_DATABASE_ID: ${{ secrets.NOTION_DATABASE_ID }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          GITHUB_REF: ${{ github.ref }}
+        run: |
+          COMMIT_MESSAGE=$(echo '${{ github.event.head_commit.message }}' | jq -Rs .)
+          echo "{
+            \"id\": \"${{ github.sha }}\",
+            \"message\": $COMMIT_MESSAGE,
+            \"timestamp\": \"${{ github.event.head_commit.timestamp }}\",
+            \"author\": {
+              \"name\": \"${{ github.event.head_commit.author.name }}\"
+            },
+            \"added\": ${{ steps.changed-files.outputs.added }},
+            \"modified\": ${{ steps.changed-files.outputs.modified }},
+            \"removed\": ${{ steps.changed-files.outputs.removed }},
+            \"tags\": ${{ steps.git-tags.outputs.tags }}
+          }" | jq '.' > commit_data.json
+          node .github/scripts/notion-commit.js "$(cat commit_data.json)"

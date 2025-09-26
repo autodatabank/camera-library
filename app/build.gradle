@@ -13,14 +13,15 @@ android {
         }
     }
 
-    compileSdk 34
+    namespace 'kr.co.kadb.camera'
+    compileSdkVersion 36
 
     defaultConfig {
         applicationId "kr.co.kadb.camera"
         minSdk 21
-        targetSdk 34
-        versionCode 24022101
-        versionName "1.1.20"
+        targetSdk 36
+        versionCode 25092601
+        versionName "1.1.21"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -57,18 +58,11 @@ android {
 }
 
 dependencies {
-    // Test.
-    testImplementation "junit:junit:$junit_version"
-    androidTestImplementation "androidx.test.ext:junit:$test_ext_junit_version"
-    //androidTestImplementation "androidx.test.espresso:espresso-core:$espresso_core_ktx_version"
-
     // Jetpack.
     implementation "androidx.core:core-ktx:$core_ktx_version"
     implementation "androidx.appcompat:appcompat:$appcompat_version"
+    implementation "androidx.exifinterface:exifinterface:$exifinterface_version"
     implementation "androidx.constraintlayout:constraintlayout:$constraintlayout_version"
-
-    // MLKit.
-    implementation 'com.google.mlkit:text-recognition-korean:16.0.0'
 
     // Timber.
     implementation "com.jakewharton.timber:timber:$timber_version"
