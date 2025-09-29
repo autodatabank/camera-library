@@ -5,10 +5,12 @@ import android.graphics.Color
 import android.graphics.RectF
 import android.os.Bundle
 import android.widget.*
+import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.graphics.toRect
+import androidx.core.view.WindowInsetsControllerCompat
 import androidx.exifinterface.media.ExifInterface
 import kr.co.kadb.cameralibrary.presentation.CameraIntent
 import kr.co.kadb.cameralibrary.presentation.widget.extension.exifInterface
@@ -140,6 +142,13 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
+
+        // Android 15 대응 edge-to-edge 적용
+        enableEdgeToEdge()
+//
+//        // 상태바 텍스트 색상 설정 (false → 밝은 배경에 흰색 텍스트)
+//        WindowInsetsControllerCompat(window, window.decorView).isAppearanceLightStatusBars = true
+
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
