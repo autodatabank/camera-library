@@ -128,7 +128,7 @@ afterEvaluate {
                 from components.release
                 groupId = 'com.github.autodatabank'
                 artifactId = 'camera-library'
-                version = '1.1.20'//android.defaultConfig.versionName
+                version = '1.1.22'//android.defaultConfig.versionName
             }
         }
     }
