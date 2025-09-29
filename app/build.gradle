@@ -68,7 +68,7 @@ dependencies {
     implementation "com.jakewharton.timber:timber:$timber_version"
 
     // AutoDataBank CameraLibrary.
-    implementation project(':cameralibrary')
-    //implementation 'com.github.autodatabank:camera-library:1.1.0'
+//    implementation project(':cameralibrary')
+    implementation 'com.github.autodatabank:camera-library:1.1.23'
 }
 
