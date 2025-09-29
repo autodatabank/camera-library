@@ -5,6 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/adb_cameralibrary_black"
+    android:fitsSystemWindows="true"
     android:keepScreenOn="true"
     tools:context=".presentation.ui.shoot.ShootActivity"
     >

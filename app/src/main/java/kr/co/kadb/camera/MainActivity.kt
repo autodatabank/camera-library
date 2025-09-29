@@ -142,12 +142,12 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
-
         // Android 15 대응 edge-to-edge 적용
         enableEdgeToEdge()
-//
-//        // 상태바 텍스트 색상 설정 (false → 밝은 배경에 흰색 텍스트)
-//        WindowInsetsControllerCompat(window, window.decorView).isAppearanceLightStatusBars = true
+        WindowInsetsControllerCompat(window, window.decorView).apply {
+            isAppearanceLightNavigationBars = true
+            isAppearanceLightStatusBars = true
+        }
 
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)

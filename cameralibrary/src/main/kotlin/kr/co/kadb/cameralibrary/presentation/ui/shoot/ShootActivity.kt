@@ -3,8 +3,10 @@ package kr.co.kadb.cameralibrary.presentation.ui.shoot
 import android.os.Build
 import android.os.Bundle
 import android.view.*
+import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.core.content.ContextCompat
+import androidx.core.view.WindowInsetsControllerCompat
 import kr.co.kadb.cameralibrary.R
 import kr.co.kadb.cameralibrary.presentation.base.BaseActivity
 import kr.co.kadb.cameralibrary.presentation.widget.util.IntentKey
@@ -26,6 +28,13 @@ internal class ShootActivity : BaseActivity() {
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        // Android 15 대응 edge-to-edge 적용
+        enableEdgeToEdge()
+        WindowInsetsControllerCompat(window, window.decorView).apply {
+            isAppearanceLightNavigationBars = true
+            isAppearanceLightStatusBars = true
+        }
+
         super.onCreate(savedInstanceState)
         setContentView(R.layout.adb_cameralibrary_activity_shoot)
 
