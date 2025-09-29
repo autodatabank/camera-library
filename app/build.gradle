@@ -21,7 +21,7 @@ android {
         minSdk 21
         targetSdk 36
         versionCode 25092601
-        versionName "1.1.23"
+        versionName "1.1.24"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -69,6 +69,6 @@ dependencies {
 
     // AutoDataBank CameraLibrary.
     implementation project(':cameralibrary')
-    //implementation 'com.github.autodatabank:camera-library:1.1.23'
+    //implementation 'com.github.autodatabank:camera-library:1.1.24'
 }
 
