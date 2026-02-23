@@ -15,8 +15,6 @@
         android:maxSdkVersion="28"
         tools:ignore="ScopedStorage"
         />
-    <!-- 사진 읽기. -->
-    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
     <!-- 카메라. -->
     <uses-feature
         android:name="android.hardware.camera"

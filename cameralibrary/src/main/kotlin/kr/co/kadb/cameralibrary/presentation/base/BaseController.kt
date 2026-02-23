@@ -60,20 +60,15 @@ internal open class BaseController(activityContext: Context) {
         deniedAction: ((Boolean) -> Unit)? = null,
         grantedAction: (() -> Unit)? = null
     ) {
-        val permissions = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            listOf(
-                Manifest.permission.READ_MEDIA_IMAGES
-            )
-        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            listOf(
-                Manifest.permission.READ_EXTERNAL_STORAGE
-            )
-        } else {
-            listOf(
-                Manifest.permission.READ_EXTERNAL_STORAGE,
-                Manifest.permission.WRITE_EXTERNAL_STORAGE
-            )
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            // Android 10(Q) 이상: Scoped Storage로 ContentResolver.insert() 사용 시 권한 불필요.
+            grantedAction?.invoke()
+            return
         }
+        val permissions = listOf(
+            Manifest.permission.READ_EXTERNAL_STORAGE,
+            Manifest.permission.WRITE_EXTERNAL_STORAGE
+        )
         Dexter.withContext(activity)
             .withPermissions(permissions)
             .withListener(object : MultiplePermissionsListener {
@@ -121,8 +116,7 @@ internal open class BaseController(activityContext: Context) {
     ) {
         val permissions = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             listOf(
-                Manifest.permission.CAMERA/*,
-                Manifest.permission.READ_MEDIA_IMAGES*/
+                Manifest.permission.CAMERA
             )
         } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             listOf(

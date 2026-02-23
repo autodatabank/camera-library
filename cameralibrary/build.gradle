@@ -6,7 +6,7 @@ plugins {
 }
 
 group = 'com.github.autodatabank'
-version = '1.1.24'
+version = '1.1.25'
 
 android {
     signingConfigs {
@@ -123,7 +123,7 @@ afterEvaluate {
                 from components.release
                 groupId = 'com.github.autodatabank'
                 artifactId = 'camera-library'
-                version = '1.1.24'//android.defaultConfig.versionName
+                version = '1.1.25'//android.defaultConfig.versionName
             }
         }
     }

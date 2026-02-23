@@ -20,8 +20,8 @@ android {
         applicationId "kr.co.kadb.camera"
         minSdk 21
         targetSdk 36
-        versionCode 25092601
-        versionName "1.1.24"
+        versionCode 26022301
+        versionName "1.1.25"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -69,6 +69,6 @@ dependencies {
 
     // AutoDataBank CameraLibrary.
     implementation project(':cameralibrary')
-    //implementation 'com.github.autodatabank:camera-library:1.1.24'
+    //implementation 'com.github.autodatabank:camera-library:1.1.25'
 }
 
